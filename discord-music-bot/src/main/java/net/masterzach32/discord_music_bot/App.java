@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.apache.commons.io.FileUtils;
+
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
@@ -16,15 +18,15 @@ import sx.blah.discord.util.audio.AudioPlayer;
 
 public class App {
 	
-	// https://discordapp.com/oauth2/authorize?&client_id=180870783487180801&scope=bot
-	public static final long botClientID = 180870783487180801L;
-	public static final String 	loginToken = "MTgwODcwODU1NjgzNzM1NTUy.CpFhHg.czHg7FUQ7DldzFQYcGjNLugCcQg",
-								installDir = "C:\\Users\\Zach Kozar\\workspace\\discord-music-bot\\";
+	public static final String 	installDir = "C:\\Users\\Zach Kozar\\git\\SwagBot\\discord-music-bot\\";
 	public static IDiscordClient client;
 	
-    public static void main(String[] args) throws DiscordException {
-    	client = new ClientBuilder().withToken(loginToken).login();
+    public static void main(String[] args) throws DiscordException, IOException {
+    	String loginToken = null;
+		loginToken = FileUtils.readFileToString(new File("discord.txt"));
+    	client = new ClientBuilder().withToken(loginToken).build();
     	client.getDispatcher().registerListener(new EventHandler());
+    	client.login();
     	
     	// TODO: Preferences
     	

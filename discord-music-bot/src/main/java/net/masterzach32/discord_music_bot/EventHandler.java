@@ -10,12 +10,7 @@ public class EventHandler {
 
 	@EventSubscriber
 	public void onReady(EventHandler event) {
-		System.out.println("Bot logged into " );
-		/*try {
-			App.client.changeUsername("Fuck y'all im a java bot");
-		} catch (RateLimitException | DiscordException e) {
-			e.printStackTrace();
-		}*/
+		System.out.println("SwagBot is ready to play your mixtape");
 	}
 	
 	@EventSubscriber
