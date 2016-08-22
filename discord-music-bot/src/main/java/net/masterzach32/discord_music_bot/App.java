@@ -36,7 +36,14 @@ public class App {
     	// register commands
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-				return "Here is a list all available commands \n" + Command.listAllCommands();
+    			if(params[0].equals(""))
+    				return "Here is a list all available commands \n" + Command.listAllCommands();
+    			else {
+    				for(Command c : Command.commands)
+    					if(c.getIdentifier().equals(params[0]))
+    						return "Info for ~" + params[0] + "\n" + c.getInfo();
+    				return "Could not find command ~" + params[0];
+    			}
     		}
     	});
     	new Command("Shutdown Bot", "shutdown", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down", 2, new CommandEvent() {
@@ -63,17 +70,7 @@ public class App {
     		    return "Shutting Down";
     		}
     	});
-    	new Command("Change Usename", "namechange", "Changes the bot's username.", 1, new CommandEvent() {
-    		public String execute(IMessage message, String[] params) {
-    			try {
-					client.changeUsername(params[0]);
-				} catch (RateLimitException | DiscordException e) {
-					e.printStackTrace();
-				}
-				return "Username changed to " + params[0];
-    		}
-    	});
-    	new Command("Summon", "summon", "Summons the bot to your voice channel", 0, new CommandEvent() {
+    	new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
     		    try {
@@ -85,7 +82,7 @@ public class App {
     		    return "Joined `" + voicechannel.getName() + "`.";
     		}
     	});
-    	new Command("Kick", "kick", "Kicks the bot from the current voice channel", 0, new CommandEvent() {
+    	new Command("Kick", "kick", "Kicks the bot from the current voice channel.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
     		    
@@ -94,32 +91,14 @@ public class App {
     		    return "Left `" + voicechannel.getName() + "`.";
     		}
     	});
-    	new Command("Skip", "skip", "Skips the current song in the playlist", 1, new CommandEvent() {
-    		public String execute(IMessage message, String[] params){
-    			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
-    		    return "Skipped the current song.";
-    		}
-    	});
-    	new Command("Pause", "pause", "Pause the current song", 1, new CommandEvent() {
-    		public String execute(IMessage message, String[] params){
-    			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(true);
-    		    return "Paused the playlist.";
-    		}
-    	});
-    	new Command("Resume", "resume", "Resume playback", 1, new CommandEvent() {
-    		public String execute(IMessage message, String[] params){
-    			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(false);
-    		    return "Resumed the playlist.";
-    		}
-    	});
-    	new Command("Set Volume", "volume", "Sets the volume of the bot", 0, new CommandEvent() {
+    	new Command("Set Volume", "volume", "Sets the volume of the bot.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
     		    float vol = Float.parseFloat(params[0]);
     		    setVolume(vol, message.getGuild());
     		    return "Set volume to " + vol/100;
     		}
     	});
-    	new Command("Play Cached Files", "autoplaylist", "Queue all songs in the cache folder", 1, new CommandEvent() {
+    	new Command("Play Cached Files", "playlist", "Queue all songs in the cache folder.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			int i = 0;
     			if(!prefs.isQueueEnabled())
@@ -138,13 +117,20 @@ public class App {
     		    return "Queued all " + i + " songs in the cache folder.";
     		}
     	});
-    	new Command("Play from File", "playfile", "Adds a song to the queue.", 0, new CommandEvent() {
+    	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [param] <link>\nOptions: -yt (YouTube), -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			boolean s = false;
     			if(!prefs.isQueueEnabled())
     				return "Music queuing is temporarly disabled";
     		    try {
-					s = playAudioFromFile(params[0], message.getGuild());
+					if(params[0].indexOf('-') != 0)
+						s = playAudioFromYouTube(params[0], message.getGuild());
+					else if(params[0].equals("-dl"))
+						s = playAudioFromUrl(params[1], message.getGuild());
+					else if(params[0].equals("-f"))
+						s = playAudioFromFile(params[1], message.getGuild());
+					else
+						return " " + params[0] + " is not a recognized parameter for ~play.";
 				} catch (IOException | UnsupportedAudioFileException e) {
 					e.printStackTrace();
 				}
@@ -153,35 +139,22 @@ public class App {
     		    return "An error occured while queueing this file: " + params[0];
     		}
     	});
-    	new Command("Play from URL", "playurl", "Adds a song to the queue.", 0, new CommandEvent() {
-    		public String execute(IMessage message, String[] params) {
-    			boolean s = false;
-    			if(!prefs.isQueueEnabled())
-    				return "Music queuing is temporarly disabled";
-    		    try {
-					s = playAudioFromUrl(params[0], message.getGuild());
-				} catch (IOException | UnsupportedAudioFileException e) {
-					e.printStackTrace();
-				}
-    		    if(s)
-    		    	return "Queued " + params[0];
-    		    return "An error occured while queueing this url: " + params[0];
+    	new Command("Skip", "skip", "Skips the current song in the playlist", 1, new CommandEvent() {
+    		public String execute(IMessage message, String[] params){
+    			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
+    		    return "Skipped the current song.";
     		}
     	});
-    	new Command("Play from YouTube", "playyt", "Adds a song to the queue.", 0, new CommandEvent() {
-    		public String execute(IMessage message, String[] params) {
-    			boolean s = false;
-    			if(!prefs.isQueueEnabled())
-    				return "Music queuing is temporarly disabled";
-    			String video_id = params[0].substring(params[0].indexOf("?v=") + 3, params[0].indexOf("=") + 14);
-    		    try {
-					s = playAudioFromYouTube(params[0], message.getGuild());
-				} catch (IOException | UnsupportedAudioFileException e) {
-					e.printStackTrace();
-				}
-    		    if(s)
-    		    	return "Queued video " + video_id;
-    		    return "An error occured while queueing this youtube video: " + video_id;
+    	new Command("Pause", "pause", "Pause the current song", 1, new CommandEvent() {
+    		public String execute(IMessage message, String[] params){
+    			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(true);
+    		    return "Paused the playlist.";
+    		}
+    	});
+    	new Command("Resume", "resume", "Resume playback", 1, new CommandEvent() {
+    		public String execute(IMessage message, String[] params){
+    			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(false);
+    		    return "Resumed the playlist.";
     		}
     	});
     	new Command("Queue", "queue", "Displays the song queue.", 0, new CommandEvent() {
