@@ -9,8 +9,9 @@ import java.util.List;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.apache.commons.io.FileUtils;
-
+import net.masterzach32.discord_music_bot.commands.Command;
+import net.masterzach32.discord_music_bot.commands.CommandEvent;
+import net.masterzach32.discord_music_bot.utils.PreferenceFile;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
@@ -18,17 +19,18 @@ import sx.blah.discord.util.audio.AudioPlayer;
 
 public class App {
 	
-	public static final String 	installDir = "C:\\Users\\Zach Kozar\\git\\SwagBot\\discord-music-bot\\";
+	public static final String installDir = "C:\\Users\\Zach Kozar\\git\\SwagBot\\discord-music-bot\\";
 	public static IDiscordClient client;
+	public static PreferenceFile prefs;
 	
     public static void main(String[] args) throws DiscordException, IOException {
-    	String loginToken = null;
-		loginToken = FileUtils.readFileToString(new File("discord.txt"));
-    	client = new ClientBuilder().withToken(loginToken).build();
+    	// ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.TRACE);
+    	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=0
+		prefs = new PreferenceFile();
+		prefs.read();
+    	client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
     	client.getDispatcher().registerListener(new EventHandler());
     	client.login();
-    	
-    	// TODO: Preferences
     	
     	// register commands
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
@@ -43,6 +45,7 @@ public class App {
 				} catch (RateLimitException | DiscordException e) {
 					e.printStackTrace();
 				}
+    			prefs.save();
     			System.exit(0);
     		    return "Shutting Down";
     		}
@@ -54,6 +57,7 @@ public class App {
 				} catch (RateLimitException | DiscordException e) {
 					e.printStackTrace();
 				}
+    			prefs.save();
     			System.exit(0);
     		    return "Shutting Down";
     		}
@@ -241,8 +245,9 @@ public class App {
     }
     
     // Change AudioPlayer volume for guild
-    private static void setVolume(float vol, IGuild guild) {
+    public static void setVolume(float vol, IGuild guild) {
         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
         player.setVolume(vol/100);
+        prefs.setVolume((int) vol); 
     }
 }

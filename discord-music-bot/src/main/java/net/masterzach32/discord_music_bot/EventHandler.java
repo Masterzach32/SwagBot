@@ -1,7 +1,10 @@
 package net.masterzach32.discord_music_bot;
 
+import net.masterzach32.discord_music_bot.commands.Command;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
+import sx.blah.discord.handle.impl.events.ReadyEvent;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
@@ -9,8 +12,9 @@ import sx.blah.discord.util.RateLimitException;
 public class EventHandler {
 
 	@EventSubscriber
-	public void onReady(EventHandler event) {
-		System.out.println("SwagBot is ready to play your mixtape");
+	public void onReady(ReadyEvent event) {
+		for(IGuild guild : event.getClient().getGuilds())
+			App.setVolume(App.prefs.getVolume(), guild);
 	}
 	
 	@EventSubscriber
@@ -32,7 +36,6 @@ public class EventHandler {
 		try {
 			event.getMessage().reply(Command.executeCommand(event.getMessage(), identifier, params));
 		} catch (RateLimitException | DiscordException | MissingPermissionsException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }

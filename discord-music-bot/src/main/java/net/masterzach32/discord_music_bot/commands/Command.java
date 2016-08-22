@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot;
+package net.masterzach32.discord_music_bot.commands;
 
 import java.util.ArrayList;
 import java.util.List;
