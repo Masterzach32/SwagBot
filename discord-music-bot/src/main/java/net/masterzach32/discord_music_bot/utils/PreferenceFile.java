@@ -12,6 +12,7 @@ public class PreferenceFile {
 	
 	private String discordAuthKey;
 	private int volume;
+	private boolean queueEnabled;
 	
 	private static final String fileName = "prefs.json";
 
@@ -23,6 +24,7 @@ public class PreferenceFile {
 		// defaults
 		volume = 50;
 		discordAuthKey = "";
+		queueEnabled = true;
 		
 		File prefs = new File(fileName);
 		if(!prefs.exists()) {
@@ -61,6 +63,7 @@ public class PreferenceFile {
 		PreferenceFile file = new Gson().fromJson(json, PreferenceFile.class);
 		volume = file.getVolume();
 		discordAuthKey = file.getDiscordAuthKey();
+		queueEnabled = file.isQueueEnabled();
 	}
 	
 	public String getDiscordAuthKey() {
@@ -73,5 +76,13 @@ public class PreferenceFile {
 	
 	public int getVolume() {
 		return volume;
+	}
+
+	public boolean toggleQueueEnabled() {
+		return queueEnabled = !queueEnabled;
+	}
+	
+	public boolean isQueueEnabled() {
+		return queueEnabled;
 	}
 }

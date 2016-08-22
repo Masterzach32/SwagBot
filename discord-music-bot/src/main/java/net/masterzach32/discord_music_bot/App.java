@@ -22,6 +22,7 @@ public class App {
 	public static final String installDir = "C:\\Users\\Zach Kozar\\git\\SwagBot\\discord-music-bot\\";
 	public static IDiscordClient client;
 	public static PreferenceFile prefs;
+	public static boolean queueEnabled = true;
 	
     public static void main(String[] args) throws DiscordException, IOException {
     	// ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.TRACE);
@@ -118,22 +119,11 @@ public class App {
     		    return "Set volume to " + vol/100;
     		}
     	});
-    	new Command("Play from File", "playfile", "Adds a song to the queue.", 0, new CommandEvent() {
-    		public String execute(IMessage message, String[] params) {
-    			boolean s = false;
-    		    try {
-					s = playAudioFromFile(params[0], message.getGuild());
-				} catch (IOException | UnsupportedAudioFileException e) {
-					e.printStackTrace();
-				}
-    		    if(s)
-    		    	return "Queued " + params[0];
-    		    return "An error occured while queueing this file: " + params[0];
-    		}
-    	});
-    	new Command("Play Cached Files", "autoplaylist", "Queue all songs in the cache folder", 0, new CommandEvent() {
+    	new Command("Play Cached Files", "autoplaylist", "Queue all songs in the cache folder", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			int i = 0;
+    			if(!prefs.isQueueEnabled())
+    				return "Music queueing is temporarly disabled";
     		    try {
     		    	File[] files = new File(installDir + "cache\\").listFiles();
     		    	List<File> mp3s = new ArrayList<File>();
@@ -148,9 +138,26 @@ public class App {
     		    return "Queued all " + i + " songs in the cache folder.";
     		}
     	});
+    	new Command("Play from File", "playfile", "Adds a song to the queue.", 0, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			boolean s = false;
+    			if(!prefs.isQueueEnabled())
+    				return "Music queuing is temporarly disabled";
+    		    try {
+					s = playAudioFromFile(params[0], message.getGuild());
+				} catch (IOException | UnsupportedAudioFileException e) {
+					e.printStackTrace();
+				}
+    		    if(s)
+    		    	return "Queued " + params[0];
+    		    return "An error occured while queueing this file: " + params[0];
+    		}
+    	});
     	new Command("Play from URL", "playurl", "Adds a song to the queue.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			boolean s = false;
+    			if(!prefs.isQueueEnabled())
+    				return "Music queuing is temporarly disabled";
     		    try {
 					s = playAudioFromUrl(params[0], message.getGuild());
 				} catch (IOException | UnsupportedAudioFileException e) {
@@ -164,14 +171,17 @@ public class App {
     	new Command("Play from YouTube", "playyt", "Adds a song to the queue.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			boolean s = false;
+    			if(!prefs.isQueueEnabled())
+    				return "Music queuing is temporarly disabled";
+    			String video_id = params[0].substring(params[0].indexOf("?v=") + 3, params[0].indexOf("=") + 14);
     		    try {
 					s = playAudioFromYouTube(params[0], message.getGuild());
 				} catch (IOException | UnsupportedAudioFileException e) {
 					e.printStackTrace();
 				}
     		    if(s)
-    		    	return "Queued video " + params[0].substring(params[0].indexOf("=") + 1);
-    		    return "An error occured while queueing this youtube video: " + params[0].substring(params[0].indexOf("=") + 1);
+    		    	return "Queued video " + video_id;
+    		    return "An error occured while queueing this youtube video: " + video_id;
     		}
     	});
     	new Command("Queue", "queue", "Displays the song queue.", 0, new CommandEvent() {
@@ -182,6 +192,12 @@ public class App {
     			for(int i = 1; i < player.getPlaylist().size(); i++)
     				str += i + ". " + player.getPlaylist().get(i) + "(" + player.getPlaylist().get(i).getCurrentTrackTime() + "/" + player.getPlaylist().get(i).getTotalTrackTime() + ")\n";
 				return str;
+    		}
+    	});
+    	new Command("Toggle Queue", "t", "Toggles wether songs can be queued.", 0, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			prefs.toggleQueueEnabled();
+				return "Queuing songs has been set to " + prefs.isQueueEnabled();
     		}
     	});
     	/*new Command("Hate", "hate", "You know what this does...", 0, new CommandEvent() {
@@ -209,13 +225,15 @@ public class App {
     
     // Queue audio from specified URL stream for guild
     private static boolean playAudioFromYouTube(String s_url, IGuild guild) throws IOException, UnsupportedAudioFileException {
-    	if(new File(installDir + "cache\\" + s_url.substring(s_url.indexOf("=") + 1) + ".mp3").exists()) {
-    		playAudioFromFile(installDir + "cache\\" + s_url.substring(s_url.indexOf("=") + 1) + ".mp3", guild);
-    		System.out.println("Loading youtube video from cache: " + s_url.substring(s_url.indexOf("=") + 1));
+    	String video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 14);
+    	System.out.println(video_id);
+    	if(new File(installDir + "cache\\" + video_id + ".mp3").exists()) {
+    		playAudioFromFile(installDir + "cache\\" + video_id + ".mp3", guild);
+    		System.out.println("Loading youtube video from cache: " + video_id);
     		return true;
     	}
     	
-    	System.out.println("Downloading youtube video: " + s_url.substring(s_url.indexOf("=") + 1));
+    	System.out.println("Downloading youtube video: " + video_id);
         ProcessBuilder yt_dn = new ProcessBuilder("py", "youtube-dl", s_url, "--id"/*, "--write-info-json"*/);
         int yt_err = -1;
         File yt = null;
@@ -224,14 +242,14 @@ public class App {
         
 		try {
 			yt_err = yt_dn.redirectError(new File(installDir + "logs\\youtube-dl.log")).start().waitFor();
-			System.out.println("youtube-dl: " + s_url.substring(s_url.indexOf("=") + 1) + " downloaded with exit code " + yt_err);
+			System.out.println("youtube-dl: " + video_id + " downloaded with exit code " + yt_err);
 			for(File file : new File(installDir).listFiles())
-	        	if(file.getName().contains(s_url.substring(s_url.indexOf("=") + 1))) {
-	        		ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", file.toString(), installDir + "cache\\" + s_url.substring(s_url.indexOf("=") + 1) + ".mp3");
+	        	if(file.getName().contains(video_id)) {
+	        		ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", file.toString(), installDir + "cache\\" + video_id + ".mp3");
 	        		yt = file;
 	        	}
 			ffmpeg_err = ffmpeg.redirectError(new File(installDir + "logs\\ffmpeg.log")).start().waitFor();
-			System.out.println("ffmpeg: " + s_url.substring(s_url.indexOf("=") + 1) + " converted and saved with exit code " + ffmpeg_err);
+			System.out.println("ffmpeg: " + video_id + " converted and saved with exit code " + ffmpeg_err);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -241,7 +259,7 @@ public class App {
 		if(yt != null)
 			yt.delete();
         
-        return playAudioFromFile(installDir + 	"cache\\" + s_url.substring(s_url.indexOf("=") + 1) + ".mp3", guild);
+        return playAudioFromFile(installDir + "cache\\" + video_id + ".mp3", guild);
     }
     
     // Change AudioPlayer volume for guild
