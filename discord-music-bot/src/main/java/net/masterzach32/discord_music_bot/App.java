@@ -11,6 +11,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import net.masterzach32.discord_music_bot.commands.Command;
 import net.masterzach32.discord_music_bot.commands.CommandEvent;
+import net.masterzach32.discord_music_bot.music.Playlist;
+import net.masterzach32.discord_music_bot.music.PlaylistManager;
 import net.masterzach32.discord_music_bot.utils.PreferenceFile;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
@@ -24,11 +26,17 @@ public class App {
 	public static PreferenceFile prefs;
 	public static boolean queueEnabled = true;
 	
+	public static PlaylistManager playlists;
+	
+	// 1. jclnm-0ktHM2. ru0K8uYEZWw3. AIiTRr4lxZM4. hdw1uKiTI5c5. 6mqbAnrtWHo6. 6BpcFxNS3i8
+	
     public static void main(String[] args) throws DiscordException, IOException {
     	// ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.TRACE);
-    	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=0
+    	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
 		prefs = new PreferenceFile();
 		prefs.read();
+		playlists = new PlaylistManager();
+		playlists.load();
     	client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
     	client.getDispatcher().registerListener(new EventHandler());
     	client.login();
@@ -37,7 +45,7 @@ public class App {
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			if(params[0].equals(""))
-    				return "Here is a list all available commands \n" + Command.listAllCommands();
+    				return "Type ~help <command> to get more info on a specific command \n" + Command.listAllCommands();
     			else {
     				for(Command c : Command.commands)
     					if(c.getIdentifier().equals(params[0]))
@@ -54,6 +62,7 @@ public class App {
 					e.printStackTrace();
 				}
     			prefs.save();
+    			playlists.save();
     			System.exit(0);
     		    return "Shutting Down";
     		}
@@ -66,6 +75,7 @@ public class App {
 					e.printStackTrace();
 				}
     			prefs.save();
+    			playlists.save();
     			System.exit(0);
     		    return "Shutting Down";
     		}
@@ -98,7 +108,7 @@ public class App {
     		    return "Set volume to " + vol/100;
     		}
     	});
-    	new Command("Play Cached Files", "playlist", "Queue all songs in the cache folder.", 1, new CommandEvent() {
+    	new Command("Play Cached Files", "cache", "Queue all songs in the cache folder.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			int i = 0;
     			if(!prefs.isQueueEnabled())
@@ -117,7 +127,52 @@ public class App {
     		    return "Queued all " + i + " songs in the cache folder.";
     		}
     	});
-    	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [param] <link>\nOptions: -yt (YouTube), -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
+    	new Command("Clear cache", "clearcache", "Delete all songs in the cache folder.", 2, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			File[] cache = new File("cache/").listFiles();
+    			for(File file : cache) {
+    				file.delete();
+    				System.out.println("Deleted " + file.getName());
+    			}
+    			System.out.println("Succesfully cleared the cache and deleted " + cache.length + " files.");
+    		    return "Deleted " + cache.length + " files.";
+    		}
+    	});
+    	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist [arg] [name] <param>\nArgs: -create, -add, -remove, -queue, -delete", 1, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			if(params.length < 2)
+    				return "Not enough parameters. Type ~help playlist to get help with this command.";
+    			String command = params[0], name = params[1];
+    			if(command.equals("-create")) {
+    				playlists.add(new Playlist(name));
+    				return "Created playlist " + name;
+    			} else if(command.equals("-add")) {
+    				playlists.get(name).add(params[2]);
+    				return "Added " + params[2] + " to " + name;
+    			} else if(command.equals("-remove")) {
+    				playlists.get(name).remove(params[2]);
+    				return "Removed " + params[2] + " from " + name;
+    			} else if(command.equals("-queue")) {
+    				if(!prefs.isQueueEnabled())
+        				return "Music queueing is temporarly disabled";
+    				playlists.get(name).queue(message.getGuild());
+    				return "Queued the playlist " + name;
+    			} else if(command.equals("-delete")) {
+    				playlists.remove(name);
+    				return "Deleted the playlist " + name;
+    			} else if(command.equals("-info")) {
+    				return "Songs in " + name + ":\n" + playlists.get(name).getInfo();
+    			} else if(command.equals("-load")) {
+    				playlists.load();
+    				return "Re-loaded all playlists";
+    			} else if(command.equals("-save")) {
+    				playlists.save();
+    				return "Saved all playlists";
+    			}
+		    return "Unrecognized parameters. Type ~help playlist to get help with this command.";
+    		}
+    	});
+    	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -yt (YouTube), -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			boolean s = false;
     			if(!prefs.isQueueEnabled())
@@ -125,18 +180,20 @@ public class App {
     		    try {
 					if(params[0].indexOf('-') != 0)
 						s = playAudioFromYouTube(params[0], message.getGuild());
+					else if(params[0].equals("-yt"))
+						s = playAudioFromYouTube(params[1], message.getGuild());
 					else if(params[0].equals("-dl"))
 						s = playAudioFromUrl(params[1], message.getGuild());
 					else if(params[0].equals("-f"))
 						s = playAudioFromFile(params[1], message.getGuild());
 					else
-						return " " + params[0] + " is not a recognized parameter for ~play.";
+						return params[0] + " is not a recognized parameter for ~play.";
 				} catch (IOException | UnsupportedAudioFileException e) {
 					e.printStackTrace();
 				}
     		    if(s)
-    		    	return "Queued " + params[0];
-    		    return "An error occured while queueing this file: " + params[0];
+    		    	return "Queued " + params[params.length-1];
+    		    return "An error occured while queueing this file: " + params[params.length-1];
     		}
     	});
     	new Command("Skip", "skip", "Skips the current song in the playlist", 1, new CommandEvent() {
@@ -197,9 +254,12 @@ public class App {
     }
     
     // Queue audio from specified URL stream for guild
-    private static boolean playAudioFromYouTube(String s_url, IGuild guild) throws IOException, UnsupportedAudioFileException {
-    	String video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 14);
-    	System.out.println(video_id);
+    public static boolean playAudioFromYouTube(String s_url, IGuild guild) throws IOException, UnsupportedAudioFileException {
+    	String video_id;
+    	if(s_url.indexOf("?v=") < 0)
+    		video_id = s_url;
+    	else 
+    		video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 12);
     	if(new File(installDir + "cache\\" + video_id + ".mp3").exists()) {
     		playAudioFromFile(installDir + "cache\\" + video_id + ".mp3", guild);
     		System.out.println("Loading youtube video from cache: " + video_id);

@@ -58,7 +58,7 @@ public class Command {
 			boolean hasPerms = false;
 			List<IRole> userRoles = message.getAuthor().getRolesForGuild(message.getChannel().getGuild());
 			for(IRole role : userRoles)
-				if(c.permLevel == 2 && role.getName().equals("Owner") || c.permLevel == 1 && role.getName().equals("Bot Commander"))
+				if(c.permLevel == 2 && message.getAuthor().getName().equals(message.getGuild().getUserByID("97341976214511616").getName()) || c.permLevel == 1 && role.getName().equals("Bot Commander"))
 					hasPerms = true;
 			
 			if(!hasPerms)
