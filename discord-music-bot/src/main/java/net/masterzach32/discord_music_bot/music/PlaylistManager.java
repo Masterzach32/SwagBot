@@ -72,4 +72,11 @@ public class PlaylistManager {
 				return p;
 		return null;
 	}
+	
+	public String toString() {
+		String str = "";
+		for(Playlist p : playlists)
+			str += p.getName() + ":" + p.songs() + " ";
+		return str;
+	}
 }

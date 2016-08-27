@@ -11,8 +11,8 @@ import com.google.gson.Gson;
 public class PreferenceFile {
 	
 	private String discordAuthKey;
-	private int volume;
-	private boolean queueEnabled;
+	private int volume, skipCounter;
+	private boolean queueEnabled, clearCacheOnStartup;
 	
 	private static final String fileName = "prefs.json";
 
@@ -23,8 +23,10 @@ public class PreferenceFile {
 	public PreferenceFile() throws IOException {
 		// defaults
 		volume = 50;
+		skipCounter = 3;
 		discordAuthKey = "";
 		queueEnabled = true;
+		clearCacheOnStartup = false;
 		
 		File prefs = new File(fileName);
 		if(!prefs.exists()) {
@@ -62,8 +64,10 @@ public class PreferenceFile {
 		String json = new String(buffer);
 		PreferenceFile file = new Gson().fromJson(json, PreferenceFile.class);
 		volume = file.getVolume();
+		skipCounter = file.getSkipCounter();
 		discordAuthKey = file.getDiscordAuthKey();
 		queueEnabled = file.isQueueEnabled();
+		clearCacheOnStartup = file.clearCacheOnStartup();
 	}
 	
 	public String getDiscordAuthKey() {
@@ -84,5 +88,13 @@ public class PreferenceFile {
 	
 	public boolean isQueueEnabled() {
 		return queueEnabled;
+	}
+	
+	public boolean clearCacheOnStartup() {
+		return clearCacheOnStartup;
+	}
+	
+	public int getSkipCounter() {
+		return skipCounter;
 	}
 }

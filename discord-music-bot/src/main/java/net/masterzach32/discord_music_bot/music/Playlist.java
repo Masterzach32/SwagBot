@@ -21,7 +21,10 @@ public class Playlist {
 	}
 	
 	public void add(String audio) {
-		music.add(audio);
+		if(audio.indexOf("?v=") < 0)
+    		music.add(audio);
+    	else 
+    		music.add(audio.substring(audio.indexOf("?v=") + 3, audio.indexOf("=") + 12));
 	}
 	
 	public void remove(String audio) {
@@ -49,5 +52,9 @@ public class Playlist {
 		for(int i = 0; i < music.size(); i++)
 			str += (i+1) + ". " + music.get(i) + "\n";
 		return str;
+	}
+	
+	public int songs() {
+		return music.size();
 	}
 }

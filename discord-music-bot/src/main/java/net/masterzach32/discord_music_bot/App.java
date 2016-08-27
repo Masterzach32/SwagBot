@@ -25,10 +25,9 @@ public class App {
 	public static IDiscordClient client;
 	public static PreferenceFile prefs;
 	public static boolean queueEnabled = true;
+	public static int skipCounter, maxSkip;
 	
 	public static PlaylistManager playlists;
-	
-	// 1. jclnm-0ktHM2. ru0K8uYEZWw3. AIiTRr4lxZM4. hdw1uKiTI5c5. 6mqbAnrtWHo6. 6BpcFxNS3i8
 	
     public static void main(String[] args) throws DiscordException, IOException {
     	// ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.TRACE);
@@ -40,6 +39,9 @@ public class App {
     	client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
     	client.getDispatcher().registerListener(new EventHandler());
     	client.login();
+    	
+    	skipCounter = 0;
+    	maxSkip = prefs.getSkipCounter();
     	
     	// register commands
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
@@ -56,27 +58,13 @@ public class App {
     	});
     	new Command("Shutdown Bot", "shutdown", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down", 2, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
-    			try {
-					client.logout();
-				} catch (RateLimitException | DiscordException e) {
-					e.printStackTrace();
-				}
-    			prefs.save();
-    			playlists.save();
-    			System.exit(0);
+    			stop();
     		    return "Shutting Down";
     		}
     	});
     	new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down", 2, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
-    			try {
-					client.logout();
-				} catch (RateLimitException | DiscordException e) {
-					e.printStackTrace();
-				}
-    			prefs.save();
-    			playlists.save();
-    			System.exit(0);
+    			stop();
     		    return "Shutting Down";
     		}
     	});
@@ -92,7 +80,7 @@ public class App {
     		    return "Joined `" + voicechannel.getName() + "`.";
     		}
     	});
-    	new Command("Kick", "kick", "Kicks the bot from the current voice channel.", 0, new CommandEvent() {
+    	new Command("Kick", "kick", "Kicks the bot from the current voice channel.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
     		    
@@ -129,17 +117,25 @@ public class App {
     	});
     	new Command("Clear cache", "clearcache", "Delete all songs in the cache folder.", 2, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			File[] cache = new File("cache/").listFiles();
-    			for(File file : cache) {
-    				file.delete();
-    				System.out.println("Deleted " + file.getName());
-    			}
-    			System.out.println("Succesfully cleared the cache and deleted " + cache.length + " files.");
-    		    return "Deleted " + cache.length + " files.";
+    			return "Deleted " + clearCache() + " files.";
     		}
     	});
-    	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist [arg] [name] <param>\nArgs: -create, -add, -remove, -queue, -delete", 1, new CommandEvent() {
+    	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist [arg] [name] <param>\nArgs: -create, -add, -remove, -queue, -list, -info", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			boolean perms = false;
+    			List<IRole> userRoles = message.getAuthor().getRolesForGuild(message.getChannel().getGuild());
+    			for(IRole role : userRoles)
+    				if(role.getName().equals("Bot Commander"))
+    					perms = true;
+    			if(params[0].equals("-load") && perms) {
+    				playlists.load();
+    				return "Re-loaded all playlists";
+    			} else if(params[0].equals("-save") && perms) {
+    				playlists.save();
+    				return "Saved all playlists";
+    			} else if(params[0].equals("-list")) {
+    				return "Playlists: " + playlists.toString();
+    			}
     			if(params.length < 2)
     				return "Not enough parameters. Type ~help playlist to get help with this command.";
     			String command = params[0], name = params[1];
@@ -149,34 +145,26 @@ public class App {
     			} else if(command.equals("-add")) {
     				playlists.get(name).add(params[2]);
     				return "Added " + params[2] + " to " + name;
-    			} else if(command.equals("-remove")) {
+    			} else if(command.equals("-remove") && perms) {
     				playlists.get(name).remove(params[2]);
     				return "Removed " + params[2] + " from " + name;
-    			} else if(command.equals("-queue")) {
-    				if(!prefs.isQueueEnabled())
-        				return "Music queueing is temporarly disabled";
+    			} else if(command.equals("-queue") && canQueueMusic(message.getAuthor())) {
     				playlists.get(name).queue(message.getGuild());
     				return "Queued the playlist " + name;
-    			} else if(command.equals("-delete")) {
+    			} else if(command.equals("-delete") && perms) {
     				playlists.remove(name);
     				return "Deleted the playlist " + name;
     			} else if(command.equals("-info")) {
     				return "Songs in " + name + ":\n" + playlists.get(name).getInfo();
-    			} else if(command.equals("-load")) {
-    				playlists.load();
-    				return "Re-loaded all playlists";
-    			} else if(command.equals("-save")) {
-    				playlists.save();
-    				return "Saved all playlists";
     			}
-		    return "Unrecognized parameters. Type ~help playlist to get help with this command.";
+		    return "You either messed up your parameters or do not have access to this command.";
     		}
     	});
     	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -yt (YouTube), -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			boolean s = false;
-    			if(!prefs.isQueueEnabled())
-    				return "Music queuing is temporarly disabled";
+    			if(!canQueueMusic(message.getAuthor()))
+    				return "Music queuing is disabled or you are not currently in the bot's channel.";
     		    try {
 					if(params[0].indexOf('-') != 0)
 						s = playAudioFromYouTube(params[0], message.getGuild());
@@ -196,20 +184,25 @@ public class App {
     		    return "An error occured while queueing this file: " + params[params.length-1];
     		}
     	});
-    	new Command("Skip", "skip", "Skips the current song in the playlist", 1, new CommandEvent() {
-    		public String execute(IMessage message, String[] params){
-    			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
-    		    return "Skipped the current song.";
+    	new Command("Skip", "skip", "Skips the current song in the playlist", 0, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			if(skipCounter == maxSkip) {
+    				AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
+    				skipCounter = 0;
+    				return "Skipped the current song.";
+    			} else
+    				skipCounter++;
+    		    return maxSkip - skipCounter + " more votes needed to skip the current song.";
     		}
     	});
     	new Command("Pause", "pause", "Pause the current song", 1, new CommandEvent() {
-    		public String execute(IMessage message, String[] params){
+    		public String execute(IMessage message, String[] params) {
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(true);
     		    return "Paused the playlist.";
     		}
     	});
     	new Command("Resume", "resume", "Resume playback", 1, new CommandEvent() {
-    		public String execute(IMessage message, String[] params){
+    		public String execute(IMessage message, String[] params) {
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(false);
     		    return "Resumed the playlist.";
     		}
@@ -230,11 +223,41 @@ public class App {
 				return "Queuing songs has been set to " + prefs.isQueueEnabled();
     		}
     	});
-    	/*new Command("Hate", "hate", "You know what this does...", 0, new CommandEvent() {
-    		public String execute(IMessage message, String[] params) {
-				return "command in the works";
-    		}
-    	});*/
+    }
+    
+    private static void stop() {
+    	try {
+			client.logout();
+		} catch (RateLimitException | DiscordException e) {
+			e.printStackTrace();
+		}
+		prefs.save();
+		playlists.save();
+		if(prefs.clearCacheOnStartup())
+			
+		System.exit(0);
+    }
+    
+    private static int clearCache() {
+    	File[] cache = new File("cache/").listFiles();
+		int count = 0;
+		for(File file : cache) {
+			if(file.delete()) {
+				System.out.println("Deleted " + file.getName());
+				count++;
+			} else {
+				System.out.println("Could not delete " + file.getName());
+			}
+		}
+		if(count < cache.length)
+			System.out.println("Could only clear " + count + " files from the cache. Perhaps some songs are still in the queue");
+		else
+			System.out.println("Succesfully cleared the cache and deleted " + count + " files.");
+		return count;
+    }
+    
+    private static boolean canQueueMusic(IUser user) {
+    	return prefs.isQueueEnabled() && user.getConnectedVoiceChannels().size() > 0 && client.getConnectedVoiceChannels().contains(user.getConnectedVoiceChannels().get(0));
     }
     
     // Queue audio from specified URL stream for guild
@@ -260,8 +283,8 @@ public class App {
     		video_id = s_url;
     	else 
     		video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 12);
-    	if(new File(installDir + "cache\\" + video_id + ".mp3").exists()) {
-    		playAudioFromFile(installDir + "cache\\" + video_id + ".mp3", guild);
+    	if(new File(installDir + "cache/" + video_id + ".mp3").exists()) {
+    		playAudioFromFile(installDir + "cache/" + video_id + ".mp3", guild);
     		System.out.println("Loading youtube video from cache: " + video_id);
     		return true;
     	}
@@ -274,14 +297,14 @@ public class App {
         int ffmpeg_err = -1;
         
 		try {
-			yt_err = yt_dn.redirectError(new File(installDir + "logs\\youtube-dl.log")).start().waitFor();
+			yt_err = yt_dn.redirectError(new File(installDir + "logs/youtube-dl.log")).start().waitFor();
 			System.out.println("youtube-dl: " + video_id + " downloaded with exit code " + yt_err);
 			for(File file : new File(installDir).listFiles())
 	        	if(file.getName().contains(video_id)) {
-	        		ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", file.toString(), installDir + "cache\\" + video_id + ".mp3");
+	        		ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", file.toString(), installDir + "cache/" + video_id + ".mp3");
 	        		yt = file;
 	        	}
-			ffmpeg_err = ffmpeg.redirectError(new File(installDir + "logs\\ffmpeg.log")).start().waitFor();
+			ffmpeg_err = ffmpeg.redirectError(new File(installDir + "logs/ffmpeg.log")).start().waitFor();
 			System.out.println("ffmpeg: " + video_id + " converted and saved with exit code " + ffmpeg_err);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -292,7 +315,7 @@ public class App {
 		if(yt != null)
 			yt.delete();
         
-        return playAudioFromFile(installDir + "cache\\" + video_id + ".mp3", guild);
+        return playAudioFromFile(installDir + "cache/" + video_id + ".mp3", guild);
     }
     
     // Change AudioPlayer volume for guild
