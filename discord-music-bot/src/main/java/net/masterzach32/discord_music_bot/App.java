@@ -26,6 +26,7 @@ public class App {
 	public static PreferenceFile prefs;
 	public static boolean queueEnabled = true;
 	public static int skipCounter, maxSkip;
+	public static List<String> skipIDs;
 	
 	public static PlaylistManager playlists;
 	
@@ -39,6 +40,8 @@ public class App {
     	skipCounter = 0;
     	maxSkip = prefs.getSkipCounter();
     	
+    	skipIDs = new ArrayList<String>();
+    	
     	client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
     	client.getDispatcher().registerListener(new EventHandler());
     	client.login();
@@ -47,12 +50,12 @@ public class App {
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			if(params[0].equals(""))
-    				return "Type ~help <command> to get more info on a specific command \n" + Command.listAllCommands();
+    				return "Type `~help <command>` to get more info on a specific command \n" + Command.listAllCommands();
     			else {
     				for(Command c : Command.commands)
     					if(c.getIdentifier().equals(params[0]))
-    						return "Info for ~" + params[0] + "\n" + c.getInfo();
-    				return "Could not find command ~" + params[0];
+    						return "**Info for** `~" + params[0] + "`\n" + c.getInfo();
+    				return "**Could not find command** `~" + params[0] + "`";
     			}
     		}
     	});
@@ -77,7 +80,7 @@ public class App {
 					e.printStackTrace();
 				}
     		    
-    		    return "Joined `" + voicechannel.getName() + "`.";
+    		    return "Joined **" + voicechannel.getName() + "**.";
     		}
     	});
     	new Command("Kick", "kick", "Kicks the bot from the current voice channel.", 1, new CommandEvent() {
@@ -86,21 +89,21 @@ public class App {
     		    
     		    voicechannel.leave();
     		    
-    		    return "Left `" + voicechannel.getName() + "`.";
+    		    return "Left **" + voicechannel.getName() + "**.";
     		}
     	});
     	new Command("Set Volume", "volume", "Sets the volume of the bot.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
     		    float vol = Float.parseFloat(params[0]);
     		    setVolume(vol, message.getGuild());
-    		    return "Set volume to " + vol/100;
+    		    return "Set volume to **" + vol/100 + "**";
     		}
     	});
     	new Command("Play Cached Files", "cache", "Queue all songs in the cache folder.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			int i = 0;
     			if(!prefs.isQueueEnabled())
-    				return "Music queueing is temporarly disabled";
+    				return "**Music queueing is temporarly disabled**";
     		    try {
     		    	File[] files = new File("cache/").listFiles();
     		    	List<File> mp3s = new ArrayList<File>();
@@ -112,12 +115,12 @@ public class App {
 				} catch (IOException | UnsupportedAudioFileException e) {
 					e.printStackTrace();
 				}
-    		    return "Queued all " + i + " songs in the cache folder.";
+    		    return "Queued all **" + i + "** songs in the cache folder.";
     		}
     	});
     	new Command("Clear cache", "clearcache", "Delete all songs in the cache folder.", 2, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			return "Deleted " + clearCache() + " files.";
+    			return "Deleted **" + clearCache() + "** files.";
     		}
     	});
     	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist [arg] [name] <param>\nArgs: -create, -add, -remove, -queue, -list, -info", 0, new CommandEvent() {
@@ -129,42 +132,42 @@ public class App {
     					perms = true;
     			if(params[0].equals("-load") && perms) {
     				playlists.load();
-    				return "Re-loaded all playlists";
+    				return "**Re-loaded all playlists**";
     			} else if(params[0].equals("-save") && perms) {
     				playlists.save();
-    				return "Saved all playlists";
+    				return "**Saved all playlists**";
     			} else if(params[0].equals("-list")) {
-    				return "Playlists: " + playlists.toString();
+    				return "**Playlists:** " + playlists.toString();
     			}
     			if(params.length < 2)
-    				return "Not enough parameters. Type ~help playlist to get help with this command.";
+    				return "**Not enough parameters. Type** `~help playlist` **to get help with this command.**";
     			String command = params[0], name = params[1];
     			if(command.equals("-create")) {
     				playlists.add(new LocalPlaylist(name));
-    				return "Created playlist " + name;
+    				return "Created playlist **" + name + "**";
     			} else if(command.equals("-add")) {
     				playlists.get(name).add(params[2]);
-    				return "Added " + params[2] + " to " + name;
+    				return "Added " + params[2] + " to **" + name + "**";
     			} else if(command.equals("-remove") && perms) {
     				playlists.get(name).remove(params[2]);
-    				return "Removed " + params[2] + " from " + name;
+    				return "Removed " + params[2] + " from **" + name + "**";
     			} else if(command.equals("-queue") && canQueueMusic(message.getAuthor())) {
     				playlists.get(name).queue(message.getGuild());
-    				return "Queued the playlist " + name;
+    				return "Queuing the playlist **" + name + "**";
     			} else if(command.equals("-delete") && perms) {
     				playlists.remove(name);
-    				return "Deleted the playlist " + name;
+    				return "Deleted the playlist **" + name + "**";
     			} else if(command.equals("-info")) {
-    				return "Songs in " + name + ":\n" + playlists.get(name).getInfo();
+    				return "Songs in **" + name + "**:\n" + playlists.get(name).getInfo();
     			}
-		    return "You either messed up your parameters or do not have access to this command.";
+		    return "**You either messed up your parameters or do not have access to this command.**";
     		}
     	});
     	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -yt (YouTube), -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			boolean s = false;
     			if(!canQueueMusic(message.getAuthor()))
-    				return "Music queuing is disabled or you are not currently in the bot's channel.";
+    				return "**Music queuing is disabled or you are not currently in the bot's channel.**";
     		    try {
 					if(params[0].indexOf('-') != 0)
 						s = playAudioFromYouTube(params[0], message.getGuild());
@@ -180,44 +183,56 @@ public class App {
 					e.printStackTrace();
 				}
     		    if(s)
-    		    	return "Queued " + params[params.length-1];
+    		    	return "**Queued** " + params[params.length-1];
     		    return "An error occured while queueing this file: " + params[params.length-1];
     		}
     	});
     	new Command("Skip", "skip", "Skips the current song in the playlist", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(skipIDs.contains(message.getAuthor().getID()))
+    				return "**You already voted to skip this song.**";
     			skipCounter++;
-    			if(skipCounter == maxSkip) {
+    			skipIDs.add(message.getAuthor().getID());
+    			if(skipCounter == maxSkip || message.getAuthor().getID().equals("97341976214511616")) {
     				AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
     				skipCounter = 0;
     				return "Skipped the current song.";
     			}
-    		    return maxSkip - skipCounter + " more votes needed to skip the current song.";
+    		    return "**" + (maxSkip - skipCounter) + "** more votes needed to skip the current song.";
     		}
     	});
     	new Command("Shuffle", "shuffle", "Shuffles the queue", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).shuffle();
-    		    return "Shuffled the playlist.";
+    		    return "**Shuffled the playlist.**";
     		}
     	});
     	new Command("Pause", "pause", "Pause the current song", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(true);
-    		    return "Paused the playlist.";
+    		    return "*Paused the playlist.**";
     		}
     	});
     	new Command("Resume", "resume", "Resume playback", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(false);
-    		    return "Resumed the playlist.";
+    		    return "**Resumed the playlist.**";
+    		}
+    	});
+    	new Command("Clear Queue", "clear", "Clears the queue", 1, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
+    			if(player.getPlaylistSize() == 0)
+    				return "**No songs to clear.**";
+    			player.clear();
+    		    return "**Cleared the queue.**";
     		}
     	});
     	new Command("Queue", "queue", "Displays the song queue.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
-    			String str = " There are currently " + player.getPlaylistSize() + " song(s) in queue.\n";
-    			str += "Currently Playing: " + player.getCurrentTrack() + "(" + player.getCurrentTrack().getCurrentTrackTime() + "/" + player.getCurrentTrack().getTotalTrackTime() + ")\n";
+    			String str = " There are currently **" + player.getPlaylistSize() + "** song(s) in queue.\n";
+    			str += "**Currently Playing: " + player.getCurrentTrack() + "(" + player.getCurrentTrack().getCurrentTrackTime() + "/" + player.getCurrentTrack().getTotalTrackTime() + ")**\n";
     			for(int i = 1; i < player.getPlaylist().size(); i++)
     				str += i + ". " + player.getPlaylist().get(i) + "(" + player.getPlaylist().get(i).getCurrentTrackTime() + "/" + player.getPlaylist().get(i).getTotalTrackTime() + ")\n";
 				return str;
@@ -226,7 +241,7 @@ public class App {
     	new Command("Toggle Queue", "t", "Toggles wether songs can be queued.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			prefs.toggleQueueEnabled();
-				return "Queuing songs has been set to " + prefs.isQueueEnabled();
+				return "Queuing songs has been set to **" + prefs.isQueueEnabled() + "**";
     		}
     	});
     }
@@ -249,14 +264,14 @@ public class App {
 		int count = 0;
 		for(File file : cache) {
 			if(file.delete()) {
-				Discord4J.LOGGER.debug("Deleted " + file.getName());
+				Discord4J.LOGGER.debug("deleted:" + file.getName());
 				count++;
 			} else {
-				Discord4J.LOGGER.debug("Could not delete " + file.getName());
+				Discord4J.LOGGER.debug("failed:" + file.getName());
 			}
 		}
 		if(count < cache.length)
-			Discord4J.LOGGER.debug("Could only clear " + count + " files from the cache. Perhaps some songs are still in the queue");
+			Discord4J.LOGGER.debug("Could only clear " + count + " out of " + cache.length + " files from the cache. Perhaps some songs are still in the queue.");
 		else
 			Discord4J.LOGGER.debug("Succesfully cleared the cache and deleted " + count + " files.");
 		return count;
@@ -289,45 +304,50 @@ public class App {
     		video_id = s_url;
     	else 
     		video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 12);
+    	if(!new File("cache/").exists())
+    		new File("cache/").mkdirs();
     	if(new File("cache/" + video_id + ".mp3").exists()) {
     		try {
     			playAudioFromFile("cache/" + video_id + ".mp3", guild);
     		} catch (IOException | UnsupportedAudioFileException e) {
     			e.printStackTrace();
     		}
-    		Discord4J.LOGGER.debug("Loading youtube video from cache: " + video_id);
+    		Discord4J.LOGGER.debug("cache:" + video_id);
     		return true;
     	}
 
-    	Discord4J.LOGGER.debug("Downloading youtube video: " + video_id);
+    	Discord4J.LOGGER.debug("downloading:" + video_id);
     	ProcessBuilder yt_dn = new ProcessBuilder("py", "youtube-dl", s_url, "--id"/*, "--write-info-json"*/);
     	int yt_err = -1;
     	File yt = null;
     	ProcessBuilder ffmpeg = null;
     	int ffmpeg_err = -1;
-
+    	
+    	if(!new File("logs/").exists())
+    		new File("logs/").mkdirs();
     	try {
     		yt_err = yt_dn.redirectError(new File("logs/youtube-dl.log")).start().waitFor();
-    		Discord4J.LOGGER.debug("youtube-dl: " + video_id + " downloaded with exit code " + yt_err);
+    		Discord4J.LOGGER.debug("youtube-dl:" + yt_err + ":" + video_id);
     		for(File file : new File("./").listFiles())
     			if(file.getName().contains(video_id)) {
     				ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", file.toString(), "cache/" + video_id + ".mp3");
     				yt = file;
     			}
     		ffmpeg_err = ffmpeg.redirectError(new File("logs/ffmpeg.log")).start().waitFor();
-    		Discord4J.LOGGER.debug("ffmpeg: " + video_id + " converted and saved with exit code " + ffmpeg_err);
+    		Discord4J.LOGGER.debug("ffmpeg:"+ ffmpeg_err + ":" + video_id);
     	} catch (InterruptedException | IOException e) {
     		e.printStackTrace();
     	}
 
     	if(yt_err != 0 || ffmpeg_err != 0) {
-    		Discord4J.LOGGER.debug("Could not queue " + s_url);
+    		Discord4J.LOGGER.debug("failed:" + s_url);
     		return false;
     	}
     	if(yt != null)
     		yt.delete();
 
     	try {
+    		Discord4J.LOGGER.debug("cached:" + video_id);
     		return playAudioFromFile("cache/" + video_id + ".mp3", guild);
     	} catch (IOException | UnsupportedAudioFileException e) {
     		e.printStackTrace();
