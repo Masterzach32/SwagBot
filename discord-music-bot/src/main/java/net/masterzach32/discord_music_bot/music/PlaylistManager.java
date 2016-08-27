@@ -12,10 +12,10 @@ import com.google.gson.Gson;
 
 public class PlaylistManager {
 	
-	private List<Playlist> playlists;
+	private List<LocalPlaylist> playlists;
 
 	public PlaylistManager() {
-		playlists = new ArrayList<Playlist>();
+		playlists = new ArrayList<LocalPlaylist>();
 	}
 	
 	public void load() {
@@ -37,13 +37,13 @@ public class PlaylistManager {
 			}
 			
 			String json = new String(buffer);
-			this.playlists.add(new Gson().fromJson(json, Playlist.class));
+			this.playlists.add(new Gson().fromJson(json, LocalPlaylist.class));
 			System.out.println("Loaded playlist " + file.getName());
 		}
 	}
 	
 	public void save() {
-		for(Playlist p : playlists) {
+		for(LocalPlaylist p : playlists) {
 			BufferedWriter fout = null;
 			try {
 				// File optionsFile = new File(path);
@@ -56,18 +56,18 @@ public class PlaylistManager {
 		}
 	}
 	
-	public void add(Playlist p) {
+	public void add(LocalPlaylist p) {
 		playlists.add(p);
 	}
 	
 	public void remove(String name) {
-		for(Playlist p : playlists)
+		for(LocalPlaylist p : playlists)
 			if(p.getName().equals(name))
 				playlists.remove(p);
 	}
 	
-	public Playlist get(String name) {
-		for(Playlist p : playlists)
+	public LocalPlaylist get(String name) {
+		for(LocalPlaylist p : playlists)
 			if(p.getName().equals(name))
 				return p;
 		return null;
@@ -75,7 +75,7 @@ public class PlaylistManager {
 	
 	public String toString() {
 		String str = "";
-		for(Playlist p : playlists)
+		for(LocalPlaylist p : playlists)
 			str += p.getName() + ":" + p.songs() + " ";
 		return str;
 	}

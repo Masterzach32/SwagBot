@@ -5,9 +5,12 @@ import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.Status;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.audio.events.PauseStateChangeEvent;
+import sx.blah.discord.util.audio.events.TrackStartEvent;
 
 public class EventHandler {
 
@@ -15,6 +18,7 @@ public class EventHandler {
 	public void onReady(ReadyEvent event) {
 		for(IGuild guild : event.getClient().getGuilds())
 			App.setVolume(App.prefs.getVolume(), guild);
+		event.getClient().changeStatus(Status.game("Type ~play"));
 	}
 	
 	@EventSubscriber
@@ -39,4 +43,17 @@ public class EventHandler {
 			e.printStackTrace();
 		}
     }
+	
+	@EventSubscriber
+	public void onTrackStartEvent(TrackStartEvent event) {
+		event.getClient().changeStatus(Status.game(event.getTrack().toString()));
+	}
+	
+	@EventSubscriber
+	public void onPauseStateChangeEvent(PauseStateChangeEvent event) {
+		if(event.getNewPauseState())
+			event.getClient().changeStatus(Status.game("Paused"));
+		else
+			event.getClient().changeStatus(Status.game(event.getPlayer().getCurrentTrack().toString()));
+	}
 }

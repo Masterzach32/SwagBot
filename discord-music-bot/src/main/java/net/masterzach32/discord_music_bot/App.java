@@ -11,9 +11,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import net.masterzach32.discord_music_bot.commands.Command;
 import net.masterzach32.discord_music_bot.commands.CommandEvent;
-import net.masterzach32.discord_music_bot.music.Playlist;
+import net.masterzach32.discord_music_bot.music.LocalPlaylist;
 import net.masterzach32.discord_music_bot.music.PlaylistManager;
 import net.masterzach32.discord_music_bot.utils.PreferenceFile;
+import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
@@ -21,7 +22,6 @@ import sx.blah.discord.util.audio.AudioPlayer;
 
 public class App {
 	
-	public static final String installDir = "C:\\Users\\Zach Kozar\\git\\SwagBot\\discord-music-bot\\";
 	public static IDiscordClient client;
 	public static PreferenceFile prefs;
 	public static boolean queueEnabled = true;
@@ -102,7 +102,7 @@ public class App {
     			if(!prefs.isQueueEnabled())
     				return "Music queueing is temporarly disabled";
     		    try {
-    		    	File[] files = new File(installDir + "cache\\").listFiles();
+    		    	File[] files = new File("cache/").listFiles();
     		    	List<File> mp3s = new ArrayList<File>();
     		    	for(File file : files)
     		    		mp3s.add(file);
@@ -140,7 +140,7 @@ public class App {
     				return "Not enough parameters. Type ~help playlist to get help with this command.";
     			String command = params[0], name = params[1];
     			if(command.equals("-create")) {
-    				playlists.add(new Playlist(name));
+    				playlists.add(new LocalPlaylist(name));
     				return "Created playlist " + name;
     			} else if(command.equals("-add")) {
     				playlists.get(name).add(params[2]);
@@ -186,13 +186,19 @@ public class App {
     	});
     	new Command("Skip", "skip", "Skips the current song in the playlist", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			skipCounter++;
     			if(skipCounter == maxSkip) {
     				AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
     				skipCounter = 0;
     				return "Skipped the current song.";
-    			} else
-    				skipCounter++;
+    			}
     		    return maxSkip - skipCounter + " more votes needed to skip the current song.";
+    		}
+    	});
+    	new Command("Shuffle", "shuffle", "Shuffles the queue", 1, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).shuffle();
+    		    return "Shuffled the playlist.";
     		}
     	});
     	new Command("Pause", "pause", "Pause the current song", 1, new CommandEvent() {
@@ -234,7 +240,7 @@ public class App {
 		prefs.save();
 		playlists.save();
 		if(prefs.clearCacheOnStartup())
-			
+			clearCache();
 		System.exit(0);
     }
     
@@ -243,16 +249,16 @@ public class App {
 		int count = 0;
 		for(File file : cache) {
 			if(file.delete()) {
-				System.out.println("Deleted " + file.getName());
+				Discord4J.LOGGER.debug("Deleted " + file.getName());
 				count++;
 			} else {
-				System.out.println("Could not delete " + file.getName());
+				Discord4J.LOGGER.debug("Could not delete " + file.getName());
 			}
 		}
 		if(count < cache.length)
-			System.out.println("Could only clear " + count + " files from the cache. Perhaps some songs are still in the queue");
+			Discord4J.LOGGER.debug("Could only clear " + count + " files from the cache. Perhaps some songs are still in the queue");
 		else
-			System.out.println("Succesfully cleared the cache and deleted " + count + " files.");
+			Discord4J.LOGGER.debug("Succesfully cleared the cache and deleted " + count + " files.");
 		return count;
     }
     
@@ -283,39 +289,47 @@ public class App {
     		video_id = s_url;
     	else 
     		video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 12);
-    	if(new File(installDir + "cache/" + video_id + ".mp3").exists()) {
-    		playAudioFromFile(installDir + "cache/" + video_id + ".mp3", guild);
-    		System.out.println("Loading youtube video from cache: " + video_id);
-    		return true;
+    	if(new File("cache/" + video_id + ".mp3").exists()) {
+    		try {
+    			playAudioFromFile("cache/" + video_id + ".mp3", guild);
+    		} catch (IOException | UnsupportedAudioFileException e) {
+    			e.printStackTrace();
+    		}
+    		Discord4J.LOGGER.debug("Loading youtube video from cache: " + video_id);
     	}
-    	
-    	System.out.println("Downloading youtube video: " + video_id);
-        ProcessBuilder yt_dn = new ProcessBuilder("py", "youtube-dl", s_url, "--id"/*, "--write-info-json"*/);
-        int yt_err = -1;
-        File yt = null;
-        ProcessBuilder ffmpeg = null;
-        int ffmpeg_err = -1;
-        
-		try {
-			yt_err = yt_dn.redirectError(new File(installDir + "logs/youtube-dl.log")).start().waitFor();
-			System.out.println("youtube-dl: " + video_id + " downloaded with exit code " + yt_err);
-			for(File file : new File(installDir).listFiles())
-	        	if(file.getName().contains(video_id)) {
-	        		ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", file.toString(), installDir + "cache/" + video_id + ".mp3");
-	        		yt = file;
-	        	}
-			ffmpeg_err = ffmpeg.redirectError(new File(installDir + "logs/ffmpeg.log")).start().waitFor();
-			System.out.println("ffmpeg: " + video_id + " converted and saved with exit code " + ffmpeg_err);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		if(yt_err != 0 || ffmpeg_err != 0)
-			return false;
-		if(yt != null)
-			yt.delete();
-        
-        return playAudioFromFile(installDir + "cache/" + video_id + ".mp3", guild);
+
+    	Discord4J.LOGGER.debug("Downloading youtube video: " + video_id);
+    	ProcessBuilder yt_dn = new ProcessBuilder("py", "youtube-dl", s_url, "--id"/*, "--write-info-json"*/);
+    	int yt_err = -1;
+    	File yt = null;
+    	ProcessBuilder ffmpeg = null;
+    	int ffmpeg_err = -1;
+
+    	try {
+    		yt_err = yt_dn.redirectError(new File("logs/youtube-dl.log")).start().waitFor();
+    		Discord4J.LOGGER.debug("youtube-dl: " + video_id + " downloaded with exit code " + yt_err);
+    		for(File file : new File("./").listFiles())
+    			if(file.getName().contains(video_id)) {
+    				ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", file.toString(), "cache/" + video_id + ".mp3");
+    				yt = file;
+    			}
+    		ffmpeg_err = ffmpeg.redirectError(new File("logs/ffmpeg.log")).start().waitFor();
+    		Discord4J.LOGGER.debug("ffmpeg: " + video_id + " converted and saved with exit code " + ffmpeg_err);
+    	} catch (InterruptedException | IOException e) {
+    		e.printStackTrace();
+    	}
+
+    	if(yt_err != 0 || ffmpeg_err != 0)
+    		Discord4J.LOGGER.debug("Could not queue " + s_url);
+    	if(yt != null)
+    		yt.delete();
+
+    	try {
+    		playAudioFromFile("cache/" + video_id + ".mp3", guild);
+    	} catch (IOException | UnsupportedAudioFileException e) {
+    		e.printStackTrace();
+    	}
+        return true;
     }
     
     // Change AudioPlayer volume for guild

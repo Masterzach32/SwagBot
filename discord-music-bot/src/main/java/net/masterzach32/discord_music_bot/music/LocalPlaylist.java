@@ -4,18 +4,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import net.masterzach32.discord_music_bot.App;
 import sx.blah.discord.handle.obj.IGuild;
 
-public class Playlist {
+public class LocalPlaylist {
 	
 	private String name;
 	private List<String> music;
 
-	public Playlist(String name) {
+	public LocalPlaylist(String name) {
 		this.name = name;
 		music = new ArrayList<String>();
 	}
@@ -39,12 +41,19 @@ public class Playlist {
 	
 	public void queue(IGuild guild) {
 		Collections.shuffle(music);
-		for(String s : music)
-			try {
-				App.playAudioFromYouTube(s, guild);
-			} catch (IOException | UnsupportedAudioFileException e) {
-				e.printStackTrace();
-			}
+		ExecutorService executor = Executors.newFixedThreadPool(3);
+		for(String s : music) {
+			Thread task = new Thread("loadAudioFromPlaylist:" + s) {
+				public void run() {
+					try {
+						App.playAudioFromYouTube(s, guild);
+					} catch (IOException | UnsupportedAudioFileException e) {
+						e.printStackTrace();
+					}
+				}
+			};
+			executor.execute(task);
+		}
 	}
 	
 	public String getInfo() {
