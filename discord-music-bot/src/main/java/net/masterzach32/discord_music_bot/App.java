@@ -32,16 +32,16 @@ public class App {
     public static void main(String[] args) throws DiscordException, IOException {
     	// ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.TRACE);
     	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
-		prefs = new PreferenceFile();
-		prefs.read();
-		playlists = new PlaylistManager();
-		playlists.load();
+    	prefs = new PreferenceFile();
+    	prefs.read();
+    	playlists = new PlaylistManager();
+    	playlists.load();
+    	skipCounter = 0;
+    	maxSkip = prefs.getSkipCounter();
+    	
     	client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
     	client.getDispatcher().registerListener(new EventHandler());
     	client.login();
-    	
-    	skipCounter = 0;
-    	maxSkip = prefs.getSkipCounter();
     	
     	// register commands
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
@@ -296,6 +296,7 @@ public class App {
     			e.printStackTrace();
     		}
     		Discord4J.LOGGER.debug("Loading youtube video from cache: " + video_id);
+    		return true;
     	}
 
     	Discord4J.LOGGER.debug("Downloading youtube video: " + video_id);
@@ -319,17 +320,19 @@ public class App {
     		e.printStackTrace();
     	}
 
-    	if(yt_err != 0 || ffmpeg_err != 0)
+    	if(yt_err != 0 || ffmpeg_err != 0) {
     		Discord4J.LOGGER.debug("Could not queue " + s_url);
+    		return false;
+    	}
     	if(yt != null)
     		yt.delete();
 
     	try {
-    		playAudioFromFile("cache/" + video_id + ".mp3", guild);
+    		return playAudioFromFile("cache/" + video_id + ".mp3", guild);
     	} catch (IOException | UnsupportedAudioFileException e) {
     		e.printStackTrace();
     	}
-        return true;
+        return false;
     }
     
     // Change AudioPlayer volume for guild
