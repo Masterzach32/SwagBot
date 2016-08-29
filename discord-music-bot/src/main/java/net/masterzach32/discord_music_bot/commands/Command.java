@@ -3,6 +3,7 @@ package net.masterzach32.discord_music_bot.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.masterzach32.discord_music_bot.utils.Constants;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.util.DiscordException;
@@ -15,7 +16,6 @@ public class Command {
 	private CommandEvent event;
 	private int permLevel;
 	
-	public static final char botprefix = '~';
 	public static final List<Command> commands = new ArrayList<Command>();
 
 	public Command(String name, String identifier, String info, int permLevel, CommandEvent event) {
@@ -60,7 +60,7 @@ public class Command {
 				c = command;
 		
 		if(c == null)
-			return "No command found for " + botprefix + identifier;
+			return "No command found for `" + Constants.COMMAND_PREFIX + identifier + "`";
 		
 		if(c.permLevel > 0) {
 			boolean hasPerms = false;
@@ -70,16 +70,16 @@ public class Command {
 					hasPerms = true;
 			
 			if(!hasPerms)
-				return "you do not have permission to use this command.";
+				return "**you do not have permission to use this command.**";
 			return c.execute(message, params);
 		}
 		return c.execute(message, params);
 	}
 	
 	public static String listAllCommands() {
-		String str = "";
+		String str = "```";
 		for(Command command : commands)
-			str += "`" + botprefix + command.identifier /*+ "\t\t" + command.name + "\t\t" + command.info*/ + "`\n";
-		return str;
+			str += "" + Constants.COMMAND_PREFIX + command.identifier /*+ "\t\t" + command.name + "\t\t" + command.info*/ + "\n";
+		return str + "```";
 	}
 }

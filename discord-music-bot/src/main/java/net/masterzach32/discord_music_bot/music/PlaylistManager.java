@@ -8,9 +8,18 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 
-public class PlaylistManager {
+import net.masterzach32.discord_music_bot.App;
+import net.masterzach32.discord_music_bot.utils.Constants;
+import net.masterzach32.discord_music_bot.utils.JSONReader;
+
+public class PlaylistManager implements JSONReader {
+	
+	public static final Logger logger = LoggerFactory.getLogger(App.class);
 	
 	private List<LocalPlaylist> playlists;
 
@@ -18,17 +27,27 @@ public class PlaylistManager {
 		playlists = new ArrayList<LocalPlaylist>();
 	}
 	
+	public void save() {
+		for(LocalPlaylist p : playlists) {
+			BufferedWriter fout = null;
+			try {
+				fout = new BufferedWriter(new FileWriter("playlists/" + p.getName() + ".json"));
+				fout.write(new Gson().toJson(p));
+				fout.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public void load() {
-		File pfolder = new File("playlists/");
-		pfolder.mkdirs();
-		File[] playlists = pfolder.listFiles();
+		File[] playlists = App.manager.getFile(Constants.PLAYLIST_CACHE).listFiles();
 		for(File file : playlists) {
 			RandomAccessFile fin = null;
 			byte[] buffer = null;
 			
 			try {
-				// File optionsFile = new File(path);
-				fin = new RandomAccessFile(file, "r");		// "r" = open file for reading only
+				fin = new RandomAccessFile(file, "r");
 				buffer = new byte[(int) fin.length()];
 				fin.readFully(buffer);
 				fin.close();
@@ -38,21 +57,7 @@ public class PlaylistManager {
 			
 			String json = new String(buffer);
 			this.playlists.add(new Gson().fromJson(json, LocalPlaylist.class));
-			System.out.println("Loaded playlist " + file.getName());
-		}
-	}
-	
-	public void save() {
-		for(LocalPlaylist p : playlists) {
-			BufferedWriter fout = null;
-			try {
-				// File optionsFile = new File(path);
-				fout = new BufferedWriter(new FileWriter("playlists/" + p.getName() + ".json"));
-				fout.write(new Gson().toJson(p));
-				fout.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			logger.debug("loaded:" + file.getName());
 		}
 	}
 	

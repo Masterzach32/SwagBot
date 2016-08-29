@@ -22,11 +22,17 @@ public class LocalPlaylist {
 		music = new ArrayList<String>();
 	}
 	
-	public void add(String audio) {
+	public boolean add(String audio) {
+		String str = "";
 		if(audio.indexOf("?v=") < 0)
-    		music.add(audio);
+    		str = audio;
     	else 
-    		music.add(audio.substring(audio.indexOf("?v=") + 3, audio.indexOf("=") + 12));
+    		str = audio.substring(audio.indexOf("?v=") + 3, audio.indexOf("=") + 12);
+		if(music.contains(str))
+			return false;
+		
+		music.add(str);
+		return true;
 	}
 	
 	public void remove(String audio) {
@@ -59,7 +65,7 @@ public class LocalPlaylist {
 	public String getInfo() {
 		String str = "";
 		for(int i = 0; i < music.size(); i++)
-			str += (i+1) + ". " + music.get(i) + "\n";
+			str += "**" + (i+1) + ".** " + music.get(i) + "\n";
 		return str;
 	}
 	

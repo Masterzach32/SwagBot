@@ -9,12 +9,12 @@ import java.util.List;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import net.masterzach32.discord_music_bot.commands.Command;
-import net.masterzach32.discord_music_bot.commands.CommandEvent;
-import net.masterzach32.discord_music_bot.music.LocalPlaylist;
-import net.masterzach32.discord_music_bot.music.PlaylistManager;
-import net.masterzach32.discord_music_bot.utils.PreferenceFile;
-import sx.blah.discord.Discord4J;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.masterzach32.discord_music_bot.commands.*;
+import net.masterzach32.discord_music_bot.music.*;
+import net.masterzach32.discord_music_bot.utils.*;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
@@ -22,19 +22,22 @@ import sx.blah.discord.util.audio.AudioPlayer;
 
 public class App {
 	
-	public static IDiscordClient client;
-	public static PreferenceFile prefs;
-	public static boolean queueEnabled = true;
+	public static final Logger logger = LoggerFactory.getLogger(App.class);
+	
 	public static int skipCounter, maxSkip;
 	public static List<String> skipIDs;
 	
+	public static IDiscordClient client;
+	public static BotConfig prefs;
 	public static PlaylistManager playlists;
+	public static FileManager manager;
 	
     public static void main(String[] args) throws DiscordException, IOException {
-    	// ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.TRACE);
     	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
-    	prefs = new PreferenceFile();
-    	prefs.read();
+    	
+    	manager = new FileManager();
+    	prefs = new BotConfig();
+    	prefs.load();
     	playlists = new PlaylistManager();
     	playlists.load();
     	skipCounter = 0;
@@ -93,10 +96,12 @@ public class App {
     		}
     	});
     	new Command("Set Volume", "volume", "Sets the volume of the bot.", 0, new CommandEvent() {
-    		public String execute(IMessage message, String[] params){
+    		public String execute(IMessage message, String[] params) {
+    			if(params == null || params[0] == null || params[0] == "")
+    				return "Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100+ "**";
     		    float vol = Float.parseFloat(params[0]);
     		    setVolume(vol, message.getGuild());
-    		    return "Set volume to **" + vol/100 + "**";
+    		    return "Set volume to **" + vol + "**";
     		}
     	});
     	new Command("Play Cached Files", "cache", "Queue all songs in the cache folder.", 1, new CommandEvent() {
@@ -146,8 +151,9 @@ public class App {
     				playlists.add(new LocalPlaylist(name));
     				return "Created playlist **" + name + "**";
     			} else if(command.equals("-add")) {
-    				playlists.get(name).add(params[2]);
-    				return "Added " + params[2] + " to **" + name + "**";
+    				if(playlists.get(name).add(params[2]))
+    					return "Added " + params[2] + " to **" + name + "**";
+    				return "Playlist **" + name + "** already has " + params[2];
     			} else if(command.equals("-remove") && perms) {
     				playlists.get(name).remove(params[2]);
     				return "Removed " + params[2] + " from **" + name + "**";
@@ -187,7 +193,7 @@ public class App {
     		    return "An error occured while queueing this file: " + params[params.length-1];
     		}
     	});
-    	new Command("Skip", "skip", "Skips the current song in the playlist", 0, new CommandEvent() {
+    	new Command("Skip", "skip", "Skips the current song in the playlist.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			if(skipIDs.contains(message.getAuthor().getID()))
     				return "**You already voted to skip this song.**";
@@ -196,30 +202,31 @@ public class App {
     			if(skipCounter == maxSkip || message.getAuthor().getID().equals("97341976214511616")) {
     				AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
     				skipCounter = 0;
+    				skipIDs.clear();
     				return "Skipped the current song.";
     			}
     		    return "**" + (maxSkip - skipCounter) + "** more votes needed to skip the current song.";
     		}
     	});
-    	new Command("Shuffle", "shuffle", "Shuffles the queue", 1, new CommandEvent() {
+    	new Command("Shuffle", "shuffle", "Shuffles the queue.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).shuffle();
     		    return "**Shuffled the playlist.**";
     		}
     	});
-    	new Command("Pause", "pause", "Pause the current song", 1, new CommandEvent() {
+    	new Command("Pause", "pause", "Pause the current song.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(true);
     		    return "*Paused the playlist.**";
     		}
     	});
-    	new Command("Resume", "resume", "Resume playback", 1, new CommandEvent() {
+    	new Command("Resume", "resume", "Resume playback.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(false);
     		    return "**Resumed the playlist.**";
     		}
     	});
-    	new Command("Clear Queue", "clear", "Clears the queue", 1, new CommandEvent() {
+    	new Command("Clear Queue", "clear", "Clears the queue.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			if(player.getPlaylistSize() == 0)
@@ -228,20 +235,22 @@ public class App {
     		    return "**Cleared the queue.**";
     		}
     	});
-    	new Command("Queue", "queue", "Displays the song queue.", 0, new CommandEvent() {
+    	new Command("Queue", "queue", "Displays the song queue. WIP", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			String str = " There are currently **" + player.getPlaylistSize() + "** song(s) in queue.\n";
-    			str += "**Currently Playing: " + player.getCurrentTrack() + "(" + player.getCurrentTrack().getCurrentTrackTime() + "/" + player.getCurrentTrack().getTotalTrackTime() + ")**\n";
-    			for(int i = 1; i < player.getPlaylist().size(); i++)
-    				str += i + ". " + player.getPlaylist().get(i) + "(" + player.getPlaylist().get(i).getCurrentTrackTime() + "/" + player.getPlaylist().get(i).getTotalTrackTime() + ")\n";
+    			/*str += "**Currently Playing: " + player.getCurrentTrack() + "(" + player.getCurrentTrack().getCurrentTrackTime() + "/" + player.getCurrentTrack().getTotalTrackTime() + ")**\n";
+    			for(int i = 1; i < player.getPlaylist().size() || i < 25; i++)
+    				str += "**" + i + "**. " + player.getPlaylist().get(i) + " (" + player.getPlaylist().get(i).getCurrentTrackTime() + "/" + player.getPlaylist().get(i).getTotalTrackTime() + ")\n";*/
 				return str;
     		}
     	});
     	new Command("Toggle Queue", "t", "Toggles wether songs can be queued.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			prefs.toggleQueueEnabled();
-				return "Queuing songs has been set to **" + prefs.isQueueEnabled() + "**";
+    			if(prefs.isQueueEnabled())
+    				return "**Guild members can no longer queue songs.**";
+    			return "**Guild members can now queue songs.**";
     		}
     	});
     }
@@ -260,20 +269,20 @@ public class App {
     }
     
     private static int clearCache() {
-    	File[] cache = new File("cache/").listFiles();
+    	File[] cache = manager.getFile(Constants.AUDIO_CACHE).listFiles();
 		int count = 0;
 		for(File file : cache) {
 			if(file.delete()) {
-				Discord4J.LOGGER.debug("deleted:" + file.getName());
+				logger.debug("deleted:" + file.getName());
 				count++;
 			} else {
-				Discord4J.LOGGER.debug("failed:" + file.getName());
+				logger.debug("failed:" + file.getName());
 			}
 		}
 		if(count < cache.length)
-			Discord4J.LOGGER.debug("Could only clear " + count + " out of " + cache.length + " files from the cache. Perhaps some songs are still in the queue.");
+			logger.debug("cleared:" + count + "/" + cache.length);
 		else
-			Discord4J.LOGGER.debug("Succesfully cleared the cache and deleted " + count + " files.");
+			logger.debug("cleared:" + count);
 		return count;
     }
     
@@ -304,51 +313,46 @@ public class App {
     		video_id = s_url;
     	else 
     		video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 12);
-    	if(!new File("cache/").exists())
-    		new File("cache/").mkdirs();
-    	if(new File("cache/" + video_id + ".mp3").exists()) {
+    	if(new File(Constants.AUDIO_CACHE + video_id + ".mp3").exists()) {
     		try {
-    			playAudioFromFile("cache/" + video_id + ".mp3", guild);
+    			logger.debug("cached:" + video_id);
+    			return playAudioFromFile(Constants.AUDIO_CACHE+ video_id + ".mp3", guild);
     		} catch (IOException | UnsupportedAudioFileException e) {
     			e.printStackTrace();
     		}
-    		Discord4J.LOGGER.debug("cache:" + video_id);
-    		return true;
     	}
 
-    	Discord4J.LOGGER.debug("downloading:" + video_id);
-    	ProcessBuilder yt_dn = new ProcessBuilder("py", "youtube-dl", s_url, "--id"/*, "--write-info-json"*/);
+    	logger.debug("downloading:" + video_id);
+    	ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", s_url, "--id"/*, "--write-info-json"*/);
     	int yt_err = -1;
     	File yt = null;
     	ProcessBuilder ffmpeg = null;
     	int ffmpeg_err = -1;
     	
-    	if(!new File("logs/").exists())
-    		new File("logs/").mkdirs();
     	try {
-    		yt_err = yt_dn.redirectError(new File("logs/youtube-dl.log")).start().waitFor();
-    		Discord4J.LOGGER.debug("youtube-dl:" + yt_err + ":" + video_id);
+    		yt_err = yt_dn.redirectError(new File(Constants.LOG_STORAGE + "youtube-dl.log")).start().waitFor();
+    		logger.debug("youtube-dl:" + video_id + " " + yt_err);
     		for(File file : new File("./").listFiles())
     			if(file.getName().contains(video_id)) {
-    				ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", file.toString(), "cache/" + video_id + ".mp3");
+    				ffmpeg = new ProcessBuilder(Constants.BINARY_STORAGE + "ffmpeg.exe", "-i", file.toString(), Constants.AUDIO_CACHE + video_id + ".mp3");
     				yt = file;
     			}
-    		ffmpeg_err = ffmpeg.redirectError(new File("logs/ffmpeg.log")).start().waitFor();
-    		Discord4J.LOGGER.debug("ffmpeg:"+ ffmpeg_err + ":" + video_id);
+    		ffmpeg_err = ffmpeg.redirectError(new File(Constants.LOG_STORAGE + "ffmpeg.log")).start().waitFor();
+    		logger.debug("ffmpeg:" + video_id + " " + ffmpeg_err);
     	} catch (InterruptedException | IOException e) {
     		e.printStackTrace();
     	}
 
     	if(yt_err != 0 || ffmpeg_err != 0) {
-    		Discord4J.LOGGER.debug("failed:" + s_url);
+    		logger.debug("failed:" + s_url);
     		return false;
     	}
     	if(yt != null)
     		yt.delete();
 
     	try {
-    		Discord4J.LOGGER.debug("cached:" + video_id);
-    		return playAudioFromFile("cache/" + video_id + ".mp3", guild);
+    		logger.debug("cached:" + video_id);
+    		return playAudioFromFile(Constants.AUDIO_CACHE + video_id + ".mp3", guild);
     	} catch (IOException | UnsupportedAudioFileException e) {
     		e.printStackTrace();
     	}
