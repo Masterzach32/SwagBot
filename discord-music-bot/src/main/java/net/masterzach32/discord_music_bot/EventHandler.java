@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.masterzach32.discord_music_bot.commands.Command;
+import net.masterzach32.discord_music_bot.music.AudioTrack;
 import net.masterzach32.discord_music_bot.utils.Constants;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.GuildCreateEvent;
@@ -12,9 +13,11 @@ import sx.blah.discord.handle.impl.events.ReadyEvent;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.Status;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 import sx.blah.discord.util.audio.events.PauseStateChangeEvent;
+import sx.blah.discord.util.audio.events.TrackFinishEvent;
 import sx.blah.discord.util.audio.events.TrackStartEvent;
 
 public class EventHandler {
@@ -60,9 +63,20 @@ public class EventHandler {
 	
 	@EventSubscriber
 	public void onTrackStartEvent(TrackStartEvent event) {
-		event.getClient().changeStatus(Status.game(event.getTrack().toString()));
+		event.getClient().changeStatus(Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
+		try {
+			new MessageBuilder(App.client).withContent(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().mention() + ", Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**").withChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getChannel()).build();
+		} catch (RateLimitException | DiscordException | MissingPermissionsException e) {
+			e.printStackTrace();
+		}
 		App.skipCounter = 0;
 		App.skipIDs.clear();
+	}
+	
+	@EventSubscriber
+	public void onTrackFinishEvent(TrackFinishEvent event) {
+		if(event.getPlayer().getPlaylistSize() == 0)
+			event.getClient().changeStatus(Status.game("Queue some music!"));
 	}
 	
 	@EventSubscriber
@@ -70,6 +84,6 @@ public class EventHandler {
 		if(event.getNewPauseState())
 			event.getClient().changeStatus(Status.game("Paused"));
 		else
-			event.getClient().changeStatus(Status.game(event.getPlayer().getCurrentTrack().toString()));
+			event.getClient().changeStatus(Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
 	}
 }

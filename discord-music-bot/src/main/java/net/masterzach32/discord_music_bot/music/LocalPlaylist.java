@@ -10,7 +10,9 @@ import java.util.concurrent.Executors;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import net.masterzach32.discord_music_bot.App;
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IUser;
 
 public class LocalPlaylist {
 	
@@ -45,15 +47,15 @@ public class LocalPlaylist {
 		return name;
 	}
 	
-	public void queue(IGuild guild) {
+	public void queue(IUser user, IChannel channel, IGuild guild) {
 		Collections.shuffle(music);
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 		for(String s : music) {
 			Thread task = new Thread("loadAudioFromPlaylist:" + s) {
 				public void run() {
 					try {
-						App.playAudioFromYouTube(s, guild);
-					} catch (IOException | UnsupportedAudioFileException e) {
+						App.playAudioFromYouTube(s, user, channel, guild);
+					} catch (IOException | UnsupportedAudioFileException | InterruptedException e) {
 						e.printStackTrace();
 					}
 				}

@@ -13,8 +13,6 @@ public class BotConfig implements JSONReader {
 	private String discordAuthKey;
 	private int volume, skipCounter;
 	private boolean queueEnabled, clearCacheOnShutdown;
-	
-	private static final String fileName = "prefs.json";
 
 	/**
 	 * Creates a reference to the preferences file, and generates one if it doesn't exist.
@@ -28,7 +26,7 @@ public class BotConfig implements JSONReader {
 		queueEnabled = true;
 		clearCacheOnShutdown = false;
 		
-		File prefs = new File(fileName);
+		File prefs = new File(Constants.BOT_SETTINGS);
 		if(!prefs.exists()) {
 			prefs.createNewFile();
 			save();
@@ -38,7 +36,7 @@ public class BotConfig implements JSONReader {
 	public void save() {
 		BufferedWriter fout = null;
 		try {
-			fout = new BufferedWriter(new FileWriter(fileName));
+			fout = new BufferedWriter(new FileWriter(Constants.BOT_SETTINGS));
 			fout.write(new Gson().toJson(this));
 			fout.close();
 		} catch (IOException e) {
@@ -52,7 +50,7 @@ public class BotConfig implements JSONReader {
 		
 		try {
 			// File optionsFile = new File(path);
-			fin = new RandomAccessFile(fileName, "r");		// "r" = open file for reading only
+			fin = new RandomAccessFile(Constants.BOT_SETTINGS, "r");		// "r" = open file for reading only
 			buffer = new byte[(int) fin.length()];
 			fin.readFully(buffer);
 			fin.close();

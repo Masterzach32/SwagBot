@@ -34,7 +34,7 @@ public class App {
 	
     public static void main(String[] args) throws DiscordException, IOException {
     	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
-    	// https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
+    	// beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
     	
     	manager = new FileManager();
     	prefs = new BotConfig();
@@ -117,7 +117,7 @@ public class App {
     		    		mp3s.add(file);
     		    	Collections.shuffle(mp3s);
     		    	for(i = 0; i < mp3s.size(); i++)
-    		    		playAudioFromFile(mp3s.get(i).toString(), message.getGuild());
+    		    		playAudioFromFile(mp3s.get(i).toString(), message.getGuild()); // TODO
 				} catch (IOException | UnsupportedAudioFileException e) {
 					e.printStackTrace();
 				}
@@ -158,8 +158,10 @@ public class App {
     			} else if(command.equals("-remove") && perms) {
     				playlists.get(name).remove(params[2]);
     				return "Removed " + params[2] + " from **" + name + "**";
-    			} else if(command.equals("-queue") && canQueueMusic(message.getAuthor())) {
-    				playlists.get(name).queue(message.getGuild());
+    			} else if(command.equals("-queue")) {
+    				if(!canQueueMusic(message.getAuthor()))
+    					return "**You must be in the bot's channel to queue music.**";
+    				playlists.get(name).queue(message.getAuthor(), message.getChannel(), message.getGuild());
     				return "Queuing the playlist **" + name + "**";
     			} else if(command.equals("-delete") && perms) {
     				playlists.remove(name);
@@ -170,23 +172,23 @@ public class App {
 		    return "**You either messed up your parameters or do not have access to this command.**";
     		}
     	});
-    	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -yt (YouTube), -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
+    	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			boolean s = false;
     			if(!canQueueMusic(message.getAuthor()))
-    				return "**Music queuing is disabled or you are not currently in the bot's channel.**";
+    				return "**You must be in the bot's channel to queue music.**";
     		    try {
 					if(params[0].indexOf('-') != 0)
-						s = playAudioFromYouTube(params[0], message.getGuild());
-					else if(params[0].equals("-yt"))
-						s = playAudioFromYouTube(params[1], message.getGuild());
+						s = playAudioFromYouTube(params[0], message.getAuthor(), message.getChannel(), message.getGuild());
+					//else if(params[0].equals("-yt"))
+					//	s = playAudioFromYouTube(params[1], message.getGuild());
 					else if(params[0].equals("-dl"))
 						s = playAudioFromUrl(params[1], message.getGuild());
 					else if(params[0].equals("-f"))
 						s = playAudioFromFile(params[1], message.getGuild());
 					else
 						return params[0] + " is not a recognized parameter for ~play.";
-				} catch (IOException | UnsupportedAudioFileException e) {
+				} catch (IOException | UnsupportedAudioFileException | InterruptedException e) {
 					e.printStackTrace();
 				}
     		    if(s)
@@ -304,60 +306,57 @@ public class App {
         File file = new File(s_file); // Get file
         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild); // Get AudioPlayer for guild
         player.queue(file); // Queue file
+        logger.debug("cached:" + s_file);
+        return file.exists();
+    }
+    
+    // Queue audio from specified file for guild
+    private static boolean playAudioFromFile(String s_file, String id, IUser user, IChannel channel, IGuild guild) throws IOException, UnsupportedAudioFileException {
+        File file = new File(s_file); // Get file
+        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild); // Get AudioPlayer for guild
+        player.queue(new AudioTrack(file, file.getName().substring(0, file.getName().indexOf(id)-1), user, channel)); // Queue file
+        logger.debug("cached:" + s_file);
         return file.exists();
     }
     
     // Queue audio from specified URL stream for guild
-    public static boolean playAudioFromYouTube(String s_url, IGuild guild) throws IOException, UnsupportedAudioFileException {
+    public static boolean playAudioFromYouTube(String s_url, IUser user, IChannel channel, IGuild guild) throws IOException, UnsupportedAudioFileException, InterruptedException {
     	String video_id;
     	if(s_url.indexOf("?v=") < 0)
     		video_id = s_url;
     	else 
     		video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 12);
-    	if(new File(Constants.AUDIO_CACHE + video_id + ".mp3").exists()) {
-    		try {
-    			logger.debug("cached:" + video_id);
-    			return playAudioFromFile(Constants.AUDIO_CACHE+ video_id + ".mp3", guild);
-    		} catch (IOException | UnsupportedAudioFileException e) {
-    			e.printStackTrace();
-    		}
-    	}
-
+    	// new code
+    	for(File file : manager.getFile(Constants.AUDIO_CACHE).listFiles())
+    		if(file.getName().contains(video_id))
+        		return playAudioFromFile(Constants.AUDIO_CACHE + file.getName(), video_id, user, channel, guild);
+    	
     	logger.debug("downloading:" + video_id);
-    	ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", s_url, "--id"/*, "--write-info-json"*/);
+    	ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", s_url);
     	int yt_err = -1;
-    	File yt = null;
+    	
+    	yt_err = yt_dn.redirectError(new File(Constants.LOG_STORAGE + "youtube-dl.log")).start().waitFor();
+		logger.debug("youtube-dl:" + video_id + " exit:" + yt_err);
+		
+		File yt = null;
     	ProcessBuilder ffmpeg = null;
     	int ffmpeg_err = -1;
-    	
-    	try {
-    		yt_err = yt_dn.redirectError(new File(Constants.LOG_STORAGE + "youtube-dl.log")).start().waitFor();
-    		logger.debug("youtube-dl:" + video_id + " " + yt_err);
-    		for(File file : new File("./").listFiles())
-    			if(file.getName().contains(video_id)) {
-    				ffmpeg = new ProcessBuilder(Constants.BINARY_STORAGE + "ffmpeg.exe", "-i", file.toString(), Constants.AUDIO_CACHE + video_id + ".mp3");
-    				yt = file;
-    			}
-    		ffmpeg_err = ffmpeg.redirectError(new File(Constants.LOG_STORAGE + "ffmpeg.log")).start().waitFor();
-    		logger.debug("ffmpeg:" + video_id + " " + ffmpeg_err);
-    	} catch (InterruptedException | IOException e) {
-    		e.printStackTrace();
-    	}
-
+		for(File file : manager.getFile(Constants.WORKING_DIRECTORY).listFiles())
+			if(file.getName().contains(video_id)) {
+				ffmpeg = new ProcessBuilder(Constants.BINARY_STORAGE + "ffmpeg.exe", "-i", file.toString(), Constants.AUDIO_CACHE + file.getName().substring(0, file.getName().indexOf(video_id) + 11) + ".mp3");
+				yt = file;
+			}
+		ffmpeg_err = ffmpeg.redirectError(new File(Constants.LOG_STORAGE + "ffmpeg.log")).start().waitFor();
+		logger.debug("ffmpeg:" + video_id + " exit:" + ffmpeg_err);
+		
     	if(yt_err != 0 || ffmpeg_err != 0) {
     		logger.debug("failed:" + s_url);
     		return false;
     	}
     	if(yt != null)
     		yt.delete();
-
-    	try {
-    		logger.debug("cached:" + video_id);
-    		return playAudioFromFile(Constants.AUDIO_CACHE + video_id + ".mp3", guild);
-    	} catch (IOException | UnsupportedAudioFileException e) {
-    		e.printStackTrace();
-    	}
-        return false;
+    	
+    	return playAudioFromFile(Constants.AUDIO_CACHE + yt.getName().substring(0, yt.getName().indexOf(video_id) + 11) + ".mp3", video_id, user, channel, guild);
     }
     
     // Change AudioPlayer volume for guild

@@ -36,10 +36,6 @@ public class FileManager {
 		files.add(new File(Constants.TEMP_STORAGE));
 		for(File file : files) {
 			if(!file.exists()) {
-				if(file.getName().equals(Constants.BINARY_STORAGE)) {
-					logger.error("FATAL ERROR: ffmpeg ffprobe youtube-dl NOT FOUND");
-					System.exit(1);
-				}
 				file.mkdir();
 				logger.debug("created:" + file.getName());
 			} else {
@@ -49,13 +45,19 @@ public class FileManager {
 		refresh();
 	}
 	
+	private void refresh(File dir) {
+		for(File file : dir.listFiles()) {
+			files.add(file);
+			if(file.isDirectory()) {
+				logger.debug("refreshing:" + file.getName());
+				refresh(file);
+			}
+		}
+	}
+	
 	private void refresh() {
 		files.clear();
-		for(File file : new File("./").listFiles()) {
-			files.add(file);
-			if(file.isDirectory())
-				logger.debug("refreshing:" + file.getName());
-		}
+		refresh(new File(Constants.WORKING_DIRECTORY));
 		logger.debug("refresh:complete");
 	}
 }
