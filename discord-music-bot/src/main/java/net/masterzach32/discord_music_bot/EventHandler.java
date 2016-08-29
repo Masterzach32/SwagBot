@@ -62,6 +62,7 @@ public class EventHandler {
 	public void onTrackStartEvent(TrackStartEvent event) {
 		event.getClient().changeStatus(Status.game(event.getTrack().toString()));
 		App.skipCounter = 0;
+		App.skipIDs.clear();
 	}
 	
 	@EventSubscriber

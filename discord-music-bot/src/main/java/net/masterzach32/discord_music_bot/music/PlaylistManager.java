@@ -31,7 +31,7 @@ public class PlaylistManager implements JSONReader {
 		for(LocalPlaylist p : playlists) {
 			BufferedWriter fout = null;
 			try {
-				fout = new BufferedWriter(new FileWriter("playlists/" + p.getName() + ".json"));
+				fout = new BufferedWriter(new FileWriter(Constants.PLAYLIST_CACHE + p.getName() + ".json"));
 				fout.write(new Gson().toJson(p));
 				fout.close();
 			} catch (IOException e) {

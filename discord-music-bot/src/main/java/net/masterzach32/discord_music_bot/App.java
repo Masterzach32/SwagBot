@@ -34,6 +34,7 @@ public class App {
 	
     public static void main(String[] args) throws DiscordException, IOException {
     	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
+    	// https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
     	
     	manager = new FileManager();
     	prefs = new BotConfig();
@@ -263,7 +264,7 @@ public class App {
 		}
 		prefs.save();
 		playlists.save();
-		if(prefs.clearCacheOnStartup())
+		if(prefs.clearCacheOnShutdown())
 			clearCache();
 		System.exit(0);
     }
