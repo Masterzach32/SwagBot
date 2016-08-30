@@ -12,12 +12,14 @@ import sx.blah.discord.util.audio.providers.FileProvider;
 
 public class AudioTrack extends Track {
 	
+	private boolean announce;
 	private String title;
 	private IUser user;
 	private IChannel channel;
 
-	public AudioTrack(File file, String title, IUser user, IChannel channel) throws IOException, UnsupportedAudioFileException {
+	public AudioTrack(File file, boolean announce, String title, IUser user, IChannel channel) throws IOException, UnsupportedAudioFileException {
 		super(new FileProvider(file));
+		this.announce = announce;
 		this.title = title;
 		this.user = user;
 		this.channel = channel;
@@ -33,5 +35,9 @@ public class AudioTrack extends Track {
 	
 	public IChannel getChannel() {
 		return channel;
+	}
+	
+	public boolean shouldAnnounce() {
+		return announce;
 	}
 }

@@ -77,6 +77,8 @@ public class App {
     	});
     	new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
     		    try {
 					voicechannel.join();
@@ -89,6 +91,8 @@ public class App {
     	});
     	new Command("Kick", "kick", "Kicks the bot from the current voice channel.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
     		    
     		    voicechannel.leave();
@@ -98,6 +102,8 @@ public class App {
     	});
     	new Command("Set Volume", "volume", "Sets the volume of the bot.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "SwagBot is currently locked.";
     			if(params == null || params[0] == null || params[0] == "")
     				return "Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100+ "**";
     		    float vol = Float.parseFloat(params[0]);
@@ -107,9 +113,9 @@ public class App {
     	});
     	new Command("Play Cached Files", "cache", "Queue all songs in the cache folder.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     			int i = 0;
-    			if(!prefs.isQueueEnabled())
-    				return "**Music queueing is temporarly disabled**";
     		    try {
     		    	File[] files = new File("cache/").listFiles();
     		    	List<File> mp3s = new ArrayList<File>();
@@ -131,6 +137,8 @@ public class App {
     	});
     	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist [arg] [name] <param>\nArgs: -create, -add, -remove, -queue, -list, -info", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     			boolean perms = false;
     			List<IRole> userRoles = message.getAuthor().getRolesForGuild(message.getChannel().getGuild());
     			for(IRole role : userRoles)
@@ -174,12 +182,14 @@ public class App {
     	});
     	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     			boolean s = false;
     			if(!canQueueMusic(message.getAuthor()))
     				return "**You must be in the bot's channel to queue music.**";
     		    try {
 					if(params[0].indexOf('-') != 0)
-						s = playAudioFromYouTube(params[0], message.getAuthor(), message.getChannel(), message.getGuild());
+						s = playAudioFromYouTube(params[0], true, message.getAuthor(), message.getChannel(), message.getGuild());
 					//else if(params[0].equals("-yt"))
 					//	s = playAudioFromYouTube(params[1], message.getGuild());
 					else if(params[0].equals("-dl"))
@@ -198,6 +208,8 @@ public class App {
     	});
     	new Command("Skip", "skip", "Skips the current song in the playlist.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     			if(skipIDs.contains(message.getAuthor().getID()))
     				return "**You already voted to skip this song.**";
     			skipCounter++;
@@ -206,31 +218,39 @@ public class App {
     				AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
     				skipCounter = 0;
     				skipIDs.clear();
-    				return "Skipped the current song.";
+    				return "**Skipped the current song.**";
     			}
     		    return "**" + (maxSkip - skipCounter) + "** more votes needed to skip the current song.";
     		}
     	});
     	new Command("Shuffle", "shuffle", "Shuffles the queue.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).shuffle();
     		    return "**Shuffled the playlist.**";
     		}
     	});
     	new Command("Pause", "pause", "Pause the current song.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(true);
     		    return "*Paused the playlist.**";
     		}
     	});
     	new Command("Resume", "resume", "Resume playback.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(false);
     		    return "**Resumed the playlist.**";
     		}
     	});
     	new Command("Clear Queue", "clear", "Clears the queue.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
+    			if(prefs.isBotLocked())
+    				return "**SwagBot is currently locked.**";
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			if(player.getPlaylistSize() == 0)
     				return "**No songs to clear.**";
@@ -242,18 +262,23 @@ public class App {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			String str = " There are currently **" + player.getPlaylistSize() + "** song(s) in queue.\n";
-    			/*str += "**Currently Playing: " + player.getCurrentTrack() + "(" + player.getCurrentTrack().getCurrentTrackTime() + "/" + player.getCurrentTrack().getTotalTrackTime() + ")**\n";
-    			for(int i = 1; i < player.getPlaylist().size() || i < 25; i++)
-    				str += "**" + i + "**. " + player.getPlaylist().get(i) + " (" + player.getPlaylist().get(i).getCurrentTrackTime() + "/" + player.getPlaylist().get(i).getTotalTrackTime() + ")\n";*/
-				return str;
+    			str += "**Currently Playing: " + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + ", queued by **" + ((AudioTrack) player.getPlaylist().get(0)).getUser().getName() + "**\n";
+    			for(int i = 1; i < player.getPlaylist().size() || i < 11; i++) {
+    				String s = "**" + i + "**. " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + ", queued by **" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getName() + "**\n";
+    				if((str + s).length() > 2000)
+    					break;
+    				str += s;
+    			
+    			}
+    			return str;
     		}
     	});
-    	new Command("Toggle Queue", "t", "Toggles wether songs can be queued.", 0, new CommandEvent() {
+    	new Command("Lock the bot", "l", "Toggles wether the bot can be used", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			prefs.toggleQueueEnabled();
-    			if(prefs.isQueueEnabled())
-    				return "**Guild members can no longer queue songs.**";
-    			return "**Guild members can now queue songs.**";
+    			prefs.togglebotLocked();
+    			if(prefs.isBotLocked())
+    				return "**SwagBot has been locked.**";
+    			return "**SwagBot is no longer locked.**";
     		}
     	});
     }
@@ -290,7 +315,7 @@ public class App {
     }
     
     private static boolean canQueueMusic(IUser user) {
-    	return prefs.isQueueEnabled() && user.getConnectedVoiceChannels().size() > 0 && client.getConnectedVoiceChannels().contains(user.getConnectedVoiceChannels().get(0));
+    	return user.getConnectedVoiceChannels().size() > 0 && client.getConnectedVoiceChannels().contains(user.getConnectedVoiceChannels().get(0));
     }
     
     // Queue audio from specified URL stream for guild
@@ -311,16 +336,16 @@ public class App {
     }
     
     // Queue audio from specified file for guild
-    private static boolean playAudioFromFile(String s_file, String id, IUser user, IChannel channel, IGuild guild) throws IOException, UnsupportedAudioFileException {
+    private static boolean playAudioFromFile(String s_file, boolean announce, String id, IUser user, IChannel channel, IGuild guild) throws IOException, UnsupportedAudioFileException {
         File file = new File(s_file); // Get file
         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild); // Get AudioPlayer for guild
-        player.queue(new AudioTrack(file, file.getName().substring(0, file.getName().indexOf(id)-1), user, channel)); // Queue file
+        player.queue(new AudioTrack(file, announce, file.getName().substring(0, file.getName().indexOf(id)-1), user, channel)); // Queue file
         logger.debug("cached:" + s_file);
         return file.exists();
     }
     
     // Queue audio from specified URL stream for guild
-    public static boolean playAudioFromYouTube(String s_url, IUser user, IChannel channel, IGuild guild) throws IOException, UnsupportedAudioFileException, InterruptedException {
+    public static boolean playAudioFromYouTube(String s_url, boolean announce, IUser user, IChannel channel, IGuild guild) throws IOException, UnsupportedAudioFileException, InterruptedException {
     	String video_id;
     	if(s_url.indexOf("?v=") < 0)
     		video_id = s_url;
@@ -329,7 +354,7 @@ public class App {
     	// new code
     	for(File file : manager.getFile(Constants.AUDIO_CACHE).listFiles())
     		if(file.getName().contains(video_id))
-        		return playAudioFromFile(Constants.AUDIO_CACHE + file.getName(), video_id, user, channel, guild);
+        		return playAudioFromFile(Constants.AUDIO_CACHE + file.getName(), announce, video_id, user, channel, guild);
     	
     	logger.debug("downloading:" + video_id);
     	ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", s_url);
@@ -356,7 +381,7 @@ public class App {
     	if(yt != null)
     		yt.delete();
     	
-    	return playAudioFromFile(Constants.AUDIO_CACHE + yt.getName().substring(0, yt.getName().indexOf(video_id) + 11) + ".mp3", video_id, user, channel, guild);
+    	return playAudioFromFile(Constants.AUDIO_CACHE + yt.getName().substring(0, yt.getName().indexOf(video_id) + 11) + ".mp3", announce, video_id, user, channel, guild);
     }
     
     // Change AudioPlayer volume for guild

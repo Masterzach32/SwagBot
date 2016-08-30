@@ -12,7 +12,7 @@ public class BotConfig implements JSONReader {
 	
 	private String discordAuthKey;
 	private int volume, skipCounter;
-	private boolean queueEnabled, clearCacheOnShutdown;
+	private boolean botLocked, clearCacheOnShutdown;
 
 	/**
 	 * Creates a reference to the preferences file, and generates one if it doesn't exist.
@@ -23,7 +23,7 @@ public class BotConfig implements JSONReader {
 		volume = 50;
 		skipCounter = 3;
 		discordAuthKey = "";
-		queueEnabled = true;
+		botLocked = false;
 		clearCacheOnShutdown = false;
 		
 		File prefs = new File(Constants.BOT_SETTINGS);
@@ -63,7 +63,7 @@ public class BotConfig implements JSONReader {
 		volume = file.getVolume();
 		skipCounter = file.getSkipCounter();
 		discordAuthKey = file.getDiscordAuthKey();
-		queueEnabled = file.isQueueEnabled();
+		botLocked = file.isBotLocked();
 		clearCacheOnShutdown = file.clearCacheOnShutdown();
 	}
 	
@@ -79,12 +79,12 @@ public class BotConfig implements JSONReader {
 		return volume;
 	}
 
-	public boolean toggleQueueEnabled() {
-		return queueEnabled = !queueEnabled;
+	public boolean togglebotLocked() {
+		return botLocked = !botLocked;
 	}
 	
-	public boolean isQueueEnabled() {
-		return queueEnabled;
+	public boolean isBotLocked() {
+		return botLocked;
 	}
 	
 	public boolean clearCacheOnShutdown() {
