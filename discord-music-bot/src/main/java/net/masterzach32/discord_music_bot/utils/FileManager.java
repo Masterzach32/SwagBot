@@ -49,7 +49,7 @@ public class FileManager {
 		for(File file : dir.listFiles()) {
 			files.add(file);
 			if(file.isDirectory()) {
-				logger.debug("refreshing:" + file.getName());
+				//logger.debug("refreshing:" + file.getName());
 				refresh(file);
 			}
 		}
@@ -58,6 +58,6 @@ public class FileManager {
 	private void refresh() {
 		files.clear();
 		refresh(new File(Constants.WORKING_DIRECTORY));
-		logger.debug("refresh:complete");
+		//logger.debug("refresh:complete");
 	}
 }

@@ -262,7 +262,7 @@ public class App {
     		public String execute(IMessage message, String[] params) {
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			String str = " There are currently **" + player.getPlaylistSize() + "** song(s) in queue.\n";
-    			str += "**Currently Playing: " + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + ", queued by **" + ((AudioTrack) player.getPlaylist().get(0)).getUser().getName() + "**\n";
+    			str += "**Currently Playing: " + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "**, queued by **" + ((AudioTrack) player.getPlaylist().get(0)).getUser().getName() + "**\n";
     			for(int i = 1; i < player.getPlaylist().size() || i < 11; i++) {
     				String s = "**" + i + "**. " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + ", queued by **" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getName() + "**\n";
     				if((str + s).length() > 2000)
@@ -270,6 +270,7 @@ public class App {
     				str += s;
     			
     			}
+    			logger.debug(str);
     			return str;
     		}
     	});
