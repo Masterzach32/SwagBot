@@ -17,7 +17,7 @@ public class FileManager {
 		setup();
 	}
 	
-	public File getFile(String fileName) {
+	public synchronized File getFile(String fileName) {
 		logger.debug("fetching:" + fileName);
 		refresh();
 		for(File file : files)
@@ -26,12 +26,19 @@ public class FileManager {
 		return new File(fileName);
 	}
 	
+	public synchronized void mkdir(String dir) {
+		File file = new File(dir);
+		if(!file.exists()) {
+			file.mkdirs();
+		}
+	}
+	
 	private void setup() {
 		logger.debug("preparing:filesystem");
 		files.add(new File(Constants.BINARY_STORAGE));
 		files.add(new File(Constants.DIRECTORY_STORAGE));
 		files.add(new File(Constants.AUDIO_CACHE));
-		files.add(new File(Constants.PLAYLIST_CACHE));
+		files.add(new File(Constants.GUILD_SETTINGS));
 		files.add(new File(Constants.LOG_STORAGE));
 		files.add(new File(Constants.TEMP_STORAGE));
 		for(File file : files) {
@@ -55,7 +62,7 @@ public class FileManager {
 		}
 	}
 	
-	private void refresh() {
+	private synchronized void refresh() {
 		files.clear();
 		refresh(new File(Constants.WORKING_DIRECTORY));
 		//logger.debug("refresh:complete");

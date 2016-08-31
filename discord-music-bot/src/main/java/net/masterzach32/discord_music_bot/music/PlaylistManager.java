@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import net.masterzach32.discord_music_bot.App;
 import net.masterzach32.discord_music_bot.utils.Constants;
@@ -22,17 +23,19 @@ public class PlaylistManager implements JSONReader {
 	public static final Logger logger = LoggerFactory.getLogger(App.class);
 	
 	private List<LocalPlaylist> playlists;
+	private String guildID;
 
-	public PlaylistManager() {
+	public PlaylistManager(String guildID) {
 		playlists = new ArrayList<LocalPlaylist>();
+		this.guildID = guildID;
 	}
 	
 	public void save() {
 		for(LocalPlaylist p : playlists) {
 			BufferedWriter fout = null;
 			try {
-				fout = new BufferedWriter(new FileWriter(Constants.PLAYLIST_CACHE + p.getName() + ".json"));
-				fout.write(new Gson().toJson(p));
+				fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guildID + "/playlists/" + p.getName() + ".json"));
+				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(p));
 				fout.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -41,7 +44,7 @@ public class PlaylistManager implements JSONReader {
 	}
 	
 	public void load() {
-		File[] playlists = App.manager.getFile(Constants.PLAYLIST_CACHE).listFiles();
+		File[] playlists = App.manager.getFile(Constants.GUILD_SETTINGS + guildID + "/playlists/").listFiles();
 		for(File file : playlists) {
 			RandomAccessFile fin = null;
 			byte[] buffer = null;

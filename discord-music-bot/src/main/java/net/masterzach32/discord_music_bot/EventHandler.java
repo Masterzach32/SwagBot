@@ -1,5 +1,7 @@
 package net.masterzach32.discord_music_bot;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,14 +29,18 @@ public class EventHandler {
 	@EventSubscriber
 	public void onGuildCreateEvent(GuildCreateEvent event) {
 		IGuild guild = event.getGuild();
-        String guildID = guild.getID();
+        try {
+			App.guilds.loadGuild(guild);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         
 	}
 
 	@EventSubscriber
 	public void onReady(ReadyEvent event) {
 		for(IGuild guild : event.getClient().getGuilds())
-			App.setVolume(App.prefs.getVolume(), guild);
+			App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
 		event.getClient().changeStatus(Status.game("Queue some music!"));
 	}
 	
@@ -71,8 +77,7 @@ public class EventHandler {
 		} catch (RateLimitException | DiscordException | MissingPermissionsException e) {
 			e.printStackTrace();
 		}
-		App.skipCounter = 0;
-		App.skipIDs.clear();
+		App.guilds.getGuild(event.getPlayer().getGuild()).resetSkipStats();
 	}
 	
 	@EventSubscriber

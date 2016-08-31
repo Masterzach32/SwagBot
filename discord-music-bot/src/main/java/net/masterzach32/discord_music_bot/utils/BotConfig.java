@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class BotConfig implements JSONReader {
 	
 	private String discordAuthKey;
-	private int volume, skipCounter;
 	private boolean botLocked, clearCacheOnShutdown;
 
 	/**
@@ -20,8 +20,6 @@ public class BotConfig implements JSONReader {
 	 */
 	public BotConfig() throws IOException {
 		// defaults
-		volume = 50;
-		skipCounter = 3;
 		discordAuthKey = "";
 		botLocked = false;
 		clearCacheOnShutdown = false;
@@ -37,7 +35,7 @@ public class BotConfig implements JSONReader {
 		BufferedWriter fout = null;
 		try {
 			fout = new BufferedWriter(new FileWriter(Constants.BOT_SETTINGS));
-			fout.write(new Gson().toJson(this));
+			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
 			fout.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -50,7 +48,7 @@ public class BotConfig implements JSONReader {
 		
 		try {
 			// File optionsFile = new File(path);
-			fin = new RandomAccessFile(Constants.BOT_SETTINGS, "r");		// "r" = open file for reading only
+			fin = new RandomAccessFile(Constants.BOT_SETTINGS, "r"); // "r" = open file for reading only
 			buffer = new byte[(int) fin.length()];
 			fin.readFully(buffer);
 			fin.close();
@@ -60,8 +58,6 @@ public class BotConfig implements JSONReader {
 		
 		String json = new String(buffer);
 		BotConfig file = new Gson().fromJson(json, BotConfig.class);
-		volume = file.getVolume();
-		skipCounter = file.getSkipCounter();
 		discordAuthKey = file.getDiscordAuthKey();
 		botLocked = file.isBotLocked();
 		clearCacheOnShutdown = file.clearCacheOnShutdown();
@@ -69,14 +65,6 @@ public class BotConfig implements JSONReader {
 	
 	public String getDiscordAuthKey() {
 		return discordAuthKey;
-	}
-	
-	public void setVolume(int vol) {
-		this.volume = vol;
-	}
-	
-	public int getVolume() {
-		return volume;
 	}
 
 	public boolean togglebotLocked() {
@@ -89,9 +77,5 @@ public class BotConfig implements JSONReader {
 	
 	public boolean clearCacheOnShutdown() {
 		return clearCacheOnShutdown;
-	}
-	
-	public int getSkipCounter() {
-		return skipCounter;
 	}
 }

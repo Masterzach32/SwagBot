@@ -70,7 +70,7 @@ public class Command {
 					hasPerms = true;
 			
 			if(!hasPerms)
-				return "**you do not have permission to use this command.**";
+				return "**You do not have permission to use this command.**";
 			return c.execute(message, params);
 		}
 		return c.execute(message, params);

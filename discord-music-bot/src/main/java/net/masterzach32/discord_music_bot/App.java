@@ -24,12 +24,9 @@ public class App {
 	
 	public static final Logger logger = LoggerFactory.getLogger(App.class);
 	
-	public static int skipCounter, maxSkip;
-	public static List<String> skipIDs;
-	
 	public static IDiscordClient client;
 	public static BotConfig prefs;
-	public static PlaylistManager playlists;
+	public static GuildManager guilds;
 	public static FileManager manager;
 	
     public static void main(String[] args) throws DiscordException, IOException {
@@ -39,12 +36,7 @@ public class App {
     	manager = new FileManager();
     	prefs = new BotConfig();
     	prefs.load();
-    	playlists = new PlaylistManager();
-    	playlists.load();
-    	skipCounter = 0;
-    	maxSkip = prefs.getSkipCounter();
-    	
-    	skipIDs = new ArrayList<String>();
+    	guilds = new GuildManager();
     	
     	client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
     	client.getDispatcher().registerListener(new EventHandler());
@@ -54,24 +46,32 @@ public class App {
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			if(params[0].equals(""))
-    				return "Type `~help <command>` to get more info on a specific command \n" + Command.listAllCommands();
+    				return "Type **" + Constants.COMMAND_PREFIX + "help <command>** to get more info on a specific command \n" + Command.listAllCommands();
     			else {
     				for(Command c : Command.commands)
     					if(c.getIdentifier().equals(params[0]))
-    						return "**Info for** `~" + params[0] + "`\n" + c.getInfo();
-    				return "**Could not find command** `~" + params[0] + "`";
+    						return c.getName() + "**" + Constants.COMMAND_PREFIX + params[0] + "**\n" + c.getInfo();
+    				return "Could not find command **" + Constants.COMMAND_PREFIX + params[0] + "**";
     			}
     		}
     	});
     	new Command("Shutdown Bot", "shutdown", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down", 2, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
-    			stop();
+    			try {
+					stop();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
     		    return "Shutting Down";
     		}
     	});
     	new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down", 2, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
-    			stop();
+    			try {
+					stop();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
     		    return "Shutting Down";
     		}
     	});
@@ -79,6 +79,8 @@ public class App {
     		public String execute(IMessage message, String[] params) {
     			if(prefs.isBotLocked())
     				return "**SwagBot is currently locked.**";
+    			if(message.getAuthor().getConnectedVoiceChannels().size() == 0)
+    				return "**You need to be in a voice channel to summon the bot.**";
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
     		    try {
 					voicechannel.join();
@@ -123,7 +125,7 @@ public class App {
     		    		mp3s.add(file);
     		    	Collections.shuffle(mp3s);
     		    	for(i = 0; i < mp3s.size(); i++)
-    		    		playAudioFromFile(mp3s.get(i).toString(), message.getGuild()); // TODO
+    		    		playAudioFromFile(mp3s.get(i).toString(), message.getGuild());
 				} catch (IOException | UnsupportedAudioFileException e) {
 					e.printStackTrace();
 				}
@@ -145,37 +147,37 @@ public class App {
     				if(role.getName().equals("Bot Commander"))
     					perms = true;
     			if(params[0].equals("-load") && perms) {
-    				playlists.load();
+    				guilds.getGuild(message.getGuild()).getPlaylistManager().load();;
     				return "**Re-loaded all playlists**";
     			} else if(params[0].equals("-save") && perms) {
-    				playlists.save();
+    				guilds.getGuild(message.getGuild()).getPlaylistManager().save();;
     				return "**Saved all playlists**";
     			} else if(params[0].equals("-list")) {
-    				return "**Playlists:** " + playlists.toString();
+    				return "**Playlists:** " + guilds.getGuild(message.getGuild()).getPlaylistManager().toString();
     			}
     			if(params.length < 2)
     				return "**Not enough parameters. Type** `~help playlist` **to get help with this command.**";
     			String command = params[0], name = params[1];
     			if(command.equals("-create")) {
-    				playlists.add(new LocalPlaylist(name));
+    				guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name));
     				return "Created playlist **" + name + "**";
     			} else if(command.equals("-add")) {
-    				if(playlists.get(name).add(params[2]))
+    				if(guilds.getGuild(message.getGuild()).getPlaylistManager().get(name).add(params[2]))
     					return "Added " + params[2] + " to **" + name + "**";
     				return "Playlist **" + name + "** already has " + params[2];
     			} else if(command.equals("-remove") && perms) {
-    				playlists.get(name).remove(params[2]);
+    				guilds.getGuild(message.getGuild()).getPlaylistManager().get(name).remove(params[2]);
     				return "Removed " + params[2] + " from **" + name + "**";
     			} else if(command.equals("-queue")) {
     				if(!canQueueMusic(message.getAuthor()))
     					return "**You must be in the bot's channel to queue music.**";
-    				playlists.get(name).queue(message.getAuthor(), message.getChannel(), message.getGuild());
+    				guilds.getGuild(message.getGuild()).getPlaylistManager().get(name).queue(message.getAuthor(), message.getChannel(), message.getGuild());
     				return "Queuing the playlist **" + name + "**";
     			} else if(command.equals("-delete") && perms) {
-    				playlists.remove(name);
+    				guilds.getGuild(message.getGuild()).getPlaylistManager().remove(name);
     				return "Deleted the playlist **" + name + "**";
     			} else if(command.equals("-info")) {
-    				return "Songs in **" + name + "**:\n" + playlists.get(name).getInfo();
+    				return "Songs in **" + name + "**:\n" + guilds.getGuild(message.getGuild()).getPlaylistManager().get(name).getInfo();
     			}
 		    return "**You either messed up your parameters or do not have access to this command.**";
     		}
@@ -210,17 +212,15 @@ public class App {
     		public String execute(IMessage message, String[] params) {
     			if(prefs.isBotLocked())
     				return "**SwagBot is currently locked.**";
-    			if(skipIDs.contains(message.getAuthor().getID()))
+    			if(guilds.getGuild(message.getGuild()).hasUserSkipped(message.getAuthor().getID()))
     				return "**You already voted to skip this song.**";
-    			skipCounter++;
-    			skipIDs.add(message.getAuthor().getID());
-    			if(skipCounter == maxSkip || message.getAuthor().getID().equals("97341976214511616")) {
+    			guilds.getGuild(message.getGuild()).addSkipID(message.getAuthor());
+    			if(guilds.getGuild(message.getGuild()).numUntilSkip() == 0 || message.getAuthor().getID().equals("97341976214511616")) {
     				AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
-    				skipCounter = 0;
-    				skipIDs.clear();
+    				guilds.getGuild(message.getGuild()).resetSkipStats();
     				return "**Skipped the current song.**";
     			}
-    		    return "**" + (maxSkip - skipCounter) + "** more votes needed to skip the current song.";
+    		    return "**" + guilds.getGuild(message.getGuild()).numUntilSkip() + "** more votes needed to skip the current song.";
     		}
     	});
     	new Command("Shuffle", "shuffle", "Shuffles the queue.", 1, new CommandEvent() {
@@ -263,8 +263,8 @@ public class App {
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			String str = " There are currently **" + player.getPlaylistSize() + "** song(s) in queue.\n";
     			str += "**Currently Playing: " + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "**, queued by **" + ((AudioTrack) player.getPlaylist().get(0)).getUser().getName() + "**\n";
-    			for(int i = 1; i < player.getPlaylist().size() || i < 11; i++) {
-    				String s = "**" + i + "**. " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + ", queued by **" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getName() + "**\n";
+    			for(int i = 1; i < player.getPlaylist().size(); i++) {
+    				String s = "**(" + i + ")** - **" + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + "**, queued by **" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getName() + "**\n";
     				if((str + s).length() > 2000)
     					break;
     				str += s;
@@ -284,14 +284,14 @@ public class App {
     	});
     }
     
-    private static void stop() {
+    private static void stop() throws IOException {
     	try {
 			client.logout();
 		} catch (RateLimitException | DiscordException e) {
 			e.printStackTrace();
 		}
 		prefs.save();
-		playlists.save();
+		guilds.saveGuildSettings();
 		if(prefs.clearCacheOnShutdown())
 			clearCache();
 		System.exit(0);
@@ -389,6 +389,6 @@ public class App {
     public static void setVolume(float vol, IGuild guild) {
         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
         player.setVolume(vol/100);
-        prefs.setVolume((int) vol); 
+        guilds.getGuild(guild).setVolume((int) vol); 
     }
 }
