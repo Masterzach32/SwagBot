@@ -19,27 +19,26 @@ public class GuildManager {
 	
 	public void loadGuild(IGuild guild) throws IOException {
 		App.manager.mkdir(Constants.GUILD_SETTINGS + guild.getID() + "/playlists/");
-		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/prefs.json");
+		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON);
 		if(!prefs.exists()) {
 			prefs.createNewFile();
 			BufferedWriter fout = null;
-			fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/prefs.json"));
-			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new Guild(guild, 3, 50)));
+			fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
+			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new Guild(guild, 3, 50, false)));
 			fout.close();
 		}
 		
 		RandomAccessFile fin = null;
 		byte[] buffer = null;
 		
-		// File optionsFile = new File(path);
-		fin = new RandomAccessFile(Constants.GUILD_SETTINGS + guild.getID() + "/prefs.json", "r"); // "r" = open file for reading only
+		fin = new RandomAccessFile(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON, "r"); // "r" = open file for reading only
 		buffer = new byte[(int) fin.length()];
 		fin.readFully(buffer);
 		fin.close();
 		
 		String json = new String(buffer);
 		Guild temp = new Gson().fromJson(json, Guild.class);
-		Guild g = new Guild(guild, temp.maxSkips, temp.volume);
+		Guild g = new Guild(guild, temp.maxSkips, temp.volume, temp.botLocked);
 		g.playlists.load();
 		guilds.add(g);
 		
@@ -50,7 +49,7 @@ public class GuildManager {
 			guild.playlists.save();
 			
 			BufferedWriter fout = null;
-			fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/prefs.json"));
+			fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
 			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(guild));
 			fout.close();
 		}

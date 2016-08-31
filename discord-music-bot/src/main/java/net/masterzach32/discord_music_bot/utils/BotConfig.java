@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder;
 public class BotConfig implements JSONReader {
 	
 	private String discordAuthKey;
-	private boolean botLocked, clearCacheOnShutdown;
+	private boolean clearCacheOnShutdown;
 
 	/**
 	 * Creates a reference to the preferences file, and generates one if it doesn't exist.
@@ -21,58 +21,39 @@ public class BotConfig implements JSONReader {
 	public BotConfig() throws IOException {
 		// defaults
 		discordAuthKey = "";
-		botLocked = false;
 		clearCacheOnShutdown = false;
 		
-		File prefs = new File(Constants.BOT_SETTINGS);
+		File prefs = new File(Constants.BOT_JSON);
 		if(!prefs.exists()) {
 			prefs.createNewFile();
 			save();
 		}
 	}
 	
-	public void save() {
+	public void save() throws IOException {
 		BufferedWriter fout = null;
-		try {
-			fout = new BufferedWriter(new FileWriter(Constants.BOT_SETTINGS));
-			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
-			fout.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		fout = new BufferedWriter(new FileWriter(Constants.BOT_JSON));
+		fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
+		fout.close();
 	}
 	
-	public void load() {
+	public void load() throws IOException {
 		RandomAccessFile fin = null;
 		byte[] buffer = null;
 		
-		try {
-			// File optionsFile = new File(path);
-			fin = new RandomAccessFile(Constants.BOT_SETTINGS, "r"); // "r" = open file for reading only
-			buffer = new byte[(int) fin.length()];
-			fin.readFully(buffer);
-			fin.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		fin = new RandomAccessFile(Constants.BOT_JSON, "r");
+		buffer = new byte[(int) fin.length()];
+		fin.readFully(buffer);
+		fin.close();
 		
 		String json = new String(buffer);
 		BotConfig file = new Gson().fromJson(json, BotConfig.class);
 		discordAuthKey = file.getDiscordAuthKey();
-		botLocked = file.isBotLocked();
 		clearCacheOnShutdown = file.clearCacheOnShutdown();
 	}
 	
 	public String getDiscordAuthKey() {
 		return discordAuthKey;
-	}
-
-	public boolean togglebotLocked() {
-		return botLocked = !botLocked;
-	}
-	
-	public boolean isBotLocked() {
-		return botLocked;
 	}
 	
 	public boolean clearCacheOnShutdown() {

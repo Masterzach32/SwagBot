@@ -3,8 +3,6 @@ package net.masterzach32.discord_music_bot;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -77,7 +75,7 @@ public class App {
     	});
     	new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     			if(message.getAuthor().getConnectedVoiceChannels().size() == 0)
     				return "**You need to be in a voice channel to summon the bot.**";
@@ -93,7 +91,7 @@ public class App {
     	});
     	new Command("Kick", "kick", "Kicks the bot from the current voice channel.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params){
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
     		    
@@ -104,32 +102,13 @@ public class App {
     	});
     	new Command("Set Volume", "volume", "Sets the volume of the bot.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "SwagBot is currently locked.";
     			if(params == null || params[0] == null || params[0] == "")
     				return "Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100+ "**";
     		    float vol = Float.parseFloat(params[0]);
     		    setVolume(vol, message.getGuild());
     		    return "Set volume to **" + vol + "**";
-    		}
-    	});
-    	new Command("Play Cached Files", "cache", "Queue all songs in the cache folder.", 1, new CommandEvent() {
-    		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
-    				return "**SwagBot is currently locked.**";
-    			int i = 0;
-    		    try {
-    		    	File[] files = new File("cache/").listFiles();
-    		    	List<File> mp3s = new ArrayList<File>();
-    		    	for(File file : files)
-    		    		mp3s.add(file);
-    		    	Collections.shuffle(mp3s);
-    		    	for(i = 0; i < mp3s.size(); i++)
-    		    		playAudioFromFile(mp3s.get(i).toString(), message.getGuild());
-				} catch (IOException | UnsupportedAudioFileException e) {
-					e.printStackTrace();
-				}
-    		    return "Queued all **" + i + "** songs in the cache folder.";
     		}
     	});
     	new Command("Clear cache", "clearcache", "Delete all songs in the cache folder.", 2, new CommandEvent() {
@@ -139,7 +118,7 @@ public class App {
     	});
     	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist [arg] [name] <param>\nArgs: -create, -add, -remove, -queue, -list, -info", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     			boolean perms = false;
     			List<IRole> userRoles = message.getAuthor().getRolesForGuild(message.getChannel().getGuild());
@@ -161,6 +140,8 @@ public class App {
     			if(command.equals("-create")) {
     				guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name));
     				return "Created playlist **" + name + "**";
+    			} else if(guilds.getGuild(message.getGuild()).getPlaylistManager().get(name) == null) {
+    				return "There is no playlist with the name **" + name + "**";
     			} else if(command.equals("-add")) {
     				if(guilds.getGuild(message.getGuild()).getPlaylistManager().get(name).add(params[2]))
     					return "Added " + params[2] + " to **" + name + "**";
@@ -184,7 +165,7 @@ public class App {
     	});
     	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     			boolean s = false;
     			if(!canQueueMusic(message.getAuthor()))
@@ -192,8 +173,6 @@ public class App {
     		    try {
 					if(params[0].indexOf('-') != 0)
 						s = playAudioFromYouTube(params[0], true, message.getAuthor(), message.getChannel(), message.getGuild());
-					//else if(params[0].equals("-yt"))
-					//	s = playAudioFromYouTube(params[1], message.getGuild());
 					else if(params[0].equals("-dl"))
 						s = playAudioFromUrl(params[1], message.getGuild());
 					else if(params[0].equals("-f"))
@@ -210,7 +189,7 @@ public class App {
     	});
     	new Command("Skip", "skip", "Skips the current song in the playlist.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     			if(guilds.getGuild(message.getGuild()).hasUserSkipped(message.getAuthor().getID()))
     				return "**You already voted to skip this song.**";
@@ -225,7 +204,7 @@ public class App {
     	});
     	new Command("Shuffle", "shuffle", "Shuffles the queue.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).shuffle();
     		    return "**Shuffled the playlist.**";
@@ -233,15 +212,15 @@ public class App {
     	});
     	new Command("Pause", "pause", "Pause the current song.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(true);
-    		    return "*Paused the playlist.**";
+    		    return "**Paused the playlist.**";
     		}
     	});
     	new Command("Resume", "resume", "Resume playback.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(false);
     		    return "**Resumed the playlist.**";
@@ -249,7 +228,7 @@ public class App {
     	});
     	new Command("Clear Queue", "clear", "Clears the queue.", 1, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(prefs.isBotLocked())
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			if(player.getPlaylistSize() == 0)
@@ -276,8 +255,8 @@ public class App {
     	});
     	new Command("Lock the bot", "l", "Toggles wether the bot can be used", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			prefs.togglebotLocked();
-    			if(prefs.isBotLocked())
+    			guilds.getGuild(message.getGuild()).toggleBotLocked();
+    			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot has been locked.**";
     			return "**SwagBot is no longer locked.**";
     		}

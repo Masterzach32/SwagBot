@@ -13,13 +13,15 @@ public class Guild {
 	protected transient PlaylistManager playlists;
 	protected transient List<String> skipIDs;
 	protected int maxSkips, volume;
+	protected boolean botLocked;
 	
-	public Guild(IGuild guild, int maxSkips, int volume) {
+	public Guild(IGuild guild, int maxSkips, int volume, boolean botLocked) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
 		skipIDs = new LinkedList<String>();
 		this.maxSkips = maxSkips;
 		this.volume = volume;
+		this.botLocked = botLocked;
 	}
 	
 	public String getID() {
@@ -48,6 +50,14 @@ public class Guild {
 	
 	public void setVolume(int vol) {
 		this.volume = vol;
+	}
+	
+	public boolean toggleBotLocked() {
+		return botLocked = !botLocked;
+	}
+	
+	public boolean isBotLocked() {
+		return botLocked;
 	}
 	
 	public PlaylistManager getPlaylistManager() {
