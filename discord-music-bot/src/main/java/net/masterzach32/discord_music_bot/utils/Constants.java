@@ -3,7 +3,7 @@ package net.masterzach32.discord_music_bot.utils;
 public class Constants {
 
 	// commands
-	public static final String COMMAND_PREFIX = "#";
+	public static final String COMMAND_PREFIX = "~";
 	
 	// storage
 	public static final String WORKING_DIRECTORY = "./";

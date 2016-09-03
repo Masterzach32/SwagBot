@@ -60,7 +60,7 @@ public class PlaylistManager implements JSONReader {
 			
 			String json = new String(buffer);
 			this.playlists.add(new Gson().fromJson(json, LocalPlaylist.class));
-			logger.debug("loaded:" + file.getName());
+			logger.info("loaded:" + file.getName());
 		}
 	}
 	

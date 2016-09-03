@@ -17,10 +17,13 @@ import sx.blah.discord.handle.obj.IUser;
 public class LocalPlaylist {
 	
 	private String name;
+	private boolean locked, requiresPerms;
 	private List<String> music;
 
-	public LocalPlaylist(String name) {
+	public LocalPlaylist(String name, boolean locked, boolean requiresPerms) {
 		this.name = name;
+		this.locked = locked;
+		this.requiresPerms = requiresPerms;
 		music = new ArrayList<String>();
 	}
 	
@@ -73,5 +76,21 @@ public class LocalPlaylist {
 	
 	public int songs() {
 		return music.size();
+	}
+	
+	public boolean isLocked() {
+		return locked;
+	}
+	
+	public void toggleLocked() {
+		this.locked = !locked;
+	}
+	
+	public boolean requiresPerms() {
+		return requiresPerms;
+	}
+	
+	public void toggleRequiresPerms() {
+		this.requiresPerms = !requiresPerms;
 	}
 }

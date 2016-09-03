@@ -70,7 +70,7 @@ public class EventHandler {
 	@EventSubscriber
 	public void onTrackStartEvent(TrackStartEvent event) {
 		event.getClient().changeStatus(Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
-		logger.debug("playing:" + Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
+		logger.info("playing:" + Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
 		try {
 			if(((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce())
 				new MessageBuilder(App.client).withContent(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().mention() + ", Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**").withChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getChannel()).build();

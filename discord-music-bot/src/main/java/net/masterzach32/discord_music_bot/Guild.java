@@ -12,6 +12,7 @@ public class Guild {
 	protected transient IGuild guild;
 	protected transient PlaylistManager playlists;
 	protected transient List<String> skipIDs;
+	protected String guildName;
 	protected int maxSkips, volume;
 	protected boolean botLocked;
 	
@@ -19,6 +20,7 @@ public class Guild {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
 		skipIDs = new LinkedList<String>();
+		this.guildName = guild.getName();
 		this.maxSkips = maxSkips;
 		this.volume = volume;
 		this.botLocked = botLocked;

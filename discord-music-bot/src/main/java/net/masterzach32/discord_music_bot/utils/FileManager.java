@@ -18,7 +18,7 @@ public class FileManager {
 	}
 	
 	public synchronized File getFile(String fileName) {
-		logger.debug("fetching:" + fileName);
+		logger.info("fetching:" + fileName);
 		refresh();
 		for(File file : files)
 			if(file.getName().indexOf('.') >= 0 && file.getName().substring(0, file.getName().indexOf('.')).equals(fileName) || file.getName().contains(fileName))
@@ -34,7 +34,7 @@ public class FileManager {
 	}
 	
 	private void setup() {
-		logger.debug("preparing:filesystem");
+		logger.info("preparing:filesystem");
 		files.add(new File(Constants.BINARY_STORAGE));
 		files.add(new File(Constants.DIRECTORY_STORAGE));
 		files.add(new File(Constants.AUDIO_CACHE));
@@ -44,9 +44,9 @@ public class FileManager {
 		for(File file : files) {
 			if(!file.exists()) {
 				file.mkdir();
-				logger.debug("created:" + file.getName());
+				logger.info("created:" + file.getName());
 			} else {
-				logger.debug("found:" + file.getName());
+				logger.info("found:" + file.getName());
 			}
 		}
 		refresh();
@@ -56,7 +56,7 @@ public class FileManager {
 		for(File file : dir.listFiles()) {
 			files.add(file);
 			if(file.isDirectory()) {
-				//logger.debug("refreshing:" + file.getName());
+				//logger.info("refreshing:" + file.getName());
 				refresh(file);
 			}
 		}
@@ -65,6 +65,6 @@ public class FileManager {
 	private synchronized void refresh() {
 		files.clear();
 		refresh(new File(Constants.WORKING_DIRECTORY));
-		//logger.debug("refresh:complete");
+		//logger.info("refresh:complete");
 	}
 }
