@@ -50,7 +50,7 @@ public class App {
     			else {
     				for(Command c : Command.commands)
     					if(c.getIdentifier().equals(params[0]))
-    						return c.getName() + "**" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**\n" + c.getInfo();
+    						return "**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo();
     				return "Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**";
     			}
     		}
@@ -276,7 +276,9 @@ public class App {
     }
     
     private static void stop() throws IOException {
+    	logger.info("user initiated shutdown");
     	try {
+    		client.changeStatus(Status.game("Shutting Down"));
 			client.logout();
 		} catch (RateLimitException | DiscordException e) {
 			e.printStackTrace();

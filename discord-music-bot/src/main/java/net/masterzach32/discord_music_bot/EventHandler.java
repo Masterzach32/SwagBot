@@ -38,6 +38,9 @@ public class EventHandler {
     public void onMessageEvent(MessageReceivedEvent event) {
 		String message = event.getMessage().getContent();
 		
+		if(event.getMessage().getGuild() == null)
+			return;
+		
 		if(true && message.length() < 1 || message.charAt(0) != App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix())
 			return;
 		
