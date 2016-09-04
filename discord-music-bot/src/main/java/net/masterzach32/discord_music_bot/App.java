@@ -43,8 +43,10 @@ public class App {
     	// register commands
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
-    			if(params[0].equals(""))
-    				return "Type **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + "help <command>** to get more info on a specific command \n" + Command.listAllCommands(message.getGuild());
+    			if(params[0].equals("")) {
+    				Command.listAllCommands(message.getAuthor(), message.getGuild());
+    				return "A list of commands has been sent to your Direct Messages.";
+    			}
     			else {
     				for(Command c : Command.commands)
     					if(c.getIdentifier().equals(params[0]))

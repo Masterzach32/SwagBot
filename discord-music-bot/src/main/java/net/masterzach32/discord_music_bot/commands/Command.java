@@ -7,6 +7,7 @@ import net.masterzach32.discord_music_bot.App;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
@@ -77,10 +78,22 @@ public class Command {
 		return c.execute(message, params);
 	}
 	
-	public static String listAllCommands(IGuild guild) {
-		String str = "```";
+	public static void listAllCommands(IUser user, IGuild guild) {
+		String str = "Commands for SwagBot:\n\n```";
 		for(Command command : commands)
-			str += "" + App.guilds.getGuild(guild).getCommandPrefix() + command.identifier /*+ "\t\t" + command.name + "\t\t" + command.info*/ + "\n";
-		return str + "```";
+			str += "" + App.guilds.getGuild(guild).getCommandPrefix() + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
+		str += "```\n\n";
+		str += "To view more information for a command, use `" + App.guilds.getGuild(guild).getCommandPrefix() + "help <command>`";
+		str += "\n\n";
+		str += "Check out the development for SwagBot at:\nhttps://github.com/Masterzach32/SwagBot";
+		str += "\n\n";
+		str += "Check out my creator's website:\nhttp://masterzach32.net";
+		str += "\n\n";
+		str += "Join my home guild Best Group World:\nhttps://discord.gg/swmuyCc";
+		try {
+			App.client.getOrCreatePMChannel(user).sendMessage(str);
+		} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
+			e.printStackTrace();
+		}
 	}
 }
