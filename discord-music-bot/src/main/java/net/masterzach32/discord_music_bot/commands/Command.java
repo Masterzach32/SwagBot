@@ -3,7 +3,8 @@ package net.masterzach32.discord_music_bot.commands;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.masterzach32.discord_music_bot.utils.Constants;
+import net.masterzach32.discord_music_bot.App;
+import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.util.DiscordException;
@@ -60,7 +61,7 @@ public class Command {
 				c = command;
 		
 		if(c == null)
-			return "No command found for `" + Constants.COMMAND_PREFIX + identifier + "`";
+			return "No command found for `" + App.guilds.getGuild(message.getGuild()).getCommandPrefix() + identifier + "`";
 		
 		if(c.permLevel > 0) {
 			boolean hasPerms = false;
@@ -76,10 +77,10 @@ public class Command {
 		return c.execute(message, params);
 	}
 	
-	public static String listAllCommands() {
+	public static String listAllCommands(IGuild guild) {
 		String str = "```";
 		for(Command command : commands)
-			str += "" + Constants.COMMAND_PREFIX + command.identifier /*+ "\t\t" + command.name + "\t\t" + command.info*/ + "\n";
+			str += "" + App.guilds.getGuild(guild).getCommandPrefix() + command.identifier /*+ "\t\t" + command.name + "\t\t" + command.info*/ + "\n";
 		return str + "```";
 	}
 }

@@ -7,21 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import net.masterzach32.discord_music_bot.commands.Command;
 import net.masterzach32.discord_music_bot.music.AudioTrack;
-import net.masterzach32.discord_music_bot.utils.Constants;
 import sx.blah.discord.api.events.EventSubscriber;
-import sx.blah.discord.handle.impl.events.GuildCreateEvent;
-import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
-import sx.blah.discord.handle.impl.events.ReadyEvent;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.Status;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MessageBuilder;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
-import sx.blah.discord.util.audio.events.PauseStateChangeEvent;
-import sx.blah.discord.util.audio.events.TrackFinishEvent;
-import sx.blah.discord.util.audio.events.TrackStartEvent;
-
+import sx.blah.discord.handle.impl.events.*;
+import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.util.*;
+import sx.blah.discord.util.audio.events.*;
 public class EventHandler {
 	
 	public static final Logger logger = LoggerFactory.getLogger(EventHandler.class);
@@ -48,7 +38,7 @@ public class EventHandler {
     public void onMessageEvent(MessageReceivedEvent event) {
 		String message = event.getMessage().getContent();
 		
-		if(true && message.length() < 1 || message.charAt(0) != Constants.COMMAND_PREFIX.charAt(0))
+		if(true && message.length() < 1 || message.charAt(0) != App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix())
 			return;
 		
 		String identifier;

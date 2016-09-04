@@ -9,18 +9,20 @@ import sx.blah.discord.handle.obj.IUser;
 
 public class Guild {
 	
-	protected transient IGuild guild;
-	protected transient PlaylistManager playlists;
-	protected transient List<String> skipIDs;
-	protected String guildName;
-	protected int maxSkips, volume;
-	protected boolean botLocked;
+	private transient IGuild guild;
+	private transient PlaylistManager playlists;
+	private transient List<String> skipIDs;
+	private String guildName;
+	private char commandPrefix;
+	private int maxSkips, volume;
+	private boolean botLocked;
 	
-	public Guild(IGuild guild, int maxSkips, int volume, boolean botLocked) {
+	public Guild(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
 		skipIDs = new LinkedList<String>();
-		this.guildName = guild.getName();
+		this.guildName = guild.getName();			
+		this.commandPrefix = commandPrefix;
 		this.maxSkips = maxSkips;
 		this.volume = volume;
 		this.botLocked = botLocked;
@@ -28,6 +30,10 @@ public class Guild {
 	
 	public String getID() {
 		return guild.getID();
+	}
+	
+	public String getName() {
+		return guildName;
 	}
 	
 	public void resetSkipStats() {
@@ -44,6 +50,10 @@ public class Guild {
 	
 	public int numUntilSkip() {
 		return maxSkips - skipIDs.size();
+	}
+	
+	public int getMaxSkips() {
+		return maxSkips;
 	}
 	
 	public int getVolume() {
@@ -64,5 +74,13 @@ public class Guild {
 	
 	public PlaylistManager getPlaylistManager() {
 		return playlists;
+	}
+	
+	public char getCommandPrefix() {
+		return commandPrefix;
+	}
+	
+	public void setCommandPrefix(char prefix) {
+		this.commandPrefix = prefix;
 	}
 }

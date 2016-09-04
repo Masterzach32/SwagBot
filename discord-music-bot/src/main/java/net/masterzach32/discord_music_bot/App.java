@@ -44,12 +44,12 @@ public class App {
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			if(params[0].equals(""))
-    				return "Type **" + Constants.COMMAND_PREFIX + "help <command>** to get more info on a specific command \n" + Command.listAllCommands();
+    				return "Type **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + "help <command>** to get more info on a specific command \n" + Command.listAllCommands(message.getGuild());
     			else {
     				for(Command c : Command.commands)
     					if(c.getIdentifier().equals(params[0]))
-    						return c.getName() + "**" + Constants.COMMAND_PREFIX + params[0] + "**\n" + c.getInfo();
-    				return "Could not find command **" + Constants.COMMAND_PREFIX + params[0] + "**";
+    						return c.getName() + "**" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**\n" + c.getInfo();
+    				return "Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**";
     			}
     		}
     	});
@@ -73,6 +73,20 @@ public class App {
     		    return "Shutting Down";
     		}
     	});
+    	new Command("Lock the bot", "l", "Toggles wether the bot can be used.", 1, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			guilds.getGuild(message.getGuild()).toggleBotLocked();
+    			return guilds.getGuild(message.getGuild()).isBotLocked() ? "**SwagBot has been locked.**" : "**SwagBot is no longer locked.**";
+    		}
+    	});
+    	new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, new CommandEvent() {
+    		public String execute(IMessage message, String[] params) {
+    			if(params[0] == "")
+    				return "**Command prefix must be 1 character.**";
+    			guilds.getGuild(message.getGuild()).setCommandPrefix(params[0].charAt(0));
+    			return "Commamd prefix set to **" + params[0].charAt(0) + "**";
+    		}
+    	});
     	new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, new CommandEvent() {
     		public String execute(IMessage message, String[] params) {
     			if(guilds.getGuild(message.getGuild()).isBotLocked())
@@ -93,11 +107,12 @@ public class App {
     		public String execute(IMessage message, String[] params){
     			if(guilds.getGuild(message.getGuild()).isBotLocked())
     				return "**SwagBot is currently locked.**";
-    		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
-    		    
-    		    voicechannel.leave();
-    		    
-    		    return "Left **" + voicechannel.getName() + "**.";
+    		    for(IVoiceChannel c : client.getConnectedVoiceChannels())
+    		    	if(message.getGuild().getVoiceChannelByID(c.getID()) != null) {
+    		    		message.getGuild().getVoiceChannelByID(c.getID()).leave();
+    		    		return "Left **" + message.getGuild().getVoiceChannelByID(c.getID()).getName() + "**.";
+    		    	}
+    		    return "**The bot is not currently in a voice channel.**";
     		}
     	});
     	new Command("Set Volume", "volume", "Sets the volume of the bot.", 0, new CommandEvent() {
@@ -152,18 +167,12 @@ public class App {
     				return "Songs in **" + name + "**:\n" + playlist.getInfo();
     			} else if(command.equals("-lock") && perms) {
     				playlist.toggleLocked();
-    				if(playlist.isLocked())
-    					return "Playlist **" + name + "** can no longer be edited.";
-    				return "Playlist **" + name + "** can now be edited.";
+    				return playlist.isLocked() ? "Playlist **" + name + "** can no longer be edited." : "Playlist **" + name + "** can now be edited.";
     			} else if(command.equals("-perms") && perms) {
     				playlist.toggleRequiresPerms();
-    				if(playlist.requiresPerms())
-    					return "Playlist **" + name + "** now requires moderator privelages to edit.";
-    				return "Playlist **" + name + "** no longer requires moderator privelages to edit.";
+    				return playlist.requiresPerms() ? "Playlist **" + name + "** now requires moderator privelages to edit." : "Playlist **" + name + "** no longer requires moderator privelages to edit.";
     			} else if(command.equals("-add") && !playlist.requiresPerms() && !playlist.isLocked()) {
-    				if(playlist.add(params[2]))
-    					return "Added " + params[2] + " to **" + name + "**";
-    				return "Playlist **" + name + "** already has " + params[2];
+    				return playlist.add(params[2]) ? "Added " + params[2] + " to **" + name + "**" : "Playlist **" + name + "** already has " + params[2];
     			} else if(command.equals("-remove") && perms && !playlist.isLocked()) {
     				playlist.remove(params[2]);
     				return "Removed " + params[2] + " from **" + name + "**";
@@ -193,9 +202,7 @@ public class App {
 				} catch (IOException | UnsupportedAudioFileException | InterruptedException e) {
 					e.printStackTrace();
 				}
-    		    if(s)
-    		    	return "**Queued** " + params[params.length-1];
-    		    return "An error occured while queueing this file: " + params[params.length-1];
+    		    return s ? "**Queued** " + params[params.length-1] : "An error occured while queueing this file: " + params[params.length-1];
     		}
     	});
     	new Command("Skip", "skip", "Skips the current song in the playlist.", 0, new CommandEvent() {
@@ -262,14 +269,6 @@ public class App {
     			}
     			logger.info(str);
     			return str;
-    		}
-    	});
-    	new Command("Lock the bot", "l", "Toggles wether the bot can be used", 0, new CommandEvent() {
-    		public String execute(IMessage message, String[] params) {
-    			guilds.getGuild(message.getGuild()).toggleBotLocked();
-    			if(guilds.getGuild(message.getGuild()).isBotLocked())
-    				return "**SwagBot has been locked.**";
-    			return "**SwagBot is no longer locked.**";
     		}
     	});
     }
@@ -368,7 +367,7 @@ public class App {
     	if(yt_err != 0 || ffmpeg_err != 0) {
     		logger.info("failed:" + s_url);
     		return false;
-    	}
+    	} 
     	if(yt != null)
     		yt.delete();
     	
