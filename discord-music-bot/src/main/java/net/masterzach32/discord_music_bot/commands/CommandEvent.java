@@ -7,6 +7,6 @@ import sx.blah.discord.util.RateLimitException;
 
 public interface CommandEvent {
 
-	public String execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException;
+	public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException;
 	
 }

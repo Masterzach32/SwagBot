@@ -9,6 +9,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
@@ -45,16 +46,15 @@ public class Command {
 		return permLevel;
 	}
 	
-	public String execute(IMessage message, String[] params) {
+	public void execute(IMessage message, String[] params) {
 		try {
-			return event.execute(message, params);
+			event.execute(message, params);
 		} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
 			e.printStackTrace();
 		}
-		return "";
 	}
 	
-	public static String executeCommand(IMessage message, String identifier, String[] params) {
+	public static void executeCommand(IMessage message, String identifier, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException {
 		Command c = null;
 		
 		for(Command command : commands)
@@ -62,9 +62,9 @@ public class Command {
 				c = command;
 		
 		if(c == null)
-			return "No command found for `" + App.guilds.getGuild(message.getGuild()).getCommandPrefix() + identifier + "`";
+			return;
 		
-		if(c.permLevel > 0) {
+		else if(c.permLevel > 0) {
 			boolean hasPerms = false;
 			List<IRole> userRoles = message.getAuthor().getRolesForGuild(message.getChannel().getGuild());
 			for(IRole role : userRoles)
@@ -72,10 +72,12 @@ public class Command {
 					hasPerms = true;
 			
 			if(!hasPerms)
-				return "**You do not have permission to use this command.**";
-			return c.execute(message, params);
+				new MessageBuilder(App.client).withContent("**You do not have permission to use this command.**").withChannel(message.getChannel()).build();
+			else 
+				c.execute(message, params);
 		}
-		return c.execute(message, params);
+		else
+			c.execute(message, params);
 	}
 	
 	public static void listAllCommands(IUser user, IGuild guild) {

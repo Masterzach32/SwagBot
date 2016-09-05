@@ -38,8 +38,14 @@ public class EventHandler {
     public void onMessageEvent(MessageReceivedEvent event) {
 		String message = event.getMessage().getContent();
 		
-		if(event.getMessage().getGuild() == null)
+		if(event.getMessage().getChannel().isPrivate()) {
+			try {
+				App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("**SwagBot** does not respond to DM commands. The only command available is ~help");
+			} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
+				e.printStackTrace();
+			}
 			return;
+		}
 		
 		if(true && message.length() < 1 || message.charAt(0) != App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix())
 			return;
@@ -54,7 +60,7 @@ public class EventHandler {
 		}
 		
 		try {
-			event.getMessage().reply(Command.executeCommand(event.getMessage(), identifier, params));
+			Command.executeCommand(event.getMessage(), identifier, params);
 		} catch (RateLimitException | DiscordException | MissingPermissionsException e) {
 			e.printStackTrace();
 		}
@@ -66,7 +72,7 @@ public class EventHandler {
 		logger.info("playing:" + Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
 		try {
 			if(((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce())
-				new MessageBuilder(App.client).withContent(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().mention() + ", Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**").withChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getChannel()).build();
+				App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().mention() + " Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
 		} catch (RateLimitException | DiscordException | MissingPermissionsException e) {
 			e.printStackTrace();
 		}
