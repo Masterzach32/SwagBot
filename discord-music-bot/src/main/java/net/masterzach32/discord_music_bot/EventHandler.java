@@ -40,7 +40,7 @@ public class EventHandler {
 		
 		if(event.getMessage().getChannel().isPrivate()) {
 			try {
-				App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("**SwagBot** does not respond to DM commands. The only command available is ~help");
+				App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("**SwagBot** does not respond to DM commands. The only command available to DMs is **~help**");
 			} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
 				e.printStackTrace();
 			}
@@ -61,7 +61,7 @@ public class EventHandler {
 		
 		try {
 			Command.executeCommand(event.getMessage(), identifier, params);
-		} catch (RateLimitException | DiscordException | MissingPermissionsException e) {
+		} catch (DiscordException | RateLimitException | MissingPermissionsException e) {
 			e.printStackTrace();
 		}
     }
@@ -72,7 +72,7 @@ public class EventHandler {
 		logger.info("playing:" + Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
 		try {
 			if(((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce())
-				App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().mention() + " Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
+				App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
 		} catch (RateLimitException | DiscordException | MissingPermissionsException e) {
 			e.printStackTrace();
 		}

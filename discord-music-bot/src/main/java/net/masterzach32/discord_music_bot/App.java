@@ -30,6 +30,14 @@ public class App {
     public static void main(String[] args) throws DiscordException, IOException {
     	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
     	// beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
+    	 Thread.setDefaultUncaughtExceptionHandler(
+                 new Thread.UncaughtExceptionHandler() {
+                     @Override 
+                     public void uncaughtException(Thread t, Throwable e) {
+                         System.out.println(t.getName() + ": " + e);
+                         e.printStackTrace();
+                     }
+                 });
     	
     	manager = new FileManager();
     	prefs = new BotConfig();
@@ -103,7 +111,7 @@ public class App {
     			for(IUser user : App.client.getUsers())
     				if(user.getName().equals(name)) {
 						message.getGuild().banUser(user);
-						sendMessage("@here User **" + user + "** has been **banned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
+						sendMessage("@everyone User **" + user + "** has been **banned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
 						return;
     				}
     			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", message.getAuthor(), App.client.getChannelByID("222099708649144320"));
@@ -118,7 +126,7 @@ public class App {
     			for(IUser user : App.client.getUsers())
     				if(user.getName().equals(name)) {
 						message.getGuild().pardonUser(user.getID());
-						sendMessage("@here User **" + user + "** has been **pardoned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
+						sendMessage("@everyone User **" + user + "** has been **pardoned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
 						return;
     				}
     			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", message.getAuthor(), App.client.getChannelByID("222099708649144320"));
@@ -134,7 +142,7 @@ public class App {
     				if(user.getName().equals(name)) {
 						message.getGuild().banUser(user, 1);
 						message.getGuild().pardonUser(user.getID());
-						sendMessage("@here User **" + user + "** has been **soft banned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
+						sendMessage("@everyone User **" + user + "** has been **soft banned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
 						return;
     				}
     			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", message.getAuthor(), App.client.getChannelByID("222099708649144320"));
@@ -149,7 +157,7 @@ public class App {
     			for(IUser user : App.client.getUsers())
     				if(user.getName().equals(name)) {
 						message.getGuild().kickUser(user);
-						sendMessage("@here User **" + user + "** has been **kicked** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
+						sendMessage("@everyone User **" + user + "** has been **kicked** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
 						return;
     				}
     			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", message.getAuthor(), App.client.getChannelByID("222099708649144320"));
@@ -169,30 +177,71 @@ public class App {
     					sendMessage("Amount must be a number.", message.getAuthor(), channel);
     				}
     				if(x < 2 || x > 100)
-    					sendMessage("Invalid amount specified.  Must prune between 2-100 messages.", message.getAuthor(), channel);
+    					sendMessage("Invalid amount specified. Must prune between 2-100 messages.", message.getAuthor(), channel);
     				else {
+    					final int toDelete = x;
+    					IMessage m = sendMessage("**Removing...**", null, channel);
     					try {
-    						IMessage m = sendMessage("**Removing...**", null, channel);
-							message.delete();
-							Thread.sleep(210);
-							for(int i = 0; i < x; i++) {
-								logger.info("pruning:" + list.get(1).getContent());
-								list.get(1).delete();
-								Thread.sleep(210);
-	    					}
-							m.edit(message.getAuthor().mention() + " Removed the last " + x + " messages.");
-							Thread.sleep(5000);
-							m.delete();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+    						logger.info(list.size() + "\n0:" + list.get(0) + "\n1:" + list.get(1) + "\n2:" + list.get(2) + "\n3:" + list.get(3));
+    						RequestBuffer.request(() -> {
+    							List<IMessage> deleted;
+								try {
+									message.delete();
+		    						Thread.sleep(500);
+		    						logger.info(list.size() + "\n0:" + list.get(0) + "\n1:" + list.get(1) + "\n2:" + list.get(2) + "\n3:" + list.get(3));
+									deleted = list.deleteFromRange(1, 1 + toDelete);
+									for(IMessage d : deleted) {
+	    								logger.info("deleted:" + d);
+	    							}
+								} catch (DiscordException | MissingPermissionsException | InterruptedException e) {
+									e.printStackTrace();
+								}
+    						});
+    						m.edit(message.getAuthor().mention() + " Removed the last " + x + " messages.");
+    						Thread.sleep(5000);
+    						m.delete();
+    					} catch (MissingPermissionsException | DiscordException | InterruptedException e) {
+    						e.printStackTrace();
+    					}
     				}
     			}
-    				
+    		}
+    	});
+    	new Command("Migrate Channels", "migrate", "Move anyone from one channel into another.", 1, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException {
+    			if(message.getAuthor().getConnectedVoiceChannels().size() == 0) {
+    				sendMessage("**Make sure the bot is in the channel to migrate from and you are in the channel to migrate to.**", message.getAuthor(), message.getChannel());
+    				return;
+    			}
+    			IVoiceChannel from = null;
+    			for(IVoiceChannel c : client.getConnectedVoiceChannels())
+    		    	if(message.getGuild().getVoiceChannelByID(c.getID()) != null) {
+    		    		from = c;
+    		    		break;
+    		    	}
+    		   	IVoiceChannel to = message.getAuthor().getConnectedVoiceChannels().get(0);
+    		   	
+    		   	if(from == null) {
+    		   		sendMessage("**Make sure the bot is the channel that you want to migrate from!**.", message.getAuthor(), message.getChannel());
+    		   		return;
+    		   	}
+    		   	
+    		   	List<IUser> users = from.getConnectedUsers();
+    		   	RequestBuffer.request(() -> {
+    		   		for(IUser user : users) {
+        		   		try {
+							user.moveToVoiceChannel(to);
+						} catch (DiscordException | MissingPermissionsException e) {
+							e.printStackTrace();
+						}
+        		   	}
+				});
+    		   	
+    		    sendMessage("Sucessfully moved **" + (users.size()-1) + "** guild members from **" + from + "** to **" + to + "**", message.getAuthor(), message.getChannel());
     		}
     	});
     	new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, new CommandEvent() {
-    		public void execute(IMessage message, String[] params) {
+    		public void execute(IMessage message, String[] params) throws MissingPermissionsException {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
     				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
     				return;
@@ -201,12 +250,9 @@ public class App {
     				sendMessage("**You need to be in a voice channel to summon the bot.**", message.getAuthor(), message.getChannel());
     				return;
     			}
+    			
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
-    		    try {
-					voicechannel.join();
-				} catch (MissingPermissionsException e) {
-					e.printStackTrace();
-				}
+				voicechannel.join();
     		    
     		    sendMessage("Joined **" + voicechannel.getName() + "**.", message.getAuthor(), message.getChannel());
     		}
@@ -242,7 +288,7 @@ public class App {
     		}
     	});
     	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: -create, -add, -remove, -queue, -list, -info", 0, new CommandEvent() {
-    		public void execute(IMessage message, String[] params) {
+    		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
     				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
     				return;
@@ -285,11 +331,12 @@ public class App {
     				response = "Songs in **" + name + "**:\n" + playlist.getInfo();
     			} else if(command.equals("-lock") && perms) {
     				playlist.toggleLocked();
-    				response = playlist.isLocked() ? "Playlist **" + name + "** can no longer be edited." : "Playlist **" + name + "** can now be edited.";
+    				response = playlist.isLocked() ?  "Playlist **" + name + "** can no longer be edited." : "Playlist **" + name + "** can now be edited.";
     			} else if(command.equals("-perms") && perms) {
     				playlist.toggleRequiresPerms();
     				response = playlist.requiresPerms() ? "Playlist **" + name + "** now requires moderator privelages to edit." : "Playlist **" + name + "** no longer requires moderator privelages to edit.";
-    			} else if(command.equals("-add") && !playlist.requiresPerms() && !playlist.isLocked()) {
+    			} else if(command.equals("-add") && !(playlist.requiresPerms() && !perms) && !playlist.isLocked()) {
+    				message.delete();
     				response = playlist.add(params[2]) ? "Added " + params[2] + " to **" + name + "**" : "Playlist **" + name + "** already has " + params[2];
     			} else if(command.equals("-remove") && perms && !playlist.isLocked()) {
     				playlist.remove(params[2]);
@@ -302,7 +349,7 @@ public class App {
     		}
     	});
     	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
-    		public void execute(IMessage message, String[] params) {
+    		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
     				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
     				return;
@@ -326,9 +373,11 @@ public class App {
 				} catch (IOException | UnsupportedAudioFileException | InterruptedException e) {
 					e.printStackTrace();
 				}
-    		    if(s) 
-    		    	sendMessage("**Queued** " + params[params.length-1], message.getAuthor(), message.getChannel());
-    		    else
+    		    if(s) {
+    		    	message.delete();
+    		    	waitAndDeleteMessage(sendMessage("**Queued** " + params[params.length-1], message.getAuthor(), message.getChannel()), 25);
+    		    	
+    		    } else
     		    	sendMessage("An error occured while queueing this file: " + params[params.length-1], message.getAuthor(), message.getChannel());
     		}
     	});
@@ -400,9 +449,9 @@ public class App {
     		public void execute(IMessage message, String[] params) {
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			String str = " There are currently **" + (player.getPlaylistSize()-1) + "** song(s) in queue.\n";
-    			str += "**Currently Playing: " + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "**, queued by **" + ((AudioTrack) player.getPlaylist().get(0)).getUser().getName() + "**\n";
+    			str += "Currently Playing: **" + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "** (**" + ((AudioTrack) player.getPlaylist().get(0)).getUser().getName() + "**)\n";
     			for(int i = 1; i < player.getPlaylist().size(); i++) {
-    				String s = "**(" + i + ")** - **" + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + "**, queued by **" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getName() + "**\n";
+    				String s = "**(" + i + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getName() + "**)\n";
     				if((str + s).length() > 1800)
     					break;
     				str += s;
@@ -533,5 +582,14 @@ public class App {
 			e.printStackTrace();
 		}
 		return null;
+    }
+    
+    private static void waitAndDeleteMessage(IMessage message, int seconds) {
+    	try {
+			Thread.sleep(seconds * 1000);
+			message.delete();
+		} catch (InterruptedException | RateLimitException | MissingPermissionsException | DiscordException e) {
+			e.printStackTrace();
+		}
     }
 }

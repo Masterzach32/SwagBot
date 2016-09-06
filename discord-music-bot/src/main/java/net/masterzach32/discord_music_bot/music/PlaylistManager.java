@@ -76,7 +76,7 @@ public class PlaylistManager implements JSONReader {
 	
 	public LocalPlaylist get(String name) {
 		for(LocalPlaylist p : playlists)
-			if(p.getName().equals(name))
+			if(p.getName().toLowerCase().equals(name.toLowerCase()))
 				return p;
 		return null;
 	}

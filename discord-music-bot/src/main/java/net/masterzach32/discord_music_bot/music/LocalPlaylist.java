@@ -57,7 +57,7 @@ public class LocalPlaylist {
 			Thread task = new Thread("loadAudioFromPlaylist:" + s) {
 				public void run() {
 					try {
-						App.playAudioFromYouTube(s, false, user, guild);
+						App.playAudioFromYouTube(s, true, user, guild);
 					} catch (IOException | UnsupportedAudioFileException | InterruptedException e) {
 						e.printStackTrace();
 					}
