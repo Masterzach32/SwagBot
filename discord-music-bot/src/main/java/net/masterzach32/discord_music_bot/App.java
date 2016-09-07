@@ -30,6 +30,7 @@ public class App {
     public static void main(String[] args) throws DiscordException, IOException {
     	// https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
     	// beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
+    	
     	 Thread.setDefaultUncaughtExceptionHandler(
                  new Thread.UncaughtExceptionHandler() {
                      @Override 
@@ -50,23 +51,29 @@ public class App {
     	
     	// register commands
     	new Command("Help", "help", "Displays a list of all commands and their functions.", 0, new CommandEvent() {
-    		public void execute(IMessage message, String[] params) {
+    		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
     			if(params[0].equals("")) {
-    				Command.listAllCommands(message.getAuthor(), message.getGuild());
+    				Command.listAllCommands(message.getAuthor());
     				sendMessage("A list of commands has been sent to your Direct Messages.", message.getAuthor(), message.getChannel());
     			}
     			else {
     				for(Command c : Command.commands)
     					if(c.getIdentifier().equals(params[0])) {
-    						sendMessage("**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo(), message.getAuthor(), message.getChannel());
+    						if(message.getChannel().isPrivate())
+    							App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo());
+    						else
+    							sendMessage("**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo(), null, message.getChannel());
     						return;
     					}
-    				sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**", message.getAuthor(), message.getChannel());
+    				if(message.getChannel().isPrivate())
+    					App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**");
+    				else
+    					sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**", null, message.getChannel());
     			}
     		}
     	});
-    	new Command("Shutdown Bot", "shutdown", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down", 2, new CommandEvent() {
-    		public void execute(IMessage message, String[] params){
+    	new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down.", 2, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
     			try {
 					stop();
 				} catch (IOException e) {
@@ -74,16 +81,7 @@ public class App {
 				}
     		}
     	});
-    	new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down", 2, new CommandEvent() {
-    		public void execute(IMessage message, String[] params){
-    			try {
-					stop();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-    		}
-    	});
-    	new Command("Lock the bot", "l", "Toggles wether the bot can be used.", 1, new CommandEvent() {
+    	new Command("Lock the bot", "l", "Toggles wether .", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			guilds.getGuild(message.getGuild()).toggleBotLocked();
     			if(guilds.getGuild(message.getGuild()).isBotLocked())
@@ -95,7 +93,7 @@ public class App {
     	new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			if(params[0] == "")
-    				sendMessage("**Command prefix must be 1 character.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**Command prefix must be 1 character.**", null, message.getChannel());
     			else {
     				guilds.getGuild(message.getGuild()).setCommandPrefix(params[0].charAt(0));
     				sendMessage("Commamd prefix set to **" + params[0].charAt(0) + "**", message.getAuthor(), message.getChannel());
@@ -114,7 +112,7 @@ public class App {
 						sendMessage("@everyone User **" + user + "** has been **banned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
 						return;
     				}
-    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", message.getAuthor(), App.client.getChannelByID("222099708649144320"));
+    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
     		}
     	});
     	new Command("Pardon User", "pardon", "Lifts the ban for the specified user from this guild.", 1, new CommandEvent() {
@@ -129,7 +127,7 @@ public class App {
 						sendMessage("@everyone User **" + user + "** has been **pardoned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
 						return;
     				}
-    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", message.getAuthor(), App.client.getChannelByID("222099708649144320"));
+    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
     		}
     	});
     	new Command("Soft Ban User", "softban", "Bans the specified user from this guild, deletes their message history, and then pardons them.", 1, new CommandEvent() {
@@ -145,7 +143,7 @@ public class App {
 						sendMessage("@everyone User **" + user + "** has been **soft banned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
 						return;
     				}
-    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", message.getAuthor(), App.client.getChannelByID("222099708649144320"));
+    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
     		}
     	});
     	new Command("Kick User", "kick", "Kicks the specified user from this guild.", 1, new CommandEvent() {
@@ -160,7 +158,7 @@ public class App {
 						sendMessage("@everyone User **" + user + "** has been **kicked** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
 						return;
     				}
-    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", message.getAuthor(), App.client.getChannelByID("222099708649144320"));
+    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
     		}
     	});
     	new Command("Prune Messages", "prune", "Deletes the previous X messages", 1, new CommandEvent() {
@@ -168,16 +166,16 @@ public class App {
     			IChannel channel = message.getChannel();
     			MessageList list = channel.getMessages();
     			if(params[0] == "")
-    				sendMessage("Please specify the amount of messages to prune.", message.getAuthor(), channel);
+    				sendMessage("Please specify the amount of messages to prune.", null, channel);
     			else {
     				int x = 0;
     				try {
     					x = Integer.parseInt(params[0]);
     				} catch(NumberFormatException e) {
-    					sendMessage("Amount must be a number.", message.getAuthor(), channel);
+    					sendMessage("Amount must be a number.", null, channel);
     				}
     				if(x < 2 || x > 100)
-    					sendMessage("Invalid amount specified. Must prune between 2-100 messages.", message.getAuthor(), channel);
+    					sendMessage("Invalid amount specified. Must prune between 2-100 messages.", null, channel);
     				else {
     					final int toDelete = x;
     					IMessage m = sendMessage("**Removing...**", null, channel);
@@ -210,7 +208,7 @@ public class App {
     	new Command("Migrate Channels", "migrate", "Move anyone from one channel into another.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException {
     			if(message.getAuthor().getConnectedVoiceChannels().size() == 0) {
-    				sendMessage("**Make sure the bot is in the channel to migrate from and you are in the channel to migrate to.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**Make sure you are in the channel you want to populate.**", null, message.getChannel());
     				return;
     			}
     			IVoiceChannel from = null;
@@ -222,7 +220,7 @@ public class App {
     		   	IVoiceChannel to = message.getAuthor().getConnectedVoiceChannels().get(0);
     		   	
     		   	if(from == null) {
-    		   		sendMessage("**Make sure the bot is the channel that you want to migrate from!**.", message.getAuthor(), message.getChannel());
+    		   		sendMessage("**Make sure the bot is the channel that you want to migrate from!**.", null, message.getChannel());
     		   		return;
     		   	}
     		   	
@@ -237,30 +235,30 @@ public class App {
         		   	}
 				});
     		   	
-    		    sendMessage("Sucessfully moved **" + (users.size()-1) + "** guild members from **" + from + "** to **" + to + "**", message.getAuthor(), message.getChannel());
+    		    sendMessage("Sucessfully moved **" + (users.size()-1) + "** guild members from **" + from + "** to **" + to + "**", null, message.getChannel());
     		}
     	});
     	new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws MissingPermissionsException {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     			if(message.getAuthor().getConnectedVoiceChannels().size() == 0) {
-    				sendMessage("**You need to be in a voice channel to summon the bot.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**You need to be in a voice channel to summon the bot.**", null, message.getChannel());
     				return;
     			}
     			
     		    IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
 				voicechannel.join();
     		    
-    		    sendMessage("Joined **" + voicechannel.getName() + "**.", message.getAuthor(), message.getChannel());
+    		    sendMessage("Joined **" + voicechannel.getName() + "**.", null, message.getChannel());
     		}
     	});
     	new Command("Leave Channel", "leave", "Kicks the bot from the current voice channel.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params){
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     		    for(IVoiceChannel c : client.getConnectedVoiceChannels())
@@ -269,28 +267,28 @@ public class App {
     		    		sendMessage("Left **" + message.getGuild().getVoiceChannelByID(c.getID()).getName() + "**.", message.getAuthor(), message.getChannel());
     		    		return;
     		    	}
-    		    sendMessage("**The bot is not currently in a voice channel.**", message.getAuthor(), message.getChannel());
+    		    sendMessage("**The bot is not currently in a voice channel.**", null, message.getChannel());
     		}
     	});
     	new Command("Set Volume", "volume", "Sets the volume of the bot.", 0, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     			if(params == null || params[0] == null || params[0] == "")
-    				sendMessage("Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100+ "**", message.getAuthor(), message.getChannel());
+    				sendMessage("Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100+ "**", null, message.getChannel());
     			else {
     				float vol = Float.parseFloat(params[0]);
     				setVolume(vol, message.getGuild());
-        		    sendMessage("Set volume to **" + vol + "**", message.getAuthor(), message.getChannel());
+        		    sendMessage("Set volume to **" + vol + "**", null, message.getChannel());
     			}
     		}
     	});
-    	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: -create, -add, -remove, -queue, -list, -info", 0, new CommandEvent() {
+    	new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: -create, -add, -remove, -delete, -queue, -list, -info", 0, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     			boolean perms = false;
@@ -301,18 +299,18 @@ public class App {
     					perms = true;
     			if(params[0].equals("-load") && perms) {
     				guilds.getGuild(message.getGuild()).getPlaylistManager().load();
-    				sendMessage("**Re-loaded all playlists**", message.getAuthor(), message.getChannel());
+    				sendMessage("**Re-loaded all playlists**", null, message.getChannel());
     				return;
     			} else if(params[0].equals("-save") && perms) {
     				guilds.getGuild(message.getGuild()).getPlaylistManager().save();
-    				sendMessage("**Saved all playlists**", message.getAuthor(), message.getChannel());
+    				sendMessage("**Saved all playlists**", null, message.getChannel());
     				return;
     			} else if(params[0].equals("-list")) {
-    				sendMessage("**Playlists:** " + guilds.getGuild(message.getGuild()).getPlaylistManager().toString(), message.getAuthor(), message.getChannel());
+    				sendMessage("**Playlists:** " + guilds.getGuild(message.getGuild()).getPlaylistManager().toString(), null, message.getChannel());
     				return;
     			}
     			if(params.length < 2)
-    				sendMessage("**Not enough parameters. Type** `~help playlist` **to get help with this command.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**Not enough parameters. Type** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() +"help playlist` **to get help with this command.**", null, message.getChannel());
     			String command = params[0], name = params[1];
     			LocalPlaylist playlist = guilds.getGuild(message.getGuild()).getPlaylistManager().get(name);
     			if(command.equals("-create")) {
@@ -345,18 +343,18 @@ public class App {
     				playlist.remove(name);
     				response = "Deleted the playlist **" + name + "**";
     			}
-    			sendMessage(response, message.getAuthor(), message.getChannel());
+    			sendMessage(response, null, message.getChannel());
     		}
     	});
     	new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -dl (Direct Link), -f (Local File)", 0, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     			boolean s = false;
     			if(!canQueueMusic(message.getAuthor())) {
-    				sendMessage("**You must be in the bot's channel to queue music.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**You must be in the bot's channel to queue music.**", null, message.getChannel());
     				return;
     			}
     		    try {
@@ -367,7 +365,7 @@ public class App {
 					else if(params[0].equals("-f"))
 						s = playAudioFromFile(params[1], message.getGuild());
 					else {
-						sendMessage(params[0] + " is not a recognized parameter for ~play.", message.getAuthor(), message.getChannel());
+						sendMessage(params[0] + " is not a recognized parameter for ~play.", null, message.getChannel());
 						return;
 					}
 				} catch (IOException | UnsupportedAudioFileException | InterruptedException e) {
@@ -375,18 +373,14 @@ public class App {
 				}
     		    if(s) {
     		    	message.delete();
-    		    	waitAndDeleteMessage(sendMessage("**Queued** " + params[params.length-1], message.getAuthor(), message.getChannel()), 25);
+    		    	waitAndDeleteMessage(sendMessage("**Queued** " + params[params.length-1], null, message.getChannel()), 25);
     		    	
     		    } else
-    		    	sendMessage("An error occured while queueing this file: " + params[params.length-1], message.getAuthor(), message.getChannel());
+    		    	sendMessage("An error occured while queueing this file: " + params[params.length-1], null, message.getChannel());
     		}
     	});
     	new Command("Skip", "skip", "Skips the current song in the playlist.", 0, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
-    			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
-    				return;
-    			}
     			if(guilds.getGuild(message.getGuild()).hasUserSkipped(message.getAuthor().getID())) {
     				sendMessage("**You already voted to skip this song.**", message.getAuthor(), message.getChannel());
     				return;
@@ -395,53 +389,53 @@ public class App {
     			if(guilds.getGuild(message.getGuild()).numUntilSkip() == 0 || message.getAuthor().getID().equals("97341976214511616")) {
     				AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
     				guilds.getGuild(message.getGuild()).resetSkipStats();
-    				sendMessage("**Skipped the current song.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**Skipped the current song.**", null, message.getChannel());
     			} else 
-    				sendMessage("**" + guilds.getGuild(message.getGuild()).numUntilSkip() + "** more votes needed to skip the current song.", message.getAuthor(), message.getChannel());
+    				sendMessage("**" + guilds.getGuild(message.getGuild()).numUntilSkip() + "** more votes needed to skip the current song.", null, message.getChannel());
     		}
     	});
     	new Command("Shuffle", "shuffle", "Shuffles the queue.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).shuffle();
-    		    sendMessage("**Shuffled the playlist.**", message.getAuthor(), message.getChannel());
+    		    sendMessage("**Shuffled the playlist.**", null, message.getChannel());
     		}
     	});
     	new Command("Pause", "pause", "Pause the current song.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(true);
-    		    sendMessage("**Paused the playlist.**", message.getAuthor(), message.getChannel());
+    		    sendMessage("**Paused the playlist.**", null, message.getChannel());
     		}
     	});
     	new Command("Resume", "resume", "Resume playback.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     			AudioPlayer.getAudioPlayerForGuild(message.getGuild()).setPaused(false);
-    		    sendMessage("**Resumed the playlist.**", message.getAuthor(), message.getChannel());
+    		    sendMessage("**Resumed the playlist.**", null, message.getChannel());
     		}
     	});
     	new Command("Clear Queue", "clear", "Clears the queue.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
-    				sendMessage("**SwagBot is currently locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			if(player.getPlaylistSize() == 0)
-    				sendMessage("**No songs to clear.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**No songs to clear.**", null, message.getChannel());
     			else {
     				player.clear();
-    				sendMessage("**Cleared the queue.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**Cleared the queue.**", null, message.getChannel());
     			}
     		}
     	});
@@ -574,22 +568,27 @@ public class App {
     }
     
     public static IMessage sendMessage(String message, IUser user, IChannel channel) {
-    	try {
-    		if(user != null)
-    			return new MessageBuilder(client).withContent(user.mention() + " " + message).withChannel(channel).build();
-    		return new MessageBuilder(client).withContent(message).withChannel(channel).build();
-		} catch (RateLimitException | DiscordException | MissingPermissionsException e) {
-			e.printStackTrace();
-		}
+    	RequestBuffer.request(() -> {
+    		try {
+    			if(user != null)
+    				return new MessageBuilder(client).withContent(user.mention() + " " + message).withChannel(channel).build();
+    			return new MessageBuilder(client).withContent(message).withChannel(channel).build();
+			} catch (DiscordException | MissingPermissionsException e) {
+				e.printStackTrace();
+			}
+			return null;
+    	});
 		return null;
     }
     
     private static void waitAndDeleteMessage(IMessage message, int seconds) {
-    	try {
-			Thread.sleep(seconds * 1000);
-			message.delete();
-		} catch (InterruptedException | RateLimitException | MissingPermissionsException | DiscordException e) {
-			e.printStackTrace();
-		}
+		RequestBuffer.request(() -> {
+		   	try {
+		   		Thread.sleep(seconds * 1000);
+				message.delete();
+			} catch (MissingPermissionsException | DiscordException | InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
     }
 }

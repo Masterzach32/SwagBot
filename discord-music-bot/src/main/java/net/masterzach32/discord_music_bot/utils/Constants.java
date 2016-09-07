@@ -2,6 +2,8 @@ package net.masterzach32.discord_music_bot.utils;
 
 public class Constants {
 	
+	public static final char DEFAULT_COMMAND_PREFIX = '~';
+	
 	// storage
 	public static final String WORKING_DIRECTORY = "./";
 	public static final String BINARY_STORAGE = "bin/";

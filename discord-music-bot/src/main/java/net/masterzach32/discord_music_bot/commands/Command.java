@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.masterzach32.discord_music_bot.App;
-import sx.blah.discord.handle.obj.IGuild;
+import net.masterzach32.discord_music_bot.utils.Constants;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
@@ -80,12 +80,16 @@ public class Command {
 			c.execute(message, params);
 	}
 	
-	public static void listAllCommands(IUser user, IGuild guild) {
+	public static void listAllCommands(IUser user) {
 		String str = "Commands for SwagBot:\n\n```";
 		for(Command command : commands)
-			str += "" + App.guilds.getGuild(guild).getCommandPrefix() + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
+			str += "" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
 		str += "```\n\n";
-		str += "To view more information for a command, use `" + App.guilds.getGuild(guild).getCommandPrefix() + "help <command>`";
+		str += "**Note**: Command prefixes may be different per guild!";
+		str += "```\n\n";
+		str += "**Permissions**:\n0: Everyone can use these commands.\n1: Only users with a role named \"Bot Commander\" can use these commands\n2: Only contributers on GitHub can use these commands.";
+		str += "```\n\n";
+		str += "To view more information for a command, use `" + Constants.DEFAULT_COMMAND_PREFIX + "help <command>`";
 		str += "\n\n";
 		str += "Check out the development for SwagBot at:\nhttps://github.com/Masterzach32/SwagBot";
 		str += "\n\n";

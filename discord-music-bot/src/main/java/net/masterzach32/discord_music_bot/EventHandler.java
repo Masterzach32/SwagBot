@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import net.masterzach32.discord_music_bot.commands.Command;
 import net.masterzach32.discord_music_bot.music.AudioTrack;
+import net.masterzach32.discord_music_bot.utils.Constants;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;
@@ -40,7 +41,21 @@ public class EventHandler {
 		
 		if(event.getMessage().getChannel().isPrivate()) {
 			try {
-				App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("**SwagBot** does not respond to DM commands. The only command available to DMs is **~help**");
+				if(event.getMessage().getContent().contains(Constants.DEFAULT_COMMAND_PREFIX + "help")) {
+					String identifier;
+					String[] params = {""};
+					if(message.indexOf(' ') > 0) {
+						identifier = message.substring(1, message.indexOf(' '));
+						params = message.substring(message.indexOf(' ') + 1).split(" ");
+					} else { 
+						identifier = message.substring(1);
+					}
+					
+					for(Command command : Command.commands)
+						if(command.getIdentifier().equals(identifier))
+							command.execute(event.getMessage(), params);
+				} else
+					App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("**SwagBot** does not currently support DM commands. The only command available to DMs is ``" + Constants.DEFAULT_COMMAND_PREFIX + "help``");
 			} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
 				e.printStackTrace();
 			}
