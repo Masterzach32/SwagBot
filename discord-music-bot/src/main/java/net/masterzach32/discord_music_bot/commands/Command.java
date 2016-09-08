@@ -81,21 +81,21 @@ public class Command {
 	}
 	
 	public static void listAllCommands(IUser user) {
-		String str = "Commands for SwagBot:\n\n```";
+		String str = "Commands for **SwagBot**:\n\n```";
 		for(Command command : commands)
 			str += "" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
 		str += "```\n\n";
 		str += "**Note**: Command prefixes may be different per guild!";
-		str += "```\n\n";
+		str += "\n\n";
 		str += "**Permissions**:\n0: Everyone can use these commands.\n1: Only users with a role named \"Bot Commander\" can use these commands\n2: Only contributers on GitHub can use these commands.";
-		str += "```\n\n";
+		str += "\n\n";
 		str += "To view more information for a command, use `" + Constants.DEFAULT_COMMAND_PREFIX + "help <command>`";
 		str += "\n\n";
 		str += "Check out the development for SwagBot at:\nhttps://github.com/Masterzach32/SwagBot";
 		str += "\n\n";
 		str += "Check out my creator's website:\nhttp://masterzach32.net";
 		str += "\n\n";
-		str += "Join my home guild Best Group World:\nhttps://discord.gg/swmuyCc";
+		str += "Join my home guild:\nhttps://discord.gg/RFHKKvR";
 		try {
 			App.client.getOrCreatePMChannel(user).sendMessage(str);
 		} catch (RateLimitException | MissingPermissionsException | DiscordException e) {

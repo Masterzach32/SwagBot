@@ -60,13 +60,13 @@ public class App {
     				for(Command c : Command.commands)
     					if(c.getIdentifier().equals(params[0])) {
     						if(message.getChannel().isPrivate())
-    							App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo());
+    							App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + c.getName() + "** `" + Constants.DEFAULT_COMMAND_PREFIX + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo());
     						else
     							sendMessage("**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo(), null, message.getChannel());
     						return;
     					}
     				if(message.getChannel().isPrivate())
-    					App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**");
+    					App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Could not find command **" + Constants.DEFAULT_COMMAND_PREFIX + params[0] + "**");
     				else
     					sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**", null, message.getChannel());
     			}
@@ -81,7 +81,7 @@ public class App {
 				}
     		}
     	});
-    	new Command("Lock the bot", "l", "Toggles wether .", 1, new CommandEvent() {
+    	new Command("Lock the bot", "l", "Toggles wether the bot is locked in this guild.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			guilds.getGuild(message.getGuild()).toggleBotLocked();
     			if(guilds.getGuild(message.getGuild()).isBotLocked())
@@ -205,13 +205,21 @@ public class App {
     			}
     		}
     	});
-    	new Command("Migrate Channels", "migrate", "Move anyone from one channel into another.", 1, new CommandEvent() {
+    	new Command("Migrate Channels", "migrate", "Move anyone from one channel into another (beta).\nUsage: ~migrate [from] [to]. Use - or _ to replace spaces in Voice Channel names.\nIf no parameters are supplied then the bot will move everyone in the bots channel to the channel you are currently in.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException {
     			if(message.getAuthor().getConnectedVoiceChannels().size() == 0) {
-    				sendMessage("**Make sure you are in the channel you want to populate.**", null, message.getChannel());
+    				sendMessage("**Make sure you are in the channel you want to populate!**", null, message.getChannel());
     				return;
     			}
-    			IVoiceChannel from = null;
+    			List<IUser> users = null;
+    			
+    		   	for(String s : params)
+    		   		if(s != null) {
+    		   			s.replaceAll("_", " ");
+    		   			s.replaceAll("-", " ");
+    		   		}
+    		   	
+    		   	IVoiceChannel from = null;
     			for(IVoiceChannel c : client.getConnectedVoiceChannels())
     		    	if(message.getGuild().getVoiceChannelByID(c.getID()) != null) {
     		    		from = c;
@@ -224,17 +232,21 @@ public class App {
     		   		return;
     		   	}
     		   	
-    		   	List<IUser> users = from.getConnectedUsers();
-    		   	RequestBuffer.request(() -> {
-    		   		for(IUser user : users) {
-        		   		try {
-							user.moveToVoiceChannel(to);
-						} catch (DiscordException | MissingPermissionsException e) {
-							e.printStackTrace();
-						}
-        		   	}
-				});
+    		   	if(params[0] != null && params[0] != "" && params[1] != null && params[1] != "") {
+    		   		for(IVoiceChannel c : message.getGuild().getVoiceChannels())
+        		   		if(c.getName().equals(params[0])) {
+        		   			from = c;
+        		   			break;
+        		   		}
+    		   		for(IVoiceChannel c : message.getGuild().getVoiceChannels())
+        		   		if(c.getName().equals(params[1])) {
+        		   			to = c;
+        		   			break;
+        		   		}
+    		   	}
     		   	
+    		   	users = from.getConnectedUsers();
+    		   	moveUsers(users, to);
     		    sendMessage("Sucessfully moved **" + (users.size()-1) + "** guild members from **" + from + "** to **" + to + "**", null, message.getChannel());
     		}
     	});
@@ -404,7 +416,7 @@ public class App {
     		    sendMessage("**Shuffled the playlist.**", null, message.getChannel());
     		}
     	});
-    	new Command("Pause", "pause", "Pause the current song.", 1, new CommandEvent() {
+    	new Command("Pause", "pause", "Pause the queue.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			if(guilds.getGuild(message.getGuild()).isBotLocked()) {
     				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
@@ -439,7 +451,7 @@ public class App {
     			}
     		}
     	});
-    	new Command("Queue", "queue", "Displays the song queue. WIP", 0, new CommandEvent() {
+    	new Command("Queue", "queue", "Displays the song queue.", 0, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
     			String str = " There are currently **" + (player.getPlaylistSize()-1) + "** song(s) in queue.\n";
@@ -589,6 +601,18 @@ public class App {
 			} catch (MissingPermissionsException | DiscordException | InterruptedException e) {
 				e.printStackTrace();
 			}
+		});
+    }
+    
+    private static void moveUsers(List<IUser> users, IVoiceChannel to) {
+    	RequestBuffer.request(() -> {
+	   		for(IUser user : users) {
+		   		try {
+					user.moveToVoiceChannel(to);
+				} catch (DiscordException | MissingPermissionsException e) {
+					e.printStackTrace();
+				}
+		   	}
 		});
     }
 }

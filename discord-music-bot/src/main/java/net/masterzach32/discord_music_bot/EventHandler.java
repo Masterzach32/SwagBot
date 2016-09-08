@@ -62,16 +62,29 @@ public class EventHandler {
 			return;
 		}
 		
-		if(true && message.length() < 1 || message.charAt(0) != App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix())
+		if(message.length() < 1)
 			return;
 		
-		String identifier;
+		String identifier = null;
 		String[] params = {""};
-		if(message.indexOf(' ') > 0) {
+		if(message.indexOf(App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix()) == 0 && message.indexOf(' ') > 0) {
 			identifier = message.substring(1, message.indexOf(' '));
 			params = message.substring(message.indexOf(' ') + 1).split(" ");
-		} else { 
+		} else if(message.indexOf(App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix()) == 0) {
 			identifier = message.substring(1);
+		} 
+		if(event.getMessage().getMentions().contains(App.client.getOurUser())) {
+			logger.info(message);
+			message = message.substring(message.indexOf(' ') + 1);
+			logger.info(message);
+			if(message.indexOf(' ') > 0) {
+				identifier = message.substring(0, message.indexOf(' '));
+				logger.info(identifier);
+				params = message.substring(message.indexOf(' ') + 1).split(" ");
+			} else {
+				identifier = message.substring(0);
+				logger.info(identifier);
+			}
 		}
 		
 		try {
