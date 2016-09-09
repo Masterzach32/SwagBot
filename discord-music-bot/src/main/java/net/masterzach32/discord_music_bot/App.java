@@ -482,7 +482,7 @@ public class App {
     			for(String s : params)
     				term += s + " ";
     			UrbanDefinition def = new UrbanDefinition(term);
-    			sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```css\nAuthor: " + def.getAuthor() + "\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
+    			sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
     		}
     	});
     }
