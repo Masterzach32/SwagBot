@@ -16,6 +16,7 @@ import net.masterzach32.discord_music_bot.utils.*;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
+import sx.blah.discord.util.RequestBuffer.IRequest;
 import sx.blah.discord.util.audio.AudioPlayer;
 
 public class App {
@@ -165,6 +166,7 @@ public class App {
     		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
     			IChannel channel = message.getChannel();
     			MessageList list = channel.getMessages();
+    			IUser caller = message.getAuthor();
     			if(params[0] == "")
     				sendMessage("Please specify the amount of messages to prune.", null, channel);
     			else {
@@ -180,14 +182,13 @@ public class App {
     					final int toDelete = x;
     					IMessage m = sendMessage("**Removing...**", null, channel);
     					try {
-    						logger.info(list.size() + "\n0:" + list.get(0) + "\n1:" + list.get(1) + "\n2:" + list.get(2) + "\n3:" + list.get(3));
+    						logger.info(m + "");
     						RequestBuffer.request(() -> {
     							List<IMessage> deleted;
 								try {
 									message.delete();
 		    						Thread.sleep(500);
-		    						logger.info(list.size() + "\n0:" + list.get(0) + "\n1:" + list.get(1) + "\n2:" + list.get(2) + "\n3:" + list.get(3));
-									deleted = list.deleteFromRange(1, 1 + toDelete);
+		    						deleted = list.deleteFromRange(1, 1 + toDelete);
 									for(IMessage d : deleted) {
 	    								logger.info("deleted:" + d);
 	    							}
@@ -195,7 +196,8 @@ public class App {
 									e.printStackTrace();
 								}
     						});
-    						m.edit(message.getAuthor().mention() + " Removed the last " + x + " messages.");
+    						logger.info(m + "");
+    						m.edit(caller.mention() + " Removed the last " + toDelete + " messages.");
     						Thread.sleep(5000);
     						m.delete();
     					} catch (MissingPermissionsException | DiscordException | InterruptedException e) {
@@ -467,6 +469,11 @@ public class App {
     			sendMessage(str, null, message.getChannel());
     		}
     	});
+    	new Command("Random Cat", "cat", "Posts a random cat picture.", 0, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
+    			sendMessage(new RandomCat().getUrl(), null, message.getChannel());
+    		}
+    	});
     }
     
     private static void stop() throws IOException {
@@ -580,7 +587,7 @@ public class App {
     }
     
     public static IMessage sendMessage(String message, IUser user, IChannel channel) {
-    	RequestBuffer.request(() -> {
+    	return RequestBuffer.request(() -> {
     		try {
     			if(user != null)
     				return new MessageBuilder(client).withContent(user.mention() + " " + message).withChannel(channel).build();
@@ -589,8 +596,7 @@ public class App {
 				e.printStackTrace();
 			}
 			return null;
-    	});
-		return null;
+    	}).get();
     }
     
     private static void waitAndDeleteMessage(IMessage message, int seconds) {
