@@ -10,6 +10,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.masterzach32.discord_music_bot.api.RandomCat;
+import net.masterzach32.discord_music_bot.api.UrbanDefinition;
 import net.masterzach32.discord_music_bot.commands.*;
 import net.masterzach32.discord_music_bot.music.*;
 import net.masterzach32.discord_music_bot.utils.*;
@@ -474,6 +476,15 @@ public class App {
     			sendMessage(new RandomCat().getUrl(), null, message.getChannel());
     		}
     	});
+    	new Command("Urban Dictionary Lookup", "urban", "Looks up a term on urban dictionary", 0, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
+    			String term = "";
+    			for(String s : params)
+    				term += s + " ";
+    			UrbanDefinition def = new UrbanDefinition(term);
+    			sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```css\nAuthor: " + def.getAuthor() + "\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
+    		}
+    	});
     }
     
     private static void stop() throws IOException {
@@ -544,7 +555,7 @@ public class App {
     	String video_id;
     	if(s_url.indexOf("?v=") < 0)
     		video_id = s_url;
-    	else 
+    	else
     		video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 12);
     	// new code
     	for(File file : manager.getFile(Constants.AUDIO_CACHE).listFiles())
