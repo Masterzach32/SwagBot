@@ -98,7 +98,7 @@ public class App {
     			if(guilds.getGuild(message.getGuild()).isNSFWFilterEnabled())
     				sendMessage("**NSFW Filter enabled.**", null, message.getChannel());
     			else
-    				sendMessage("**NSFW Filter disables.**", null, message.getChannel());
+    				sendMessage("**NSFW Filter disabled.**", null, message.getChannel());
     		}
     	});
     	new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, new CommandEvent() {
@@ -217,7 +217,7 @@ public class App {
     			}
     		}
     	});
-    	new Command("Migrate Channels", "migrate", "Move anyone from one channel into another (beta).\nUsage: ~migrate [from] [to]. Use - or _ to replace spaces in Voice Channel names.\nIf no parameters are supplied then the bot will move everyone in the bots channel to the channel you are currently in.", 1, new CommandEvent() {
+    	new Command("Migrate Channels", "migrate", "Move anyone from one channel into another (beta).\nUsage: ~migrate [from] [to]. Use - or _ to replace spaces in Voice Channel names. \nIf no parameters are supplied then the bot will move everyone in the bots channel to the channel you are currently in.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException {
     			if(message.getAuthor().getConnectedVoiceChannels().size() == 0) {
     				sendMessage("**Make sure you are in the channel you want to populate!**", null, message.getChannel());
@@ -260,6 +260,47 @@ public class App {
     		   	users = from.getConnectedUsers();
     		   	moveUsers(users, to);
     		    sendMessage("Sucessfully moved **" + (users.size()-1) + "** guild members from **" + from + "** to **" + to + "**", null, message.getChannel());
+    		}
+    	});
+    	new Command("Bring Users", "bring", "Brings all users in a server to you.", 1, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) throws MissingPermissionsException, DiscordException, RateLimitException {
+    			if(message.getAuthor().getConnectedVoiceChannels().size() == 0) {
+    				sendMessage("**You need to be in a voice channel to summon everyone.**", null, message.getChannel());
+    				return;
+    			}
+    			
+    		    IVoiceChannel channel = message.getAuthor().getConnectedVoiceChannels().get(0);
+				for(IUser user : message.getGuild().getUsers())
+					if(user.getConnectedVoiceChannels().size() == 1)
+						user.moveToVoiceChannel(channel);
+    		    
+    		    sendMessage("Moved everyone to **" + channel.getName() + "**.", null, message.getChannel());
+    		}
+    	});
+    	new Command("Disconnect User", "disconnect", "Move the list of users to the afk channel. Use @mentions.", 1, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) throws MissingPermissionsException, DiscordException, RateLimitException {
+    			if(message.getAuthor().getConnectedVoiceChannels().size() == 0) {
+    				sendMessage("**You need to be in a voice channel to summon everyone.**", null, message.getChannel());
+    				return;
+    			}
+				for(IUser user : message.getMentions()) {
+					user.moveToVoiceChannel(message.getGuild().getAFKChannel());
+					sendMessage("Moved **" + user.getName() + "** to the afk channel.", null, message.getChannel());
+				}
+    		}
+    	});
+    	new Command("Bring AFKs", "unafk", "Brings all users in the afk channel to you.", 1, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) throws MissingPermissionsException, DiscordException, RateLimitException {
+    			if(message.getAuthor().getConnectedVoiceChannels().size() == 0) {
+    				sendMessage("**You need to be in a voice channel to summon everyone.**", null, message.getChannel());
+    				return;
+    			}
+    			
+    		    IVoiceChannel channel = message.getAuthor().getConnectedVoiceChannels().get(0);
+				for(IUser user : message.getGuild().getAFKChannel().getConnectedUsers())
+					user.moveToVoiceChannel(channel);
+    		    
+    		    sendMessage("Moved everyone in the afk channel to **" + channel.getName() + "**.", null, message.getChannel());
     		}
     	});
     	new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, new CommandEvent() {

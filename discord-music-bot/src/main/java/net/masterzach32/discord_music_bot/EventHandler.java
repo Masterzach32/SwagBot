@@ -13,6 +13,7 @@ import net.masterzach32.discord_music_bot.utils.Constants;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.handle.obj.IMessage.Attachment;
 import sx.blah.discord.handle.obj.IMessage.IEmbedded;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.events.*;
@@ -70,13 +71,16 @@ public class EventHandler {
 		}
 		
 		if(App.guilds.getGuild(event.getMessage().getGuild()).isNSFWFilterEnabled()) {
+			for(Attachment a : event.getMessage().getAttachments())
+				logger.info("attachment: " + a.getUrl() + " " + a.getFilename());
 			for(IEmbedded image : event.getMessage().getEmbedded()) {
+				logger.info("embed: " + image.getUrl());
 				if(image.getUrl() != null) {
 					NSFWFilter filter = new NSFWFilter(image.getUrl());
 					logger.info(filter.getResult());
 					if(filter.isPorn()) {
 						try {
-							App.sendMessage(filter.getResult(), event.getMessage().getAuthor(), event.getMessage().getChannel());
+							App.sendMessage(filter.getResult() + "\nIf you believe this is an error, contact your server owner or one of the developers.", event.getMessage().getAuthor(), event.getMessage().getChannel());
 							event.getMessage().delete();
 						} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
 							e.printStackTrace();

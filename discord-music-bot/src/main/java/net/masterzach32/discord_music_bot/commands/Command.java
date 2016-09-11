@@ -13,7 +13,7 @@ import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
-public class Command {
+public class Command implements Comparable<Command> {
 	
 	private String name, identifier, info;
 	private CommandEvent event;
@@ -83,7 +83,7 @@ public class Command {
 	public static void listAllCommands(IUser user) {
 		String str = "Commands for **SwagBot**:\n\n```";
 		for(Command command : commands)
-			str += "" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
+			str += "\t" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
 		str += "```\n\n";
 		str += "**Note**: Command prefixes may be different per guild!";
 		str += "\n\n";
@@ -101,5 +101,13 @@ public class Command {
 		} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public int compareTo(Command c) {
+		if(this.permLevel > c.permLevel)
+			return 1;
+		else if(this.permLevel < c.permLevel)
+			return -1;
+		return identifier.compareTo(c.identifier);
 	}
 }
