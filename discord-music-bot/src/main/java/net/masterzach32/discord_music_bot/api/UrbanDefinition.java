@@ -15,7 +15,7 @@ public class UrbanDefinition {
 	public UrbanDefinition(String term) {
 		try {
 			HttpResponse<JsonNode> response = Unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + term)
-					.header("X-Mashape-Key", "sOpitCDAsWmshpn7zp8vxbZt04JIp1j7kxyjsnjPphXxLZ9c5P")
+					.header("X-Mashape-Key", "lmpj8JlDYfmshQLcaLKPJmpsn3g2p179SQojsnSWGVDlYuPMx8")
 					.header("Accept", "text/plain")
 					.asJson();
 			JSONObject def = response.getBody().getArray().getJSONObject(0).getJSONArray("list").getJSONObject(0);

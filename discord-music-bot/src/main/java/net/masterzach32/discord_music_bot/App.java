@@ -18,7 +18,6 @@ import net.masterzach32.discord_music_bot.utils.*;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
-import sx.blah.discord.util.RequestBuffer.IRequest;
 import sx.blah.discord.util.audio.AudioPlayer;
 
 public class App {
@@ -88,9 +87,18 @@ public class App {
     		public void execute(IMessage message, String[] params) {
     			guilds.getGuild(message.getGuild()).toggleBotLocked();
     			if(guilds.getGuild(message.getGuild()).isBotLocked())
-    				sendMessage("**SwagBot has been locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot has been locked.**", null, message.getChannel());
     			else
-    				sendMessage("**SwagBot is no longer locked.**", message.getAuthor(), message.getChannel());
+    				sendMessage("**SwagBot is no longer locked.**", null, message.getChannel());
+    		}
+    	});
+    	new Command("Toggle NSFW Filter", "nsfw", "Toggles wether the bot filters out images that may be considered nsfw.", 1, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
+    			guilds.getGuild(message.getGuild()).toggleNSFWFilter();;
+    			if(guilds.getGuild(message.getGuild()).isNSFWFilterEnabled())
+    				sendMessage("**NSFW Filter enabled.**", null, message.getChannel());
+    			else
+    				sendMessage("**NSFW Filter disables.**", null, message.getChannel());
     		}
     	});
     	new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, new CommandEvent() {

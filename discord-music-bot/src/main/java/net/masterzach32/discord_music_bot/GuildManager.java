@@ -24,7 +24,7 @@ public class GuildManager {
 			prefs.createNewFile();
 			BufferedWriter fout = null;
 			fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
-			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new Guild(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false)));
+			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new Guild(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false)));
 			fout.close();
 		}
 		
@@ -38,7 +38,7 @@ public class GuildManager {
 		
 		String json = new String(buffer);
 		Guild temp = new Gson().fromJson(json, Guild.class);
-		Guild g = new Guild(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked());
+		Guild g = new Guild(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled());
 		g.getPlaylistManager().load();
 		guilds.add(g);
 		

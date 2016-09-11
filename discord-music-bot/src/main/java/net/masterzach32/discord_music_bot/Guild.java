@@ -15,9 +15,9 @@ public class Guild {
 	private String guildName;
 	private char commandPrefix;
 	private int maxSkips, volume;
-	private boolean botLocked;
+	private boolean botLocked, enableNSFWFilter;
 	
-	public Guild(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked) {
+	public Guild(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
 		skipIDs = new LinkedList<String>();
@@ -26,6 +26,7 @@ public class Guild {
 		this.maxSkips = maxSkips;
 		this.volume = volume;
 		this.botLocked = botLocked;
+		this.enableNSFWFilter = nsfwfilter;
 	}
 	
 	public String getID() {
@@ -82,5 +83,13 @@ public class Guild {
 	
 	public void setCommandPrefix(char prefix) {
 		this.commandPrefix = prefix;
+	}
+	
+	public boolean isNSFWFilterEnabled() {
+		return enableNSFWFilter;
+	}
+	
+	public void toggleNSFWFilter() {
+		enableNSFWFilter = !enableNSFWFilter;
 	}
 }

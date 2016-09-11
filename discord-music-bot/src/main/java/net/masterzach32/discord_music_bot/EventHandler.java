@@ -2,17 +2,21 @@ package net.masterzach32.discord_music_bot;
 
 import java.io.IOException;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.masterzach32.discord_music_bot.api.NSFWFilter;
 import net.masterzach32.discord_music_bot.commands.Command;
 import net.masterzach32.discord_music_bot.music.AudioTrack;
 import net.masterzach32.discord_music_bot.utils.Constants;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.handle.obj.IMessage.IEmbedded;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.events.*;
+
 public class EventHandler {
 	
 	public static final Logger logger = LoggerFactory.getLogger(EventHandler.class);
@@ -39,6 +43,9 @@ public class EventHandler {
     public void onMessageEvent(MessageReceivedEvent event) {
 		String message = event.getMessage().getContent();
 		
+		if(message.length() < 1)
+			return;
+		
 		if(event.getMessage().getChannel().isPrivate()) {
 			try {
 				if(event.getMessage().getContent().contains(Constants.DEFAULT_COMMAND_PREFIX + "help")) {
@@ -62,8 +69,22 @@ public class EventHandler {
 			return;
 		}
 		
-		if(message.length() < 1)
-			return;
+		if(App.guilds.getGuild(event.getMessage().getGuild()).isNSFWFilterEnabled()) {
+			for(IEmbedded image : event.getMessage().getEmbedded()) {
+				if(image.getUrl() != null) {
+					NSFWFilter filter = new NSFWFilter(image.getUrl());
+					logger.info(filter.getResult());
+					if(filter.isPorn()) {
+						try {
+							App.sendMessage(filter.getResult(), event.getMessage().getAuthor(), event.getMessage().getChannel());
+							event.getMessage().delete();
+						} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
 		
 		String identifier = null;
 		String[] params = {""};
