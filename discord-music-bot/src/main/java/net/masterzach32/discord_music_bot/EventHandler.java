@@ -41,7 +41,7 @@ public class EventHandler {
 	}
 	
 	@EventSubscriber
-    public void onMessageEvent(MessageReceivedEvent event) {
+    public void onMessageEvent(MessageReceivedEvent event) throws MissingPermissionsException, RateLimitException, DiscordException {
 		String message = event.getMessage().getContent();
 		
 		if(message.length() < 1)
@@ -70,22 +70,29 @@ public class EventHandler {
 			return;
 		}
 		
+		if(event.getMessage().getChannel().getID().equals("97342233241464832")) {
+			if(!event.getMessage().getEmbedded().isEmpty()) {
+				App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("Please follow the rules and dont post links in #chat.");
+				event.getMessage().delete();
+				return;
+			}
+		}
+				
+		
 		if(App.guilds.getGuild(event.getMessage().getGuild()).isNSFWFilterEnabled()) {
 			for(Attachment a : event.getMessage().getAttachments())
 				logger.info("attachment: " + a.getUrl() + " " + a.getFilename());
 			for(IEmbedded image : event.getMessage().getEmbedded()) {
 				logger.info("embed: " + image.getUrl());
 				if(image.getUrl() != null) {
-					NSFWFilter filter = new NSFWFilter(image.getUrl());
-					logger.info(filter.getResult());
-					if(filter.isPorn()) {
-						try {
-							App.sendMessage(filter.getResult() + "\nIf you believe this is an error, contact your server owner or one of the developers.", event.getMessage().getAuthor(), event.getMessage().getChannel());
-							event.getMessage().delete();
-						} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
-							e.printStackTrace();
-						}
+					NSFWFilter filter = new NSFWFilter(event.getMessage().getGuild(), image.getUrl());
+					if(filter.isNSFW()) {
+						App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("Your image, `" + filter.getUrl() + "` which you posted in **" + event.getMessage().getGuild().getName() + "** **" + event.getMessage().getChannel() + "**, was flagged as containing NSFW content, and has been removed. If you believe this is an error, contact the server owner or one of my developers.");
+						event.getMessage().delete();
+					} else if(filter.isPartial()) {
+						App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("Your image, `" + filter.getUrl() + "` which you posted in **" + event.getMessage().getGuild().getName() + "** **" + event.getMessage().getChannel() + "**, was flagged as containing some or partial NSFW content. Please be aware that NSFW images will be automatically deleted. If you believe this is an error, contact the server owner or one of my developers.");
 					}
+					logger.info("result: nsfw:" + filter.getRaw() + "% partial:" + filter.getPartial() + "% safe:" + filter.getSafe() + "%");
 				}
 			}
 		}

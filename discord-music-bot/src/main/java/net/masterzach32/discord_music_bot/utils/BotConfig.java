@@ -11,7 +11,7 @@ import com.google.gson.GsonBuilder;
 
 public class BotConfig implements JSONReader {
 	
-	private String discordAuthKey;
+	private String discordAuthKey, se_api_user, se_api_secret;
 	private boolean clearCacheOnShutdown;
 
 	/**
@@ -22,6 +22,8 @@ public class BotConfig implements JSONReader {
 		// defaults
 		discordAuthKey = "";
 		clearCacheOnShutdown = false;
+		se_api_user = "";
+		se_api_secret = "";
 		
 		File prefs = new File(Constants.BOT_JSON);
 		if(!prefs.exists()) {
@@ -50,6 +52,8 @@ public class BotConfig implements JSONReader {
 		BotConfig file = new Gson().fromJson(json, BotConfig.class);
 		discordAuthKey = file.getDiscordAuthKey();
 		clearCacheOnShutdown = file.clearCacheOnShutdown();
+		se_api_user = file.se_api_user;
+		se_api_secret = file.se_api_secret;
 	}
 	
 	public String getDiscordAuthKey() {
@@ -58,5 +62,13 @@ public class BotConfig implements JSONReader {
 	
 	public boolean clearCacheOnShutdown() {
 		return clearCacheOnShutdown;
+	}
+
+	public String getAPIUser() {
+		return se_api_user;
+	}
+
+	public String getAPISecret() {
+		return se_api_secret;
 	}
 }

@@ -92,7 +92,7 @@ public class App {
     				sendMessage("**SwagBot is no longer locked.**", null, message.getChannel());
     		}
     	});
-    	new Command("Toggle NSFW Filter", "nsfw", "Toggles wether the bot filters out images that may be considered nsfw.", 1, new CommandEvent() {
+    	/*new Command("Toggle NSFW Filter", "nsfw", "Toggles wether the bot filters out images that may be considered nsfw.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			guilds.getGuild(message.getGuild()).toggleNSFWFilter();;
     			if(guilds.getGuild(message.getGuild()).isNSFWFilterEnabled())
@@ -100,7 +100,7 @@ public class App {
     			else
     				sendMessage("**NSFW Filter disabled.**", null, message.getChannel());
     		}
-    	});
+    	});*/
     	new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			if(params[0] == "")
