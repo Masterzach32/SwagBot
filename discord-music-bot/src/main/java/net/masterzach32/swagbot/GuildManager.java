@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot;
+package net.masterzach32.swagbot;
 
 import java.io.*;
 import java.util.*;
@@ -6,7 +6,7 @@ import java.util.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import net.masterzach32.discord_music_bot.utils.Constants;
+import net.masterzach32.swagbot.utils.Constants;
 import sx.blah.discord.handle.obj.IGuild;
 
 public class GuildManager {

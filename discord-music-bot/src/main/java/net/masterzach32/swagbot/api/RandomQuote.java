@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot.api;
+package net.masterzach32.swagbot.api;
 
 import org.json.JSONObject;
 
@@ -7,7 +7,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import net.masterzach32.discord_music_bot.App;
+import net.masterzach32.swagbot.App;
 
 public class RandomQuote {
 	

@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot.commands;
+package net.masterzach32.swagbot.commands;
 
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;

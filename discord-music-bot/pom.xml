@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>net.masterzach32</groupId>
-  <artifactId>discord-music-bot</artifactId>
+  <artifactId>sawgbot</artifactId>
   <packaging>jar</packaging>
 
-  <name>discord-music-bot</name>
+  <name>swagbot</name>
   <url>http://masterzach32.net</url>
 
   <properties>
@@ -55,7 +55,7 @@
     	<version>1.4.9</version>
     </dependency>
   </dependencies>
-  <version>1.0.1</version>
+  <version>1.1.1</version>
   <description>Music and Moderation bot for Discord</description>
   <organization>
   	<name>Masterzach32.net</name>

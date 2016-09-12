@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot.music;
+package net.masterzach32.swagbot.music;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import net.masterzach32.discord_music_bot.App;
-import net.masterzach32.discord_music_bot.utils.Constants;
-import net.masterzach32.discord_music_bot.utils.JSONReader;
+import net.masterzach32.swagbot.App;
+import net.masterzach32.swagbot.utils.Constants;
+import net.masterzach32.swagbot.utils.JSONReader;
 
 public class PlaylistManager implements JSONReader {
 	

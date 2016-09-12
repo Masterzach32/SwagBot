@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot.utils;
+package net.masterzach32.swagbot.utils;
 
 import java.io.File;
 import java.util.ArrayList;

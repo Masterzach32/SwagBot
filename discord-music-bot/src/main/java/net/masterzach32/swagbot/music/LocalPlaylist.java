@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot.music;
+package net.masterzach32.swagbot.music;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import net.masterzach32.discord_music_bot.App;
+import net.masterzach32.swagbot.App;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;

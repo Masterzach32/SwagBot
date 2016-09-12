@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot;
+package net.masterzach32.swagbot;
 
 import java.io.IOException;
 
@@ -11,10 +11,10 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import net.masterzach32.discord_music_bot.api.NSFWFilter;
-import net.masterzach32.discord_music_bot.commands.Command;
-import net.masterzach32.discord_music_bot.music.AudioTrack;
-import net.masterzach32.discord_music_bot.utils.Constants;
+import net.masterzach32.swagbot.api.NSFWFilter;
+import net.masterzach32.swagbot.commands.Command;
+import net.masterzach32.swagbot.music.AudioTrack;
+import net.masterzach32.swagbot.utils.Constants;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;

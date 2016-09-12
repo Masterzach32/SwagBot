@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot.api;
+package net.masterzach32.swagbot.api;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;

@@ -1,10 +1,9 @@
-package net.masterzach32.discord_music_bot;
+package net.masterzach32.swagbot;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -14,14 +13,14 @@ import org.slf4j.LoggerFactory;
 
 import com.mashape.unirest.http.Unirest;
 
-import net.masterzach32.discord_music_bot.api.R8Ball;
-import net.masterzach32.discord_music_bot.api.RandomCat;
-import net.masterzach32.discord_music_bot.api.RandomQuote;
-import net.masterzach32.discord_music_bot.api.UrbanDefinition;
-import net.masterzach32.discord_music_bot.api.jokes.*;
-import net.masterzach32.discord_music_bot.commands.*;
-import net.masterzach32.discord_music_bot.music.*;
-import net.masterzach32.discord_music_bot.utils.*;
+import net.masterzach32.swagbot.api.R8Ball;
+import net.masterzach32.swagbot.api.RandomCat;
+import net.masterzach32.swagbot.api.RandomQuote;
+import net.masterzach32.swagbot.api.UrbanDefinition;
+import net.masterzach32.swagbot.api.jokes.*;
+import net.masterzach32.swagbot.commands.*;
+import net.masterzach32.swagbot.music.*;
+import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;

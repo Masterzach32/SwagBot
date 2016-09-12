@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot;
+package net.masterzach32.swagbot;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

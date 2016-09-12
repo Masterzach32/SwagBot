@@ -1,9 +1,9 @@
-package net.masterzach32.discord_music_bot;
+package net.masterzach32.swagbot;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import net.masterzach32.discord_music_bot.music.PlaylistManager;
+import net.masterzach32.swagbot.music.PlaylistManager;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 

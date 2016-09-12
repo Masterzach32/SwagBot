@@ -1,10 +1,10 @@
-package net.masterzach32.discord_music_bot.commands;
+package net.masterzach32.swagbot.commands;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.masterzach32.discord_music_bot.App;
-import net.masterzach32.discord_music_bot.utils.Constants;
+import net.masterzach32.swagbot.App;
+import net.masterzach32.swagbot.utils.Constants;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;

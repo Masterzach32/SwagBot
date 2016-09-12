@@ -1,4 +1,4 @@
-package net.masterzach32.discord_music_bot.music;
+package net.masterzach32.swagbot.music;
 
 import java.io.File;
 import java.io.IOException;
