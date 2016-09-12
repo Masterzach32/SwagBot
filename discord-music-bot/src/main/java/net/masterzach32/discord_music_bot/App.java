@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -62,7 +63,8 @@ public class App {
     		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
     			if(params[0].equals("")) {
     				Command.listAllCommands(message.getAuthor());
-    				sendMessage("A list of commands has been sent to your Direct Messages.", message.getAuthor(), message.getChannel());
+					if(message.getChannel().isPrivate())
+    					sendMessage("A list of commands has been sent to your Direct Messages.", message.getAuthor(), message.getChannel());
     			}
     			else {
     				for(Command c : Command.commands)
@@ -109,7 +111,7 @@ public class App {
     	});*/
     	new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
-    			if(params[0] == "")
+    			if(!params[0].equals(""))
     				sendMessage("**Command prefix must be 1 character.**", null, message.getChannel());
     			else {
     				guilds.getGuild(message.getGuild()).setCommandPrefix(params[0].charAt(0));
@@ -117,65 +119,37 @@ public class App {
     			}
     		}
     	});
-    	new Command("Ban User", "ban", "Bans the specified user from this guild.", 1, new CommandEvent() {
+    	new Command("Ban User", "ban", "Bans the specified user(s) from this guild.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
-    			String name = "";
-    			for(String s : params)
-    				name += s;
-    				
-    			for(IUser user : App.client.getUsers())
-    				if(user.getName().equals(name)) {
-						message.getGuild().banUser(user);
-						sendMessage("@everyone User **" + user + "** has been **banned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
-						return;
-    				}
-    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
+                for(IUser user : message.getMentions()) {
+                    message.getGuild().banUser(user);
+                    sendMessage("@everyone User **" + user + "** has been **banned** from **" + message.getGuild() + "**", null, message.getGuild().getChannelByID(message.getGuild().getID()));
+                }
     		}
     	});
-    	new Command("Pardon User", "pardon", "Lifts the ban for the specified user from this guild.", 1, new CommandEvent() {
+    	new Command("Pardon User", "pardon", "Lifts the ban for the specified user(s) from this guild.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
-    			String name = "";
-    			for(String s : params)
-    				name += s;
-    				
-    			for(IUser user : App.client.getUsers())
-    				if(user.getName().equals(name)) {
-						message.getGuild().pardonUser(user.getID());
-						sendMessage("@everyone User **" + user + "** has been **pardoned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
-						return;
-    				}
-    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
+                for(IUser user : message.getMentions()) {
+                    message.getGuild().pardonUser(user.getID());
+                    sendMessage("@everyone User **" + user + "** has been **pardoned** from **" + message.getGuild() + "**", null, message.getGuild().getChannelByID(message.getGuild().getID()));
+                }
     		}
     	});
     	new Command("Soft Ban User", "softban", "Bans the specified user from this guild, deletes their message history, and then pardons them.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
-    			String name = "";
-    			for(String s : params)
-    				name += s;
-    				
-    			for(IUser user : App.client.getUsers())
-    				if(user.getName().equals(name)) {
-						message.getGuild().banUser(user, 1);
-						message.getGuild().pardonUser(user.getID());
-						sendMessage("@everyone User **" + user + "** has been **soft banned** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
-						return;
-    				}
-    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
+                for(IUser user : message.getMentions()) {
+                    message.getGuild().banUser(user, 1);
+                    message.getGuild().pardonUser(user.getID());
+                    sendMessage("@everyone User **" + user + "** has been **soft banned** from **" + message.getGuild() + "**", null, message.getGuild().getChannelByID(message.getGuild().getID()));
+                }
     		}
     	});
     	new Command("Kick User", "kick", "Kicks the specified user from this guild.", 1, new CommandEvent() {
     		public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException {
-    			String name = "";
-    			for(String s : params)
-    				name += s;
-    				
-    			for(IUser user : App.client.getUsers())
-    				if(user.getName().equals(name)) {
-						message.getGuild().kickUser(user);
-						sendMessage("@everyone User **" + user + "** has been **kicked** from **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
-						return;
-    				}
-    			sendMessage("No user by name **" + name + "** was found in **" + message.getGuild() + "**", null, App.client.getChannelByID("222099708649144320"));
+                for(IUser user : message.getMentions()) {
+                    message.getGuild().kickUser(user);
+                    sendMessage("@everyone User **" + user + "** has been **kicked** from **" + message.getGuild() + "**", null, message.getGuild().getChannelByID(message.getGuild().getID()));
+                }
     		}
     	});
     	new Command("Prune Messages", "prune", "Deletes the previous X messages", 1, new CommandEvent() {
@@ -265,7 +239,7 @@ public class App {
     		   	
     		   	users = from.getConnectedUsers();
     		   	moveUsers(users, to);
-    		    sendMessage("Sucessfully moved **" + (users.size()-1) + "** guild members from **" + from + "** to **" + to + "**", null, message.getChannel());
+    		    sendMessage("Successfully moved **" + (users.size()-1) + "** guild members from **" + from + "** to **" + to + "**", null, message.getChannel());
     		}
     	});
     	new Command("Bring Users", "bring", "Brings all users in a server to you.", 1, new CommandEvent() {
@@ -347,7 +321,7 @@ public class App {
     				sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
     				return;
     			}
-    			if(params == null || params[0] == null || params[0] == "")
+    			if(params == null || params[0] == null || params[0].equals(""))
     				sendMessage("Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100+ "**", null, message.getChannel());
     			else {
     				float vol = Float.parseFloat(params[0]);
@@ -545,7 +519,7 @@ public class App {
     				quote = new RandomQuote("movies");
     			else
     				quote = new RandomQuote("famous");
-    			sendMessage("*\"" + quote.getQuote() + "\"*\n-**" + quote.getAuthor() + "**", null, message.getChannel());
+    			sendMessage("*\"" + quote.getQuote() + "\"*\n\t-**" + quote.getAuthor() + "**", null, message.getChannel());
     		}
     	});
     	new Command("8 Ball", "8ball", "Gives you a prediction to your question.", 0, new CommandEvent() {
