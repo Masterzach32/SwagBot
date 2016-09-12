@@ -2,9 +2,14 @@ package net.masterzach32.discord_music_bot;
 
 import java.io.IOException;
 
-
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 import net.masterzach32.discord_music_bot.api.NSFWFilter;
 import net.masterzach32.discord_music_bot.commands.Command;
@@ -38,6 +43,17 @@ public class EventHandler {
 		for(IGuild guild : event.getClient().getGuilds())
 			App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
 		event.getClient().changeStatus(Status.game("Queue some music!"));
+		try {
+			HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
+				.header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
+				.header("Content-Type", "application/json")
+				.header("Authorization", App.prefs.getDBAuthKey())
+				.body(new JSONObject().put("server_count", event.getClient().getGuilds().size()))
+				.asJson();
+			logger.info(json.getBody().getArray().getJSONObject(0).toString());
+		} catch (UnirestException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@EventSubscriber

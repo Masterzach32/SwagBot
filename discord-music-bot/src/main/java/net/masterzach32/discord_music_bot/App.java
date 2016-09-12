@@ -4,14 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Random;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mashape.unirest.http.Unirest;
+
+import net.masterzach32.discord_music_bot.api.R8Ball;
 import net.masterzach32.discord_music_bot.api.RandomCat;
+import net.masterzach32.discord_music_bot.api.RandomQuote;
 import net.masterzach32.discord_music_bot.api.UrbanDefinition;
+import net.masterzach32.discord_music_bot.api.jokes.*;
 import net.masterzach32.discord_music_bot.commands.*;
 import net.masterzach32.discord_music_bot.music.*;
 import net.masterzach32.discord_music_bot.utils.*;
@@ -520,12 +526,54 @@ public class App {
     			sendMessage(str, null, message.getChannel());
     		}
     	});
-    	new Command("Random Cat", "cat", "Posts a random cat picture.", 0, new CommandEvent() {
+    	new Command("Roll a Dice", "dice", "Rolls a number on a dice from 1 to the amount you put. Default 6.", 0, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
+    			int max = 6;
+    			if(!params[0].equals(""))
+    				try {
+    					max = Integer.parseInt(params[0]);
+    				} catch(NumberFormatException e) {
+    					sendMessage("Amount must be a number.", null, message.getChannel());
+    				}
+    			sendMessage("You rolled a **" + new Random().nextInt(max) + 1 + "**", null, message.getChannel());
+    		}
+    	});
+    	new Command("Random Quote", "quote", "Gives you a random quote.", 0, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
+    			RandomQuote quote;
+    			if((int) (Math.random() * 2) == 1)
+    				quote = new RandomQuote("movies");
+    			else
+    				quote = new RandomQuote("famous");
+    			sendMessage("*\"" + quote.getQuote() + "\"*\n-**" + quote.getAuthor() + "**", null, message.getChannel());
+    		}
+    	});
+    	new Command("8 Ball", "8ball", "Gives you a prediction to your question.", 0, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
+    			sendMessage(new R8Ball().getResponse(), null, message.getChannel());
+    		}
+    	});
+    	new Command("Random Joke", "joke", "Gives you a random joke.\nSpecific: -cn for Chuck Norris, -ym for Yo Mama", 0, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
+    			IRandomJoke joke;
+    			if(params[0].equals("-cn") || (int) (Math.random() * 2) == 1)
+    				joke = new CNJoke();
+    			else
+    				joke = new YMJoke();
+    			sendMessage(joke.getJoke(), null, message.getChannel());
+    		}
+    	});
+    	new Command("Choose From Group", "choose", "Randomly picks one of the options given.", 0, new CommandEvent() {
+    		public void execute(IMessage message, String[] params) {
+    			sendMessage("I choose **" + params[new Random().nextInt(params.length)] + "**", null, message.getChannel());
+    		}
+    	});
+    	new Command("Random Cat", "cat", "Gives you a random cat picture.", 0, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			sendMessage(new RandomCat().getUrl(), null, message.getChannel());
     		}
     	});
-    	new Command("Urban Dictionary Lookup", "urban", "Looks up a term on urban dictionary", 0, new CommandEvent() {
+    	new Command("Urban Dictionary Lookup", "define", "Looks up a term on urban dictionary.", 0, new CommandEvent() {
     		public void execute(IMessage message, String[] params) {
     			String term = "";
     			for(String s : params)
@@ -541,6 +589,7 @@ public class App {
     	try {
     		client.changeStatus(Status.game("Shutting Down"));
 			client.logout();
+			Unirest.shutdown();
 		} catch (RateLimitException | DiscordException e) {
 			e.printStackTrace();
 		}

@@ -7,6 +7,8 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import net.masterzach32.discord_music_bot.App;
+
 public class UrbanDefinition {
 	
 	private int defid;
@@ -15,7 +17,7 @@ public class UrbanDefinition {
 	public UrbanDefinition(String term) {
 		try {
 			HttpResponse<JsonNode> response = Unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + term)
-					.header("X-Mashape-Key", "lmpj8JlDYfmshQLcaLKPJmpsn3g2p179SQojsnSWGVDlYuPMx8")
+					.header("X-Mashape-Key", App.prefs.getMashapApiKey())
 					.header("Accept", "text/plain")
 					.asJson();
 			JSONObject def = response.getBody().getArray().getJSONObject(0).getJSONArray("list").getJSONObject(0);

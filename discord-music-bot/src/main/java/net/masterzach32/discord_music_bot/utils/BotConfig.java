@@ -11,7 +11,7 @@ import com.google.gson.GsonBuilder;
 
 public class BotConfig implements JSONReader {
 	
-	private String discordAuthKey, se_api_user, se_api_secret;
+	private String discordClientId, discordAuthKey, dbAuthKey, mashapApiKey, se_api_user, se_api_secret;
 	private boolean clearCacheOnShutdown;
 
 	/**
@@ -20,8 +20,11 @@ public class BotConfig implements JSONReader {
 	 */
 	public BotConfig() throws IOException {
 		// defaults
+		discordClientId = "";
 		discordAuthKey = "";
+		dbAuthKey = "";
 		clearCacheOnShutdown = false;
+		mashapApiKey = "";
 		se_api_user = "";
 		se_api_secret = "";
 		
@@ -31,7 +34,7 @@ public class BotConfig implements JSONReader {
 			save();
 		}
 	}
-	
+
 	public void save() throws IOException {
 		BufferedWriter fout = null;
 		fout = new BufferedWriter(new FileWriter(Constants.BOT_JSON));
@@ -50,14 +53,25 @@ public class BotConfig implements JSONReader {
 		
 		String json = new String(buffer);
 		BotConfig file = new Gson().fromJson(json, BotConfig.class);
+		discordClientId = file.discordClientId;
 		discordAuthKey = file.getDiscordAuthKey();
+		dbAuthKey = file.dbAuthKey;
 		clearCacheOnShutdown = file.clearCacheOnShutdown();
+		mashapApiKey = file.mashapApiKey;
 		se_api_user = file.se_api_user;
 		se_api_secret = file.se_api_secret;
 	}
 	
+	public String getDiscordClientId() {
+		return discordClientId;
+	}
+	
 	public String getDiscordAuthKey() {
 		return discordAuthKey;
+	}
+	
+	public String getDBAuthKey() {
+		return dbAuthKey;
 	}
 	
 	public boolean clearCacheOnShutdown() {
@@ -70,5 +84,9 @@ public class BotConfig implements JSONReader {
 
 	public String getAPISecret() {
 		return se_api_secret;
+	}
+	
+	public String getMashapApiKey() {
+		return mashapApiKey;
 	}
 }

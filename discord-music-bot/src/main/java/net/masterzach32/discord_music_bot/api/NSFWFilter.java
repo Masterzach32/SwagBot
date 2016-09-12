@@ -47,11 +47,11 @@ public class NSFWFilter {
 	}
 	
 	public boolean isPartial() {
-		return partial > .5;
+		return partial > .4;
 	}
 	
 	public boolean isNSFW() {
-		return raw > .5;
+		return raw > .4;
 	}
 	
 	public boolean isSafe() {
