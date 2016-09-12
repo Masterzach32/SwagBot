@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder;
 public class BotConfig implements JSONReader {
 	
 	private String discordClientId, discordAuthKey, dbAuthKey, mashapApiKey, se_api_user, se_api_secret;
-	private boolean clearCacheOnShutdown;
+	private boolean clearCacheOnShutdown, postBotStats;
 
 	/**
 	 * Creates a reference to the preferences file, and generates one if it doesn't exist.
@@ -24,6 +24,7 @@ public class BotConfig implements JSONReader {
 		discordAuthKey = "";
 		dbAuthKey = "";
 		clearCacheOnShutdown = false;
+		postBotStats = false;
 		mashapApiKey = "";
 		se_api_user = "";
 		se_api_secret = "";
@@ -57,6 +58,7 @@ public class BotConfig implements JSONReader {
 		discordAuthKey = file.getDiscordAuthKey();
 		dbAuthKey = file.dbAuthKey;
 		clearCacheOnShutdown = file.clearCacheOnShutdown();
+		postBotStats = file.postBotStats;
 		mashapApiKey = file.mashapApiKey;
 		se_api_user = file.se_api_user;
 		se_api_secret = file.se_api_secret;
@@ -76,6 +78,10 @@ public class BotConfig implements JSONReader {
 	
 	public boolean clearCacheOnShutdown() {
 		return clearCacheOnShutdown;
+	}
+	
+	public boolean shouldPostBotStats() {
+		return postBotStats;
 	}
 
 	public String getAPIUser() {

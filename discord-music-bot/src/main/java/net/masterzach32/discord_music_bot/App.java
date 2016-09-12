@@ -535,7 +535,7 @@ public class App {
     				} catch(NumberFormatException e) {
     					sendMessage("Amount must be a number.", null, message.getChannel());
     				}
-    			sendMessage("You rolled a **" + new Random().nextInt(max) + 1 + "**", null, message.getChannel());
+    			sendMessage("You rolled a **" + (new Random().nextInt(max) + 1) + "**", null, message.getChannel());
     		}
     	});
     	new Command("Random Quote", "quote", "Gives you a random quote.", 0, new CommandEvent() {

@@ -44,13 +44,15 @@ public class EventHandler {
 			App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
 		event.getClient().changeStatus(Status.game("Queue some music!"));
 		try {
-			HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
-				.header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
-				.header("Content-Type", "application/json")
-				.header("Authorization", App.prefs.getDBAuthKey())
-				.body(new JSONObject().put("server_count", event.getClient().getGuilds().size()))
-				.asJson();
-			logger.info(json.getBody().getArray().getJSONObject(0).toString());
+			if(App.prefs.shouldPostBotStats()) {
+				HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
+						.header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
+						.header("Content-Type", "application/json")
+						.header("Authorization", App.prefs.getDBAuthKey())
+						.body(new JSONObject().put("server_count", event.getClient().getGuilds().size()))
+						.asJson();
+				logger.info(json.getBody().getArray().getJSONObject(0).toString());
+			}
 		} catch (UnirestException e) {
 			e.printStackTrace();
 		}
