@@ -39,11 +39,11 @@ public class EventHandler {
 	}
 
 	@EventSubscriber
-	public void onReady(ReadyEvent event) {
+	public void onReady(ReadyEvent event) throws MissingPermissionsException, RateLimitException, DiscordException {
 		for(IGuild guild : event.getClient().getGuilds())
 			App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
 		event.getClient().changeStatus(Status.game("Queue some music!"));
-		try {
+        try {
 			if(App.prefs.shouldPostBotStats()) {
 				HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
 						.header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
@@ -132,7 +132,7 @@ public class EventHandler {
 				logger.info(identifier);
 				params = message.substring(message.indexOf(' ') + 1).split(" ");
 			} else {
-				identifier = message.substring(0);
+				identifier = message;
 				logger.info(identifier);
 			}
 		}
@@ -146,8 +146,7 @@ public class EventHandler {
 	
 	@EventSubscriber
 	public void onTrackStartEvent(TrackStartEvent event) {
-		event.getClient().changeStatus(Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
-		logger.info("playing:" + Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
+		event.getClient().changeStatus(Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + " - " + event.getPlayer().getGuild().getName()));
 		try {
 			if(((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce())
 				App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");

@@ -16,9 +16,8 @@ import com.google.gson.GsonBuilder;
 
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.Constants;
-import net.masterzach32.swagbot.utils.JSONReader;
 
-public class PlaylistManager implements JSONReader {
+public class PlaylistManager {
 	
 	public static final Logger logger = LoggerFactory.getLogger(App.class);
 	

@@ -8,6 +8,10 @@ import java.util.Random;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +39,7 @@ public class App {
     public static GuildManager guilds;
     public static FileManager manager;
 
-    public static void main(String[] args) throws DiscordException, IOException {
+    public static void main(String[] args) throws DiscordException, IOException, UnirestException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
         // beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
 
@@ -52,6 +56,14 @@ public class App {
         prefs = new BotConfig();
         prefs.load();
         guilds = new GuildManager();
+
+        HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
+                .header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
+                .header("Content-Type", "application/json")
+                .header("Authorization", App.prefs.getDBAuthKey())
+                .body(new JSONObject().put("server_count", 40))
+                .asJson();
+        logger.info(json.getBody().getArray().getJSONObject(0).toString());
 
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
@@ -251,6 +263,13 @@ public class App {
 
             sendMessage("Moved everyone in the afk channel to **" + channel.getName() + "**.", null, message.getChannel());
         });
+		new Command("Mass AFK", "mafk", "Move everyone in your server to the afk channel.", 1, (message, params) -> {
+			IVoiceChannel channel = message.getGuild().getAFKChannel();
+			for (IUser user : message.getGuild().getAFKChannel().getConnectedUsers())
+			    if(!user.equals(message.getAuthor()))
+				    user.moveToVoiceChannel(channel);
+			sendMessage("Moved everyone to **" + channel.getName() + "**.", null, message.getChannel());
+		});
         new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
@@ -557,7 +576,7 @@ public class App {
     // Queue audio from specified URL stream for guild
     public static boolean playAudioFromYouTube(String s_url, boolean announce, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException, InterruptedException {
         String video_id;
-        if (s_url.indexOf("?v=") < 0)
+        if (!s_url.contains("?v="))
             video_id = s_url;
         else
             video_id = s_url.substring(s_url.indexOf("?v=") + 3, s_url.indexOf("=") + 12);

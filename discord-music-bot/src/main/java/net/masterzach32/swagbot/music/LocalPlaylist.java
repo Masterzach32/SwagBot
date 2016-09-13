@@ -29,7 +29,7 @@ public class LocalPlaylist {
 	
 	public boolean add(String audio) {
 		String str = "";
-		if(audio.indexOf("?v=") < 0)
+		if(!audio.contains("?v="))
     		str = audio;
     	else 
     		str = audio.substring(audio.indexOf("?v=") + 3, audio.indexOf("=") + 12);

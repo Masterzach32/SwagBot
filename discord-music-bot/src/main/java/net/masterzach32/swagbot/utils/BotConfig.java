@@ -9,7 +9,7 @@ import java.io.RandomAccessFile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class BotConfig implements JSONReader {
+public class BotConfig {
 	
 	private String discordClientId, discordAuthKey, dbAuthKey, mashapApiKey, se_api_user, se_api_secret;
 	private boolean clearCacheOnShutdown, postBotStats;
