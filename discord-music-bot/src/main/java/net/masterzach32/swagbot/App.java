@@ -138,7 +138,7 @@ public class App {
             IChannel channel = message.getChannel();
             MessageList list = channel.getMessages();
             IUser caller = message.getAuthor();
-            if (params[0] == "")
+            if (params[0].equals(""))
                 sendMessage("Please specify the amount of messages to prune.", null, channel);
             else {
                 int x = 0;
@@ -184,10 +184,10 @@ public class App {
             }
             List<IUser> users = null;
 
-            for (String s : params)
-                if (s != null) {
-                    s.replaceAll("_", " ");
-                    s.replaceAll("-", " ");
+            for (int i = 0; i < params.length; i++)
+                if (params[i] != null) {
+                    params[i] = params[i].replaceAll("_", " ");
+                    params[i] = params[i].replaceAll("-", " ");
                 }
 
             IVoiceChannel from = null;
@@ -234,10 +234,6 @@ public class App {
             sendMessage("Moved everyone to **" + channel.getName() + "**.", null, message.getChannel());
         });
         new Command("Disconnect User", "disconnect", "Move the list of users to the afk channel. Use @mentions.", 1, (message, params) -> {
-            if (message.getAuthor().getConnectedVoiceChannels().size() == 0) {
-                sendMessage("**You need to be in a voice channel to summon everyone.**", null, message.getChannel());
-                return;
-            }
             for (IUser user : message.getMentions()) {
                 user.moveToVoiceChannel(message.getGuild().getAFKChannel());
                 sendMessage("Moved **" + user.getName() + "** to the afk channel.", null, message.getChannel());
