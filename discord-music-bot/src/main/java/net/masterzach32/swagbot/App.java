@@ -313,7 +313,7 @@ public class App {
                 sendMessage("Set volume to **" + vol + "**", null, message.getChannel());
             }
         });
-        /*new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: -create, -add, -remove, -delete, -queue, -list, -info", 0, (message, params) -> {
+        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: -create, -add, -remove, -delete, -queue, -list, -info", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
@@ -371,7 +371,7 @@ public class App {
                 response = "Deleted the playlist **" + name + "**";
             }
             sendMessage(response, null, message.getChannel());
-        });*/
+        });
         new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -dl (Direct Link), -f (Local File)", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());

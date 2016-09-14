@@ -48,7 +48,7 @@ public class SoundCloudAudio implements AudioSource {
     }
 
     public String getStreamUrl() {
-        return streamUrl + "&client_id=" + App.prefs.getSCClientId();
+        return streamUrl + "?client_id=" + App.prefs.getSCClientId();
     }
 
     public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException {
