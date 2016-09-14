@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import net.masterzach32.swagbot.App;
+import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
@@ -57,8 +58,19 @@ public class LocalPlaylist {
 			Thread task = new Thread("loadAudioFromPlaylist:" + s) {
 				public void run() {
 					try {
-						App.playAudioFromYouTube(s, true, user, guild);
-					} catch (IOException | UnsupportedAudioFileException | InterruptedException e) {
+						AudioSource source = null;
+						try {
+							if(s.contains("youtube"))
+								source = new YouTubeAudio(s);
+							else if(s.contains("soundcloud"))
+								source = new SoundCloudAudio(s);
+							else
+								source = new AudioStream(s);
+						} catch (NotStreamableException e) {
+							e.printStackTrace();
+						}
+						App.playAudioFromAudioSource(source, true, user, guild);
+					} catch (IOException | UnsupportedAudioFileException e) {
 						e.printStackTrace();
 					}
 				}

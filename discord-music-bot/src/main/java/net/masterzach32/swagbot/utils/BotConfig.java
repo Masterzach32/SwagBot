@@ -11,7 +11,7 @@ import com.google.gson.GsonBuilder;
 
 public class BotConfig {
 	
-	private String discordClientId, discordAuthKey, dbAuthKey, mashapApiKey, se_api_user, se_api_secret;
+	private String discordClientId, discordAuthKey, dbAuthKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
 	private boolean clearCacheOnShutdown, postBotStats;
 
 	/**
@@ -23,6 +23,7 @@ public class BotConfig {
 		discordClientId = "";
 		discordAuthKey = "";
 		dbAuthKey = "";
+		scClientId = "e7215760229f939affdcd4510521c9bb";
 		clearCacheOnShutdown = false;
 		postBotStats = false;
 		mashapApiKey = "";
@@ -57,6 +58,7 @@ public class BotConfig {
 		discordClientId = file.discordClientId;
 		discordAuthKey = file.getDiscordAuthKey();
 		dbAuthKey = file.dbAuthKey;
+        scClientId = file.scClientId;
 		clearCacheOnShutdown = file.clearCacheOnShutdown();
 		postBotStats = file.postBotStats;
 		mashapApiKey = file.mashapApiKey;
@@ -75,6 +77,10 @@ public class BotConfig {
 	public String getDBAuthKey() {
 		return dbAuthKey;
 	}
+
+	public String getSCClientId() {
+        return scClientId;
+    }
 	
 	public boolean clearCacheOnShutdown() {
 		return clearCacheOnShutdown;
