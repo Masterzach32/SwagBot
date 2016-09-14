@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -60,14 +61,6 @@ public class App {
         prefs = new BotConfig();
         prefs.load();
         guilds = new GuildManager();
-
-        HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
-                .header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
-                .header("Content-Type", "application/json")
-                .header("Authorization", App.prefs.getDBAuthKey())
-                .body(new JSONObject().put("server_count", 40))
-                .asJson();
-        logger.info(json.getBody().getArray().getJSONObject(0).toString());
 
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
@@ -393,7 +386,7 @@ public class App {
                 else
                     source = new AudioStream(params[0]);
             } catch (NotStreamableException e) {
-                sendMessage("The SoundCloud track you queued cannot be streamed: " + e.getUrl(), null, message.getChannel());
+                sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel());
                 e.printStackTrace();
             }
             try {
@@ -514,8 +507,33 @@ public class App {
         });
         new Command("Fight", "fight", "Make multiple users fight!", 0, (message, params) -> {
             List<IUser> users = message.getMentions();
-            Collections.shuffle(users);
-
+            for(int i = 0; i < users.size(); i++) {
+                String str = "";
+                for(int j = 0; j < users.size(); j++) {
+                    if(j < users.size()-1)
+                        str += "**" + users.get(j) + "**, ";
+                    else
+                        str += "and **" + users.get(j) + "** are fighting.";
+                }
+                IMessage m = sendMessage(str, null, message.getChannel());
+                for(int j = 0; j < 3; j++) {
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    m.edit(str += ".");
+                }
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                IUser dead = users.get(new Random().nextInt(users.size()));
+                users.remove(dead);
+                IUser killer = users.get(new Random().nextInt(users.size()));
+                m.edit("**" + dead.mention() + "** was defeated by **" + killer.mention() + "**");
+            }
         });
     }
 
