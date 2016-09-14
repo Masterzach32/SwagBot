@@ -29,15 +29,9 @@ public class LocalPlaylist {
 	}
 	
 	public boolean add(String audio) {
-		String str = "";
-		if(!audio.contains("?v="))
-    		str = audio;
-    	else 
-    		str = audio.substring(audio.indexOf("?v=") + 3, audio.indexOf("=") + 12);
-		if(music.contains(str))
+		if(music.contains(audio))
 			return false;
-		
-		music.add(str);
+        music.add(audio);
 		return true;
 	}
 	

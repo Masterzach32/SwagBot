@@ -35,7 +35,6 @@ public class EventHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        
 	}
 
 	@EventSubscriber
@@ -49,7 +48,7 @@ public class EventHandler {
 						.header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
 						.header("Content-Type", "application/json")
 						.header("Authorization", App.prefs.getDBAuthKey())
-						.body(new JSONObject().put("server_count", event.getClient().getGuilds().size()))
+						.body(new JSONObject().put("server_count", 55))
 						.asJson();
 				logger.info(json.getBody().getArray().getJSONObject(0).toString());
 			}
