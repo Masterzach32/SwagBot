@@ -2,6 +2,8 @@ package net.masterzach32.swagbot;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -267,8 +269,8 @@ public class App {
         });
 		new Command("Mass AFK", "mafk", "Move everyone in your server to the afk channel.", 1, (message, params) -> {
 			IVoiceChannel channel = message.getGuild().getAFKChannel();
-			for (IUser user : message.getGuild().getAFKChannel().getConnectedUsers())
-			    if(!user.equals(message.getAuthor()))
+			for (IUser user : message.getGuild().getUsers())
+			    if(!user.equals(message.getAuthor()) && user.getConnectedVoiceChannels().size() > 0)
 				    user.moveToVoiceChannel(channel);
 			sendMessage("Moved everyone to **" + channel.getName() + "**.", null, message.getChannel());
 		});
@@ -372,7 +374,7 @@ public class App {
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>\nOptions: -dl (Direct Link), -f (Local File)", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>. Supports YouTube, SoundCloud, and direct links", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
@@ -391,7 +393,7 @@ public class App {
                 else
                     source = new AudioStream(params[0]);
             } catch (NotStreamableException e) {
-                sendMessage("The SoundCloud track you queued cannot be streamed: " + params[0], null, message.getChannel());
+                sendMessage("The SoundCloud track you queued cannot be streamed: " + e.getUrl(), null, message.getChannel());
                 e.printStackTrace();
             }
             try {
@@ -509,6 +511,11 @@ public class App {
                 term += s + " ";
             UrbanDefinition def = new UrbanDefinition(term);
             sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
+        });
+        new Command("Fight", "fight", "Make multiple users fight!", 0, (message, params) -> {
+            List<IUser> users = message.getMentions();
+            Collections.shuffle(users);
+
         });
     }
 

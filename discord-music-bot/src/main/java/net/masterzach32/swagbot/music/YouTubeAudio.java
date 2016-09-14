@@ -45,7 +45,7 @@ public class YouTubeAudio implements AudioSource {
         int yt_err = -1;
 
         try {
-            yt_err = yt_dn.redirectError(new File(Constants.LOG_STORAGE + "youtube-dl.log")).start().waitFor();
+            yt_err = yt_dn.redirectOutput(new File(Constants.LOG_STORAGE + "youtube-dl.log")).start().waitFor();
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
@@ -62,7 +62,7 @@ public class YouTubeAudio implements AudioSource {
                 yt = file;
             }
         try {
-            ffmpeg_err = ffmpeg.redirectError(new File(Constants.LOG_STORAGE + "ffmpeg.log")).start().waitFor();
+            ffmpeg_err = ffmpeg.redirectOutput(new File(Constants.LOG_STORAGE + "ffmpeg.log")).start().waitFor();
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
