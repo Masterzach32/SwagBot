@@ -495,32 +495,44 @@ public class App {
         });
         new Command("Fight", "fight", "Make multiple users fight!", 0, (message, params) -> {
             List<IUser> users = message.getMentions();
+            sendMessage("**Let the games begin!**", null, message.getChannel());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             for(int i = 0; i < users.size(); i++) {
                 String str = "";
                 for(int j = 0; j < users.size(); j++) {
                     if(j < users.size()-1)
-                        str += "**" + users.get(j) + "**, ";
+                        str += "" + users.get(j) + ", ";
                     else
-                        str += "and **" + users.get(j) + "** are fighting.";
+                        str += "and " + users.get(j) + " are fighting!";
                 }
                 IMessage m = sendMessage(str, null, message.getChannel());
-                for(int j = 0; j < 3; j++) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    m.edit(str += ".");
-                }
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(2500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 IUser dead = users.get(new Random().nextInt(users.size()));
                 users.remove(dead);
                 IUser killer = users.get(new Random().nextInt(users.size()));
-                m.edit("**" + dead.mention() + "** was defeated by **" + killer.mention() + "**");
+                RequestBuffer.request(() -> {
+                    try {
+                        String result = prefs.getFightSituations()[new Random().nextInt(prefs.getFightSituations().length)];
+                        result = result.replace("${killed}", dead.mention());
+                        result = result.replace("${killer}", killer.mention());
+                        m.edit(result);
+                    } catch (MissingPermissionsException | DiscordException e) {
+                        e.printStackTrace();
+                    }
+                });
+                if(users.size() == 1) {
+                    sendMessage(users.get(0).mention() + " **won the brawl!**", null, message.getChannel());
+                    break;
+                }
+                i--;
             }
         });
     }

@@ -13,6 +13,7 @@ public class BotConfig {
 	
 	private String discordClientId, discordAuthKey, dbAuthKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
 	private boolean clearCacheOnShutdown, postBotStats;
+	private String[] fightSituations;
 
 	/**
 	 * Creates a reference to the preferences file, and generates one if it doesn't exist.
@@ -23,17 +24,18 @@ public class BotConfig {
 		discordClientId = "";
 		discordAuthKey = "";
 		dbAuthKey = "";
-		scClientId = "e7215760229f939affdcd4510521c9bb";
+		scClientId = "";
 		clearCacheOnShutdown = false;
 		postBotStats = false;
 		mashapApiKey = "";
 		se_api_user = "";
 		se_api_secret = "";
+        fightSituations = new String[] {"${killed} was defeated by ${killer}!"};
 		
 		File prefs = new File(Constants.BOT_JSON);
 		if(!prefs.exists()) {
-			prefs.createNewFile();
-			save();
+            prefs.createNewFile();
+            save();
 		}
 	}
 
@@ -64,6 +66,7 @@ public class BotConfig {
 		mashapApiKey = file.mashapApiKey;
 		se_api_user = file.se_api_user;
 		se_api_secret = file.se_api_secret;
+        fightSituations = file.fightSituations;
 	}
 	
 	public String getDiscordClientId() {
@@ -101,4 +104,8 @@ public class BotConfig {
 	public String getMashapApiKey() {
 		return mashapApiKey;
 	}
+
+	public String[] getFightSituations() {
+        return fightSituations;
+    }
 }
