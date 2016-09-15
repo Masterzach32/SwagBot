@@ -30,7 +30,9 @@ public class BotConfig {
 		mashapApiKey = "";
 		se_api_user = "";
 		se_api_secret = "";
-        fightSituations = new String[] {"${killed} was defeated by ${killer}!"};
+        fightSituations = new String[] {
+				"${killed} was defeated by ${killer}!"
+		};
 		
 		File prefs = new File(Constants.BOT_JSON);
 		if(!prefs.exists()) {

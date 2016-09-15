@@ -51,7 +51,7 @@ public class App {
 
         // register commands
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
-            if (params[0].equals("")) {
+            if (params.length == 0) {
                 Command.listAllCommands(message.getAuthor());
                 if (!message.getChannel().isPrivate())
                     sendMessage("A list of commands has been sent to your Direct Messages.", message.getAuthor(), message.getChannel());
@@ -94,7 +94,7 @@ public class App {
     		}
     	});*/
         new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, (message, params) -> {
-            if (!params[0].equals(""))
+            if (params.length == 0 || params[0].length() > 1)
                 sendMessage("**Command prefix must be 1 character.**", null, message.getChannel());
             else {
                 guilds.getGuild(message.getGuild()).setCommandPrefix(params[0].charAt(0));
@@ -130,7 +130,7 @@ public class App {
             IChannel channel = message.getChannel();
             MessageList list = channel.getMessages();
             IUser caller = message.getAuthor();
-            if (params[0].equals(""))
+            if (params.length == 0)
                 sendMessage("Please specify the amount of messages to prune.", null, channel);
             else {
                 int x = 0;
@@ -195,7 +195,7 @@ public class App {
                 return;
             }
 
-            if (params[0] != null && !params[0].equals("") && params[1] != null && !params[1].equals("")) {
+            if (params.length == 2) {
                 for (IVoiceChannel c : message.getGuild().getVoiceChannels())
                     if (c.getName().equals(params[0])) {
                         from = c;
@@ -355,7 +355,6 @@ public class App {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             }
-            boolean s = false;
             if (!canQueueMusic(message.getAuthor())) {
                 sendMessage("**You must be in the bot's channel to queue music.**", null, message.getChannel());
                 return;
@@ -430,6 +429,7 @@ public class App {
             else {
                 player.clear();
                 sendMessage("**Cleared the queue.**", null, message.getChannel());
+                client.changeStatus(Status.game("Queue some music!"));
             }
         });
         new Command("Queue", "queue", "Displays the song queue.", 0, (message, params) -> {
@@ -443,12 +443,11 @@ public class App {
                 str += s;
 
             }
-            logger.info(str);
             sendMessage(str, null, message.getChannel());
         });
         new Command("Roll a Dice", "dice", "Rolls a number on a dice from 1 to the amount you put. Default 6.", 0, (message, params) -> {
             int max = 6;
-            if (!params[0].equals(""))
+            if (!(params.length == 0))
                 try {
                     max = Integer.parseInt(params[0]);
                 } catch (NumberFormatException e) {
@@ -490,11 +489,17 @@ public class App {
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = message.getMentions();
+            logger.info(message.mentionsEveryone() + message.getContent());
+            if(message.mentionsEveryone())
+                users = message.getGuild().getUsers();
             if(users.size() == 1) {
                 sendMessage(users.get(0).mention() + " needs at least one other person to fight!", null, message.getChannel());
                 return;
+            } else if(users.size() == 0) {
+            	sendMessage("You need to mention users that will fight!", null, message.getChannel());
+                return;
             }
-            sendMessage("**Let the games begin!**", null, message.getChannel());
+            sendMessage("**Let the brawl begin!**", null, message.getChannel());
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -504,9 +509,9 @@ public class App {
                 String str = "";
                 for(int j = 0; j < users.size(); j++) {
                     if(j < users.size()-1)
-                        str += "" + users.get(j) + ", ";
+                        str += "**" + users.get(j).getName() + "**, ";
                     else
-                        str += "and " + users.get(j) + " are fighting!";
+                        str += "and **" + users.get(j).getName() + "** are fighting!";
                 }
                 IMessage m = sendMessage(str, null, message.getChannel());
                 try {
@@ -520,8 +525,8 @@ public class App {
                 RequestBuffer.request(() -> {
                     try {
                         String result = prefs.getFightSituations()[new Random().nextInt(prefs.getFightSituations().length)];
-                        result = result.replace("${killed}", dead.mention());
-                        result = result.replace("${killer}", killer.mention());
+                        result = result.replace("${killed}", "**" + dead.getName() + "**");
+                        result = result.replace("${killer}", "**" + killer.getName() + "**");
                         m.edit(result);
                     } catch (MissingPermissionsException | DiscordException e) {
                         e.printStackTrace();

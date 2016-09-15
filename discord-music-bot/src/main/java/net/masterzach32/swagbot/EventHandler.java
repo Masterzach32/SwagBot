@@ -48,7 +48,7 @@ public class EventHandler {
 						.header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
 						.header("Content-Type", "application/json")
 						.header("Authorization", App.prefs.getDBAuthKey())
-						.body(new JSONObject().put("server_count", 55))
+						.body(new JSONObject().put("server_count", event.getClient().getGuilds().size()))
 						.asJson();
 				logger.info(json.getBody().getArray().getJSONObject(0).toString());
 			}
@@ -114,33 +114,30 @@ public class EventHandler {
 			}
 		}
 		
-		String identifier = null;
-		String[] params = {""};
-		if(message.indexOf(App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix()) == 0 && message.indexOf(' ') > 0) {
-			identifier = message.substring(1, message.indexOf(' '));
-			params = message.substring(message.indexOf(' ') + 1).split(" ");
-		} else if(message.indexOf(App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix()) == 0) {
-			identifier = message.substring(1);
-		} 
-		if(event.getMessage().getMentions().contains(App.client.getOurUser())) {
-			logger.info(message);
-			message = message.substring(message.indexOf(' ') + 1);
-			logger.info(message);
-			if(message.indexOf(' ') > 0) {
-				identifier = message.substring(0, message.indexOf(' '));
-				logger.info(identifier);
-				params = message.substring(message.indexOf(' ') + 1).split(" ");
-			} else {
-				identifier = message;
-				logger.info(identifier);
-			}
-		}
-		
-		try {
-			Command.executeCommand(event.getMessage(), identifier, params);
-		} catch (DiscordException | RateLimitException | MissingPermissionsException e) {
-			e.printStackTrace();
-		}
+		String identifier;
+		String[] params;
+		if(message.indexOf(App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix()) == 0) {
+            message = message.substring(1, message.length());
+            String[] split = message.split(" ");
+            identifier = split[0];
+            params = new String[split.length-1];
+            for(int i = 0; i < params.length; i++) {
+                params[i] = split[i+1];
+            }
+            Command.executeCommand(event.getMessage(), identifier, params);
+        } else if(event.getMessage().getMentions().contains(event.getClient().getOurUser()) && !event.getMessage().mentionsEveryone()) {
+            String[] split = message.split(" ");
+            String[] command = new String[split.length-1];
+            for(int i = 0; i < command.length; i++) {
+                command[i] = split[i+1];
+            }
+            identifier = command[0];
+            params = new String[command.length-1];
+            for(int i = 0; i < params.length; i++) {
+                params[i] = command[i+1];
+            }
+            Command.executeCommand(event.getMessage(), identifier, params);
+        }
     }
 	
 	@EventSubscriber
