@@ -8,18 +8,13 @@ import java.util.Random;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
-import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
-import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
+import net.masterzach32.swagbot.utils.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mashape.unirest.http.Unirest;
 
-import net.masterzach32.swagbot.api.R8Ball;
-import net.masterzach32.swagbot.api.RandomCat;
-import net.masterzach32.swagbot.api.RandomQuote;
-import net.masterzach32.swagbot.api.UrbanDefinition;
+import net.masterzach32.swagbot.api.*;
 import net.masterzach32.swagbot.api.jokes.*;
 import net.masterzach32.swagbot.commands.*;
 import net.masterzach32.swagbot.music.*;
@@ -493,8 +488,12 @@ public class App {
             UrbanDefinition def = new UrbanDefinition(term);
             sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
         });
-        new Command("Fight", "fight", "Make multiple users fight!", 0, (message, params) -> {
+        new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = message.getMentions();
+            if(users.size() == 1) {
+                sendMessage(users.get(0).mention() + " needs at least one other person to fight!", null, message.getChannel());
+                return;
+            }
             sendMessage("**Let the games begin!**", null, message.getChannel());
             try {
                 Thread.sleep(1000);
