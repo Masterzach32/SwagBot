@@ -2,21 +2,15 @@ package net.masterzach32.swagbot;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,20 +40,14 @@ public class App {
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
-        // beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
+        // beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=83
 
-        Thread.setDefaultUncaughtExceptionHandler(
-                new Thread.UncaughtExceptionHandler() {
-                    @Override
-                    public void uncaughtException(Thread t, Throwable e) {
-                        System.out.println(t.getName() + ": " + e);
-                        e.printStackTrace();
-                    }
-                });
-
+        // load all files into bot
         manager = new FileManager();
+        // load bot settings
         prefs = new BotConfig();
         prefs.load();
+        // load guild-specific settings
         guilds = new GuildManager();
 
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
@@ -70,7 +58,7 @@ public class App {
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
             if (params[0].equals("")) {
                 Command.listAllCommands(message.getAuthor());
-                if (message.getChannel().isPrivate())
+                if (!message.getChannel().isPrivate())
                     sendMessage("A list of commands has been sent to your Direct Messages.", message.getAuthor(), message.getChannel());
             } else {
                 for (Command c : Command.commands)
@@ -101,7 +89,7 @@ public class App {
             else
                 sendMessage("**SwagBot is no longer locked.**", null, message.getChannel());
         });
-        /*new Command("Toggle NSFW Filter", "nsfw", "Toggles wether the bot filters out images that may be considered nsfw.", 1, new CommandEvent() {
+        /*new Command("Toggle NSFW Filter", "nsfw", "Toggles whether the bot filters out images that may be considered nsfw.", 1, new CommandEvent() {
             public void execute(IMessage message, String[] params) {
     			guilds.getGuild(message.getGuild()).toggleNSFWFilter();;
     			if(guilds.getGuild(message.getGuild()).isNSFWFilterEnabled())
