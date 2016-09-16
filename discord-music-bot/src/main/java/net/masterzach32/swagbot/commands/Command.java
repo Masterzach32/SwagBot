@@ -1,17 +1,11 @@
 package net.masterzach32.swagbot.commands;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.Constants;
-import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MessageBuilder;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.util.*;
 
 public class Command implements Comparable<Command> {
 	
@@ -46,12 +40,8 @@ public class Command implements Comparable<Command> {
 		return permLevel;
 	}
 	
-	public void execute(IMessage message, String[] params) {
-		try {
-			event.execute(message, params);
-		} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
-			e.printStackTrace();
-		}
+	public void execute(IMessage message, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException {
+        event.execute(message, params);
 	}
 	
 	public static void executeCommand(IMessage message, String identifier, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException {
@@ -73,14 +63,14 @@ public class Command implements Comparable<Command> {
 			
 			if(!hasPerms)
 				new MessageBuilder(App.client).withContent("**You do not have permission to use this command.**").withChannel(message.getChannel()).build();
-			else 
+			else
 				c.execute(message, params);
 		}
 		else
 			c.execute(message, params);
 	}
 	
-	public static void listAllCommands(IUser user) {
+	public static void listAllCommands(IUser user) throws RateLimitException, DiscordException, MissingPermissionsException {
 		String str = "Commands for **SwagBot**:\n\n```";
 		for(Command command : commands)
 			str += "\t" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
@@ -98,11 +88,7 @@ public class Command implements Comparable<Command> {
 		str += "Join my home guild:\nhttps://discord.gg/RFHKKvR";
 		str += "\n\n";
 		str += "Want to add me to your server? Click the link below:\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8";
-		try {
-			App.client.getOrCreatePMChannel(user).sendMessage(str);
-		} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
-			e.printStackTrace();
-		}
+        App.client.getOrCreatePMChannel(user).sendMessage(str);
 	}
 	
 	public int compareTo(Command c) {

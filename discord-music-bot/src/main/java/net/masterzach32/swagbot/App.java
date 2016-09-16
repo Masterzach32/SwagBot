@@ -84,7 +84,7 @@ public class App {
             else
                 sendMessage("**SwagBot is no longer locked.**", null, message.getChannel());
         });
-        /*new Command("Toggle NSFW Filter", "nsfw", "Toggles whether the bot filters out images that may be considered nsfw.", 1, new CommandEvent() {
+        new Command("Toggle NSFW Filter", "nsfw", "Toggles whether the bot filters out images that may be considered nsfw content.", 1, new CommandEvent() {
             public void execute(IMessage message, String[] params) {
     			guilds.getGuild(message.getGuild()).toggleNSFWFilter();;
     			if(guilds.getGuild(message.getGuild()).isNSFWFilterEnabled())
@@ -92,7 +92,7 @@ public class App {
     			else
     				sendMessage("**NSFW Filter disabled.**", null, message.getChannel());
     		}
-    	});*/
+    	});
         new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, (message, params) -> {
             if (params.length == 0 || params[0].length() > 1)
                 sendMessage("**Command prefix must be 1 character.**", null, message.getChannel());
@@ -128,7 +128,6 @@ public class App {
         });
         new Command("Prune Messages", "prune", "Deletes the previous X messages", 1, (message, params) -> {
             IChannel channel = message.getChannel();
-            MessageList list = channel.getMessages();
             IUser caller = message.getAuthor();
             if (params.length == 0)
                 sendMessage("Please specify the amount of messages to prune.", null, channel);
@@ -143,10 +142,11 @@ public class App {
                     sendMessage("Invalid amount specified. Must prune between 2-100 messages.", null, channel);
                 else {
                     final int toDelete = x;
-                    IMessage m = sendMessage("**Removing...**", null, channel);
+                    IMessage m = sendMessage("**Fetching messages...**", null, channel);
                     try {
                         logger.info(m + "");
                         RequestBuffer.request(() -> {
+                            MessageList list = channel.getMessages();
                             List<IMessage> deleted;
                             try {
                                 message.delete();
@@ -489,6 +489,7 @@ public class App {
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = message.getMentions();
+
             logger.info(message.mentionsEveryone() + message.getContent());
             if(message.mentionsEveryone())
                 users = message.getGuild().getUsers();
