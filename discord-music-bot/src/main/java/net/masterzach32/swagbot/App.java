@@ -35,7 +35,7 @@ public class App {
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
-        // beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=83
+        // beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
 
         // load all files into bot
         manager = new FileManager();

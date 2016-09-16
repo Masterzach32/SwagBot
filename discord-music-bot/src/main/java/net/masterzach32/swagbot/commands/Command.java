@@ -96,6 +96,8 @@ public class Command implements Comparable<Command> {
 		str += "Check out my creator's website:\nhttp://masterzach32.net";
 		str += "\n\n";
 		str += "Join my home guild:\nhttps://discord.gg/RFHKKvR";
+		str += "\n\n";
+		str += "Want to add me to your server? Click the link below:\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8";
 		try {
 			App.client.getOrCreatePMChannel(user).sendMessage(str);
 		} catch (RateLimitException | MissingPermissionsException | DiscordException e) {
