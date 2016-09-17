@@ -84,21 +84,27 @@ public class App {
             else
                 sendMessage("**SwagBot is no longer locked.**", null, message.getChannel());
         });
-        new Command("Toggle NSFW Filter", "nsfw", "Toggles whether the bot filters out images that may be considered nsfw content.", 1, new CommandEvent() {
-            public void execute(IMessage message, String[] params) {
-    			guilds.getGuild(message.getGuild()).toggleNSFWFilter();;
-    			if(guilds.getGuild(message.getGuild()).isNSFWFilterEnabled())
-    				sendMessage("**NSFW Filter enabled.**", null, message.getChannel());
-    			else
-    				sendMessage("**NSFW Filter disabled.**", null, message.getChannel());
-    		}
-    	});
+        new Command("Toggle NSFW Filter", "nsfw", "Toggles whether the bot filters out images that may be considered nsfw content.", 1, (message, params) -> {
+            guilds.getGuild(message.getGuild()).toggleNSFWFilter();;
+            if(guilds.getGuild(message.getGuild()).isNSFWFilterEnabled())
+                sendMessage("**NSFW Filter enabled.**", null, message.getChannel());
+            else
+                sendMessage("**NSFW Filter disabled.**", null, message.getChannel());
+        });
         new Command("Change command prefix", "cp", "Changes the command prefix for the bot in this guild.", 1, (message, params) -> {
             if (params.length == 0 || params[0].length() > 1)
                 sendMessage("**Command prefix must be 1 character.**", null, message.getChannel());
             else {
                 guilds.getGuild(message.getGuild()).setCommandPrefix(params[0].charAt(0));
                 sendMessage("Command prefix set to **" + params[0].charAt(0) + "**", message.getAuthor(), message.getChannel());
+            }
+        });
+        new Command("Change Status", "status", "Change the bots status", 2, (message, params) -> {
+            if(params.length > 0) {
+                String status = "";
+                for(String str : params)
+                    status += str + "";
+                client.changeStatus(Status.game(status));
             }
         });
         new Command("Ban User", "ban", "Bans the specified user(s) from this guild.", 1, (message, params) -> {
@@ -170,31 +176,7 @@ public class App {
             }
         });
         new Command("Migrate Channels", "migrate", "Move anyone from one channel into another (beta).\nUsage: ~migrate [from] [to]. Use - or _ to replace spaces in Voice Channel names. \nIf no parameters are supplied then the bot will move everyone in the bots channel to the channel you are currently in.", 1, (message, params) -> {
-            if (message.getAuthor().getConnectedVoiceChannels().size() == 0) {
-                sendMessage("**Make sure you are in the channel you want to populate!**", null, message.getChannel());
-                return;
-            }
-            List<IUser> users = null;
-
-            for (int i = 0; i < params.length; i++)
-                if (params[i] != null) {
-                    params[i] = params[i].replaceAll("_", " ");
-                    params[i] = params[i].replaceAll("-", " ");
-                }
-
-            IVoiceChannel from = null;
-            for (IVoiceChannel c : client.getConnectedVoiceChannels())
-                if (message.getGuild().getVoiceChannelByID(c.getID()) != null) {
-                    from = c;
-                    break;
-                }
-            IVoiceChannel to = message.getAuthor().getConnectedVoiceChannels().get(0);
-
-            if (from == null) {
-                sendMessage("**Make sure the bot is the channel that you want to migrate from!**.", null, message.getChannel());
-                return;
-            }
-
+            IVoiceChannel from = null, to = null;
             if (params.length == 2) {
                 for (IVoiceChannel c : message.getGuild().getVoiceChannels())
                     if (c.getName().equals(params[0])) {
@@ -206,9 +188,31 @@ public class App {
                         to = c;
                         break;
                     }
-            }
+            } else {
+                if (message.getAuthor().getConnectedVoiceChannels().size() == 0) {
+                    sendMessage("**Make sure you are in the channel you want to populate!**", null, message.getChannel());
+                    return;
+                }
 
-            users = from.getConnectedUsers();
+                for (int i = 0; i < params.length; i++)
+                    if (params[i] != null) {
+                        params[i] = params[i].replaceAll("_", " ");
+                        params[i] = params[i].replaceAll("-", " ");
+                    }
+
+                for (IVoiceChannel c : client.getConnectedVoiceChannels())
+                    if (message.getGuild().getVoiceChannelByID(c.getID()) != null) {
+                        from = c;
+                        break;
+                    }
+                to = message.getAuthor().getConnectedVoiceChannels().get(0);
+
+                if (from == null) {
+                    sendMessage("**Make sure the bot is the channel that you want to migrate from!**.", null, message.getChannel());
+                    return;
+                }
+            }
+            List<IUser> users = from.getConnectedUsers();
             moveUsers(users, to);
             sendMessage("Successfully moved **" + (users.size() - 1) + "** guild members from **" + from + "** to **" + to + "**", null, message.getChannel());
         });
