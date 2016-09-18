@@ -2,6 +2,9 @@ package net.masterzach32.swagbot;
 
 import java.io.IOException;
 
+import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
+import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
+import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +23,16 @@ import sx.blah.discord.handle.obj.IMessage.*;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.events.*;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 public class EventHandler {
 
     public static final Logger logger = LoggerFactory.getLogger(EventHandler.class);
 
     @EventSubscriber
-    public void onGuildCreateEvent(GuildCreateEvent event) {
+    public void onGuildCreateEvent(GuildCreateEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
         IGuild guild = event.getGuild();
-        try {
-            App.guilds.loadGuild(guild);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        App.guilds.loadGuild(guild);
     }
 
     @EventSubscriber

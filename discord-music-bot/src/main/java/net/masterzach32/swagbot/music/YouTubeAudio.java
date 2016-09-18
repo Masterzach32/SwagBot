@@ -44,7 +44,7 @@ public class YouTubeAudio implements AudioSource {
     public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException {
         for (File file : App.manager.getFile(Constants.AUDIO_CACHE).listFiles())
             if (file.getName().contains(video_id))
-                return new AudioTrack(file, shouldAnnounce, file.getName().substring(0, file.getName().indexOf(video_id) - 1), user);
+                return new AudioTrack(file, url, shouldAnnounce, name, user);
 
         App.logger.info("downloading:" + video_id);
         ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", url);
@@ -79,6 +79,6 @@ public class YouTubeAudio implements AudioSource {
         if (yt != null)
             yt.delete();
 
-        return new AudioTrack(new File(Constants.AUDIO_CACHE + yt.getName().substring(0, yt.getName().indexOf(video_id) + 11) + ".mp3"), shouldAnnounce, yt.getName().substring(0, yt.getName().indexOf(video_id) - 1), user);
+        return new AudioTrack(new File(Constants.AUDIO_CACHE + name + "-" + video_id + ".mp3"), url, shouldAnnounce, name, user);
     }
 }

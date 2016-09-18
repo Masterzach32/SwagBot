@@ -15,17 +15,20 @@ public class AudioTrack extends Track {
 	
 	private boolean announce;
 	private String title;
+	private String url;
 	private IUser user;
 
-	public AudioTrack(File file, boolean announce, String title, IUser user) throws IOException, UnsupportedAudioFileException {
+	public AudioTrack(File file, String url, boolean announce, String title, IUser user) throws IOException, UnsupportedAudioFileException {
 		super(new FileProvider(file));
 		this.announce = announce;
 		this.title = title;
 		this.user = user;
+        this.url = url;
 	}
 
 	public AudioTrack(String stream, boolean announce, String title, IUser user) throws IOException, UnsupportedAudioFileException {
 		super(new URLProvider(new URL(stream)));
+		this.url = stream;
 		this.announce = announce;
 		this.title = title;
 		this.user = user;
@@ -42,4 +45,8 @@ public class AudioTrack extends Track {
 	public boolean shouldAnnounce() {
 		return announce;
 	}
+
+	public String getUrl() {
+        return url;
+    }
 }

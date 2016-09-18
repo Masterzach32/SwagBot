@@ -1,6 +1,6 @@
 package net.masterzach32.swagbot;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.masterzach32.swagbot.music.PlaylistManager;
@@ -16,17 +16,21 @@ public class Guild {
 	private char commandPrefix;
 	private int maxSkips, volume;
 	private boolean botLocked, enableNSFWFilter;
+	private String lastChannel;
+    private List<String> queue;
 	
-	public Guild(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter) {
+	public Guild(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, String lastChannel, List<String> queue) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
-		skipIDs = new LinkedList<String>();
+		skipIDs = new ArrayList<>();
 		this.guildName = guild.getName();			
 		this.commandPrefix = commandPrefix;
 		this.maxSkips = maxSkips;
 		this.volume = volume;
 		this.botLocked = botLocked;
 		this.enableNSFWFilter = nsfwfilter;
+        this.lastChannel = lastChannel;
+        this.queue = queue;
 	}
 	
 	public String getID() {
@@ -92,4 +96,20 @@ public class Guild {
 	public void toggleNSFWFilter() {
 		enableNSFWFilter = !enableNSFWFilter;
 	}
+
+	public String getLastChannel() {
+        return lastChannel;
+    }
+
+    public void setLastChannel(String id) {
+        lastChannel = id;
+    }
+
+    public void setQueue(List<String> queue) {
+        this.queue = queue;
+    }
+
+    public List<String> getQueue() {
+        return queue;
+    }
 }

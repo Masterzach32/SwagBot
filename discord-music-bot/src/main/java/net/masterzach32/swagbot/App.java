@@ -107,8 +107,8 @@ public class App {
             if(params.length > 0) {
                 String status = "";
                 for(String str : params)
-                    status += str + "";
-                client.changeStatus(Status.game(status));
+                    status += str + " ";
+                client.changeStatus(Status.game(status.substring(0, status.length()-1)));
             }
         });
         new Command("Ban User", "ban", "Bans the specified user(s) from this guild.", 1, (message, params) -> {
@@ -346,6 +346,7 @@ public class App {
                     response = "Imported YouTube playlist **" + params[2] + "** into playlist **" + name + "**";
                 } else
                     response = "Could not get playlist id from **" + params[2] + "**";
+                message.delete();
             } else if (playlist == null) {
                 response = "There is no playlist with the name **" + name + "**";
             } else if (command.equals("-queue")) {
@@ -365,7 +366,7 @@ public class App {
                 response = playlist.requiresPerms() ? "Playlist **" + playlist.getName() + "** now requires moderator privelages to edit." : "Playlist **" + playlist.getName() + "** no longer requires moderator privelages to edit.";
             } else if (command.equals("-add") && !(playlist.requiresPerms() && !perms) && !playlist.isLocked()) {
                 message.delete();
-                response = playlist.add(params[2]) ? "Added " + params[2] + " to **" + playlist.getName() + "**" : "Playlist **" + playlist.getName() + "** already has " + params[2];
+                response = playlist.add(params[2]) ? "Added **" + new YouTubeAudio(params[2]).getName() + "** to **" + playlist.getName() + "**" : "Playlist **" + playlist.getName() + "** already has " + new YouTubeAudio(params[2]).getName();
             } else if (command.equals("-remove") && perms && !playlist.isLocked()) {
                 playlist.remove(params[2]);
                 response = "Removed " + params[2] + " from **" + playlist.getName() + "**";
@@ -442,9 +443,10 @@ public class App {
             }
             guilds.getGuild(message.getGuild()).addSkipID(message.getAuthor());
             if (guilds.getGuild(message.getGuild()).numUntilSkip() == 0 || message.getAuthor().getID().equals("97341976214511616")) {
+                AudioTrack track = (AudioTrack) AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getCurrentTrack();
                 AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
                 guilds.getGuild(message.getGuild()).resetSkipStats();
-                sendMessage("**Skipped the current song.**", null, message.getChannel());
+                sendMessage("Skipped **" + track.getTitle() + "**", null, message.getChannel());
             } else
                 sendMessage("**" + guilds.getGuild(message.getGuild()).numUntilSkip() + "** more votes needed to skip the current song.", null, message.getChannel());
         });
@@ -609,19 +611,15 @@ public class App {
         });
     }
 
-    private static void stop() throws IOException {
+    private static void stop() throws IOException, RateLimitException, DiscordException {
         logger.info("user initiated shutdown");
-        try {
-            client.changeStatus(Status.game("Shutting Down"));
-            client.logout();
-            Unirest.shutdown();
-        } catch (RateLimitException | DiscordException e) {
-            e.printStackTrace();
-        }
-        prefs.save();
+        client.changeStatus(Status.game("Shutting Down"));
         guilds.saveGuildSettings();
+        prefs.save();
+        Unirest.shutdown();
         if (prefs.clearCacheOnShutdown())
             clearCache();
+        client.logout();
         System.exit(0);
     }
 
@@ -733,7 +731,7 @@ public class App {
                 nextPage = null;
             for(Object obj : json.getJSONArray("items"))
                 if(obj instanceof JSONObject)
-                    music.add("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoID"));
+                    music.add("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId"));
         }
         return music;
     }
