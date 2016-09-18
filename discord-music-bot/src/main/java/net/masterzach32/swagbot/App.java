@@ -331,12 +331,16 @@ public class App {
                 response = "Created playlist **" + name + "**";
             }
             if (command.equals("-import") && params.length == 3) {
-                String link = params[2];
-                String[] parts = link.split("&");
                 String id = null;
-                for(String str : parts)
-                    if(str.contains("list="))
-                        id = str.replace("list=", "");
+                if(params[2].contains("playlist")) {
+                    id = params[2].substring(params[2].indexOf("list=") + 5);
+                } else if(params[2].contains("list=")) {
+                    String link = params[2];
+                    String[] parts = link.split("&");
+                    for(String str : parts)
+                        if(str.contains("list="))
+                            id = str.replace("list=", "");
+                }
                 if(id != null) {
                     guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name, getYouTubeVideosFromPlaylist(id), false, false));
                     response = "Imported YouTube playlist **" + params[2] + "** into playlist **" + name + "**";
@@ -371,7 +375,7 @@ public class App {
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song to the queue.\nUsage: ~play [arg] <link>. Supports YouTube, SoundCloud, and direct links.\nIf you want to play songs from a youtube playlist, use ~playlist -import <name> <link>, then use ~playlist -queue <name>", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play [arg] <link>. Supports YouTube, SoundCloud, and direct links.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
@@ -383,8 +387,18 @@ public class App {
             AudioSource source = null;
             try {
                 if(params[0].contains("youtube"))
-                    if(params[0].contains("list=")) {
-                        String link = params[2];
+                    if(params[0].contains("playlist")) {
+                        for(String music : getYouTubeVideosFromPlaylist(params[0].substring(params[0].indexOf("list=") + 5)))
+                            try {
+                                playAudioFromAudioSource(new YouTubeAudio(music), true, message.getAuthor(), message.getGuild());
+                            } catch (IOException | UnsupportedAudioFileException e) {
+                                e.printStackTrace();
+                            }
+                        message.delete();
+                        sendMessage("**Queued Playlist** " + params[0], null, message.getChannel());
+                        return;
+                    } else if(params[0].contains("list=")) {
+                        String link = params[0];
                         String[] parts = link.split("&");
                         String id = null;
                         for(String str : parts)
@@ -530,6 +544,15 @@ public class App {
                 term += s + " ";
             UrbanDefinition def = new UrbanDefinition(term);
             sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
+        });
+        new Command("Let Me Google that for You", "lmgtfy", "Google anything.", 0, (message, params) -> {
+            String str = "";
+            for(int i = 0; i < params.length; i++) {
+                str += params[i];
+                if(i+1 < params.length)
+                    str += "+";
+            }
+            sendMessage("http://www.lmgtfy.com/?q=" + str, null, message.getChannel());
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = message.getMentions();
