@@ -2,13 +2,17 @@ package net.masterzach32.swagbot;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.utils.exceptions.*;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -295,7 +299,7 @@ public class App {
                 sendMessage("Set volume to **" + vol + "**", null, message.getChannel());
             }
         });
-        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: -create, -add, -remove, -delete, -queue, -list, -info", 0, (message, params) -> {
+        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: -create, -import, -add, -remove, -delete, -queue, -list, -info", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
@@ -325,36 +329,49 @@ public class App {
             if (command.equals("-create")) {
                 guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name, false, false));
                 response = "Created playlist **" + name + "**";
+            }
+            if (command.equals("-import") && params.length == 3) {
+                String link = params[2];
+                String[] parts = link.split("&");
+                String id = null;
+                for(String str : parts)
+                    if(str.contains("list="))
+                        id = str.replace("list=", "");
+                if(id != null) {
+                    guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name, getYouTubeVideosFromPlaylist(id), false, false));
+                    response = "Imported YouTube playlist **" + params[2] + "** into playlist **" + name + "**";
+                } else
+                    response = "Could not get playlist id from **" + params[2] + "**";
             } else if (playlist == null) {
                 response = "There is no playlist with the name **" + name + "**";
             } else if (command.equals("-queue")) {
                 if (!canQueueMusic(message.getAuthor()))
                     response = "**You must be in the bot's channel to queue music.**";
                 else {
-                    playlist.queue(message.getAuthor(), message.getChannel(), message.getGuild());
-                    response = "Queuing the playlist **" + name + "**";
+                    playlist.queue(message.getAuthor(), message.getGuild());
+                    response = "Queuing the playlist **" + playlist.getName() + "**";
                 }
             } else if (command.equals("-info")) {
-                response = "Songs in **" + name + "**:\n" + playlist.getInfo();
+                response = "Songs in **" + playlist.getName() + "**:\n" + playlist.getInfo();
             } else if (command.equals("-lock") && perms) {
                 playlist.toggleLocked();
-                response = playlist.isLocked() ? "Playlist **" + name + "** can no longer be edited." : "Playlist **" + name + "** can now be edited.";
+                response = playlist.isLocked() ? "Playlist **" + playlist.getName() + "** can no longer be edited." : "Playlist **" + playlist.getName() + "** can now be edited.";
             } else if (command.equals("-perms") && perms) {
                 playlist.toggleRequiresPerms();
-                response = playlist.requiresPerms() ? "Playlist **" + name + "** now requires moderator privelages to edit." : "Playlist **" + name + "** no longer requires moderator privelages to edit.";
+                response = playlist.requiresPerms() ? "Playlist **" + playlist.getName() + "** now requires moderator privelages to edit." : "Playlist **" + playlist.getName() + "** no longer requires moderator privelages to edit.";
             } else if (command.equals("-add") && !(playlist.requiresPerms() && !perms) && !playlist.isLocked()) {
                 message.delete();
-                response = playlist.add(params[2]) ? "Added " + params[2] + " to **" + name + "**" : "Playlist **" + name + "** already has " + params[2];
+                response = playlist.add(params[2]) ? "Added " + params[2] + " to **" + playlist.getName() + "**" : "Playlist **" + playlist.getName() + "** already has " + params[2];
             } else if (command.equals("-remove") && perms && !playlist.isLocked()) {
                 playlist.remove(params[2]);
-                response = "Removed " + params[2] + " from **" + name + "**";
+                response = "Removed " + params[2] + " from **" + playlist.getName() + "**";
             } else if (command.equals("-delete") && perms && !playlist.isLocked()) {
-                playlist.remove(name);
-                response = "Deleted the playlist **" + name + "**";
+                guilds.getGuild(message.getGuild()).getPlaylistManager().remove(name);
+                response = "Deleted the playlist **" + playlist.getName() + "**";
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song to the queue. Usage: ~play [arg] <link>. Supports YouTube, SoundCloud, and direct links", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song to the queue.\nUsage: ~play [arg] <link>. Supports YouTube, SoundCloud, and direct links.\nIf you want to play songs from a youtube playlist, use ~playlist -import <name> <link>, then use ~playlist -queue <name>", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
@@ -366,11 +383,30 @@ public class App {
             AudioSource source = null;
             try {
                 if(params[0].contains("youtube"))
-                    source = new YouTubeAudio(params[0]);
+                    if(params[0].contains("list=")) {
+                        String link = params[2];
+                        String[] parts = link.split("&");
+                        String id = null;
+                        for(String str : parts)
+                            if(str.contains("list="))
+                                id = str.replace("list=", "");
+                        for(String music : getYouTubeVideosFromPlaylist(id))
+                            try {
+                                playAudioFromAudioSource(new YouTubeAudio(music), true, message.getAuthor(), message.getGuild());
+                            } catch (IOException | UnsupportedAudioFileException e) {
+                                e.printStackTrace();
+                            }
+                        message.delete();
+                        sendMessage("**Queued Playlist** " + params[0], null, message.getChannel());
+                        return;
+                    } else
+                        source = new YouTubeAudio(params[0]);
                 else if(params[0].contains("soundcloud"))
                     source = new SoundCloudAudio(params[0]);
-                else
+                else if(params[0].contains("http"))
                     source = new AudioStream(params[0]);
+                else
+                    sendMessage("As of now, ~play only accepts links. A search feature will be implemented in the future.", null, message.getChannel());
             } catch (NotStreamableException e) {
                 sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel());
                 e.printStackTrace();
@@ -378,7 +414,7 @@ public class App {
             try {
                 if (playAudioFromAudioSource(source, true, message.getAuthor(), message.getGuild())) {
                     message.delete();
-                    waitAndDeleteMessage(sendMessage("**Queued** " + params[0], null, message.getChannel()), 25);
+                    waitAndDeleteMessage(sendMessage("Queued **" + source.getName() + "**", null, message.getChannel()), 25);
                 } else
                     sendMessage("An error occurred while queueing this url: " + params[0], null, message.getChannel());
             } catch (IOException | UnsupportedAudioFileException e) {
@@ -472,7 +508,11 @@ public class App {
         });
         new Command("Random Joke", "joke", "Gives you a random joke.\nSpecific: -cn for Chuck Norris, -ym for Yo Mama", 0, (message, params) -> {
             IRandomJoke joke;
-            if (params[0].equals("-cn") || (int) (Math.random() * 2) == 1)
+            if (params.length > 0 && params[0].equals("-cn"))
+                joke = new CNJoke();
+            else if(params.length > 0 && params[0].equals("-ym"))
+                joke = new YMJoke();
+            else if((int) (Math.random() * 2) == 1)
                 joke = new CNJoke();
             else
                 joke = new YMJoke();
@@ -640,5 +680,38 @@ public class App {
                 }
             }
         });
+    }
+
+    private static List<String> getYouTubeVideosFromPlaylist(String id) throws UnirestException {
+        List<String> music = new ArrayList<>();
+        HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems?" +
+                "part=contentDetails" +
+                "&maxResults=50" +
+                "&playlistId=" + id +
+                "&key=" + App.prefs.getGoogleAuthKey()).asJson();
+        JSONObject json = response.getBody().getArray().getJSONObject(0);
+        String nextPage = null;
+        if(json.has("nextPageToken"))
+            nextPage = json.getString("nextPageToken");
+        for(Object obj : json.getJSONArray("items"))
+            if(obj instanceof JSONObject)
+                music.add("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId"));
+        while(nextPage != null) {
+            response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems?" +
+                    "part=contentDetails" +
+                    "&maxResults=50" +
+                    "&playlistId=" + id +
+                    "&pageToken=" + nextPage +
+                    "&key=" + App.prefs.getGoogleAuthKey()).asJson();
+            json = response.getBody().getArray().getJSONObject(0);
+            if(json.has("nextPageToken"))
+                nextPage = json.getString("nextPageToken");
+            else
+                nextPage = null;
+            for(Object obj : json.getJSONArray("items"))
+                if(obj instanceof JSONObject)
+                    music.add("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoID"));
+        }
+        return music;
     }
 }

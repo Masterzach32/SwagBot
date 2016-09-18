@@ -3,15 +3,21 @@ package net.masterzach32.swagbot.music;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
-import sx.blah.discord.handle.obj.IChannel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 
@@ -26,6 +32,13 @@ public class LocalPlaylist {
 		this.locked = locked;
 		this.requiresPerms = requiresPerms;
 		music = new ArrayList<String>();
+	}
+
+	public LocalPlaylist(String name, List<String> music, boolean locked, boolean requiresPerms) throws UnirestException {
+		this.name = name;
+		this.locked = locked;
+		this.requiresPerms = requiresPerms;
+		this.music = music;
 	}
 	
 	public boolean add(String audio) {
@@ -45,7 +58,7 @@ public class LocalPlaylist {
 		return name;
 	}
 	
-	public void queue(IUser user, IChannel channel, IGuild guild) {
+	public void queue(IUser user, IGuild guild) {
 		Collections.shuffle(music);
 		ExecutorService executor = Executors.newFixedThreadPool(3);
 		for(String s : music) {
@@ -60,7 +73,7 @@ public class LocalPlaylist {
 								source = new SoundCloudAudio(s);
 							else
 								source = new AudioStream(s);
-						} catch (NotStreamableException e) {
+						} catch (NotStreamableException | UnirestException e) {
 							e.printStackTrace();
 						}
 						App.playAudioFromAudioSource(source, true, user, guild);
@@ -74,9 +87,10 @@ public class LocalPlaylist {
 	}
 	
 	public String getInfo() {
-		String str = "";
+		String str = "```";
 		for(int i = 0; i < music.size(); i++)
 			str += "**" + (i+1) + ".** " + music.get(i) + "\n";
+        str += "```";
 		return str;
 	}
 	

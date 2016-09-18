@@ -43,6 +43,7 @@ public class PlaylistManager {
 	}
 	
 	public void load() {
+		this.playlists.clear();
 		File[] playlists = App.manager.getFile(Constants.GUILD_SETTINGS + guildID + "/playlists/").listFiles();
 		for(File file : playlists) {
 			RandomAccessFile fin = null;
@@ -69,7 +70,7 @@ public class PlaylistManager {
 	
 	public void remove(String name) {
 		for(LocalPlaylist p : playlists)
-			if(p.getName().equals(name))
+			if(p.getName().toLowerCase().equals(name.toLowerCase()))
 				playlists.remove(p);
 	}
 	

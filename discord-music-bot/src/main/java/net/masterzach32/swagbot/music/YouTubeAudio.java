@@ -1,5 +1,7 @@
 package net.masterzach32.swagbot.music;
 
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.Constants;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
@@ -14,9 +16,13 @@ public class YouTubeAudio implements AudioSource {
 
     private String url, name, video_id;
 
-    public YouTubeAudio(String url) {
+    public YouTubeAudio(String url) throws UnirestException {
         this.url = url;
         video_id = url.substring(url.indexOf("?v=") + 3, url.indexOf("=") + 12);
+        name = Unirest.get("https://www.googleapis.com/youtube/v3/videos" +
+                "?part=snippet" +
+                "&id=" + video_id +
+                "&key=" + App.prefs.getGoogleAuthKey()).asJson().getBody().getArray().getJSONObject(0).getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getString("title");
     }
 
     public String getName() {
