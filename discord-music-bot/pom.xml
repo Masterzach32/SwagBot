@@ -43,12 +43,7 @@
     <dependency>
       <groupId>com.github.austinv11</groupId>
       <artifactId>Discord4j</artifactId>
-      <version>2.6.0</version>
-    </dependency>
-    <dependency>
-    	<groupId>net.dv8tion</groupId>
-    	<artifactId>d4j-player</artifactId>
-    	<version>0.2.2_16</version>
+      <version>dev-SNAPSHOT</version>
     </dependency>
     <dependency>
     	<groupId>ch.qos.logback</groupId>
@@ -59,11 +54,6 @@
     	<groupId>com.mashape.unirest</groupId>
     	<artifactId>unirest-java</artifactId>
     	<version>1.4.9</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>google-api-client</artifactId>
-      <version>1.22.0</version>
     </dependency>
   </dependencies>
   <version>1.1.1</version>

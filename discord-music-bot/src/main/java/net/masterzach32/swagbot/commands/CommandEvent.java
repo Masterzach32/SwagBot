@@ -6,8 +6,10 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RateLimitException;
 
+import java.io.IOException;
+
 public interface CommandEvent {
 
-	public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException, UnirestException;
+	public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException, UnirestException, IOException;
 	
 }

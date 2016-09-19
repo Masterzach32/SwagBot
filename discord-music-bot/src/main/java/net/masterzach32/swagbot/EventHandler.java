@@ -52,7 +52,7 @@ public class EventHandler {
     }
 
     @EventSubscriber
-    public void onMessageEvent(MessageReceivedEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException {
+    public void onMessageEvent(MessageReceivedEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException, IOException {
         String message = event.getMessage().getContent();
 
         if (message.length() < 1)

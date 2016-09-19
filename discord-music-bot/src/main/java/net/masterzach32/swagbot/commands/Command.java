@@ -1,5 +1,6 @@
 package net.masterzach32.swagbot.commands;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -41,11 +42,11 @@ public class Command implements Comparable<Command> {
 		return permLevel;
 	}
 	
-	public void execute(IMessage message, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException, UnirestException {
+	public void execute(IMessage message, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException, UnirestException, IOException {
         event.execute(message, params);
 	}
 	
-	public static void executeCommand(IMessage message, String identifier, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException, UnirestException {
+	public static void executeCommand(IMessage message, String identifier, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException, UnirestException, IOException {
 		Command c = null;
 		
 		for(Command command : commands)

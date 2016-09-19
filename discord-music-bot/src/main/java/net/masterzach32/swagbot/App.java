@@ -74,12 +74,14 @@ public class App {
                     sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**", null, message.getChannel());
             }
         });
-        new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot succesfully shuts down.", 2, (message, params) -> {
-            try {
-                stop();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot successfully shuts down.", 2, (message, params) -> {
+            stop(false);
+        });
+        new Command("Restart Bot", "restart", "Calls stop and restarts the bot.", 2, (message, params) -> {
+            restart();
+        });
+        new Command("Update Bot", "update", "Downloads an update for the bot, if there is one.", 2, (message, params) -> {
+            update();
         });
         new Command("Lock the bot", "l", "Toggles wether the bot is locked in this guild.", 1, (message, params) -> {
             guilds.getGuild(message.getGuild()).toggleBotLocked();
@@ -557,9 +559,12 @@ public class App {
             sendMessage("http://www.lmgtfy.com/?q=" + str, null, message.getChannel());
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
-            List<IUser> users = message.getMentions();
-
-            logger.info(message.mentionsEveryone() + message.getContent());
+            List<IUser> users = new ArrayList<>();
+            for(IUser user : message.getMentions())
+                users.add(user);
+            for(IRole role : message.getRoleMentions())
+                for(IUser user : message.getGuild().getUsersByRole(role))
+                    users.add(user);
             if(message.mentionsEveryone())
                 users = message.getGuild().getUsers();
             if(users.size() == 1) {
@@ -585,7 +590,7 @@ public class App {
                 }
                 IMessage m = sendMessage(str, null, message.getChannel());
                 try {
-                    Thread.sleep(2500);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -611,7 +616,7 @@ public class App {
         });
     }
 
-    private static void stop() throws IOException, RateLimitException, DiscordException {
+    private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
         logger.info("user initiated shutdown");
         client.changeStatus(Status.game("Shutting Down"));
         guilds.saveGuildSettings();
@@ -620,6 +625,18 @@ public class App {
         if (prefs.clearCacheOnShutdown())
             clearCache();
         client.logout();
+        if(exit)
+            System.exit(0);
+    }
+
+    private static void restart() throws RateLimitException, IOException, DiscordException, UnirestException {
+        stop(false);
+        main(null);
+    }
+
+    private static void update() throws RateLimitException, IOException, DiscordException {
+        stop(false);
+        new ProcessBuilder("java", "-jar", "-Xmx1G", "update.jar").start();
         System.exit(0);
     }
 
