@@ -3,21 +3,15 @@ package net.masterzach32.swagbot.music;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 
@@ -87,10 +81,22 @@ public class LocalPlaylist {
 	}
 	
 	public String getInfo() {
-		String str = "```";
-		for(int i = 0; i < music.size(); i++)
-			str += "**" + (i+1) + ".** " + music.get(i) + "\n";
-        str += "```";
+		String str = "";
+		for(int i = 0; i < music.size(); i++) {
+            AudioSource source = null;
+            try {
+                if(music.get(i).contains("youtube"))
+                    source = new YouTubeAudio(music.get(i));
+                else if(music.get(i).contains("soundcloud"))
+                    source = new SoundCloudAudio(music.get(i));
+                else
+                    source = new AudioStream(music.get(i));
+            } catch (NotStreamableException | UnirestException e) {
+                e.printStackTrace();
+            }
+			str += "" + (i + 1) + ". **" + source.getTitle() + "**\n";
+		}
+        str += "";
 		return str;
 	}
 	

@@ -25,7 +25,7 @@ public class YouTubeAudio implements AudioSource {
                 "&key=" + App.prefs.getGoogleAuthKey()).asJson().getBody().getArray().getJSONObject(0).getJSONArray("items").getJSONObject(0).getJSONObject("snippet").getString("title");
     }
 
-    public String getName() {
+    public String getTitle() {
         return name;
     }
 

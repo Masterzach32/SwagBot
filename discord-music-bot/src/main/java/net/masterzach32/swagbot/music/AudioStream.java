@@ -13,7 +13,7 @@ public class AudioStream implements AudioSource {
         this.url = url;
     }
 
-    public String getName() {
+    public String getTitle() {
         return url;
     }
 

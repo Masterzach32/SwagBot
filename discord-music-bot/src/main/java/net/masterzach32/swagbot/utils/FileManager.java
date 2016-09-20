@@ -56,7 +56,7 @@ public class FileManager {
 		for(File file : dir.listFiles()) {
 			files.add(file);
 			if(file.isDirectory()) {
-				//logger.info("refreshing:" + file.getName());
+				//logger.info("refreshing:" + file.getTitle());
 				refresh(file);
 			}
 		}

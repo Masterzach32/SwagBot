@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public interface AudioSource {
 
-    public String getName();
+    public String getTitle();
 
     public String getSource();
 

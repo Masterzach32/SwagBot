@@ -75,7 +75,7 @@ public class App {
             }
         });
         new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot successfully shuts down.", 2, (message, params) -> {
-            stop(false);
+            stop(true);
         });
         new Command("Restart Bot", "restart", "Calls stop and restarts the bot.", 2, (message, params) -> {
             restart();
@@ -368,7 +368,7 @@ public class App {
                 response = playlist.requiresPerms() ? "Playlist **" + playlist.getName() + "** now requires moderator privelages to edit." : "Playlist **" + playlist.getName() + "** no longer requires moderator privelages to edit.";
             } else if (command.equals("-add") && !(playlist.requiresPerms() && !perms) && !playlist.isLocked()) {
                 message.delete();
-                response = playlist.add(params[2]) ? "Added **" + new YouTubeAudio(params[2]).getName() + "** to **" + playlist.getName() + "**" : "Playlist **" + playlist.getName() + "** already has " + new YouTubeAudio(params[2]).getName();
+                response = playlist.add(params[2]) ? "Added **" + new YouTubeAudio(params[2]).getTitle() + "** to **" + playlist.getName() + "**" : "Playlist **" + playlist.getName() + "** already has " + new YouTubeAudio(params[2]).getTitle();
             } else if (command.equals("-remove") && perms && !playlist.isLocked()) {
                 playlist.remove(params[2]);
                 response = "Removed " + params[2] + " from **" + playlist.getName() + "**";
@@ -431,7 +431,7 @@ public class App {
             try {
                 if (playAudioFromAudioSource(source, true, message.getAuthor(), message.getGuild())) {
                     message.delete();
-                    waitAndDeleteMessage(sendMessage("Queued **" + source.getName() + "**", null, message.getChannel()), 25);
+                    waitAndDeleteMessage(sendMessage("Queued **" + source.getTitle() + "**", null, message.getChannel()), 25);
                 } else
                     sendMessage("An error occurred while queueing this url: " + params[0], null, message.getChannel());
             } catch (IOException | UnsupportedAudioFileException e) {

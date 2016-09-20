@@ -35,7 +35,7 @@ public class SoundCloudAudio implements AudioSource {
         }
     }
 
-    public String getName() {
+    public String getTitle() {
         return name + " - " + author;
     }
 
@@ -52,6 +52,6 @@ public class SoundCloudAudio implements AudioSource {
     }
 
     public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException {
-        return new AudioTrack(getStreamUrl(), shouldAnnounce, getName(), user);
+        return new AudioTrack(getStreamUrl(), shouldAnnounce, getTitle(), user);
     }
 }
