@@ -31,8 +31,12 @@ public class EventHandler {
 
     @EventSubscriber
     public void onGuildCreateEvent(GuildCreateEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
-        IGuild guild = event.getGuild();
-        App.guilds.loadGuild(guild);
+        App.guilds.loadGuild(event.getGuild());
+    }
+
+    @EventSubscriber
+    public void onGuildLeaveEvent(GuildLeaveEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
+        App.guilds.removeGuild(event.getGuild());
     }
 
     @EventSubscriber
