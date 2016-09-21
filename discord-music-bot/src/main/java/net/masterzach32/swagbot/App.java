@@ -493,9 +493,18 @@ public class App {
         new Command("Queue", "queue", "Displays the song queue.", 0, (message, params) -> {
             AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
             String str = " There are currently **" + (player.getPlaylistSize() - 1) + "** song(s) in queue.\n";
-            str += "Currently Playing: **" + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "** (**" + ((AudioTrack) player.getPlaylist().get(0)).getUser().getName() + "**)\n";
+            String name;
+            if(((AudioTrack) player.getPlaylist().get(0)).getUser() == null)
+                name = "Unknown";
+            else
+                name = ((AudioTrack) player.getPlaylist().get(0)).getUser().getName();
+            str += "Currently Playing: **" + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "** (**" + name + "**)\n";
             for (int i = 1; i < player.getPlaylist().size(); i++) {
-                String s = "**(" + i + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getName() + "**)\n";
+                if(((AudioTrack) player.getPlaylist().get(i)).getUser() == null)
+                    name = "Unknown";
+                else
+                    name = ((AudioTrack) player.getPlaylist().get(i)).getUser().getName();
+                String s = "**(" + i + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + name + "**)\n";
                 if ((str + s).length() > 1800)
                     break;
                 str += s;

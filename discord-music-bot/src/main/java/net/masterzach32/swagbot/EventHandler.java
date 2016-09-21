@@ -21,6 +21,7 @@ import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.handle.obj.IMessage.*;
 import sx.blah.discord.util.*;
+import sx.blah.discord.util.audio.AudioPlayer;
 import sx.blah.discord.util.audio.events.*;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -37,6 +38,28 @@ public class EventHandler {
     @EventSubscriber
     public void onGuildLeaveEvent(GuildLeaveEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
         App.guilds.removeGuild(event.getGuild());
+    }
+
+    @EventSubscriber
+    public void onDiscordDisconnectEvent(DiscordDisconnectedEvent event) {
+        event.getClient().changeStatus(Status.game("Reconnecting..."));
+    }
+
+    @EventSubscriber
+    public void onDiscordReconnectedEvent(DiscordReconnectedEvent event) throws MissingPermissionsException, InterruptedException {
+        event.getClient().changeStatus(Status.game("Queue some music!"));
+        for(IGuild guild : event.getClient().getGuilds()) {
+            for(IVoiceChannel channel : guild.getVoiceChannels())
+                for(IVoiceChannel connected : event.getClient().getConnectedVoiceChannels())
+                    if(connected == channel) {
+                        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
+                        player.setPaused(true);
+                        connected.leave();
+                        Thread.sleep(500);
+                        connected.join();
+                        player.setPaused(false);
+                    }
+        }
     }
 
     @EventSubscriber

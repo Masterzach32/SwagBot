@@ -12,6 +12,7 @@ import net.masterzach32.swagbot.utils.Constants;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
+import sx.blah.discord.handle.impl.obj.User;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.MissingPermissionsException;
@@ -81,9 +82,9 @@ public class GuildManager {
                 queue.add(((AudioTrack) track).getUrl());
             guild.setQueue(queue);
 
-            for (IVoiceChannel c : App.client.getConnectedVoiceChannels())
-                if (App.client.getGuildByID(guild.getID()).getVoiceChannelByID(c.getID()) != null)
-                    guild.setLastChannel(App.client.getGuildByID(guild.getID()).getVoiceChannelByID(c.getID()).getID());
+            for(IVoiceChannel c : App.client.getConnectedVoiceChannels())
+                if(App.client.getGuildByID(guild.getID()).getVoiceChannelByID(c.getID()) != null)
+                    guild.setLastChannel(c.getID());
 
 			BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
 			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(guild));
