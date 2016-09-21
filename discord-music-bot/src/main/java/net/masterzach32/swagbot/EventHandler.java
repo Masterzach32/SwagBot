@@ -42,7 +42,7 @@ public class EventHandler {
 
     @EventSubscriber
     public void onDiscordDisconnectEvent(DiscordDisconnectedEvent event) {
-        event.getClient().changeStatus(Status.game("Reconnecting..."));
+        logger.error("DISCONNECTED FROM DISCORD");
     }
 
     @EventSubscriber
