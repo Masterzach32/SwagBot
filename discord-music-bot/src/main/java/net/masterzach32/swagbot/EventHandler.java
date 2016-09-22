@@ -33,6 +33,7 @@ public class EventHandler {
     @EventSubscriber
     public void onGuildCreateEvent(GuildCreateEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
         App.guilds.loadGuild(event.getGuild());
+        App.setVolume(App.guilds.getGuild(event.getGuild()).getVolume(), event.getGuild());
     }
 
     @EventSubscriber
@@ -64,8 +65,6 @@ public class EventHandler {
 
     @EventSubscriber
     public void onReady(ReadyEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException {
-        for (IGuild guild : event.getClient().getGuilds())
-            App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
         event.getClient().changeStatus(Status.game("Queue some music!"));
         if (App.prefs.shouldPostBotStats()) {
             HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")

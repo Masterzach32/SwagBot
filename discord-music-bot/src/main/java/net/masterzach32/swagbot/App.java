@@ -83,6 +83,9 @@ public class App {
         new Command("Update Bot", "update", "Downloads an update for the bot, if there is one.", 2, (message, params) -> {
             update();
         });
+        new Command("Reload", "reload", "Reloads bot settings", 2, ((message, params) -> {
+            prefs.load();
+        }));
         new Command("Lock the bot", "l", "Toggles wether the bot is locked in this guild.", 1, (message, params) -> {
             guilds.getGuild(message.getGuild()).toggleBotLocked();
             if (guilds.getGuild(message.getGuild()).isBotLocked())
@@ -293,7 +296,7 @@ public class App {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             }
-            if (params == null || params[0] == null || params[0].equals(""))
+            if (params.length == 0)
                 sendMessage("Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100 + "**", null, message.getChannel());
             else {
                 float vol = Float.parseFloat(params[0]);
@@ -301,7 +304,7 @@ public class App {
                 sendMessage("Set volume to **" + vol + "**", null, message.getChannel());
             }
         });
-        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: -create, -import, -add, -remove, -delete, -queue, -list, -info", 0, (message, params) -> {
+        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: create, import, add, remove, delete, queue, list, info", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
@@ -312,15 +315,15 @@ public class App {
             for (IRole role : userRoles)
                 if (role.getName().equals("Bot Commander"))
                     perms = true;
-            if (params[0].equals("-load") && perms) {
+            if (params[0].equals("load") && perms) {
                 guilds.getGuild(message.getGuild()).getPlaylistManager().load();
                 sendMessage("**Re-loaded all playlists**", null, message.getChannel());
                 return;
-            } else if (params[0].equals("-save") && perms) {
+            } else if (params[0].equals("save") && perms) {
                 guilds.getGuild(message.getGuild()).getPlaylistManager().save();
                 sendMessage("**Saved all playlists**", null, message.getChannel());
                 return;
-            } else if (params[0].equals("-list")) {
+            } else if (params[0].equals("list")) {
                 sendMessage("**Playlists:** " + guilds.getGuild(message.getGuild()).getPlaylistManager().toString(), null, message.getChannel());
                 return;
             }
@@ -328,11 +331,11 @@ public class App {
                 sendMessage("**Not enough parameters. Type** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + "help playlist` **to get help with this command.**", null, message.getChannel());
             String command = params[0], name = params[1];
             LocalPlaylist playlist = guilds.getGuild(message.getGuild()).getPlaylistManager().get(name);
-            if (command.equals("-create")) {
+            if (command.equals("create")) {
                 guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name, false, false));
                 response = "Created playlist **" + name + "**";
             }
-            if (command.equals("-import") && params.length == 3) {
+            if (command.equals("import") && params.length == 3) {
                 String id = null;
                 if(params[2].contains("playlist")) {
                     id = params[2].substring(params[2].indexOf("list=") + 5);
@@ -351,28 +354,28 @@ public class App {
                 message.delete();
             } else if (playlist == null) {
                 response = "There is no playlist with the name **" + name + "**";
-            } else if (command.equals("-queue")) {
+            } else if (command.equals("queue")) {
                 if (!canQueueMusic(message.getAuthor()))
                     response = "**You must be in the bot's channel to queue music.**";
                 else {
                     playlist.queue(message.getAuthor(), message.getGuild());
                     response = "Queuing the playlist **" + playlist.getName() + "**";
                 }
-            } else if (command.equals("-info")) {
+            } else if (command.equals("info")) {
                 response = "Songs in **" + playlist.getName() + "**:\n" + playlist.getInfo();
-            } else if (command.equals("-lock") && perms) {
+            } else if (command.equals("lock") && perms) {
                 playlist.toggleLocked();
                 response = playlist.isLocked() ? "Playlist **" + playlist.getName() + "** can no longer be edited." : "Playlist **" + playlist.getName() + "** can now be edited.";
-            } else if (command.equals("-perms") && perms) {
+            } else if (command.equals("perms") && perms) {
                 playlist.toggleRequiresPerms();
                 response = playlist.requiresPerms() ? "Playlist **" + playlist.getName() + "** now requires moderator privelages to edit." : "Playlist **" + playlist.getName() + "** no longer requires moderator privelages to edit.";
-            } else if (command.equals("-add") && !(playlist.requiresPerms() && !perms) && !playlist.isLocked()) {
+            } else if (command.equals("add") && !(playlist.requiresPerms() && !perms) && !playlist.isLocked()) {
                 message.delete();
                 response = playlist.add(params[2]) ? "Added **" + new YouTubeAudio(params[2]).getTitle() + "** to **" + playlist.getName() + "**" : "Playlist **" + playlist.getName() + "** already has " + new YouTubeAudio(params[2]).getTitle();
-            } else if (command.equals("-remove") && perms && !playlist.isLocked()) {
+            } else if (command.equals("remove") && perms && !playlist.isLocked()) {
                 playlist.remove(params[2]);
                 response = "Removed " + params[2] + " from **" + playlist.getName() + "**";
-            } else if (command.equals("-delete") && perms && !playlist.isLocked()) {
+            } else if (command.equals("delete") && perms && !playlist.isLocked()) {
                 guilds.getGuild(message.getGuild()).getPlaylistManager().remove(name);
                 response = "Deleted the playlist **" + playlist.getName() + "**";
             }
@@ -671,11 +674,10 @@ public class App {
         return user.getConnectedVoiceChannels().size() > 0 && client.getConnectedVoiceChannels().contains(user.getConnectedVoiceChannels().get(0));
     }
 
-    // Queue audio from specified URL stream for guild
     public static boolean playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
-        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild); // Get AudioPlayer for guild
+        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
         try {
-            player.queue(source.getAudioTrack(user, shouldAnnounce)); // Queue URL stream
+            player.queue(source.getAudioTrack(user, shouldAnnounce));
         } catch (YouTubeDLException e) {
             e.printStackTrace();
             return false;

@@ -46,7 +46,7 @@ public class Command implements Comparable<Command> {
         event.execute(message, params);
 	}
 	
-	public static void executeCommand(IMessage message, String identifier, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException, UnirestException, IOException {
+	public static void executeCommand(IMessage message, String identifier, String[] params) throws RateLimitException, DiscordException, MissingPermissionsException {
 		Command c = null;
 		
 		for(Command command : commands)
@@ -55,7 +55,6 @@ public class Command implements Comparable<Command> {
 		
 		if(c == null)
 			return;
-		
 		else if(c.permLevel > 0) {
 			boolean hasPerms = false;
 			List<IRole> userRoles = message.getAuthor().getRolesForGuild(message.getChannel().getGuild());
@@ -63,19 +62,31 @@ public class Command implements Comparable<Command> {
 				if(c.permLevel == 2 && message.getAuthor().getID().equals("97341976214511616") || c.permLevel == 1 && role.getName().equals("Bot Commander"))
 					hasPerms = true;
 			
-			if(!hasPerms)
-				new MessageBuilder(App.client).withContent("**You do not have permission to use this command.**").withChannel(message.getChannel()).build();
-			else
-				c.execute(message, params);
+			if(!hasPerms) {
+                new MessageBuilder(App.client).withContent("**You do not have permission to use this command.**").withChannel(message.getChannel()).build();
+                return;
+            }
 		}
-		else
-			c.execute(message, params);
+
+        try {
+            c.execute(message, params);
+        } catch (Exception e) {
+            MessageBuilder error = new MessageBuilder(App.client).withContent(message.getAuthor().mention() + " The command failed: **" + e.toString() + "**").withChannel(message.getChannel());
+            StackTraceElement[] elements = e.getStackTrace();
+            int i;
+            for(i = 0; i < 10 && i < elements.length; i++)
+                error.appendContent("\n" + elements[i].toString());
+            if(i < elements.length)
+                error.appendContent("\n+" + (elements.length - 1) + " more...");
+            error.build();
+            e.printStackTrace();
+        }
 	}
 	
 	public static void listAllCommands(IUser user) throws RateLimitException, DiscordException, MissingPermissionsException {
 		String str = "Commands for **SwagBot**:\n\n```";
 		for(Command command : commands)
-			str += "\t" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
+			str += "" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
 		str += "```\n\n";
 		str += "**Note**: Command prefixes may be different per guild!";
 		str += "\n\n";
