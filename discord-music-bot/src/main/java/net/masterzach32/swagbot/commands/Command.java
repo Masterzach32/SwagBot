@@ -79,6 +79,7 @@ public class Command implements Comparable<Command> {
             if(i < elements.length)
                 error.appendContent("\n+" + (elements.length - 1) + " more...");
             error.build();
+			
             e.printStackTrace();
         }
 	}

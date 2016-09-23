@@ -67,9 +67,9 @@ public class GuildManager {
 	}
 
 	public void removeGuild(IGuild guild) {
-		for(Guild g : guilds)
-			if(g.getID().equals(guild.getID()))
-				guilds.remove(g);
+		for(int i = 0; i < guilds.size(); i++)
+			if(guilds.get(i).getID().equals(guild.getID()))
+				guilds.remove(guilds.get(i));
 	}
 	
 	public void saveGuildSettings() throws IOException {
