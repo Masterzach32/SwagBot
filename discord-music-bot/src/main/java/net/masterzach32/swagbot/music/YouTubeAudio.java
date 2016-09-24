@@ -79,6 +79,9 @@ public class YouTubeAudio implements AudioSource {
         if (yt != null)
             yt.delete();
 
-        return new AudioTrack(new File(Constants.AUDIO_CACHE + name + "-" + video_id + ".mp3"), url, shouldAnnounce, name, user);
+        for (File file : App.manager.getFile(Constants.AUDIO_CACHE).listFiles())
+            if (file.getName().contains(video_id))
+                return new AudioTrack(file, url, shouldAnnounce, name, user);
+        return null;
     }
 }

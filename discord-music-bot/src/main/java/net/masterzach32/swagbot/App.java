@@ -391,6 +391,7 @@ public class App {
                 return;
             }
             AudioSource source = null;
+            IMessage m = null;
             try {
                 if(params[0].contains("youtube"))
                     if(params[0].contains("playlist")) {
@@ -425,8 +426,15 @@ public class App {
                     source = new SoundCloudAudio(params[0]);
                 else if(params[0].contains("http"))
                     source = new AudioStream(params[0]);
-                else
-                    sendMessage("As of now, ~play only accepts links. A search feature will be implemented in the future.", null, message.getChannel());
+                else {
+                    m = sendMessage("Searching Youtube...", null, message.getChannel());
+                    String query = "";
+                    for(String param : params)
+                        query += param + "+";
+                    query = query.substring(0, query.length()-1);
+                    source = getVideoFromSearch(query);
+                    m.edit("Queuing: **" + source.getTitle() + "**");
+                }
             } catch (NotStreamableException e) {
                 sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel());
                 e.printStackTrace();
@@ -434,6 +442,8 @@ public class App {
             try {
                 if (playAudioFromAudioSource(source, true, message.getAuthor(), message.getGuild())) {
                     message.delete();
+                    if(m != null)
+                        m.delete();
                     waitAndDeleteMessage(sendMessage("Queued **" + source.getTitle() + "**", null, message.getChannel()), 25);
                 } else
                     sendMessage("An error occurred while queueing this url: " + params[0], null, message.getChannel());
@@ -762,5 +772,11 @@ public class App {
                     music.add("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId"));
         }
         return music;
+    }
+
+    private static YouTubeAudio getVideoFromSearch(String search) throws UnirestException {
+        HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" + search + "&key=" + prefs.getGoogleAuthKey()).asJson();
+        JSONObject json = response.getBody().getArray().getJSONObject(0);
+        return new YouTubeAudio("https://youtube.com/watch?v=" + json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId"));
     }
 }

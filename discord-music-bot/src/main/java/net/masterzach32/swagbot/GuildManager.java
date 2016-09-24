@@ -49,7 +49,7 @@ public class GuildManager {
 		g.getPlaylistManager().load();
 		guilds.add(g);
 
-        if(App.client.getVoiceChannelByID(g.getLastChannel()) != null)
+        if(App.client.getVoiceChannelByID(g.getLastChannel()) != null && !g.getLastChannel().equals(""))
             App.client.getVoiceChannelByID(g.getLastChannel()).join();
         List<String> saved = g.getQueue();
         if(saved.size() > 0) {
@@ -85,6 +85,8 @@ public class GuildManager {
             for(IVoiceChannel c : App.client.getConnectedVoiceChannels())
                 if(App.client.getGuildByID(guild.getID()).getVoiceChannelByID(c.getID()) != null)
                     guild.setLastChannel(c.getID());
+				else
+					guild.setLastChannel("");
 
 			BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
 			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(guild));
@@ -94,7 +96,7 @@ public class GuildManager {
 	
 	public Guild getGuild(IGuild guild) {
 		for(Guild g : guilds)
-			if(g.getID().equals(guild.getID()))
+			if(g != null && g.getID().equals(guild.getID()))
 				return g;
 		return null;
 	}
