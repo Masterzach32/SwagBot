@@ -54,11 +54,9 @@ public class EventHandler {
                 for(IVoiceChannel connected : event.getClient().getConnectedVoiceChannels())
                     if(connected == channel) {
                         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-                        player.setPaused(true);
                         connected.leave();
                         Thread.sleep(500);
                         connected.join();
-                        player.setPaused(false);
                     }
         }
     }

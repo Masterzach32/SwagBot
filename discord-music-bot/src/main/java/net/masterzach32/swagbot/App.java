@@ -381,7 +381,7 @@ public class App {
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play [arg] <link>. Supports YouTube, SoundCloud, and direct links.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play [arg] <link>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
@@ -395,14 +395,15 @@ public class App {
             try {
                 if(params[0].contains("youtube"))
                     if(params[0].contains("playlist")) {
+                        message.delete();
+                        m = sendMessage("Queuing Playlist " + params[0], null, message.getChannel());
                         for(String music : getYouTubeVideosFromPlaylist(params[0].substring(params[0].indexOf("list=") + 5)))
                             try {
                                 playAudioFromAudioSource(new YouTubeAudio(music), true, message.getAuthor(), message.getGuild());
                             } catch (IOException | UnsupportedAudioFileException e) {
                                 e.printStackTrace();
                             }
-                        message.delete();
-                        sendMessage("**Queued Playlist** " + params[0], null, message.getChannel());
+                        waitAndDeleteMessage(m.edit(message.getAuthor().mention() + " **Queued Playlist** " + params[0]), 25);
                         return;
                     } else if(params[0].contains("list=")) {
                         String link = params[0];
@@ -411,6 +412,8 @@ public class App {
                         for(String str : parts)
                             if(str.contains("list="))
                                 id = str.replace("list=", "");
+                        message.delete();
+                        m = sendMessage("Queuing Playlist " + params[0], null, message.getChannel());
                         for(String music : getYouTubeVideosFromPlaylist(id))
                             try {
                                 playAudioFromAudioSource(new YouTubeAudio(music), true, message.getAuthor(), message.getGuild());
@@ -418,7 +421,7 @@ public class App {
                                 e.printStackTrace();
                             }
                         message.delete();
-                        sendMessage("**Queued Playlist** " + params[0], null, message.getChannel());
+                        waitAndDeleteMessage(m.edit(message.getAuthor().mention() + " **Queued Playlist** " + params[0]), 25);
                         return;
                     } else
                         source = new YouTubeAudio(params[0]);
@@ -433,20 +436,22 @@ public class App {
                         query += param + "+";
                     query = query.substring(0, query.length()-1);
                     source = getVideoFromSearch(query);
-                    m.edit("Queuing: **" + source.getTitle() + "**");
                 }
             } catch (NotStreamableException e) {
-                sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel());
+                waitAndDeleteMessage(sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel()), 25);
                 e.printStackTrace();
+                return;
             }
             try {
+                message.delete();
+                if(m == null)
+                    m = sendMessage("Queuing: **" + source.getTitle() + "**", null, message.getChannel());
+                else
+                    m.edit("Queuing: **" + source.getTitle() + "**");
                 if (playAudioFromAudioSource(source, true, message.getAuthor(), message.getGuild())) {
-                    message.delete();
-                    if(m != null)
-                        m.delete();
-                    waitAndDeleteMessage(sendMessage("Queued **" + source.getTitle() + "**", null, message.getChannel()), 25);
+                    waitAndDeleteMessage(m.edit(message.getAuthor().mention() + " Queued **" + source.getTitle() + "**"), 25);
                 } else
-                    sendMessage("An error occurred while queueing this url: " + params[0], null, message.getChannel());
+                    waitAndDeleteMessage(sendMessage("An error occurred while queueing this url: " + params[0], null, message.getChannel()), 25);
             } catch (IOException | UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
@@ -505,6 +510,10 @@ public class App {
         });
         new Command("Queue", "queue", "Displays the song queue.", 0, (message, params) -> {
             AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
+            if(player.getPlaylist().size() == 0) {
+                sendMessage("There are no songs in the queue!", null, message.getChannel());
+                return;
+            }
             String str = " There are currently **" + (player.getPlaylistSize() - 1) + "** song(s) in queue.\n";
             String name;
             if(((AudioTrack) player.getPlaylist().get(0)).getUser() == null)
