@@ -76,10 +76,10 @@ public class EventHandler {
     }
 
     @EventSubscriber
-    public void onMessageEvent(MessageReceivedEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException, IOException {
+    public void onMessageEvent(MessageReceivedEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException, IOException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, NotStreamableException {
         String message = event.getMessage().getContent();
 
-        if (message.length() < 1)
+        if (message.length() < 1 || event.getMessage().getAuthor().isBot())
             return;
 
         if (event.getMessage().getChannel().isPrivate()) {
@@ -105,6 +105,8 @@ public class EventHandler {
             return;
         }
 
+        if(App.guilds.getGuild(event.getMessage().getGuild()) == null)
+            App.guilds.loadGuild(event.getMessage().getGuild());
         if (event.getMessage().getChannel().getID().equals("97342233241464832")) {
             if (!event.getMessage().getEmbedded().isEmpty()) {
                 App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("Please follow the rules and dont post links in #chat.");

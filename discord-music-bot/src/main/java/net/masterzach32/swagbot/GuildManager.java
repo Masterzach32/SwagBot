@@ -29,6 +29,7 @@ public class GuildManager {
 	}
 	
 	public void loadGuild(IGuild guild) throws IOException, UnirestException, NotStreamableException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, MissingPermissionsException {
+        App.logger.info(guild.getName());
 		App.manager.mkdir(Constants.GUILD_SETTINGS + guild.getID() + "/playlists/");
 		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON);
 		if(!prefs.exists()) {
@@ -73,7 +74,8 @@ public class GuildManager {
 	}
 	
 	public void saveGuildSettings() throws IOException {
-		for(Guild guild : guilds) {
+		for(int i = 0; i < guilds.size(); i++) {
+            Guild guild = guilds.get(i);
 			guild.getPlaylistManager().save();
 
             List<AudioPlayer.Track> tracks = AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).getPlaylist();

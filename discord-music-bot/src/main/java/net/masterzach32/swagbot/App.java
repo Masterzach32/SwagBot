@@ -2,9 +2,12 @@ package net.masterzach32.swagbot;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -51,7 +54,7 @@ public class App {
 
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
-        client.login();
+        client.login(true);
 
         // register commands
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
@@ -78,7 +81,11 @@ public class App {
             stop(true);
         });
         new Command("Restart Bot", "restart", "Calls stop and restarts the bot.", 2, (message, params) -> {
-            restart();
+            try {
+                restart();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
         new Command("Update Bot", "update", "Downloads an update for the bot, if there is one.", 2, (message, params) -> {
             update();
@@ -299,18 +306,27 @@ public class App {
             if (params.length == 0)
                 sendMessage("Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100 + "**", null, message.getChannel());
             else {
-                float vol = Float.parseFloat(params[0]);
-                setVolume(vol, message.getGuild());
-                sendMessage("Set volume to **" + vol + "**", null, message.getChannel());
+                float vol = 0;
+                try {
+                    vol = Float.parseFloat(params[0]);
+                } catch (NumberFormatException e) {
+                    sendMessage("Amount must be a number.", null, message.getChannel());
+                }
+                if (vol < 0 || vol > 100)
+                    sendMessage("Invalid volume level, must be 0-100.", null, message.getChannel());
+                else {
+                    setVolume(vol, message.getGuild());
+                    sendMessage("Set volume to **" + vol + "**", null, message.getChannel());
+                }
             }
         });
-        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: create, import, add, remove, delete, queue, list, info", 0, (message, params) -> {
+        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: create, import, add, remove, delete, queue, list, info\nex. ~playlist create Rock, ~playlist add <youtube link>, ~playlist queue rock", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             }
             boolean perms = false;
-            String response = "**You either messed up your parameters or do not have access to this command.**";
+            String response = "**Type `~help playlist` if you need help with this command**";
             List<IRole> userRoles = message.getAuthor().getRolesForGuild(message.getChannel().getGuild());
             for (IRole role : userRoles)
                 if (role.getName().equals("Bot Commander"))
@@ -381,15 +397,15 @@ public class App {
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play [arg] <link>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
-            }
-            if (!canQueueMusic(message.getAuthor())) {
+            } else if (!canQueueMusic(message.getAuthor())) {
                 sendMessage("**You must be in the bot's channel to queue music.**", null, message.getChannel());
                 return;
-            }
+            } else if (params.length < 0)
+                return;
             AudioSource source = null;
             IMessage m = null;
             try {
@@ -580,15 +596,6 @@ public class App {
             UrbanDefinition def = new UrbanDefinition(term);
             sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
         });
-        new Command("Let Me Google that for You", "lmgtfy", "Google anything.", 0, (message, params) -> {
-            String str = "";
-            for(int i = 0; i < params.length; i++) {
-                str += params[i];
-                if(i+1 < params.length)
-                    str += "+";
-            }
-            sendMessage("http://www.lmgtfy.com/?q=" + str, null, message.getChannel());
-        });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = new ArrayList<>();
             for(IUser user : message.getMentions())
@@ -645,6 +652,20 @@ public class App {
                 i--;
             }
         });
+        new Command("Let Me Google that for You", "lmgtfy", "Google anything.", 0, (message, params) -> {
+            try {
+                sendMessage("http://www.lmgtfy.com/?q=" + URLEncoder.encode(message.getContent().toLowerCase(), "UTF-8"), null, message.getChannel());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        });
+        new Command("Stack Overflow Search", "stackoverflow", "Search for issues on StackOverflow.com", 0, (message, params) -> {
+            try {
+                sendMessage("http://stackoverflow.com/search?q=" + URLEncoder.encode(message.getContent().toLowerCase(), "UTF-8"), null, message.getChannel());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
@@ -652,16 +673,19 @@ public class App {
         client.changeStatus(Status.game("Shutting Down"));
         guilds.saveGuildSettings();
         prefs.save();
-        Unirest.shutdown();
         if (prefs.clearCacheOnShutdown())
             clearCache();
         client.logout();
-        if(exit)
+        if(exit) {
+            Unirest.shutdown();
             System.exit(0);
+        }
     }
 
-    private static void restart() throws RateLimitException, IOException, DiscordException, UnirestException {
+    private static void restart() throws RateLimitException, IOException, DiscordException, UnirestException, InterruptedException {
+        logger.info("restarting");
         stop(false);
+        Thread.sleep(5000);
         main(null);
     }
 
