@@ -25,6 +25,7 @@ import net.masterzach32.swagbot.api.jokes.*;
 import net.masterzach32.swagbot.commands.*;
 import net.masterzach32.swagbot.music.*;
 import net.masterzach32.swagbot.utils.*;
+import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
@@ -42,6 +43,9 @@ public class App {
     public static void main(String[] args) throws DiscordException, IOException, UnirestException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
         // beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
+        if (Discord4J.LOGGER instanceof Discord4J.Discord4JLogger) {
+            ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.INFO);
+        }
 
         // load all files into bot
         manager = new FileManager();
@@ -594,9 +598,9 @@ public class App {
             List<IUser> users = new ArrayList<>();
             for(IUser user : message.getMentions())
                 users.add(user);
-            for(IRole role : message.getRoleMentions())
+            /*for(IRole role : message.getRoleMentions())
                 for(IUser user : message.getGuild().getUsersByRole(role))
-                    users.add(user);
+                    users.add(user);*/
             if(message.mentionsEveryone())
                 users = message.getGuild().getUsers();
             if(users.size() == 1) {
@@ -648,20 +652,27 @@ public class App {
         });
         new Command("Let Me Google that for You", "lmgtfy", "Google anything.", 0, (message, params) -> {
             try {
-                sendMessage("http://www.lmgtfy.com/?q=" + URLEncoder.encode(message.getContent().toLowerCase(), "UTF-8"), null, message.getChannel());
+                sendMessage("http://www.lmgtfy.com/?q=" + URLEncoder.encode(message.getContent().substring(8).toLowerCase(), "UTF-8"), null, message.getChannel());
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         });
         new Command("Stack Overflow Search", "stackoverflow", "Search for issues on StackOverflow.com", 0, (message, params) -> {
             try {
-                sendMessage("http://stackoverflow.com/search?q=" + URLEncoder.encode(message.getContent().toLowerCase(), "UTF-8"), null, message.getChannel());
+                sendMessage("http://stackoverflow.com/search?q=" + URLEncoder.encode(message.getContent().substring(15).toLowerCase(), "UTF-8"), null, message.getChannel());
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         });
         new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
             String shoutcast = "http://api.shoutcast.com/";
+            HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
+                    .header("k", prefs.getShoutCastApiKey())
+                    .asJson();
+            logger.info(response.getBody().toString());
+            if(response.getStatus() != 200)
+                sendMessage("An error occurred while contacting the SHOUTcast API:\n```" + response.getBody().toString() + "\n```", message.getAuthor(), message.getChannel());
+            JSONObject json = response.getBody().getArray().getJSONObject(0);
         }));
     }
 
@@ -675,7 +686,6 @@ public class App {
         client.logout();
         if(exit) {
             Unirest.shutdown();
-            //Spark.stop();
             System.exit(0);
         }
     }
@@ -711,10 +721,6 @@ public class App {
         return count;
     }
 
-    private static boolean canQueueMusic(IUser user) {
-        return user.getConnectedVoiceChannels().size() > 0 && client.getConnectedVoiceChannels().contains(user.getConnectedVoiceChannels().get(0));
-    }
-
     private static IVoiceChannel getCurrentChannelForGuild(IGuild guild) {
         for (IVoiceChannel c : client.getConnectedVoiceChannels())
             if (guild.getVoiceChannelByID(c.getID()) != null) {
@@ -724,6 +730,7 @@ public class App {
     }
 
     private static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
+        setVolume(guilds.getGuild(guild).getVolume(), guild);
         if(getCurrentChannelForGuild(guild) != null)
             return getCurrentChannelForGuild(guild);
         for (IVoiceChannel c : guild.getVoiceChannels())

@@ -34,6 +34,10 @@ public class EventHandler {
     public void onGuildCreateEvent(GuildCreateEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
         App.guilds.loadGuild(event.getGuild());
         App.setVolume(App.guilds.getGuild(event.getGuild()).getVolume(), event.getGuild());
+        RequestBuffer.request(() -> {
+            if(event.getClient().isReady())
+                event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
+        });
     }
 
     @EventSubscriber
@@ -48,8 +52,10 @@ public class EventHandler {
 
     @EventSubscriber
     public void onDiscordReconnectedEvent(DiscordReconnectedEvent event) throws MissingPermissionsException, InterruptedException {
-        event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
-        for(IGuild guild : event.getClient().getGuilds()) {
+        RequestBuffer.request(() -> {
+            event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
+        });
+        /*for(IGuild guild : event.getClient().getGuilds()) {
             for(IVoiceChannel channel : guild.getVoiceChannels())
                 for(IVoiceChannel connected : event.getClient().getConnectedVoiceChannels())
                     if(connected == channel) {
@@ -58,12 +64,14 @@ public class EventHandler {
                         Thread.sleep(500);
                         connected.join();
                     }
-        }
+        }*/
     }
 
     @EventSubscriber
     public void onReady(ReadyEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException {
-        event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
+        RequestBuffer.request(() -> {
+            event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
+        });
         if (App.prefs.shouldPostBotStats()) {
             HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
                     .header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
@@ -170,8 +178,10 @@ public class EventHandler {
 
     @EventSubscriber
     public void onTrackFinishEvent(TrackFinishEvent event) {
-        if (event.getPlayer().getPlaylistSize() == 0)
-            event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
+        RequestBuffer.request(() -> {
+            if (event.getPlayer().getPlaylistSize() == 0)
+                event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
+        });
     }
 
     @EventSubscriber
