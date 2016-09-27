@@ -29,7 +29,6 @@ public class GuildManager {
 	}
 	
 	public void loadGuild(IGuild guild) throws IOException, UnirestException, NotStreamableException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, MissingPermissionsException {
-        App.logger.info(guild.getName());
 		App.manager.mkdir(Constants.GUILD_SETTINGS + guild.getID() + "/playlists/");
 		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON);
 		if(!prefs.exists()) {
@@ -89,6 +88,8 @@ public class GuildManager {
                     guild.setLastChannel(c.getID());
 				else
 					guild.setLastChannel("");
+
+            AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).clear();
 
 			BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
 			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(guild));

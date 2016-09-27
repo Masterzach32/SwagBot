@@ -48,7 +48,7 @@ public class EventHandler {
 
     @EventSubscriber
     public void onDiscordReconnectedEvent(DiscordReconnectedEvent event) throws MissingPermissionsException, InterruptedException {
-        event.getClient().changeStatus(Status.game("Queue some music!"));
+        event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
         for(IGuild guild : event.getClient().getGuilds()) {
             for(IVoiceChannel channel : guild.getVoiceChannels())
                 for(IVoiceChannel connected : event.getClient().getConnectedVoiceChannels())
@@ -63,7 +63,7 @@ public class EventHandler {
 
     @EventSubscriber
     public void onReady(ReadyEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException {
-        event.getClient().changeStatus(Status.game("Queue some music!"));
+        event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
         if (App.prefs.shouldPostBotStats()) {
             HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
                     .header("User-Agent", "SwagBot/1.0 (UltimateDoge)")
@@ -171,7 +171,7 @@ public class EventHandler {
     @EventSubscriber
     public void onTrackFinishEvent(TrackFinishEvent event) {
         if (event.getPlayer().getPlaylistSize() == 0)
-            event.getClient().changeStatus(Status.game("Queue some music!"));
+            event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
     }
 
     @EventSubscriber

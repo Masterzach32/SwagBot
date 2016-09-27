@@ -7,7 +7,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -371,12 +370,9 @@ public class App {
             } else if (playlist == null) {
                 response = "There is no playlist with the name **" + name + "**";
             } else if (command.equals("queue")) {
-                if (!canQueueMusic(message.getAuthor()))
-                    response = "**You must be in the bot's channel to queue music.**";
-                else {
-                    playlist.queue(message.getAuthor(), message.getGuild());
-                    response = "Queuing the playlist **" + playlist.getName() + "**";
-                }
+                playlist.queue(message.getAuthor(), message.getGuild());
+                joinChannel(message.getAuthor(), message.getGuild());
+                response = "Queuing the playlist **" + playlist.getName() + "**";
             } else if (command.equals("info")) {
                 response = "Songs in **" + playlist.getName() + "**:\n" + playlist.getInfo();
             } else if (command.equals("lock") && perms) {
@@ -400,9 +396,6 @@ public class App {
         new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
-                return;
-            } else if (!canQueueMusic(message.getAuthor())) {
-                sendMessage("**You must be in the bot's channel to queue music.**", null, message.getChannel());
                 return;
             } else if (params.length < 0)
                 return;
@@ -465,6 +458,7 @@ public class App {
                 else
                     m.edit("Queuing: **" + source.getTitle() + "**");
                 if (playAudioFromAudioSource(source, true, message.getAuthor(), message.getGuild())) {
+                    joinChannel(message.getAuthor(), message.getGuild());
                     waitAndDeleteMessage(m.edit(message.getAuthor().mention() + " Queued **" + source.getTitle() + "**"), 25);
                 } else
                     waitAndDeleteMessage(sendMessage("An error occurred while queueing this url: " + params[0], null, message.getChannel()), 25);
@@ -666,6 +660,9 @@ public class App {
                 e.printStackTrace();
             }
         });
+        new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
+            String shoutcast = "http://api.shoutcast.com/";
+        }));
     }
 
     private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
@@ -678,6 +675,7 @@ public class App {
         client.logout();
         if(exit) {
             Unirest.shutdown();
+            //Spark.stop();
             System.exit(0);
         }
     }
@@ -715,6 +713,26 @@ public class App {
 
     private static boolean canQueueMusic(IUser user) {
         return user.getConnectedVoiceChannels().size() > 0 && client.getConnectedVoiceChannels().contains(user.getConnectedVoiceChannels().get(0));
+    }
+
+    private static IVoiceChannel getCurrentChannelForGuild(IGuild guild) {
+        for (IVoiceChannel c : client.getConnectedVoiceChannels())
+            if (guild.getVoiceChannelByID(c.getID()) != null) {
+                return c;
+        }
+        return null;
+    }
+
+    private static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
+        if(getCurrentChannelForGuild(guild) != null)
+            return getCurrentChannelForGuild(guild);
+        for (IVoiceChannel c : guild.getVoiceChannels())
+            if (user.getConnectedVoiceChannels().size() > 0 && c.getID().equals(user.getConnectedVoiceChannels().get(0).getID())) {
+                c.join();
+                return c;
+            }
+        guild.getVoiceChannelByID(guild.getID()).join();
+        return guild.getVoiceChannelByID(guild.getID());
     }
 
     public static boolean playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
