@@ -71,7 +71,7 @@ public class Command implements Comparable<Command> {
         try {
             c.execute(message, params);
         } catch (Exception e) {
-            MessageBuilder error = new MessageBuilder(App.client).withContent(message.getAuthor().mention() + " The command failed: **" + e.toString() + "**").withChannel(message.getChannel());
+            MessageBuilder error = new MessageBuilder(App.client).withContent(message.getAuthor().mention() + " The command failed: **" + e.toString() + "** at").withChannel(message.getChannel());
             StackTraceElement[] elements = e.getStackTrace();
             int i;
             for(i = 0; i < 3 && i < elements.length; i++)

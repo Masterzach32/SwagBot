@@ -197,6 +197,11 @@ public class App {
         new Command("Migrate Channels", "migrate", "Move anyone from one channel into another (beta).\nUsage: ~migrate [from] [to]. Use - or _ to replace spaces in Voice Channel names. \nIf no parameters are supplied then the bot will move everyone in the bots channel to the channel you are currently in.", 1, (message, params) -> {
             IVoiceChannel from = null, to = null;
             if (params.length == 2) {
+                for (int i = 0; i < params.length; i++)
+                    if (params[i] != null) {
+                        params[i] = params[i].replaceAll("_", " ");
+                        params[i] = params[i].replaceAll("-", " ");
+                    }
                 for (IVoiceChannel c : message.getGuild().getVoiceChannels())
                     if (c.getName().equals(params[0])) {
                         from = c;
@@ -212,13 +217,6 @@ public class App {
                     sendMessage("**Make sure you are in the channel you want to populate!**", null, message.getChannel());
                     return;
                 }
-
-                for (int i = 0; i < params.length; i++)
-                    if (params[i] != null) {
-                        params[i] = params[i].replaceAll("_", " ");
-                        params[i] = params[i].replaceAll("-", " ");
-                    }
-
                 for (IVoiceChannel c : client.getConnectedVoiceChannels())
                     if (message.getGuild().getVoiceChannelByID(c.getID()) != null) {
                         from = c;
