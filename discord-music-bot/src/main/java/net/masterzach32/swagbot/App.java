@@ -438,7 +438,7 @@ public class App {
                         source = new YouTubeAudio(params[0]);
                 else if(params[0].contains("soundcloud"))
                     source = new SoundCloudAudio(params[0]);
-                else if(params[0].contains("http"))
+                else if(params[0].contains("http://"))
                     source = new AudioStream(params[0]);
                 else {
                     m = sendMessage("Searching Youtube...", null, message.getChannel());
