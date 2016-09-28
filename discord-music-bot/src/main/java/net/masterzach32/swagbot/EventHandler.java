@@ -170,25 +170,14 @@ public class EventHandler {
 
     @EventSubscriber
     public void onTrackStartEvent(TrackStartEvent event) throws RateLimitException, DiscordException, MissingPermissionsException {
-        event.getClient().changeStatus(Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + " - " + event.getPlayer().getGuild().getName()));
         if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce())
             App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
         App.guilds.getGuild(event.getPlayer().getGuild()).resetSkipStats();
     }
 
     @EventSubscriber
-    public void onTrackFinishEvent(TrackFinishEvent event) {
-        RequestBuffer.request(() -> {
-            if (event.getPlayer().getPlaylistSize() == 0)
-                event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
-        });
-    }
+    public void onTrackFinishEvent(TrackFinishEvent event) {}
 
     @EventSubscriber
-    public void onPauseStateChangeEvent(PauseStateChangeEvent event) {
-        if (event.getNewPauseState())
-            event.getClient().changeStatus(Status.game("Paused"));
-        else
-            event.getClient().changeStatus(Status.game(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle()));
-    }
+    public void onPauseStateChangeEvent(PauseStateChangeEvent event) {}
 }

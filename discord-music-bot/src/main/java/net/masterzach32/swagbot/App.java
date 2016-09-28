@@ -186,7 +186,7 @@ public class App {
                         });
                         logger.info(m + "");
                         m.edit(caller.mention() + " Removed the last " + toDelete + " messages.");
-                        Thread.sleep(5000);
+                        Thread.sleep(4000);
                         m.delete();
                     } catch (MissingPermissionsException | DiscordException | InterruptedException e) {
                         e.printStackTrace();
@@ -519,7 +519,6 @@ public class App {
             else {
                 player.clear();
                 sendMessage("**Cleared the queue.**", null, message.getChannel());
-                client.changeStatus(Status.game("Queue some music!"));
             }
         });
         new Command("Queue", "queue", "Displays the song queue.", 0, (message, params) -> {

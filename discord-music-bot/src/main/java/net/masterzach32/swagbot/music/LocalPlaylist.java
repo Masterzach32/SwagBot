@@ -70,7 +70,7 @@ public class LocalPlaylist {
 						} catch (NotStreamableException | UnirestException e) {
 							e.printStackTrace();
 						}
-						App.playAudioFromAudioSource(source, true, null, guild);
+						App.playAudioFromAudioSource(source, true, user, guild);
 					} catch (IOException | UnsupportedAudioFileException e) {
 						e.printStackTrace();
 					}
