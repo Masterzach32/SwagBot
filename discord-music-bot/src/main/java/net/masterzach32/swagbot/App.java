@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -13,7 +14,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.sun.org.apache.bcel.internal.generic.IUSHR;
 import net.masterzach32.swagbot.utils.exceptions.*;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +61,7 @@ public class App {
 
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
-        client.login(true);
+        client.login(false);
 
         // register commands
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
@@ -463,7 +467,7 @@ public class App {
                     joinChannel(message.getAuthor(), message.getGuild());
                     waitAndDeleteMessage(m.edit(message.getAuthor().mention() + " Queued **" + source.getTitle() + "**"), 25);
                 } else
-                    waitAndDeleteMessage(sendMessage("An error occurred while queueing this url: " + params[0], null, message.getChannel()), 25);
+                    m.edit(message.getAuthor().mention() + " Could not queue: **" + source.getTitle() + "**");
             } catch (IOException | UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
@@ -595,9 +599,9 @@ public class App {
             List<IUser> users = new ArrayList<>();
             for(IUser user : message.getMentions())
                 users.add(user);
-            /*for(IRole role : message.getRoleMentions())
+            for(IRole role : message.getRoleMentions())
                 for(IUser user : message.getGuild().getUsersByRole(role))
-                    users.add(user);*/
+                    users.add(user);
             if(message.mentionsEveryone())
                 users = message.getGuild().getUsers();
             if(users.size() == 1) {
@@ -627,14 +631,18 @@ public class App {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                IUser dead = users.get(new Random().nextInt(users.size()));
-                users.remove(dead);
-                IUser killer = users.get(new Random().nextInt(users.size()));
+                List<IUser> u = users;
                 RequestBuffer.request(() -> {
                     try {
+                        IUser dead;
+                        do {
+                            dead = u.get(new Random().nextInt(u.size()));
+                        } while (dead.getID().equals("148604482492563456"));
+                        u.remove(dead);
+                        IUser killer = u.get(new Random().nextInt(u.size()));
                         String result = prefs.getFightSituations()[new Random().nextInt(prefs.getFightSituations().length)];
-                        result = result.replace("${killed}", "**" + dead.getName() + "**");
-                        result = result.replace("${killer}", "**" + killer.getName() + "**");
+                        result = result.replace("${killed}", "**" + dead.getDisplayName(message.getGuild()) + "**");
+                        result = result.replace("${killer}", "**" + killer.getDisplayName(message.getGuild()) + "**");
                         m.edit(result);
                     } catch (MissingPermissionsException | DiscordException e) {
                         e.printStackTrace();
@@ -661,7 +669,48 @@ public class App {
                 e.printStackTrace();
             }
         });
-        new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
+        new Command("Create StrawPoll", "strawpoll", "<title> | <option 1> | <option 2> [| [option 3]]\nCreate a strawpoll with the title and options. You must have at least two options and no more than 30.", 0, (message, params) -> {
+            if(params.length < 1)
+                sendMessage("Not enough parameters. Type ~help strawpoll for help with this command.", null, message.getChannel());
+            String[] choices = Utils.delimitWithoutEmpty(Utils.getContent(params, 0), "\\|");
+            if (choices.length < 3 || choices.length > 31)
+                sendMessage("Invalid parameters. Type ~help strawpoll for help with this command.", null, message.getChannel());
+            for (int i = 0; i < choices.length; i++) {
+                choices[i] = choices[i].trim().replace("\n", "");
+            }
+
+
+
+            JSONObject json = new JSONObject();
+            json.put("title", choices[0]);
+            json.put("options", new JSONArray(Arrays.copyOfRange(choices, 1, choices.length)));
+            json.put("dupcheck", "normal");
+            json.put("multi", false);
+            json.put("captcha", true);
+
+            HttpResponse<String> httpResponse = Unirest.post("http://www.strawpoll.me/api/v2/polls").body(json.toString()).asString();
+            String body = httpResponse.getBody();
+            int status = httpResponse.getStatus();
+            String statusText = httpResponse.getStatusText();
+
+            try {
+                JSONObject response = new JSONObject(body);
+
+                if (status != 200) {
+                    sendMessage("I couldn't process your strawpoll: `" + status + " " + statusText + "`\nResponse body:\n```json\n" + response.toString() + "\n```", message.getAuthor(), message.getChannel());
+                } else {
+                    int id = response.getInt("id");
+
+                    sendMessage("__Strawpoll by " + message.getAuthor().getDisplayName(message.getGuild()) + "__\n" +
+                            "Title: **" + choices[0] + "**\n" +
+                            "Strawpoll link: <https://strawpoll.me/" + id + ">", null, message.getChannel());
+                }
+            } catch (JSONException jsone) {
+                jsone.printStackTrace();
+                sendMessage("Something went wrong trying to parse JSON: " + status + " " + statusText + "\n`" + jsone + "`\n```\n" + body + "\n```", message.getAuthor(), message.getChannel());
+            }
+        });
+        /*new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
             String shoutcast = "http://api.shoutcast.com/";
             HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
                     .header("k", prefs.getShoutCastApiKey())
@@ -670,7 +719,7 @@ public class App {
             if(response.getStatus() != 200)
                 sendMessage("An error occurred while contacting the SHOUTcast API:\n```" + response.getBody().toString() + "\n```", message.getAuthor(), message.getChannel());
             JSONObject json = response.getBody().getArray().getJSONObject(0);
-        }));
+        }));*/
     }
 
     private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {

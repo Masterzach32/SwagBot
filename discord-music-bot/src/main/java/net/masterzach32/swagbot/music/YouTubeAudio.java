@@ -47,7 +47,7 @@ public class YouTubeAudio implements AudioSource {
                 return new AudioTrack(file, url, shouldAnnounce, name, user);
 
         App.logger.info("downloading:" + video_id);
-        ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", url);
+        ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", url, "--max-filesize 500m");
         int yt_err = -1;
 
         try {

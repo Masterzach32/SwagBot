@@ -66,6 +66,29 @@ public class GuildManager {
         }
 	}
 
+	public void applyGuildSettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {
+        for(Guild g : guilds) {
+            IGuild guild = App.client.getGuildByID(g.getID());
+            App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
+
+            if(App.client.getVoiceChannelByID(g.getLastChannel()) != null && !g.getLastChannel().equals(""))
+                App.client.getVoiceChannelByID(g.getLastChannel()).join();
+            List<String> saved = g.getQueue();
+            if(saved.size() > 0) {
+                AudioSource source;
+                for (String url : saved) {
+                    if (url.contains("youtube"))
+                        source = new YouTubeAudio(url);
+                    else if (url.contains("soundcloud"))
+                        source = new SoundCloudAudio(url);
+                    else
+                        source = new AudioStream(url);
+                    AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).queue(source.getAudioTrack(null, false));
+                }
+            }
+        }
+	}
+
 	public void removeGuild(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
 			if(guilds.get(i).getID().equals(guild.getID()))

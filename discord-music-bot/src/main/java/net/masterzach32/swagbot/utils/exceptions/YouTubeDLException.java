@@ -6,6 +6,7 @@ public class YouTubeDLException extends Throwable {
     private String url;
 
     public YouTubeDLException(String url, int exitCode) {
+        super("An error occurred downloading " + url);
         this.url = url;
         this.exitCode = exitCode;
     }

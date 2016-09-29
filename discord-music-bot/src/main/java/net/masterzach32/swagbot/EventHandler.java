@@ -33,7 +33,6 @@ public class EventHandler {
     @EventSubscriber
     public void onGuildCreateEvent(GuildCreateEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
         App.guilds.loadGuild(event.getGuild());
-        App.setVolume(App.guilds.getGuild(event.getGuild()).getVolume(), event.getGuild());
         RequestBuffer.request(() -> {
             if(event.getClient().isReady())
                 event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
@@ -52,9 +51,6 @@ public class EventHandler {
 
     @EventSubscriber
     public void onDiscordReconnectedEvent(DiscordReconnectedEvent event) throws MissingPermissionsException, InterruptedException {
-        RequestBuffer.request(() -> {
-            event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
-        });
         /*for(IGuild guild : event.getClient().getGuilds()) {
             for(IVoiceChannel channel : guild.getVoiceChannels())
                 for(IVoiceChannel connected : event.getClient().getConnectedVoiceChannels())
@@ -71,6 +67,11 @@ public class EventHandler {
     public void onReady(ReadyEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException {
         RequestBuffer.request(() -> {
             event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
+            try {
+                App.guilds.applyGuildSettings();
+            } catch (MissingPermissionsException | UnirestException | IOException | YouTubeDLException | FFMPEGException | UnsupportedAudioFileException | NotStreamableException e) {
+                e.printStackTrace();
+            }
         });
         if (App.prefs.shouldPostBotStats()) {
             HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
