@@ -216,6 +216,10 @@ public class App {
                         to = c;
                         break;
                     }
+                if(from == null)
+                    sendMessage("Could not find channel **" + params[0] + "**", null, message.getChannel());
+                else if(to == null)
+                    sendMessage("Could not find channel **" + params[1] + "**", null, message.getChannel());
             } else {
                 if (message.getAuthor().getConnectedVoiceChannels().size() == 0) {
                     sendMessage("**Make sure you are in the channel you want to populate!**", null, message.getChannel());
@@ -403,8 +407,7 @@ public class App {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
-            } else if (params.length < 0)
-                return;
+            }
             AudioSource source = null;
             IMessage m = null;
             try {
@@ -570,20 +573,17 @@ public class App {
         new Command("8 Ball", "8ball", "Gives you a prediction to your question.", 0, (message, params) -> {
             sendMessage(new R8Ball().getResponse(), null, message.getChannel());
         });
-        new Command("Random Joke", "joke", "Gives you a random joke.\nSpecific: -cn for Chuck Norris, -ym for Yo Mama", 0, (message, params) -> {
-            IRandomJoke joke;
-            if (params.length > 0 && params[0].equals("-cn"))
-                joke = new CNJoke();
-            else if(params.length > 0 && params[0].equals("-ym"))
-                joke = new YMJoke();
-            else if((int) (Math.random() * 2) == 1)
-                joke = new CNJoke();
-            else
-                joke = new YMJoke();
+        new Command("Random Joke", "joke", "Gives you a random joke.", 0, (message, params) -> {
+            IRandomJoke joke = new CNJoke();
             sendMessage(joke.getJoke(), null, message.getChannel());
         });
-        new Command("Choose From Group", "choose", "Randomly picks one of the options given.", 0, (message, params) -> {
-            sendMessage("I choose **" + params[new Random().nextInt(params.length)] + "**", null, message.getChannel());
+        new Command("Choose From Group", "choose", "<option 1> | <option 2> [| [option 3]]\nRandomly picks one of the options given. Must provide at least 2 options.", 0, (message, params) -> {
+            if(params.length == 0)
+                sendMessage("<option 1> | <option 2> [| [option 3]]\nRandomly picks one of the options given. Must provide at least 2 options.", message.getAuthor(), message.getChannel());
+            String[] choices = Utils.delimitWithoutEmpty(Utils.getContent(params, 0), "\\|");
+            if(choices.length < 2)
+                sendMessage("<option 1> | <option 2> [| [option 3]]\nRandomly picks one of the options given. Must provide at least 2 options.", message.getAuthor(), message.getChannel());
+            sendMessage("I choose **" + choices[new Random().nextInt(choices.length)] + "**", null, message.getChannel());
         });
         new Command("Random Cat", "cat", "Gives you a random cat picture.", 0, (message, params) -> {
             sendMessage(new RandomCat().getUrl(), null, message.getChannel());
@@ -678,8 +678,6 @@ public class App {
             for (int i = 0; i < choices.length; i++) {
                 choices[i] = choices[i].trim().replace("\n", "");
             }
-
-
 
             JSONObject json = new JSONObject();
             json.put("title", choices[0]);
