@@ -333,8 +333,10 @@ public class App {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
-            } else if(params.length == 0)
+            } else if(params.length == 0) {
                 sendMessage("Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: create, import, add, remove, delete, queue, list, info\nex. ~playlist create Rock, ~playlist add <youtube link>, ~playlist queue rock", message.getAuthor(), message.getChannel());
+                return;
+            }
             boolean perms = false;
             String response = "**Type `~help playlist` if you need help with this command**";
             List<IRole> userRoles = message.getAuthor().getRolesForGuild(message.getChannel().getGuild());
@@ -404,13 +406,15 @@ public class App {
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nYouTube Videos cannot be more than around 1 hour long.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             }
-            if(params.length == 0)
-                sendMessage("Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nYouTube Videos cannot be more than around 1 hour long.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", message.getAuthor(), message.getChannel());
+            if(params.length == 0) {
+                sendMessage("Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", message.getAuthor(), message.getChannel());
+                return;
+            }
             AudioSource source = null;
             IMessage m = null;
             try {
