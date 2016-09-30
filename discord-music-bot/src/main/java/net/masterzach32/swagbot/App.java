@@ -462,7 +462,7 @@ public class App {
                     String search = URLEncoder.encode(query.substring(0, query.length()-1), "UTF-8");
                     source = getVideoFromSearch(search);
                     if(source == null) {
-                        m.edit(message.getAuthor().mention() + " I couldnt find a video for " + query);
+                        m.edit(message.getAuthor().mention() + " I couldn't find a video for **" + query + "**, try searching for the artist's name and song title.");
                         return;
                     }
                 }

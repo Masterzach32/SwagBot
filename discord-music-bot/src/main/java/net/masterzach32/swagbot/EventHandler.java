@@ -64,7 +64,7 @@ public class EventHandler {
     }
 
     @EventSubscriber
-    public void onReady(ReadyEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException {
+    public void onReady(ReadyEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException, InterruptedException {
         RequestBuffer.request(() -> {
             event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
             try {
@@ -81,6 +81,23 @@ public class EventHandler {
                     .body(new JSONObject().put("server_count", event.getClient().getGuilds().size()))
                     .asJson();
             logger.info(json.getBody().getArray().getJSONObject(0).toString());
+        }
+        int i = 1;
+        while(true) {
+            Thread.sleep(300000);
+            String status = "";
+            if(i == 0)
+                status = event.getClient().getGuilds().size() + " servers | ~help";
+            else if(i == 1)
+                status = event.getClient().getUsers().size() + " humans | ~help";
+            else if(i == 2)
+                status = 2 + " shards | ~help";
+            else if(i == 3) {
+                status = Command.commands.size() + " commands | ~help";
+                i = 0;
+            }
+            event.getClient().changeStatus(Status.game(status));
+            i++;
         }
     }
 
