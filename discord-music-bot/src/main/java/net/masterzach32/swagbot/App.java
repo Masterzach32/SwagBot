@@ -458,9 +458,13 @@ public class App {
                     m = sendMessage("Searching Youtube...", null, message.getChannel());
                     String query = "";
                     for(String param : params)
-                        query += param + "+";
-                    query = query.substring(0, query.length()-1);
-                    source = getVideoFromSearch(query);
+                        query += param + " ";
+                    String search = URLEncoder.encode(query.substring(0, query.length()-1), "UTF-8");
+                    source = getVideoFromSearch(search);
+                    if(source == null) {
+                        m.edit(message.getAuthor().mention() + " I couldnt find a video for " + query);
+                        return;
+                    }
                 }
             } catch (NotStreamableException e) {
                 waitAndDeleteMessage(sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel()), 25);
@@ -885,8 +889,13 @@ public class App {
     }
 
     private static YouTubeAudio getVideoFromSearch(String search) throws UnirestException {
-        HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" + search + "&key=" + prefs.getGoogleAuthKey()).asJson();
-        JSONObject json = response.getBody().getArray().getJSONObject(0);
-        return new YouTubeAudio("https://youtube.com/watch?v=" + json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId"));
+        HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" + search + "&key=" + prefs.getGoogleAuthKey()).asJson();
+        if(response.getStatus() != 200)
+            return null;
+        JSONObject json;
+        json = response.getBody().getArray().getJSONObject(0);
+        if(json.has("items") && json.getJSONArray("items").length() > 0 && json.getJSONArray("items").getJSONObject(0).has("id") && json.getJSONArray("items").getJSONObject(0).getJSONObject("id").has("videoId"))
+            return new YouTubeAudio("https://youtube.com/watch?v=" + json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId"));
+        return null;
     }
 }
