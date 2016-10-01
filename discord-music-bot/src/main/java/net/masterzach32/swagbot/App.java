@@ -805,6 +805,10 @@ public class App {
                     if (message != null)
                         editMessage(message, "Queuing **" + source.getTitle() + "**");
                     try {
+                        if(source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
+                            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
+                            return;
+                        }
                         player.queue(source.getAudioTrack(user, shouldAnnounce));
                         if (message != null)
                             waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
