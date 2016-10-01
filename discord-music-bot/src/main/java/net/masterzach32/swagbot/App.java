@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.sun.org.apache.bcel.internal.generic.IUSHR;
 import net.masterzach32.swagbot.utils.exceptions.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +44,7 @@ public class App {
     public static BotConfig prefs;
     public static GuildManager guilds;
     public static FileManager manager;
+    public static ExecutorService executor = Executors.newFixedThreadPool(3);
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
@@ -424,7 +426,7 @@ public class App {
                         m = sendMessage("Queuing Playlist " + params[0], null, message.getChannel());
                         for(String music : getYouTubeVideosFromPlaylist(params[0].substring(params[0].indexOf("list=") + 5)))
                             try {
-                                playAudioFromAudioSource(new YouTubeAudio(music), true, message.getAuthor(), message.getGuild());
+                                playAudioFromAudioSource(new YouTubeAudio(music), true, null, message.getAuthor(), message.getGuild());
                             } catch (IOException | UnsupportedAudioFileException e) {
                                 e.printStackTrace();
                             }
@@ -441,7 +443,7 @@ public class App {
                         m = sendMessage("Queuing Playlist " + params[0], null, message.getChannel());
                         for(String music : getYouTubeVideosFromPlaylist(id))
                             try {
-                                playAudioFromAudioSource(new YouTubeAudio(music), true, message.getAuthor(), message.getGuild());
+                                playAudioFromAudioSource(new YouTubeAudio(music), true, null, message.getAuthor(), message.getGuild());
                             } catch (IOException | UnsupportedAudioFileException e) {
                                 e.printStackTrace();
                             }
@@ -477,11 +479,7 @@ public class App {
                     m = sendMessage("Queuing: **" + source.getTitle() + "**", null, message.getChannel());
                 else
                     m.edit("Queuing: **" + source.getTitle() + "**");
-                if (playAudioFromAudioSource(source, true, message.getAuthor(), message.getGuild())) {
-                    joinChannel(message.getAuthor(), message.getGuild());
-                    waitAndDeleteMessage(m.edit(message.getAuthor().mention() + " Queued **" + source.getTitle() + "**"), 25);
-                } else
-                    m.edit(message.getAuthor().mention() + " Could not queue: **" + source.getTitle() + "**");
+                playAudioFromAudioSource(source, true, m, message.getAuthor(), message.getGuild());
             } catch (IOException | UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
@@ -798,18 +796,40 @@ public class App {
         return guild.getVoiceChannels().get(0);
     }
 
-    public static boolean playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
-        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-        try {
-            player.queue(source.getAudioTrack(user, shouldAnnounce));
-        } catch (YouTubeDLException e) {
-            e.printStackTrace();
-            return false;
-        } catch (FFMPEGException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public static void playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IMessage message, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
+        Thread t = new Thread() {
+            public void run() {
+                AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
+                try {
+                    try {
+                        player.queue(source.getAudioTrack(user, shouldAnnounce));
+                        if (message != null)
+                            message.edit(user.mention() + " Queued **" + source.getTitle() + "**");
+                        return;
+                    } catch (YouTubeDLException e) {
+                        e.printStackTrace();
+                        if (message != null)
+                            message.edit(user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video.");
+                        return;
+                    } catch (FFMPEGException e) {
+                        e.printStackTrace();
+                        if(message != null)
+                            message.edit(user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream");
+                        return;
+                    } catch (IOException | DiscordException | RateLimitException | UnsupportedAudioFileException | MissingPermissionsException e) {
+                        e.printStackTrace();
+                    }
+                    if (message != null)
+                        message.edit(user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)");
+                    return;
+                } catch (DiscordException | RateLimitException | MissingPermissionsException e) {
+                    e.printStackTrace();
+                }
+                if(message != null)
+                    waitAndDeleteMessage(message, 25);
+            }
+        };
+        executor.execute(t);
     }
 
     // Change AudioPlayer volume for guild
