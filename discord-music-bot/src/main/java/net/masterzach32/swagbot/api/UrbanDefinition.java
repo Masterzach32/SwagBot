@@ -20,6 +20,7 @@ public class UrbanDefinition {
 					.header("X-Mashape-Key", App.prefs.getMashapApiKey())
 					.header("Accept", "text/plain")
 					.asJson();
+            App.logger.info(response.getBody().toString());
 			JSONObject def = response.getBody().getArray().getJSONObject(0).getJSONArray("list").getJSONObject(0);
 			this.defid = def.getInt("defid");
 			this.term = def.getString("word");

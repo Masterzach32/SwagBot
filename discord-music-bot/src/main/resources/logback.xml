@@ -9,7 +9,7 @@
   
   <logger name="net.masterzach32.swagbot.App" level="TRACE"/>
 
-  <root level="INFO">
+  <root level="TRACE">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

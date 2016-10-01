@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -32,6 +33,7 @@ import net.masterzach32.swagbot.music.*;
 import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
+import sx.blah.discord.api.internal.Requests;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.AudioPlayer;
@@ -476,9 +478,9 @@ public class App {
             try {
                 message.delete();
                 if(m == null)
-                    m = sendMessage("Queuing: **" + source.getTitle() + "**", null, message.getChannel());
+                    m = sendMessage("Waiting for spot in queue...", null, message.getChannel());
                 else
-                    m.edit("Queuing: **" + source.getTitle() + "**");
+                    m.edit("Waiting for spot in queue...");
                 playAudioFromAudioSource(source, true, m, message.getAuthor(), message.getGuild());
             } catch (IOException | UnsupportedAudioFileException e) {
                 e.printStackTrace();
@@ -598,10 +600,7 @@ public class App {
             sendMessage(new RandomCat().getUrl(), null, message.getChannel());
         });
         new Command("Urban Dictionary Lookup", "define", "Looks up a term on urban dictionary.", 0, (message, params) -> {
-            String term = "";
-            for (String s : params)
-                term += s + " ";
-            UrbanDefinition def = new UrbanDefinition(term);
+            UrbanDefinition def = new UrbanDefinition(URLEncoder.encode(message.getContent().substring(8), "UTF-8"));
             sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
@@ -797,36 +796,37 @@ public class App {
     }
 
     public static void playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IMessage message, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Thread t = new Thread() {
             public void run() {
                 AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-                try {
+                    if (message != null)
+                        editMessage(message, "Queuing **" + source.getTitle() + "**");
                     try {
                         player.queue(source.getAudioTrack(user, shouldAnnounce));
                         if (message != null)
-                            message.edit(user.mention() + " Queued **" + source.getTitle() + "**");
+                            waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
                         return;
                     } catch (YouTubeDLException e) {
                         e.printStackTrace();
                         if (message != null)
-                            message.edit(user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video.");
+                            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
                         return;
                     } catch (FFMPEGException e) {
                         e.printStackTrace();
                         if(message != null)
-                            message.edit(user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream");
+                            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
                         return;
-                    } catch (IOException | DiscordException | RateLimitException | UnsupportedAudioFileException | MissingPermissionsException e) {
+                    } catch (IOException | UnsupportedAudioFileException e) {
                         e.printStackTrace();
                     }
                     if (message != null)
-                        message.edit(user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)");
+                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
                     return;
-                } catch (DiscordException | RateLimitException | MissingPermissionsException e) {
-                    e.printStackTrace();
-                }
-                if(message != null)
-                    waitAndDeleteMessage(message, 25);
             }
         };
         executor.execute(t);
@@ -852,15 +852,30 @@ public class App {
         }).get();
     }
 
-    private static void waitAndDeleteMessage(IMessage message, int seconds) {
-        RequestBuffer.request(() -> {
+    public static IMessage editMessage(IMessage message, String contents) {
+        return RequestBuffer.request(() -> {
             try {
-                Thread.sleep(seconds * 1000);
-                message.delete();
-            } catch (MissingPermissionsException | DiscordException | InterruptedException e) {
+                return message.edit(contents);
+            } catch (MissingPermissionsException | DiscordException e) {
                 e.printStackTrace();
             }
-        });
+            return null;
+        }).get();
+    }
+
+    private static void waitAndDeleteMessage(IMessage message, int seconds) {
+        new Thread() {
+            public void run() {
+                RequestBuffer.request(() -> {
+                    try {
+                        Thread.sleep(seconds * 1000);
+                        message.delete();
+                    } catch (MissingPermissionsException | DiscordException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        }.start();
     }
 
     private static void moveUsers(List<IUser> users, IVoiceChannel to) {

@@ -84,7 +84,7 @@ public class EventHandler {
         }
         int i = 1;
         while(true) {
-            Thread.sleep(300000);
+            Thread.sleep(600000);
             String status = "";
             if(i == 0)
                 status = event.getClient().getGuilds().size() + " servers | ~help";
