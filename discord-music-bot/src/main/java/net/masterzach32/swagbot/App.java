@@ -600,8 +600,11 @@ public class App {
             sendMessage(new RandomCat().getUrl(), null, message.getChannel());
         });
         new Command("Urban Dictionary Lookup", "define", "Looks up a term on urban dictionary.", 0, (message, params) -> {
-            UrbanDefinition def = new UrbanDefinition(URLEncoder.encode(message.getContent().substring(8), "UTF-8"));
-            sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
+            UrbanDefinition def = new UrbanDefinition(message.getContent().substring(8));
+            if(def.hasEntry())
+                sendMessage("Term Lookup: **" + def.getTerm() + "** " + def.getLink() + "\n```\nDefinition: " + def.getDefinition() + "\nExample: " + def.getExample() + "```", null, message.getChannel());
+            else
+                sendMessage("Couldn't find a definition for **" + def.getTerm() + "**", message.getAuthor(), message.getChannel());
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = new ArrayList<>();
@@ -796,11 +799,6 @@ public class App {
     }
 
     public static void playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IMessage message, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         Thread t = new Thread() {
             public void run() {
                 AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
