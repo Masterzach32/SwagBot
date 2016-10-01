@@ -97,7 +97,7 @@ public class Command implements Comparable<Command> {
 		str += "\n\n";
 		str += "Check out the development for SwagBot at:\nhttps://github.com/Masterzach32/SwagBot";
 		str += "\n\n";
-		str += "Check out my creator's website:\nhttp://masterzach32.net";
+		str += "For more info on the bot and its commands:\nhttp://masterzach32.net/projects/swagbot/";
 		str += "\n\n";
 		str += "Join my home guild:\nhttps://discord.gg/RFHKKvR";
 		str += "\n\n";
