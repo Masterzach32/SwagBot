@@ -1,4 +1,4 @@
-package net.masterzach32.swagbot.music;
+package net.masterzach32.swagbot.music.player;
 
 import java.io.File;
 import java.io.IOException;

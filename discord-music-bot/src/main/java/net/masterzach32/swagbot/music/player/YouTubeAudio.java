@@ -1,12 +1,13 @@
-package net.masterzach32.swagbot.music;
+package net.masterzach32.swagbot.music.player;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
+import net.masterzach32.swagbot.music.player.AudioSource;
+import net.masterzach32.swagbot.music.player.AudioTrack;
 import net.masterzach32.swagbot.utils.Constants;
-import net.masterzach32.swagbot.utils.FileManager;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import org.apache.commons.io.IOUtils;
@@ -90,26 +91,16 @@ public class YouTubeAudio implements AudioSource {
         for (File file : App.manager.getFile(Constants.WORKING_DIRECTORY).listFiles())
             if (file.getName().contains(video_id)) {
                 ffmpeg = new ProcessBuilder(Constants.BINARY_STORAGE + "ffmpeg.exe", "-i", file.toString(), Constants.AUDIO_CACHE + file.getName().substring(0, file.getName().indexOf(video_id) + 11) + ".mp3")
-                        .redirectErrorStream(true)
-                        .directory(App.manager.getFile(Constants.WORKING_DIRECTORY));
+                        .redirectErrorStream(true);
                 yt = file;
             }
         try {
             final Process process = ffmpeg.start();
-            final StringWriter writer = new StringWriter();
-
-            new Thread(() -> {
-                try {
-                    IOUtils.copy(process.getInputStream(), writer);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-
+            InputStream is = process.getInputStream();
+            String processOutput = convertStreamToStr(is);
             ffmpeg_err = process.waitFor();
-            final String processOutput = writer.toString();
             App.logger.trace(processOutput);
-        } catch (InterruptedException | IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
         App.logger.info("ffmpeg:" + video_id + " exit:" + ffmpeg_err);
@@ -127,5 +118,27 @@ public class YouTubeAudio implements AudioSource {
 
     public boolean isLive() {
         return isLiveStream;
+    }
+
+    public static String convertStreamToStr(InputStream is) throws IOException {
+        if (is != null) {
+            Writer writer = new StringWriter();
+
+            char[] buffer = new char[1024];
+            try {
+                Reader reader = new BufferedReader(new InputStreamReader(is,
+                        "UTF-8"));
+                int n;
+                while ((n = reader.read(buffer)) != -1) {
+                    writer.write(buffer, 0, n);
+                }
+            } finally {
+                is.close();
+            }
+            return writer.toString();
+        }
+        else {
+            return "";
+        }
     }
 }

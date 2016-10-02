@@ -2,7 +2,6 @@ package net.masterzach32.swagbot;
 
 import java.io.IOException;
 
-import net.masterzach32.swagbot.utils.FileManager;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
@@ -15,14 +14,13 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 import net.masterzach32.swagbot.api.NSFWFilter;
 import net.masterzach32.swagbot.commands.Command;
-import net.masterzach32.swagbot.music.AudioTrack;
+import net.masterzach32.swagbot.music.player.AudioTrack;
 import net.masterzach32.swagbot.utils.Constants;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.handle.obj.IMessage.*;
 import sx.blah.discord.util.*;
-import sx.blah.discord.util.audio.AudioPlayer;
 import sx.blah.discord.util.audio.events.*;
 
 import javax.sound.sampled.UnsupportedAudioFileException;

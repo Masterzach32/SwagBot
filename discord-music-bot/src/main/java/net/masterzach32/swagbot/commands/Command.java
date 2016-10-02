@@ -93,7 +93,7 @@ public class Command implements Comparable<Command> {
 		str += "```\n\n";
 		str += "**Note**: Command prefixes may be different per guild!";
 		str += "\n\n";
-		str += "**Permissions**:\n0: Everyone can use these commands.\n1: Only users with a role named \"Bot Commander\" can use these commands\n2: Only my developers can yuse these commands.";
+		str += "**Permissions**:\n0: Everyone can use these commands.\n1: Only users with a role named \"Bot Commander\" can use these commands\n2: Only my developers can use these commands.";
 		str += "\n\n";
 		str += "To view more information for a command, use `" + Constants.DEFAULT_COMMAND_PREFIX + "help <command>`";
 		str += "\n\n";

@@ -1,4 +1,4 @@
-package net.masterzach32.swagbot.music;
+package net.masterzach32.swagbot.music.player;
 
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;

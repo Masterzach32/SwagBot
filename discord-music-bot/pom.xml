@@ -29,6 +29,11 @@
 
   <dependencies>
       <dependency>
+          <groupId>net.dv8tion</groupId>
+          <artifactId>d4j-player</artifactId>
+          <version>0.2.2_22</version>
+      </dependency>
+      <dependency>
           <groupId>com.github.austinv11</groupId>
           <artifactId>Discord4j</artifactId>
           <version>dev-SNAPSHOT</version>

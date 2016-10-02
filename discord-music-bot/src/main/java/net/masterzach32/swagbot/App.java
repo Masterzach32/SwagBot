@@ -16,6 +16,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.exceptions.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -192,7 +193,14 @@ public class App {
                                 for (IMessage d : deleted) {
                                     logger.info("deleted:" + d);
                                 }
-                            } catch (DiscordException | MissingPermissionsException | InterruptedException e) {
+                            } catch (DiscordException | InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (MissingPermissionsException e) {
+                                try {
+                                    App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Hey! I don't have the necessary permissions to do that!\n"+ e.getMessage());
+                                } catch (MissingPermissionsException | DiscordException e1) {
+                                    e1.printStackTrace();
+                                }
                                 e.printStackTrace();
                             }
                         });
@@ -636,9 +644,9 @@ public class App {
                 String str = "";
                 for(int j = 0; j < users.size(); j++) {
                     if(j < users.size()-1)
-                        str += "**" + users.get(j).getName() + "**, ";
+                        str += "**" + users.get(j).getDisplayName(message.getGuild()) + "**, ";
                     else
-                        str += "and **" + users.get(j).getName() + "** are fighting!";
+                        str += "and **" + users.get(j).getDisplayName(message.getGuild()) + "** are fighting!";
                 }
                 IMessage m = sendMessage(str, null, message.getChannel());
                 try {
@@ -866,7 +874,10 @@ public class App {
         return RequestBuffer.request(() -> {
             try {
                 return message.edit(contents);
-            } catch (MissingPermissionsException | DiscordException e) {
+            } catch (DiscordException e) {
+                e.printStackTrace();
+            } catch (MissingPermissionsException e) {
+                sendMessage("Hey! I cant edit my own message because I don't have the Discord MANAGE_MESSAGES permission!\n"+ e.getMessage(), null, message.getChannel());
                 e.printStackTrace();
             }
             return null;

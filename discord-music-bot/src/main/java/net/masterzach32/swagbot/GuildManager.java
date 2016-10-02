@@ -7,12 +7,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import net.masterzach32.swagbot.music.*;
+import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.Constants;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
-import sx.blah.discord.handle.impl.obj.User;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.MissingPermissionsException;

@@ -1,4 +1,4 @@
-package net.masterzach32.swagbot.music;
+package net.masterzach32.swagbot.music.player;
 
 import sx.blah.discord.handle.obj.IUser;
 
