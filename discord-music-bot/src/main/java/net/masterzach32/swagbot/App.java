@@ -99,6 +99,12 @@ public class App {
         new Command("Update Bot", "update", "Downloads an update for the bot, if there is one.", 2, (message, params) -> {
             update();
         });
+        new Command("Thread Count", "threads", "Prints the number of threads active in SwagBot.", 2, ((message, params) -> {
+            sendMessage(Thread.activeCount() + " threads active", null, message.getChannel());
+        }));
+        new Command("Ping", "ping", "Ping the bot to make sure its responding to input.", 0, ((message, params) -> {
+            sendMessage("Pong!", null, message.getChannel());
+        }));
         new Command("Reload", "reload", "Reloads bot settings", 2, ((message, params) -> {
             prefs.load();
         }));
