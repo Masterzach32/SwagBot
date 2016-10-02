@@ -63,7 +63,20 @@ public class YouTubeAudio implements AudioSource {
         int yt_err = -1;
 
         try {
-            yt_err = yt_dn.redirectOutput(new File(Constants.LOG_STORAGE + "youtube-dl.log")).start().waitFor();
+            final Process process = yt_dn.start();
+            final StringWriter writer = new StringWriter();
+
+            new Thread(() -> {
+                try {
+                    IOUtils.copy(process.getInputStream(), writer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+            yt_err = process.waitFor();
+            final String processOutput = writer.toString();
+            App.logger.trace(processOutput);
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
@@ -95,6 +108,7 @@ public class YouTubeAudio implements AudioSource {
 
             ffmpeg_err = process.waitFor();
             final String processOutput = writer.toString();
+            App.logger.trace(processOutput);
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -33,7 +32,6 @@ import net.masterzach32.swagbot.music.*;
 import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
-import sx.blah.discord.api.internal.Requests;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.AudioPlayer;
@@ -46,7 +44,7 @@ public class App {
     public static BotConfig prefs;
     public static GuildManager guilds;
     public static FileManager manager;
-    public static ExecutorService executor = Executors.newFixedThreadPool(3);
+    public static ExecutorService executor = Executors.newFixedThreadPool(5);
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
@@ -333,12 +331,12 @@ public class App {
                 }
             }
         });
-        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: create, import, add, remove, delete, queue, list, info\nex. ~playlist create Rock, ~playlist add <youtube link>, ~playlist queue rock", 0, (message, params) -> {
+        new Command("Playlist", "playlist", "Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: create, import, add, remove, delete, queue, list, info\nex. ~playlist create Rock, ~playlist add rock <youtube link>, ~playlist queue rock", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             } else if(params.length == 0) {
-                sendMessage("Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: create, import, add, remove, delete, queue, list, info\nex. ~playlist create Rock, ~playlist add <youtube link>, ~playlist queue rock", message.getAuthor(), message.getChannel());
+                sendMessage("Create, add to, queue, and delete playlists.\nUsage: ~playlist <action> <playlist> [param]\nActions: create, import, add, remove, delete, queue, list, info\nex. ~playlist create Rock, ~playlist add rock <youtube link>, ~playlist queue rock", message.getAuthor(), message.getChannel());
                 return;
             }
             boolean perms = false;
