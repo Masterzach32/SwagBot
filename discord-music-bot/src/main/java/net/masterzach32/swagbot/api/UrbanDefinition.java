@@ -1,6 +1,6 @@
 package net.masterzach32.swagbot.api;
 
-import com.sun.deploy.net.URLEncoder;
+import java.net.URLEncoder;
 import org.json.JSONObject;
 
 import com.mashape.unirest.http.HttpResponse;

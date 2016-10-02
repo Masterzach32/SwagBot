@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class PlaylistManager {
 		for(LocalPlaylist p : playlists) {
 			BufferedWriter fout = null;
 			try {
-				fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guildID + "/playlists/" + p.getName() + ".json"));
+				fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guildID + "/playlists/" + URLEncoder.encode(p.getName(), "UTF-8") + ".json"));
 				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(p));
 				fout.close();
 			} catch (IOException e) {

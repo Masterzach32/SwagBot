@@ -537,13 +537,13 @@ public class App {
                 sendMessage("**Cleared the queue.**", null, message.getChannel());
             }
         });
-        new Command("Queue", "queue", "Displays the song queue.", 0, (message, params) -> {
+        new Command("Queue", "queue", "Displays the songs queue.", 0, (message, params) -> {
             AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
             if(player.getPlaylist().size() == 0) {
                 sendMessage("There are no songs in the queue!", null, message.getChannel());
                 return;
             }
-            String str = " There are currently **" + (player.getPlaylistSize() - 1) + "** song(s) in queue.\n";
+            String str = " There are **" + (player.getPlaylistSize() - 1) + "** song(s) in queue.\n";
             String name;
             if(((AudioTrack) player.getPlaylist().get(0)).getUser() == null)
                 name = "Unknown";
@@ -666,14 +666,18 @@ public class App {
                 i--;
             }
         });
-        new Command("Let Me Google that for You", "lmgtfy", "Google anything.", 0, (message, params) -> {
+        new Command("Let Me Google that for You", "lmgtfy", "Google anything.\nUsage: ~lmgtfy <search query>", 0, (message, params) -> {
+            if(params.length < 1)
+                sendMessage("Not enough parameters. Type ~help lmgtfy for help with this command.", null, message.getChannel());
             try {
                 sendMessage("http://www.lmgtfy.com/?q=" + URLEncoder.encode(message.getContent().substring(8).toLowerCase(), "UTF-8"), null, message.getChannel());
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         });
-        new Command("Stack Overflow Search", "stackoverflow", "Search for issues on StackOverflow.com", 0, (message, params) -> {
+        new Command("Stack Overflow Search", "stackoverflow", "Search for issues on StackOverflow.com\nUsage: ~stackoverflow <search query>", 0, (message, params) -> {
+            if(params.length < 1)
+                sendMessage("Not enough parameters. Type ~help stackoverflow for help with this command.", null, message.getChannel());
             try {
                 sendMessage("http://stackoverflow.com/search?q=" + URLEncoder.encode(message.getContent().substring(15).toLowerCase(), "UTF-8"), null, message.getChannel());
             } catch (UnsupportedEncodingException e) {

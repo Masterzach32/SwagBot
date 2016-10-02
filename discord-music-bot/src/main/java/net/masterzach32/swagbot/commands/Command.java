@@ -69,7 +69,9 @@ public class Command implements Comparable<Command> {
 		}
 
         try {
-            c.execute(message, params);
+			c.execute(message, params);
+		} catch (RateLimitException e) {
+            App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Hey! I don't have the necessary permissions to do that!\n"+ e.getMessage());
         } catch (Exception e) {
             MessageBuilder error = new MessageBuilder(App.client).withContent(message.getAuthor().mention() + " The command failed: **" + e.toString() + "** at").withChannel(message.getChannel());
             StackTraceElement[] elements = e.getStackTrace();
