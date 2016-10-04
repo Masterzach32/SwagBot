@@ -4,6 +4,8 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import net.dv8tion.jda.player.source.RemoteSource;
+import net.dv8tion.jda.player.source.RemoteStream;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.music.player.AudioSource;
 import net.masterzach32.swagbot.music.player.AudioTrack;

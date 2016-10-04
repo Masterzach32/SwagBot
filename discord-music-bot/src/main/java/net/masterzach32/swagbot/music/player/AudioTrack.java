@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import net.dv8tion.jda.player.source.*;
+import sx.blah.discord.handle.audio.IAudioProvider;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.audio.AudioPlayer.Track;
 import sx.blah.discord.util.audio.providers.FileProvider;
@@ -33,6 +36,14 @@ public class AudioTrack extends Track {
 		this.title = title;
 		this.user = user;
 	}
+
+	public AudioTrack(net.dv8tion.jda.player.source.AudioStream stream, String url, boolean announce, String title, IUser user) {
+        super((IAudioProvider) stream);
+        this.url = url;
+        this.announce = announce;
+        this.title = title;
+        this.user = user;
+    }
 	
 	public String getTitle() {
 		return title;

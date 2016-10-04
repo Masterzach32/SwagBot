@@ -98,8 +98,9 @@ public class Command implements Comparable<Command> {
 		str += "To view more information for a command, use `" + Constants.DEFAULT_COMMAND_PREFIX + "help <command>`";
 		str += "\n\n";
 		str += "Check out the development for SwagBot at:\nhttps://github.com/Masterzach32/SwagBot";
+		str += "\nHelp development of SwagBot by donating to my PayPal:\nhttps://paypal.me/ultimatedoge";
 		str += "\n\n";
-		str += "For more info on the bot and its commands:\nhttp://masterzach32.net/projects/swagbot/";
+		str += "For more info on the bot and its commands:\nhttp://masterzach32.net/projects/swagbot";
 		str += "\n\n";
 		str += "Join my home guild:\nhttps://discord.gg/RFHKKvR";
 		str += "\n\n";
