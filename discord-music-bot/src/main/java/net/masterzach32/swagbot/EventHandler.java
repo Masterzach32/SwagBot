@@ -121,19 +121,11 @@ public class EventHandler {
 
         if (event.getMessage().getChannel().isPrivate()) {
             try {
-                if (event.getMessage().getContent().contains(Constants.DEFAULT_COMMAND_PREFIX + "help")) {
-                    String identifier;
-                    String[] params = {""};
-                    if (message.indexOf(' ') > 0) {
-                        identifier = message.substring(1, message.indexOf(' '));
-                        params = message.substring(message.indexOf(' ') + 1).split(" ");
-                    } else {
-                        identifier = message.substring(1);
-                    }
-
-                    for (Command command : Command.commands)
-                        if (command.getIdentifier().equals(identifier))
-                            command.execute(event.getMessage(), params);
+                if (message.startsWith(Constants.DEFAULT_COMMAND_PREFIX + "help")) {
+                    String[] params = new String[0];
+                    if(message.length() > 5)
+                        params = message.substring(6).split(" ");
+                    Command.executeCommand(event.getMessage(), "help", params);
                 } else
                     App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("**SwagBot** does not currently support DM commands. The only command available to DMs is ``" + Constants.DEFAULT_COMMAND_PREFIX + "help``");
             } catch (RateLimitException | MissingPermissionsException | DiscordException e) {
