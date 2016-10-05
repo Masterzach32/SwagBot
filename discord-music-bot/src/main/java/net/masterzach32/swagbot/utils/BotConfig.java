@@ -11,7 +11,7 @@ import com.google.gson.GsonBuilder;
 
 public class BotConfig {
 	
-	private String discordClientId, discordAuthKey, dbAuthKey, googleAuthKey, shoutCastApiKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
+	private String discordClientId, discordAuthKey, dbAuthKey, googleAuthKey, shoutCastApiKey, osuApiKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
 	private boolean clearCacheOnShutdown, postBotStats;
 	private String[] fightSituations;
 
@@ -25,7 +25,8 @@ public class BotConfig {
 		discordAuthKey = "";
 		dbAuthKey = "";
         googleAuthKey = "";
-		shoutCastApiKey = "g2SGEmpAk6DpIaoO";
+		shoutCastApiKey = "";
+		osuApiKey = "";
 		scClientId = "";
 		clearCacheOnShutdown = false;
 		postBotStats = false;
@@ -66,6 +67,7 @@ public class BotConfig {
 		dbAuthKey = file.dbAuthKey;
         googleAuthKey = file.googleAuthKey;
         shoutCastApiKey = file.shoutCastApiKey;
+		this.osuApiKey = file.osuApiKey;
         scClientId = file.scClientId;
 		clearCacheOnShutdown = file.clearCacheOnShutdown();
 		postBotStats = file.postBotStats;
@@ -94,6 +96,10 @@ public class BotConfig {
     public String getShoutCastApiKey() {
         return shoutCastApiKey;
     }
+
+    public String getOsuApiKey() {
+		return osuApiKey;
+	}
 
 	public String getSCClientId() {
         return scClientId;

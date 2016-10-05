@@ -14,6 +14,7 @@ public class Command implements Comparable<Command> {
 	private String name, identifier, info;
 	private CommandEvent event;
 	private int permLevel;
+	private boolean showInHelp;
 	
 	public static final List<Command> commands = new ArrayList<Command>();
 
@@ -37,6 +38,10 @@ public class Command implements Comparable<Command> {
 	public String getInfo() {
 		return info;
 	}
+
+	public boolean shouldShowInHelp() {
+        return showInHelp;
+    }
 	
 	public int getPermissionLevel() {
 		return permLevel;
@@ -89,7 +94,8 @@ public class Command implements Comparable<Command> {
 	public static void listAllCommands(IUser user) throws RateLimitException, DiscordException, MissingPermissionsException {
 		String str = "Commands for **SwagBot**:\n\n```";
 		for(Command command : commands)
-			str += "" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
+		    if(command.permLevel != 2)
+			    str += "" + Constants.DEFAULT_COMMAND_PREFIX + command.identifier + /*"\t\t" + command.name + "\t\t" + command.info +*/ "\n";
 		str += "```\n\n";
 		str += "**Note**: Command prefixes may be different per guild!";
 		str += "\n\n";

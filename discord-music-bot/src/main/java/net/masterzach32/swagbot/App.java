@@ -10,13 +10,17 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.github.oopsjpeg.osu4j.*;
+import com.github.oopsjpeg.osu4j.beatmap.OsuBeatmap;
+import com.github.oopsjpeg.osu4j.util.OsuRateLimitException;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.exceptions.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +34,7 @@ import net.masterzach32.swagbot.api.*;
 import net.masterzach32.swagbot.api.jokes.*;
 import net.masterzach32.swagbot.commands.*;
 import net.masterzach32.swagbot.music.*;
+import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
@@ -45,7 +50,9 @@ public class App {
     public static BotConfig prefs;
     public static GuildManager guilds;
     public static FileManager manager;
-    public static ExecutorService executor = Executors.newFixedThreadPool(5);
+    public static ExecutorService executor;
+
+    private static List<AudioSource> threads = new ArrayList<>();
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
@@ -53,6 +60,10 @@ public class App {
         if (Discord4J.LOGGER instanceof Discord4J.Discord4JLogger) {
             ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.INFO);
         }
+        ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                .setDaemon(true)
+                .build();
+        executor = Executors.newFixedThreadPool(4, threadFactory);
 
         // load all files into bot
         manager = new FileManager();
@@ -100,6 +111,19 @@ public class App {
         new Command("Update Bot", "update", "Downloads an update for the bot, if there is one.", 2, (message, params) -> {
             update();
         });
+        new Command("Change Thread Queue Amount", "tq", "Changes the thread queue.", 2, (message, params) -> {
+            ExecutorService end = executor;
+            executor = Executors.newFixedThreadPool(Integer.parseInt(params[0]), threadFactory);
+            List<Runnable> rejected = end.shutdownNow();
+            for(Runnable thread : rejected)
+                executor.execute(thread);
+        });
+        new Command("Get Sources in Queue", "sq", "Gets all AudioSources in queue.", 2, (message, params) -> {
+            String str = "";
+            for(int i = 0; i < threads.size(); i++)
+                str += threads.get(i).getTitle() + "\n";
+            sendMessage(str, null, message.getChannel());
+        });
         new Command("Thread Count", "threads", "Prints the number of threads active in SwagBot.", 2, ((message, params) -> {
             sendMessage(Thread.activeCount() + " threads active", null, message.getChannel());
         }));
@@ -109,7 +133,14 @@ public class App {
         new Command("Reload", "reload", "Reloads bot settings", 2, ((message, params) -> {
             prefs.load();
         }));
-        new Command("Lock the bot", "l", "Toggles wether the bot is locked in this guild.", 1, (message, params) -> {
+        new Command("Lock the bot", "lock", "Toggles whether the bot is locked in this guild.", 1, (message, params) -> {
+            guilds.getGuild(message.getGuild()).toggleBotLocked();
+            if (guilds.getGuild(message.getGuild()).isBotLocked())
+                sendMessage("**SwagBot has been locked.**", null, message.getChannel());
+            else
+                sendMessage("**SwagBot is no longer locked.**", null, message.getChannel());
+        });
+        new Command("Lock the bot", "l", "Toggles whether the bot is locked in this guild.", 1, (message, params) -> {
             guilds.getGuild(message.getGuild()).toggleBotLocked();
             if (guilds.getGuild(message.getGuild()).isBotLocked())
                 sendMessage("**SwagBot has been locked.**", null, message.getChannel());
@@ -137,6 +168,14 @@ public class App {
                 for(String str : params)
                     status += str + " ";
                 client.changeStatus(Status.game(status.substring(0, status.length()-1)));
+            }
+        });
+        new Command("Reload", "reload", "Reloads the bot for this guild, should fix any audio problems", 1, (message, params) -> {
+            guilds.removeGuild(message.getGuild());
+            try {
+                guilds.loadGuild(message.getGuild());
+            } catch (NotStreamableException | UnsupportedAudioFileException | YouTubeDLException | FFMPEGException e) {
+                e.printStackTrace();
             }
         });
         new Command("Ban User", "ban", "Bans the specified user(s) from this guild.", 1, (message, params) -> {
@@ -478,7 +517,7 @@ public class App {
                     String search = URLEncoder.encode(query.substring(0, query.length()-1), "UTF-8");
                     source = getVideoFromSearch(search);
                     if(source == null) {
-                        m.edit(message.getAuthor().mention() + " I couldn't find a video for **" + query + "**, try searching for the artist's name and song title.");
+                        m.edit(message.getAuthor().mention() + " I couldn't find a video for **" + query + "**, try searching for the artist's name and song tiwwwwtle.");
                         return;
                     }
                 }
@@ -497,6 +536,15 @@ public class App {
             } catch (IOException | UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
+        });
+        new Command("Replay", "replay", "Re-queues the currently playing song", 0, (message, params) -> {
+            if (guilds.getGuild(message.getGuild()).isBotLocked()) {
+                sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
+                return;
+            }
+            AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
+            if(player.getCurrentTrack() != null)
+                player.queue(player.getCurrentTrack());
         });
         new Command("Skip", "skip", "Skips the current song in the playlist.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).hasUserSkipped(message.getAuthor().getID())) {
@@ -735,6 +783,36 @@ public class App {
                 sendMessage("Something went wrong trying to parse JSON: " + status + " " + statusText + "\n`" + jsone + "`\n```\n" + body + "\n```", message.getAuthor(), message.getChannel());
             }
         });
+        new Command("Swag", "swag", "sweg", 0, (message, params) -> {
+            sendMessage("Sweg", null, message.getChannel());
+        });
+        new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
+            try {
+                Osu osu = new Osu(prefs.getOsuApiKey());
+
+                // Get the user
+                OsuUser user = osu.getUser(URLEncoder.encode(message.getContent().substring(5), "UTF-8"), OsuMode.STANDARD).withTopScores(5);
+
+                // Print basic information
+                String str = "";
+                str += OsuMode.STANDARD.getName() + " Information for **" + user.getUsername() + "**\n";
+                str += user.getURL() + "\n```";
+                str += "Rank: #" + user.getRank() + "\n";
+                str += "Performance Points: " + user.getPP() + "pp" + "\n";
+                str += "Total Score: " + user.getTotalScore() + "\n";
+
+                // Print top scores
+                str += "Top Scores for: " + user.getUsername() + "\n";
+                for(int i = 0; i < user.getTopScores().size(); i++){
+                    OsuScore score = user.getTopScores().get(i);
+                    OsuBeatmap beatmap = score.getBeatmap();
+                    str += "\t" + (i+1) + ": " + score.getScore() + " on " + beatmap.getArtist() + " - " + beatmap.getTitle() + "\n";
+                }
+                sendMessage(str + "```", null, message.getChannel());
+            } catch (OsuRateLimitException e) {
+                e.printStackTrace();
+            }
+        });
         /*new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
             String shoutcast = "http://api.shoutcast.com/";
             HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
@@ -754,6 +832,7 @@ public class App {
         prefs.save();
         if (prefs.clearCacheOnShutdown())
             clearCache();
+        executor.shutdownNow();
         client.logout();
         if(exit) {
             Unirest.shutdown();
@@ -815,7 +894,7 @@ public class App {
     }
 
     public static void playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IMessage message, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
-        Thread t = new Thread() {
+        Thread t = new Thread("streaming: " + source.getTitle()) {
             public void run() {
                 AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
                     if (message != null)
@@ -823,30 +902,36 @@ public class App {
                     try {
                         if(source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
                             waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
+                            threads.remove(source);
                             return;
                         }
                         player.queue(source.getAudioTrack(user, shouldAnnounce));
                         if (message != null)
                             waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
+                        threads.remove(source);
                         return;
                     } catch (YouTubeDLException e) {
                         e.printStackTrace();
                         if (message != null)
                             waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
+                        threads.remove(source);
                         return;
                     } catch (FFMPEGException e) {
                         e.printStackTrace();
                         if(message != null)
                             waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
+                        threads.remove(source);
                         return;
                     } catch (IOException | UnsupportedAudioFileException e) {
                         e.printStackTrace();
                     }
                     if (message != null)
                         waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
+                threads.remove(source);
                     return;
             }
         };
+        threads.add(source);
         executor.execute(t);
     }
 

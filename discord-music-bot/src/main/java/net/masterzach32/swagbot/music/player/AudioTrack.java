@@ -2,9 +2,11 @@ package net.masterzach32.swagbot.music.player;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import net.dv8tion.jda.player.source.*;
@@ -37,8 +39,8 @@ public class AudioTrack extends Track {
 		this.user = user;
 	}
 
-	public AudioTrack(net.dv8tion.jda.player.source.AudioStream stream, String url, boolean announce, String title, IUser user) {
-        super((IAudioProvider) stream);
+	public AudioTrack(InputStream stream, String url, boolean announce, String title, IUser user) throws IOException, UnsupportedAudioFileException {
+        super(AudioSystem.getAudioInputStream(stream));
         this.url = url;
         this.announce = announce;
         this.title = title;

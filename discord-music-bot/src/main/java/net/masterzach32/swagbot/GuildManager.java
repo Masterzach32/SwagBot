@@ -102,7 +102,8 @@ public class GuildManager {
             List<AudioPlayer.Track> tracks = AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).getPlaylist();
             List<String> queue = new ArrayList<>();
             for(AudioPlayer.Track track : tracks)
-                queue.add(((AudioTrack) track).getUrl());
+                if(track != null)
+                    queue.add(((AudioTrack) track).getUrl());
             guild.setQueue(queue);
 
             for(IVoiceChannel c : App.client.getConnectedVoiceChannels())
