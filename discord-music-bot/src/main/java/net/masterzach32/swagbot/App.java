@@ -309,7 +309,7 @@ public class App {
 
             sendMessage("Moved everyone to **" + channel.getName() + "**.", null, message.getChannel());
         });
-        new Command("Disconnect User", "disconnect", "Move the list of users to the afk channel. Use @mentions.", 1, (message, params) -> {
+        new Command("Disconnect User", "disconnect", "Move a list of users to the afk channel. Use @mention.\n If you want to disconnect the bot use ~leave", 1, (message, params) -> {
             for (IUser user : message.getMentions()) {
                 if(user != null)
                     user.moveToVoiceChannel(message.getGuild().getAFKChannel());
@@ -508,7 +508,7 @@ public class App {
                         source = new YouTubeAudio(params[0]);
                 else if(params[0].contains("soundcloud"))
                     source = new SoundCloudAudio(params[0]);
-                else if(params[0].contains("http://"))
+                else if(params[0].startsWith("http://") || params[0].startsWith("https://"))
                     source = new AudioStream(params[0]);
                 else {
                     m = sendMessage("Searching Youtube...", null, message.getChannel());
