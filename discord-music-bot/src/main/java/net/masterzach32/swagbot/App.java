@@ -508,7 +508,17 @@ public class App {
                         source = new YouTubeAudio(params[0]);
                 else if(params[0].contains("soundcloud"))
                     source = new SoundCloudAudio(params[0]);
-                else if(params[0].startsWith("http://") || params[0].startsWith("https://"))
+                else if(params[0].contains("iheartradio")) {
+                    sendMessage("SwagBot does not currently support iHeartRADIO, please check SwagBot Hub for updates.", message.getAuthor(), message.getChannel());
+                    return;
+                } else if(params[0].contains("shoutcast")) {
+                    sendMessage("SwagBot does not currently support SHOUTcast, please check SwagBot Hub for updates.", message.getAuthor(), message.getChannel());
+                    return;
+                }
+                else if(params[0].contains("spotify")) {
+                    sendMessage("SwagBot does not currently support Spotify, please check SwagBot Hub for updates.", message.getAuthor(), message.getChannel());
+                    return;
+                } else if((params[0].startsWith("http://") || params[0].startsWith("https://")) && params[0].substring(params[0].length()-3).equals("mp3"))
                     source = new AudioStream(params[0]);
                 else {
                     m = sendMessage("Searching Youtube...", null, message.getChannel());
