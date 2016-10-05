@@ -311,7 +311,8 @@ public class App {
         });
         new Command("Disconnect User", "disconnect", "Move the list of users to the afk channel. Use @mentions.", 1, (message, params) -> {
             for (IUser user : message.getMentions()) {
-                user.moveToVoiceChannel(message.getGuild().getAFKChannel());
+                if(user != null)
+                    user.moveToVoiceChannel(message.getGuild().getAFKChannel());
                 sendMessage("Moved **" + user.getName() + "** to the afk channel.", null, message.getChannel());
             }
         });
