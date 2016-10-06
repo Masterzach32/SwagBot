@@ -127,9 +127,7 @@ public class App {
         new Command("Thread Count", "threads", "Prints the number of threads active in SwagBot.", 2, ((message, params) -> {
             sendMessage(Thread.activeCount() + " threads active", null, message.getChannel());
         }));
-        new Command("Ping", "ping", "Ping the bot to make sure its responding to input.", 0, ((message, params) -> {
-            sendMessage("Pong!", null, message.getChannel());
-        }));
+        new Command("Ping", "ping", "Ping the bot to make sure its responding to input.", 0, ((message, params) -> sendMessage("Pong!", null, message.getChannel())));
         new Command("Reload", "reload", "Reloads bot settings", 2, ((message, params) -> {
             prefs.load();
         }));
@@ -508,8 +506,8 @@ public class App {
                         source = new YouTubeAudio(params[0]);
                 else if(params[0].contains("soundcloud"))
                     source = new SoundCloudAudio(params[0]);
-                else if(params[0].contains("iheartradio")) {
-                    sendMessage("SwagBot does not currently support iHeartRADIO, please check SwagBot Hub for updates.", message.getAuthor(), message.getChannel());
+                else if(params[0].contains("iheart")) {
+                    sendMessage("SwagBot does not currently support iHeartRadio, please check SwagBot Hub for updates.", message.getAuthor(), message.getChannel());
                     return;
                 } else if(params[0].contains("shoutcast")) {
                     sendMessage("SwagBot does not currently support SHOUTcast, please check SwagBot Hub for updates.", message.getAuthor(), message.getChannel());
@@ -813,7 +811,7 @@ public class App {
                 str += "Total Score: " + user.getTotalScore() + "\n";
 
                 // Print top scores
-                str += "Top Scores for: " + user.getUsername() + "\n";
+                str += "Top Scores:\n";
                 for(int i = 0; i < user.getTopScores().size(); i++){
                     OsuScore score = user.getTopScores().get(i);
                     OsuBeatmap beatmap = score.getBeatmap();

@@ -144,7 +144,6 @@ public class EventHandler {
             }
         }
 
-
         if (App.guilds.getGuild(event.getMessage().getGuild()).isNSFWFilterEnabled()) {
             for (Attachment a : event.getMessage().getAttachments())
                 logger.info("attachment: " + a.getUrl() + " " + a.getFilename());
