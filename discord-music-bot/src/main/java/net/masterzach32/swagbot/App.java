@@ -14,13 +14,11 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.github.oopsjpeg.osu4j.*;
-import com.github.oopsjpeg.osu4j.beatmap.OsuBeatmap;
-import com.github.oopsjpeg.osu4j.util.OsuRateLimitException;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import net.masterzach32.swagbot.music.LocalPlaylist;
 import net.masterzach32.swagbot.utils.exceptions.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,7 +31,6 @@ import com.mashape.unirest.http.Unirest;
 import net.masterzach32.swagbot.api.*;
 import net.masterzach32.swagbot.api.jokes.*;
 import net.masterzach32.swagbot.commands.*;
-import net.masterzach32.swagbot.music.*;
 import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.Discord4J;
@@ -182,7 +179,7 @@ public class App {
                 sendMessage("@everyone User **" + user + "** has been **banned** from **" + message.getGuild() + "**", null, message.getGuild().getChannelByID(message.getGuild().getID()));
             }
         });
-        new Command("Pardon User", "pardon", "Lifts the ban for the specified user(s) from this guild.", 1, (message, params) -> {
+        new Command("Pardon User", "pardon", "Lifts the ban for the specified user in this guild", 1, (message, params) -> {
             for (IUser user : message.getMentions()) {
                 message.getGuild().pardonUser(user.getID());
                 sendMessage("@everyone User **" + user + "** has been **pardoned** from **" + message.getGuild() + "**", null, message.getGuild().getChannelByID(message.getGuild().getID()));
@@ -225,12 +222,12 @@ public class App {
                             List<IMessage> deleted;
                             try {
                                 message.delete();
-                                Thread.sleep(500);
+                                //Thread.sleep(500);
                                 deleted = list.deleteFromRange(1, 1 + toDelete);
                                 for (IMessage d : deleted) {
                                     logger.info("deleted:" + d);
                                 }
-                            } catch (DiscordException | InterruptedException e) {
+                            } catch (DiscordException /*| InterruptedException*/ e) {
                                 e.printStackTrace();
                             } catch (MissingPermissionsException e) {
                                 try {
@@ -832,6 +829,15 @@ public class App {
                 sendMessage("An error occurred while contacting the SHOUTcast API:\n```" + response.getBody().toString() + "\n```", message.getAuthor(), message.getChannel());
             JSONObject json = response.getBody().getArray().getJSONObject(0);
         }));*/
+        new Command("WordCloud", "wordcloud", "Creates a WordCloud based on the provided text. If no parameters are provided, then it will create a WordCloud based on the messages in the current channel.", 0, ((message, params) -> {
+            WordCloud api = null;
+            sendMessage("Getting your wordcloud", null, message.getChannel());
+            if(params.length == 0)
+                api = new WordCloud(message.getChannel());
+            else
+                api = new WordCloud(message.getContent().substring(11));
+            sendMessage(api.getUrl(), null, message.getChannel());
+        }));
     }
 
     private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {

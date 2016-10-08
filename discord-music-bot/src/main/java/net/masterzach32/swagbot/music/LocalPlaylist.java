@@ -11,7 +11,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
-import net.masterzach32.swagbot.music.player.*;
+import net.masterzach32.swagbot.music.player.AudioSource;
+import net.masterzach32.swagbot.music.player.AudioStream;
+import net.masterzach32.swagbot.music.player.SoundCloudAudio;
+import net.masterzach32.swagbot.music.player.YouTubeAudio;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
@@ -26,7 +29,7 @@ public class LocalPlaylist {
 		this.name = name;
 		this.locked = locked;
 		this.requiresPerms = requiresPerms;
-		music = new ArrayList<String>();
+		music = new ArrayList<>();
 	}
 
 	public LocalPlaylist(String name, List<String> music, boolean locked, boolean requiresPerms) throws UnirestException {
