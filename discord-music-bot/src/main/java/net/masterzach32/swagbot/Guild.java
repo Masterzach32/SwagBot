@@ -60,6 +60,10 @@ public class Guild {
 	public int getMaxSkips() {
 		return maxSkips;
 	}
+
+	public void setMaxSkips(int maxSkips) {
+		this.maxSkips = maxSkips;
+	}
 	
 	public int getVolume() {
 		return volume;

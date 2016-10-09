@@ -38,6 +38,7 @@ import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
+import sx.blah.discord.handle.impl.obj.Role;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.AudioPlayer;
@@ -345,6 +346,7 @@ public class App {
 
             IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
             voicechannel.join();
+            guilds.getGuild(message.getGuild()).setLastChannel(voicechannel.getID());
 
             sendMessage("Joined **" + voicechannel.getName() + "**.", null, message.getChannel());
         });
@@ -356,6 +358,7 @@ public class App {
             for (IVoiceChannel c : client.getConnectedVoiceChannels())
                 if (message.getGuild().getVoiceChannelByID(c.getID()) != null) {
                     message.getGuild().getVoiceChannelByID(c.getID()).leave();
+                    guilds.getGuild(message.getGuild()).setLastChannel("");
                     sendMessage("Left **" + message.getGuild().getVoiceChannelByID(c.getID()).getName() + "**.", message.getAuthor(), message.getChannel());
                     return;
                 }
@@ -561,7 +564,15 @@ public class App {
                 return;
             }
             guilds.getGuild(message.getGuild()).addSkipID(message.getAuthor());
-            if (guilds.getGuild(message.getGuild()).numUntilSkip() == 0 || message.getAuthor().getID().equals("97341976214511616")) {
+            boolean isBotCommander = false;
+            IVoiceChannel vc = getCurrentChannelForGuild(message.getGuild());
+            if(vc != null)
+                guilds.getGuild(message.getGuild()).setMaxSkips((int) ((vc.getConnectedUsers().size()-1) * 2 / 3.0 + 0.5));
+
+            for(IRole botCommander : message.getGuild().getRolesByName("Bot Commander"))
+                if(message.getAuthor().getRolesForGuild(message.getGuild()).contains(botCommander))
+                    isBotCommander = true;
+            if (guilds.getGuild(message.getGuild()).numUntilSkip() == 0/* || isBotCommander*/) {
                 AudioTrack track = (AudioTrack) AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getCurrentTrack();
                 AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
                 guilds.getGuild(message.getGuild()).resetSkipStats();
