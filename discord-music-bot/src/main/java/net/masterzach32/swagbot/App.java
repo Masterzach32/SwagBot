@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -792,7 +789,7 @@ public class App {
         new Command("Swag", "swag", "sweg", 0, (message, params) -> {
             sendMessage("Sweg", null, message.getChannel());
         });
-        new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
+        /*new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
             try {
                 Osu osu = new Osu(prefs.getOsuApiKey());
 
@@ -818,7 +815,7 @@ public class App {
             } catch (OsuRateLimitException e) {
                 e.printStackTrace();
             }
-        });
+        });*/
         /*new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
             String shoutcast = "http://api.shoutcast.com/";
             HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
@@ -829,7 +826,7 @@ public class App {
                 sendMessage("An error occurred while contacting the SHOUTcast API:\n```" + response.getBody().toString() + "\n```", message.getAuthor(), message.getChannel());
             JSONObject json = response.getBody().getArray().getJSONObject(0);
         }));*/
-        new Command("WordCloud", "wordcloud", "Creates a WordCloud based on the provided text. If no parameters are provided, then it will create a WordCloud based on the messages in the current channel.", 0, ((message, params) -> {
+        new Command("WordCloud", "wordcloud", "Creates a WordCloud based on the provided text. If no parameters are provided, then it will create a WordCloud based on the messages in the current channel.", 0, (message, params) -> {
             WordCloud api = null;
             sendMessage("Getting your wordcloud", null, message.getChannel());
             if(params.length == 0)
@@ -837,7 +834,25 @@ public class App {
             else
                 api = new WordCloud(message.getContent().substring(11));
             sendMessage(api.getUrl(), null, message.getChannel());
-        }));
+        });
+        new Command("Currency Exchange", "exchange", "Convert from one currency to another.", 0, (message, params) -> {
+            List<String> currencies = CurrencyConverter.getAvailableCurrencies();
+            String str = "";
+            if(params.length == 0) {
+                for(String money : currencies)
+                    str += money + "\n";
+                sendMessage("Available Currencies: " + currencies.size() + "\n" + str, null, message.getChannel());
+            } else if (params.length == 3 && (!currencies.contains(params[0]) || !currencies.contains(params[1]))) {
+                try {
+                    double amount = Double.parseDouble(params[2]);
+                    CurrencyConverter c = new CurrencyConverter(params[0], params[1], amount);
+                    sendMessage(c.getFromValue() + " " + c.getFromCurrency() + " is " + c.getToValue() + " in " + c.getToCurrency(), null, message.getChannel());
+                } catch (NumberFormatException e) {
+                    sendMessage("**" + params[2] + "** is not a number!", null, message.getChannel());
+                }
+            } else
+                sendMessage("Incorrect parameters. Type `~help exchange` to get help with this command.", null, message.getChannel());
+        });
     }
 
     private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
