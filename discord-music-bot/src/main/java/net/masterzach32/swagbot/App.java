@@ -11,6 +11,12 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.github.oopsjpeg.osu4j.Osu;
+import com.github.oopsjpeg.osu4j.OsuMode;
+import com.github.oopsjpeg.osu4j.OsuScore;
+import com.github.oopsjpeg.osu4j.OsuUser;
+import com.github.oopsjpeg.osu4j.beatmap.OsuBeatmap;
+import com.github.oopsjpeg.osu4j.util.OsuRateLimitException;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -789,7 +795,7 @@ public class App {
         new Command("Swag", "swag", "sweg", 0, (message, params) -> {
             sendMessage("Sweg", null, message.getChannel());
         });
-        /*new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
+        new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
             try {
                 Osu osu = new Osu(prefs.getOsuApiKey());
 
@@ -815,7 +821,7 @@ public class App {
             } catch (OsuRateLimitException e) {
                 e.printStackTrace();
             }
-        });*/
+        });
         /*new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
             String shoutcast = "http://api.shoutcast.com/";
             HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
@@ -826,7 +832,7 @@ public class App {
                 sendMessage("An error occurred while contacting the SHOUTcast API:\n```" + response.getBody().toString() + "\n```", message.getAuthor(), message.getChannel());
             JSONObject json = response.getBody().getArray().getJSONObject(0);
         }));*/
-        new Command("WordCloud", "wordcloud", "Creates a WordCloud based on the provided text. If no parameters are provided, then it will create a WordCloud based on the messages in the current channel.", 0, (message, params) -> {
+        /*new Command("WordCloud", "wordcloud", "Creates a WordCloud based on the provided text. If no parameters are provided, then it will create a WordCloud based on the messages in the current channel.", 0, (message, params) -> {
             WordCloud api = null;
             sendMessage("Getting your wordcloud", null, message.getChannel());
             if(params.length == 0)
@@ -834,7 +840,7 @@ public class App {
             else
                 api = new WordCloud(message.getContent().substring(11));
             sendMessage(api.getUrl(), null, message.getChannel());
-        });
+        });*/
         new Command("Currency Exchange", "exchange", "Convert from one currency to another.", 0, (message, params) -> {
             List<String> currencies = CurrencyConverter.getAvailableCurrencies();
             String str = "";
@@ -846,12 +852,18 @@ public class App {
                 try {
                     double amount = Double.parseDouble(params[2]);
                     CurrencyConverter c = new CurrencyConverter(params[0], params[1], amount);
-                    sendMessage(c.getFromValue() + " " + c.getFromCurrency() + " is " + c.getToValue() + " in " + c.getToCurrency(), null, message.getChannel());
+                    sendMessage("**" + c.getFromValue() + " " + c.getFromCurrency() + "** is **" + c.getToValue() + "** in **" + c.getToCurrency() + "**", null, message.getChannel());
                 } catch (NumberFormatException e) {
                     sendMessage("**" + params[2] + "** is not a number!", null, message.getChannel());
                 }
             } else
                 sendMessage("Incorrect parameters. Type `~help exchange` to get help with this command.", null, message.getChannel());
+        });
+        new Command("TinyURL", "tinyurl", "Creates a tinyurl.com link for the given link.", 0, (message, params) -> {
+            if(params.length == 1)
+                sendMessage(new TinyUrl(params[0]).getUrl(), null, message.getChannel());
+            else
+                sendMessage("You must provide a link to shorten!", null, message.getChannel());
         });
     }
 

@@ -31,8 +31,8 @@ public class CurrencyConverter {
                     JSONObject json = response.getBody().getObject();
                     this.from = json.getString("from");
                     this.to = json.getString("to");
-                    fromValue = json.getDouble("from_value");
-                    toValue = json.getDouble("to_value");
+                    fromValue = json.getDouble("from_amount");
+                    toValue = json.getDouble("to_amount");
                 }
             } catch (UnirestException e) {
                 e.printStackTrace();
@@ -63,7 +63,9 @@ public class CurrencyConverter {
                     .header("X-Mashape-Key", "lmpj8JlDYfmshQLcaLKPJmpsn3g2p179SQojsnSWGVDlYuPMx8")
                     .header("Accept", "application/json")
                     .asJson();
-            if(response.getStatus() != 200) {
+            if(response.getStatus() != 200)
+                App.logger.info("CurrencyConverter API returned status code " + response.getStatus());
+            else {
                 JSONArray array = response.getBody().getArray();
                 for(Object object : array) {
                     JSONObject json = (JSONObject) object;
