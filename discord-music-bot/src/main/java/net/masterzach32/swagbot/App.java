@@ -572,7 +572,7 @@ public class App {
             for(IRole botCommander : message.getGuild().getRolesByName("Bot Commander"))
                 if(message.getAuthor().getRolesForGuild(message.getGuild()).contains(botCommander))
                     isBotCommander = true;
-            if (guilds.getGuild(message.getGuild()).numUntilSkip() == 0/* || isBotCommander*/) {
+            if (guilds.getGuild(message.getGuild()).numUntilSkip() == 0 || isBotCommander) {
                 AudioTrack track = (AudioTrack) AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getCurrentTrack();
                 AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
                 guilds.getGuild(message.getGuild()).resetSkipStats();
