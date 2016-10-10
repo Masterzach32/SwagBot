@@ -21,10 +21,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GuildManager {
 	
-	private List<Guild> guilds;
+	private List<GuildSettings> guilds;
 
 	public GuildManager() {
-		guilds = new ArrayList<Guild>();
+		guilds = new ArrayList<GuildSettings>();
 	}
 	
 	public void loadGuild(IGuild guild) throws IOException, UnirestException, NotStreamableException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, MissingPermissionsException {
@@ -33,7 +33,7 @@ public class GuildManager {
 		if(!prefs.exists()) {
 			prefs.createNewFile();
 			BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
-			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new Guild(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, null, new ArrayList<>())));
+			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new GuildSettings(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, true, null, new ArrayList<>())));
 			fout.close();
 		}
 
@@ -43,8 +43,8 @@ public class GuildManager {
 		fin.close();
 		
 		String json = new String(buffer);
-		Guild temp = new Gson().fromJson(json, Guild.class);
-		Guild g = new Guild(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled(), temp.getLastChannel(), temp.getQueue());
+		GuildSettings temp = new Gson().fromJson(json, GuildSettings.class);
+		GuildSettings g = new GuildSettings(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled(), temp.shouldAnnounce(), temp.getLastChannel(), temp.getQueue());
 		g.getPlaylistManager().load();
 		guilds.add(g);
 
@@ -66,7 +66,7 @@ public class GuildManager {
 	}
 
 	public void applyGuildSettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {
-        for(Guild g : guilds) {
+        for(GuildSettings g : guilds) {
             IGuild guild = App.client.getGuildByID(g.getID());
             App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
 
@@ -96,7 +96,7 @@ public class GuildManager {
 	
 	public void saveGuildSettings() throws IOException {
 		for(int i = 0; i < guilds.size(); i++) {
-            Guild guild = guilds.get(i);
+            GuildSettings guild = guilds.get(i);
 			guild.getPlaylistManager().save();
 
             List<AudioPlayer.Track> tracks = AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).getPlaylist();
@@ -120,8 +120,8 @@ public class GuildManager {
 		}
 	}
 	
-	public Guild getGuild(IGuild guild) {
-		for(Guild g : guilds)
+	public GuildSettings getGuild(IGuild guild) {
+		for(GuildSettings g : guilds)
 			if(g != null && g.getID().equals(guild.getID()))
 				return g;
 		return null;

@@ -38,7 +38,6 @@ import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
-import sx.blah.discord.handle.impl.obj.Role;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.AudioPlayer;
@@ -548,6 +547,23 @@ public class App {
             } catch (IOException | UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
+        });
+        new Command("Announce Track Start", "tannounce", "Toggles whether to message the user when their track starts.", 1, (message, params) -> {
+            GuildSettings guild = guilds.getGuild(message.getGuild());
+            logger.info(guild.shouldAnnounce() + "");
+            if(params.length == 0)
+                guild.setShouldAnnounce(!guild.shouldAnnounce());
+            else if(params[0].toLowerCase().equals("true"))
+                guild.setShouldAnnounce(true);
+            else if(params[0].toLowerCase().equals("false"))
+                guild.setShouldAnnounce(false);
+            else
+                guild.setShouldAnnounce(!guild.shouldAnnounce());
+            if(guild.shouldAnnounce())
+                sendMessage("**SwagBot will now announce when a user's queued track starts.**", null, message.getChannel());
+            else
+                sendMessage("**SwagBot will no longer message a user when their queued track starts.**", null, message.getChannel());
+
         });
         new Command("Replay", "replay", "Re-queues the currently playing song", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {

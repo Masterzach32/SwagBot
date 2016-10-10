@@ -191,7 +191,7 @@ public class EventHandler {
     @EventSubscriber
     public void onTrackStartEvent(TrackStartEvent event) throws RateLimitException, MissingPermissionsException {
         try {
-            if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce())
+            if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
                 App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
         } catch (DiscordException e) {
             logger.warn("Could not send message to " + ((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().getName());

@@ -7,7 +7,7 @@ import net.masterzach32.swagbot.music.PlaylistManager;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 
-public class Guild {
+public class GuildSettings {
 	
 	private transient IGuild guild;
 	private transient PlaylistManager playlists;
@@ -15,11 +15,14 @@ public class Guild {
 	private String guildName;
 	private char commandPrefix;
 	private int maxSkips, volume;
-	private boolean botLocked, enableNSFWFilter;
+	private boolean botLocked;
+    private boolean enableNSFWFilter;
+
+    private boolean announce;
 	private String lastChannel;
     private List<String> queue;
 	
-	public Guild(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, String lastChannel, List<String> queue) {
+	public GuildSettings(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, boolean announce, String lastChannel, List<String> queue) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
 		skipIDs = new ArrayList<>();
@@ -29,6 +32,7 @@ public class Guild {
 		this.volume = volume;
 		this.botLocked = botLocked;
 		this.enableNSFWFilter = nsfwfilter;
+		this.announce = announce;
         this.lastChannel = lastChannel;
         this.queue = queue;
 	}
@@ -100,6 +104,14 @@ public class Guild {
 	public void toggleNSFWFilter() {
 		enableNSFWFilter = !enableNSFWFilter;
 	}
+
+    public boolean shouldAnnounce() {
+        return announce;
+    }
+
+    public void setShouldAnnounce(boolean announce) {
+        this.announce = announce;
+    }
 
 	public String getLastChannel() {
         return lastChannel;
