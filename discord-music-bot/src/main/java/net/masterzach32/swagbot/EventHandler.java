@@ -193,6 +193,12 @@ public class EventHandler {
         try {
             if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
                 App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
+            String track;
+            if(((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().length() > 32)
+                track = ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().substring(0, 32);
+            else
+                track = ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle();
+            event.getPlayer().getGuild().setUserNickname(event.getClient().getOurUser(), track);
         } catch (DiscordException e) {
             logger.warn("Could not send message to " + ((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().getName());
         }

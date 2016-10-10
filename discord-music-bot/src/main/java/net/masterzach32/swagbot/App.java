@@ -120,9 +120,13 @@ public class App {
         });
         new Command("Get Sources in Queue", "sq", "Gets all AudioSources in queue.", 2, (message, params) -> {
             String str = "";
-            for(int i = 0; i < threads.size(); i++)
-                str += threads.get(i).getTitle() + "\n";
-            sendMessage(str, null, message.getChannel());
+            if(threads.size() == 0)
+                sendMessage("No songs in queue", null, message.getChannel());
+            else {
+                for (int i = 0; i < threads.size(); i++)
+                    str += threads.get(i).getTitle() + "\n";
+                sendMessage(str, null, message.getChannel());
+            }
         });
         new Command("Thread Count", "threads", "Prints the number of threads active in SwagBot.", 2, ((message, params) -> {
             sendMessage(Thread.activeCount() + " threads active", null, message.getChannel());
