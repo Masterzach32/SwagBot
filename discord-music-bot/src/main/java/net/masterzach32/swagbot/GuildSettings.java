@@ -15,14 +15,11 @@ public class GuildSettings {
 	private String guildName;
 	private char commandPrefix;
 	private int maxSkips, volume;
-	private boolean botLocked;
-    private boolean enableNSFWFilter;
-
-    private boolean announce;
+	private boolean botLocked, enableNSFWFilter, announce, changeNick;
 	private String lastChannel;
     private List<String> queue;
 	
-	public GuildSettings(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, boolean announce, String lastChannel, List<String> queue) {
+	public GuildSettings(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, boolean announce, boolean changeNick, String lastChannel, List<String> queue) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
 		skipIDs = new ArrayList<>();
@@ -33,6 +30,7 @@ public class GuildSettings {
 		this.botLocked = botLocked;
 		this.enableNSFWFilter = nsfwfilter;
 		this.announce = announce;
+        this.changeNick = changeNick;
         this.lastChannel = lastChannel;
         this.queue = queue;
 	}
@@ -111,6 +109,14 @@ public class GuildSettings {
 
     public void setShouldAnnounce(boolean announce) {
         this.announce = announce;
+    }
+
+    public boolean shouldChangeNick() {
+        return changeNick;
+    }
+
+    public void setChangeNick(boolean changeNick) {
+        this.changeNick = changeNick;
     }
 
 	public String getLastChannel() {
