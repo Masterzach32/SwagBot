@@ -75,9 +75,9 @@ public class Command implements Comparable<Command> {
 
         try {
 			c.execute(message, params);
-		} catch (RateLimitException e) {
-            App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Hey! I don't have the necessary permissions to do that!\n"+ e.getMessage());
-        } catch (Exception e) {
+		} catch (MissingPermissionsException e){
+			App.sendMessage("Please make sure I have the Discord permission below so I can function correctly:\n`" + e.getMessage() + "`\nIf your still having trouble join SwagBot Hub, the link is in ~help.\nPlease don't complain to me that the bot doesn't work if it doesn't have the necessary permissions!", message.getAuthor(), message.getChannel());
+		} catch (Exception e) {
             MessageBuilder error = new MessageBuilder(App.client).withContent(message.getAuthor().mention() + " The command failed: **" + e.toString() + "** at").withChannel(message.getChannel());
             StackTraceElement[] elements = e.getStackTrace();
             int i;

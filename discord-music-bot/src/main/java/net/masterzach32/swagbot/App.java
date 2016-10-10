@@ -225,12 +225,11 @@ public class App {
                             List<IMessage> deleted;
                             try {
                                 message.delete();
-                                //Thread.sleep(500);
                                 deleted = list.deleteFromRange(1, 1 + toDelete);
                                 for (IMessage d : deleted) {
                                     logger.info("deleted:" + d);
                                 }
-                            } catch (DiscordException /*| InterruptedException*/ e) {
+                            } catch (DiscordException e) {
                                 e.printStackTrace();
                             } catch (MissingPermissionsException e) {
                                 try {
@@ -1028,10 +1027,7 @@ public class App {
         return RequestBuffer.request(() -> {
             try {
                 return message.edit(contents);
-            } catch (DiscordException e) {
-                e.printStackTrace();
-            } catch (MissingPermissionsException e) {
-                sendMessage("Hey! I cant edit my own message because I don't have the Discord MANAGE_MESSAGES permission!\n"+ e.getMessage(), null, message.getChannel());
+            } catch (DiscordException | MissingPermissionsException e) {
                 e.printStackTrace();
             }
             return null;
