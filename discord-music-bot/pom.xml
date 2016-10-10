@@ -36,7 +36,7 @@
       <dependency>
           <groupId>net.dv8tion</groupId>
           <artifactId>d4j-player</artifactId>
-          <version>0.2.2_22</version>
+          <version>0.2.3_24</version>
       </dependency>
       <dependency>
           <groupId>com.github.austinv11</groupId>

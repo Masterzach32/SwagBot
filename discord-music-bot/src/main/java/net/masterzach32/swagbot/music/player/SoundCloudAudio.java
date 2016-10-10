@@ -25,6 +25,7 @@ public class SoundCloudAudio implements AudioSource {
                     .header("Content-Type", "application/json")
                     .asJson();
             JSONObject json = response.getBody().getArray().getJSONObject(0);
+
             name = json.getString("title");
             author = json.getJSONObject("user").getString("username");
             id = json.getInt("id") + "";

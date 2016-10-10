@@ -224,7 +224,7 @@ public class YouTubeAudio implements AudioSource {
         int ffmpeg_err = -1;
         for (File file : App.manager.getFile(Constants.WORKING_DIRECTORY).listFiles())
             if (file.getName().contains(video_id)) {
-                ffmpeg = new ProcessBuilder(Constants.BINARY_STORAGE + "ffmpeg.exe", "-i", file.toString(), Constants.AUDIO_CACHE + file.getName().substring(0, file.getName().indexOf(video_id) + 11) + ".mp3")
+                ffmpeg = new ProcessBuilder(Constants.BINARY_STORAGE + "ffmpeg.exe", "-i", file.toString(), Constants.AUDIO_CACHE + video_id + ".mp3")
                         .redirectErrorStream(true);
                 yt = file;
             }
