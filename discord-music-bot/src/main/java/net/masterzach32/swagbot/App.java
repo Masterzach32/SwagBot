@@ -11,12 +11,6 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.github.oopsjpeg.osu4j.Osu;
-import com.github.oopsjpeg.osu4j.OsuMode;
-import com.github.oopsjpeg.osu4j.OsuScore;
-import com.github.oopsjpeg.osu4j.OsuUser;
-import com.github.oopsjpeg.osu4j.beatmap.OsuBeatmap;
-import com.github.oopsjpeg.osu4j.util.OsuRateLimitException;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -283,11 +277,7 @@ public class App {
                     sendMessage("**Make sure you are in the channel you want to populate!**", null, message.getChannel());
                     return;
                 }
-                for (IVoiceChannel c : client.getConnectedVoiceChannels())
-                    if (message.getGuild().getVoiceChannelByID(c.getID()) != null) {
-                        from = c;
-                        break;
-                    }
+                from = getCurrentChannelForGuild(message.getGuild());
                 to = message.getAuthor().getConnectedVoiceChannels().get(0);
 
                 if (from == null) {
@@ -359,14 +349,12 @@ public class App {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             }
-            for (IVoiceChannel c : client.getConnectedVoiceChannels())
-                if (message.getGuild().getVoiceChannelByID(c.getID()) != null) {
-                    message.getGuild().getVoiceChannelByID(c.getID()).leave();
-                    guilds.getGuild(message.getGuild()).setLastChannel("");
-                    sendMessage("Left **" + message.getGuild().getVoiceChannelByID(c.getID()).getName() + "**.", message.getAuthor(), message.getChannel());
-                    return;
-                }
-            sendMessage("**The bot is not currently in a voice channel.**", null, message.getChannel());
+            IVoiceChannel channel = getCurrentChannelForGuild(message.getGuild());
+            if(channel != null) {
+                sendMessage("Left **" + message.getGuild().getVoiceChannelByID(channel.getID()).getName() + "**.", message.getAuthor(), message.getChannel());
+                channel.leave();
+            } else
+                sendMessage("**The bot is not currently in a voice channel.**", null, message.getChannel());
         });
         new Command("Set Volume", "volume", "Sets the volume of the bot.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
@@ -444,8 +432,8 @@ public class App {
             } else if (playlist == null) {
                 response = "There is no playlist with the name **" + name + "**";
             } else if (command.equals("queue")) {
-                playlist.queue(message.getAuthor(), message.getGuild());
                 joinChannel(message.getAuthor(), message.getGuild());
+                playlist.queue(message.getAuthor(), message.getGuild());
                 response = "Queuing the playlist **" + playlist.getName() + "**";
             } else if (command.equals("info")) {
                 response = "Songs in **" + playlist.getName() + "**:\n" + playlist.getInfo();
@@ -467,13 +455,13 @@ public class App {
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             }
             if(params.length == 0) {
-                sendMessage("Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.\nMAKE SURE THE YOUTUBE PLAYLIST ISN'T PRIVATE or the bot will not be able to see it.", message.getAuthor(), message.getChannel());
+                sendMessage("Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.", message.getAuthor(), message.getChannel());
                 return;
             }
             AudioSource source = null;
@@ -553,7 +541,7 @@ public class App {
                 e.printStackTrace();
             }
         });
-        new Command("Announce Track Start", "tannounce", "Toggles whether to message the user when their track starts.", 1, (message, params) -> {
+        new Command("Announce Track Start", "tannounce", "Toggles whether to message the user when their track starts. Default is **true**", 1, (message, params) -> {
             GuildSettings guild = guilds.getGuild(message.getGuild());
             logger.info(guild.shouldAnnounce() + "");
             if(params.length == 0)
@@ -570,7 +558,7 @@ public class App {
                 sendMessage("**SwagBot will no longer message a user when their queued track starts.**", null, message.getChannel());
 
         });
-        new Command("Change Nickname To Song", "asdf", "Toggles whether to change the bot's nickname based on the current track", 1, (message, params) -> {
+        new Command("Change Nickname To Song", "cns", "Toggles whether to change the bot's nickname based on the current track. Default is **false**", 1, (message, params) -> {
             GuildSettings guild = guilds.getGuild(message.getGuild());
             logger.info(guild.shouldChangeNick() + "");
             if(params.length == 0)
@@ -846,7 +834,7 @@ public class App {
         new Command("Swag", "swag", "sweg", 0, (message, params) -> {
             sendMessage("Sweg", null, message.getChannel());
         });
-        new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
+        /*new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
             try {
                 Osu osu = new Osu(prefs.getOsuApiKey());
 
@@ -872,7 +860,7 @@ public class App {
             } catch (OsuRateLimitException e) {
                 e.printStackTrace();
             }
-        });
+        });*/
         /*new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
             String shoutcast = "http://api.shoutcast.com/";
             HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
@@ -990,38 +978,39 @@ public class App {
         Thread t = new Thread("streaming: " + source.getTitle()) {
             public void run() {
                 AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-                    if (message != null)
-                        editMessage(message, "Queuing **" + source.getTitle() + "**");
-                    try {
-                        if(source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
-                            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
-                            threads.remove(source);
-                            return;
-                        }
-                        player.queue(source.getAudioTrack(user, shouldAnnounce));
-                        if (message != null)
-                            waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
+                if (message != null)
+                    editMessage(message, "Queuing **" + source.getTitle() + "**");
+                try {
+                    if(source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
+                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
                         threads.remove(source);
                         return;
-                    } catch (YouTubeDLException e) {
-                        e.printStackTrace();
-                        if (message != null)
-                            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
-                        threads.remove(source);
-                        return;
-                    } catch (FFMPEGException e) {
-                        e.printStackTrace();
-                        if(message != null)
-                            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
-                        threads.remove(source);
-                        return;
-                    } catch (IOException | UnsupportedAudioFileException e) {
-                        e.printStackTrace();
                     }
+                    player.queue(source.getAudioTrack(user, shouldAnnounce));
+                    joinChannel(user, guild);
                     if (message != null)
-                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
-                threads.remove(source);
+                        waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
+                    threads.remove(source);
                     return;
+                } catch (YouTubeDLException e) {
+                    e.printStackTrace();
+                    if (message != null)
+                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
+                    threads.remove(source);
+                    return;
+                } catch (FFMPEGException e) {
+                    e.printStackTrace();
+                    if(message != null)
+                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
+                    threads.remove(source);
+                    return;
+                } catch (IOException | UnsupportedAudioFileException | MissingPermissionsException e) {
+                    e.printStackTrace();
+                }
+                if (message != null)
+                    waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
+                threads.remove(source);
+                return;
             }
         };
         threads.add(source);

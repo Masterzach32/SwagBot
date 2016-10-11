@@ -1,4 +1,4 @@
-package net.masterzach32.swagbot.api.jokes;
+package net.masterzach32.swagbot.api;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
