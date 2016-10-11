@@ -125,7 +125,7 @@ public class EventHandler {
             return;
 
         if (event.getMessage().getChannel().isPrivate()) {
-            try {
+            /*try {
                 if (message.startsWith(Constants.DEFAULT_COMMAND_PREFIX + "help")) {
                     String[] params = new String[0];
                     if(message.length() > 5)
@@ -135,7 +135,7 @@ public class EventHandler {
                     App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("**SwagBot** does not currently support DM commands. The only command available to DMs is ``" + Constants.DEFAULT_COMMAND_PREFIX + "help``");
             } catch (RateLimitException | MissingPermissionsException | DiscordException e) {
                 e.printStackTrace();
-            }
+            }*/
             return;
         }
 

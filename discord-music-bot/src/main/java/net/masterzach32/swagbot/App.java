@@ -76,25 +76,23 @@ public class App {
             if (params.length == 0) {
                 Command.listAllCommands(message.getAuthor());
                 if (!message.getChannel().isPrivate())
-                    sendMessage("A list of commands has been sent to your Direct Messages.", message.getAuthor(), message.getChannel());
+                    sendMessage(Command.listAllCommands(message.getAuthor()), message.getAuthor(), message.getChannel());
             } else {
                 for (Command c : Command.commands)
                     if (c.getIdentifier().equals(params[0])) {
-                        if (message.getChannel().isPrivate())
+                        /*if (message.getChannel().isPrivate())
                             App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + c.getName() + "** `" + Constants.DEFAULT_COMMAND_PREFIX + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo());
-                        else
+                        else*/
                             sendMessage("**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo(), null, message.getChannel());
                         return;
                     }
-                if (message.getChannel().isPrivate())
+                /*if (message.getChannel().isPrivate())
                     App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Could not find command **" + Constants.DEFAULT_COMMAND_PREFIX + params[0] + "**");
-                else
+                else*/
                     sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**", null, message.getChannel());
             }
         });
-        new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot successfully shuts down.", 2, (message, params) -> {
-            stop(true);
-        });
+        new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot successfully shuts down.", 2, (message, params) -> stop(true));
         new Command("Restart Bot", "restart", "Calls stop and restarts the bot.", 2, (message, params) -> {
             try {
                 restart();
@@ -117,8 +115,8 @@ public class App {
             if(threads.size() == 0)
                 sendMessage("No songs in queue", null, message.getChannel());
             else {
-                for (int i = 0; i < threads.size(); i++)
-                    str += threads.get(i).getTitle() + "\n";
+                for (AudioSource thread : threads)
+                    str += thread.getTitle() + "\n";
                 sendMessage(str, null, message.getChannel());
             }
         });
@@ -160,9 +158,7 @@ public class App {
         });
         new Command("Change Status", "status", "Change the bots status", 2, (message, params) -> {
             if(params.length > 0) {
-                String status = "";
-                for(String str : params)
-                    status += str + " ";
+                String status = Utils.getContent(params, 0);
                 client.changeStatus(Status.game(status.substring(0, status.length()-1)));
             }
         });
@@ -234,14 +230,7 @@ public class App {
                                 for (IMessage d : deleted) {
                                     logger.info("deleted:" + d);
                                 }
-                            } catch (DiscordException e) {
-                                e.printStackTrace();
-                            } catch (MissingPermissionsException e) {
-                                try {
-                                    App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Hey! I don't have the necessary permissions to do that!\n"+ e.getMessage());
-                                } catch (MissingPermissionsException | DiscordException e1) {
-                                    e1.printStackTrace();
-                                }
+                            } catch (DiscordException | MissingPermissionsException e) {
                                 e.printStackTrace();
                             }
                         });
@@ -521,13 +510,10 @@ public class App {
                     source = new AudioStream(params[0]);
                 else {
                     m = sendMessage("Searching Youtube...", null, message.getChannel());
-                    String query = "";
-                    for(String param : params)
-                        query += param + " ";
-                    String search = URLEncoder.encode(query.substring(0, query.length()-1), "UTF-8");
+                    String search = URLEncoder.encode(Utils.getContent(params, 0), "UTF-8");
                     source = getVideoFromSearch(search);
                     if(source == null) {
-                        m.edit(message.getAuthor().mention() + " I couldn't find a video for **" + query + "**, try searching for the artist's name and song tiwwwwtle.");
+                        m.edit(message.getAuthor().mention() + " I couldn't find a video for **" + Utils.getContent(params, 0) + "**, try searching for the artist's name and song tiwwwwtle.");
                         return;
                     }
                 }
@@ -568,7 +554,7 @@ public class App {
             GuildSettings guild = guilds.getGuild(message.getGuild());
             logger.info(guild.shouldChangeNick() + "");
             if(params.length == 0)
-                guild.setShouldAnnounce(!guild.shouldChangeNick());
+                guild.setChangeNick(!guild.shouldChangeNick());
             else if(params[0].toLowerCase().equals("true"))
                 guild.setChangeNick(true);
             else if(params[0].toLowerCase().equals("false"))
@@ -784,7 +770,7 @@ public class App {
             if(params.length < 1)
                 sendMessage("Not enough parameters. Type ~help lmgtfy for help with this command.", null, message.getChannel());
             try {
-                sendMessage("http://www.lmgtfy.com/?q=" + URLEncoder.encode(message.getContent().substring(8).toLowerCase(), "UTF-8"), null, message.getChannel());
+                sendMessage("http://www.lmgtfy.com/?q=" + URLEncoder.encode(Utils.getContent(params, 0).toLowerCase(), "UTF-8"), null, message.getChannel());
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -793,7 +779,7 @@ public class App {
             if(params.length < 1)
                 sendMessage("Not enough parameters. Type ~help stackoverflow for help with this command.", null, message.getChannel());
             try {
-                sendMessage("http://stackoverflow.com/search?q=" + URLEncoder.encode(message.getContent().substring(15).toLowerCase(), "UTF-8"), null, message.getChannel());
+                sendMessage("http://stackoverflow.com/search?q=" + URLEncoder.encode(Utils.getContent(params, 0), "UTF-8"), null, message.getChannel());
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
