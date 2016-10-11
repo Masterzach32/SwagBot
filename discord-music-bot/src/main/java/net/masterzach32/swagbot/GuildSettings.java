@@ -1,11 +1,19 @@
 package net.masterzach32.swagbot;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.GsonBuilder;
 import net.masterzach32.swagbot.music.PlaylistManager;
+import net.masterzach32.swagbot.music.player.AudioTrack;
+import net.masterzach32.swagbot.utils.Constants;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.util.audio.AudioPlayer;
 
 public class GuildSettings {
 	
@@ -133,5 +141,26 @@ public class GuildSettings {
 
     public List<String> getQueue() {
         return queue;
+    }
+
+    public void saveSettings() throws IOException {
+        getPlaylistManager().save();
+
+        List<AudioPlayer.Track> tracks = AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).getPlaylist();
+        List<String> queue = new ArrayList<>();
+        for(AudioPlayer.Track track : tracks)
+            if(track != null)
+                queue.add(((AudioTrack) track).getUrl());
+        setQueue(queue);
+
+        AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).clear();
+
+        BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
+        fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(guild));
+        fout.close();
+    }
+
+    public AudioPlayer getAudioPlayer() {
+        return AudioPlayer.getAudioPlayerForGuild(guild);
     }
 }

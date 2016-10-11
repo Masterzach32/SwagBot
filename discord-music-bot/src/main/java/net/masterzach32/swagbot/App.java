@@ -126,7 +126,7 @@ public class App {
             sendMessage(Thread.activeCount() + " threads active", null, message.getChannel());
         }));
         new Command("Ping", "ping", "Ping the bot to make sure its responding to input.", 0, ((message, params) -> sendMessage("Pong!", null, message.getChannel())));
-        new Command("Reload", "reload", "Reloads bot settings", 2, ((message, params) -> {
+        new Command("Reload Bot Setting", "rs", "Reloads bot settings", 2, ((message, params) -> {
             prefs.load();
         }));
         new Command("Lock the bot", "lock", "Toggles whether the bot is locked in this guild.", 1, (message, params) -> {
@@ -167,7 +167,12 @@ public class App {
             }
         });
         new Command("Reload", "reload", "Reloads the bot for this guild, should fix any audio problems", 1, (message, params) -> {
-            guilds.removeGuild(message.getGuild());
+            GuildSettings guild = guilds.removeGuild(message.getGuild());
+            guild.getAudioPlayer().clear();
+            IVoiceChannel channel = getCurrentChannelForGuild(message.getGuild());
+            if(channel != null)
+                channel.leave();
+            guild.saveSettings();
             try {
                 guilds.loadGuild(message.getGuild());
             } catch (NotStreamableException | UnsupportedAudioFileException | YouTubeDLException | FFMPEGException e) {
@@ -338,11 +343,11 @@ public class App {
                 return;
             }
 
-            IVoiceChannel voicechannel = message.getAuthor().getConnectedVoiceChannels().get(0);
-            voicechannel.join();
-            guilds.getGuild(message.getGuild()).setLastChannel(voicechannel.getID());
+            IVoiceChannel channel = message.getAuthor().getConnectedVoiceChannels().get(0);
+            channel.join();
+            guilds.getGuild(message.getGuild()).setLastChannel(channel.getID());
 
-            sendMessage("Joined **" + voicechannel.getName() + "**.", null, message.getChannel());
+            sendMessage("Joined **" + channel.getName() + "**.", null, message.getChannel());
         });
         new Command("Leave Channel", "leave", "Kicks the bot from the current voice channel.", 1, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
@@ -353,6 +358,7 @@ public class App {
             if(channel != null) {
                 sendMessage("Left **" + message.getGuild().getVoiceChannelByID(channel.getID()).getName() + "**.", message.getAuthor(), message.getChannel());
                 channel.leave();
+                guilds.getGuild(message.getGuild()).setLastChannel("");
             } else
                 sendMessage("**The bot is not currently in a voice channel.**", null, message.getChannel());
         });

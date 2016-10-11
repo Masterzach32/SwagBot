@@ -88,35 +88,16 @@ public class GuildManager {
         }
 	}
 
-	public void removeGuild(IGuild guild) {
+	public GuildSettings removeGuild(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
 			if(guilds.get(i).getID().equals(guild.getID()))
-				guilds.remove(guilds.get(i));
+                return guilds.remove(i);
+        return null;
 	}
 	
 	public void saveGuildSettings() throws IOException {
 		for(int i = 0; i < guilds.size(); i++) {
-            GuildSettings guild = guilds.get(i);
-			guild.getPlaylistManager().save();
-
-            List<AudioPlayer.Track> tracks = AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).getPlaylist();
-            List<String> queue = new ArrayList<>();
-            for(AudioPlayer.Track track : tracks)
-                if(track != null)
-                    queue.add(((AudioTrack) track).getUrl());
-            guild.setQueue(queue);
-
-            for(IVoiceChannel c : App.client.getConnectedVoiceChannels())
-                if(App.client.getGuildByID(guild.getID()).getVoiceChannelByID(c.getID()) != null)
-                    guild.setLastChannel(c.getID());
-				else
-					guild.setLastChannel("");
-
-            AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).clear();
-
-			BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
-			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(guild));
-			fout.close();
+            guilds.get(i).saveSettings();
 		}
 	}
 	
