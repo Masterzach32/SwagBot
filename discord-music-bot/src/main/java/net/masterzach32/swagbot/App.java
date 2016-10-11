@@ -54,7 +54,7 @@ public class App {
 
     private static List<AudioSource> threads = new ArrayList<>();
 
-    public static void main(String[] args) throws DiscordException, IOException, UnirestException {
+    public static void main(String[] args) throws DiscordException, IOException, UnirestException, RateLimitException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
         // beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
         if (Discord4J.LOGGER instanceof Discord4J.Discord4JLogger) {
@@ -75,7 +75,7 @@ public class App {
 
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
-        client.login(false);
+        client.login();
 
         // register commands
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
@@ -570,21 +570,21 @@ public class App {
                 sendMessage("**SwagBot will no longer message a user when their queued track starts.**", null, message.getChannel());
 
         });
-        new Command("Change Nickname To Song", "", "Toggles whether to change the bot's nickname based on the current track", 1, (message, params) -> {
+        new Command("Change Nickname To Song", "asdf", "Toggles whether to change the bot's nickname based on the current track", 1, (message, params) -> {
             GuildSettings guild = guilds.getGuild(message.getGuild());
-            logger.info(guild.shouldAnnounce() + "");
+            logger.info(guild.shouldChangeNick() + "");
             if(params.length == 0)
-                guild.setShouldAnnounce(!guild.shouldAnnounce());
+                guild.setShouldAnnounce(!guild.shouldChangeNick());
             else if(params[0].toLowerCase().equals("true"))
-                guild.setShouldAnnounce(true);
+                guild.setChangeNick(true);
             else if(params[0].toLowerCase().equals("false"))
-                guild.setShouldAnnounce(false);
+                guild.setChangeNick(false);
             else
-                guild.setShouldAnnounce(!guild.shouldAnnounce());
-            if(guild.shouldAnnounce())
-                sendMessage("**SwagBot will now announce when a user's queued track starts.**", null, message.getChannel());
+                guild.setChangeNick(!guild.shouldChangeNick());
+            if(guild.shouldChangeNick())
+                sendMessage("**SwagBot will now change its nickname based on the currently playing song.**", null, message.getChannel());
             else
-                sendMessage("**SwagBot will no longer message a user when their queued track starts.**", null, message.getChannel());
+                sendMessage("**SwagBot will no longer change its nickname based on the currently playing song.**", null, message.getChannel());
 
         });
         new Command("Replay", "replay", "Re-queues the currently playing song", 0, (message, params) -> {
@@ -730,9 +730,9 @@ public class App {
             List<IUser> users = new ArrayList<>();
             for(IUser user : message.getMentions())
                 users.add(user);
-            for(IRole role : message.getRoleMentions())
+            /*for(IRole role : message.getRoleMentions())
                 for(IUser user : message.getGuild().getUsersByRole(role))
-                    users.add(user);
+                    users.add(user);*/
             if(message.mentionsEveryone())
                 users = message.getGuild().getUsers();
             if(users.size() == 1) {
