@@ -187,9 +187,11 @@ public class App {
             }
         });
         new Command("Pardon User", "pardon", "Lifts the ban for the specified user in this guild", 1, (message, params) -> {
-            for (IUser user : message.getMentions()) {
-                message.getGuild().pardonUser(user.getID());
-                sendMessage("@everyone User **" + user + "** has been **pardoned** from **" + message.getGuild() + "**", null, message.getGuild().getChannelByID(message.getGuild().getID()));
+            for(IUser user : message.getGuild().getBannedUsers()) {
+                if(user.getName().equals(message.getContent().substring(8))) {
+                    message.getGuild().pardonUser(user.getID());
+                    sendMessage("@everyone User **" + user + "** has been **pardoned** from **" + message.getGuild() + "**", null, message.getGuild().getChannelByID(message.getGuild().getID()));
+                }
             }
         });
         new Command("Soft Ban User", "softban", "Bans the specified user from this guild, deletes their message history, and then pardons them.", 1, (message, params) -> {
@@ -568,6 +570,23 @@ public class App {
                 sendMessage("**SwagBot will no longer message a user when their queued track starts.**", null, message.getChannel());
 
         });
+        new Command("Change Nickname To Song", "", "Toggles whether to change the bot's nickname based on the current track", 1, (message, params) -> {
+            GuildSettings guild = guilds.getGuild(message.getGuild());
+            logger.info(guild.shouldAnnounce() + "");
+            if(params.length == 0)
+                guild.setShouldAnnounce(!guild.shouldAnnounce());
+            else if(params[0].toLowerCase().equals("true"))
+                guild.setShouldAnnounce(true);
+            else if(params[0].toLowerCase().equals("false"))
+                guild.setShouldAnnounce(false);
+            else
+                guild.setShouldAnnounce(!guild.shouldAnnounce());
+            if(guild.shouldAnnounce())
+                sendMessage("**SwagBot will now announce when a user's queued track starts.**", null, message.getChannel());
+            else
+                sendMessage("**SwagBot will no longer message a user when their queued track starts.**", null, message.getChannel());
+
+        });
         new Command("Replay", "replay", "Re-queues the currently playing song", 0, (message, params) -> {
             if (guilds.getGuild(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
@@ -581,6 +600,8 @@ public class App {
             if (guilds.getGuild(message.getGuild()).hasUserSkipped(message.getAuthor().getID())) {
                 sendMessage("**You already voted to skip this song.**", message.getAuthor(), message.getChannel());
                 return;
+            } else if(AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getPlaylistSize() == 0) {
+                sendMessage("**There are no songs to skip!**", message.getAuthor(), message.getChannel());
             }
             guilds.getGuild(message.getGuild()).addSkipID(message.getAuthor());
             boolean isBotCommander = false;
