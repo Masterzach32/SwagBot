@@ -138,7 +138,7 @@ public class EventHandler {
             return;
 
         if (event.getMessage().getChannel().isPrivate()) {
-            /*try {
+            try {
                 if (message.startsWith(Constants.DEFAULT_COMMAND_PREFIX + "help")) {
                     String[] params = new String[0];
                     if(message.length() > 5)
@@ -148,7 +148,7 @@ public class EventHandler {
                     App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("**SwagBot** does not currently support DM commands. The only command available to DMs is ``" + Constants.DEFAULT_COMMAND_PREFIX + "help``");
             } catch (RateLimitException | MissingPermissionsException | DiscordException e) {
                 e.printStackTrace();
-            }*/
+            }
             return;
         }
 
@@ -191,9 +191,9 @@ public class EventHandler {
     @EventSubscriber
     public void onTrackStartEvent(TrackStartEvent event) throws RateLimitException, MissingPermissionsException {
         try {
-            /*if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
+            if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
                 App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
-            */if(App.guilds.getGuild(event.getPlayer().getGuild()).shouldChangeNick()) {
+            if(App.guilds.getGuild(event.getPlayer().getGuild()).shouldChangeNick()) {
                 String track;
                 if (((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().length() > 32)
                     track = ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().substring(0, 32);

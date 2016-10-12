@@ -11,6 +11,12 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import com.github.oopsjpeg.osu4j.Osu;
+import com.github.oopsjpeg.osu4j.OsuMode;
+import com.github.oopsjpeg.osu4j.OsuScore;
+import com.github.oopsjpeg.osu4j.OsuUser;
+import com.github.oopsjpeg.osu4j.beatmap.OsuBeatmap;
+import com.github.oopsjpeg.osu4j.util.OsuRateLimitException;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -75,20 +81,20 @@ public class App {
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
             if (params.length == 0) {
                 Command.listAllCommands(message.getAuthor());
-                if (!message.getChannel().isPrivate())
-                    sendMessage(Command.listAllCommands(message.getAuthor()), message.getAuthor(), message.getChannel());
+                /*if (!message.getChannel().isPrivate())
+                    sendMessage(Command.listAllCommands(message.getAuthor()), message.getAuthor(), message.getChannel());*/
             } else {
                 for (Command c : Command.commands)
                     if (c.getIdentifier().equals(params[0])) {
-                        /*if (message.getChannel().isPrivate())
+                        if (message.getChannel().isPrivate())
                             App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + c.getName() + "** `" + Constants.DEFAULT_COMMAND_PREFIX + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo());
-                        else*/
+                        else
                             sendMessage("**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo(), null, message.getChannel());
                         return;
                     }
-                /*if (message.getChannel().isPrivate())
+                if (message.getChannel().isPrivate())
                     App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Could not find command **" + Constants.DEFAULT_COMMAND_PREFIX + params[0] + "**");
-                else*/
+                else
                     sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**", null, message.getChannel());
             }
         });
@@ -832,7 +838,7 @@ public class App {
         new Command("Swag", "swag", "sweg", 0, (message, params) -> {
             sendMessage("Sweg", null, message.getChannel());
         });
-        /*new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
+        new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
             try {
                 Osu osu = new Osu(prefs.getOsuApiKey());
 
@@ -858,7 +864,7 @@ public class App {
             } catch (OsuRateLimitException e) {
                 e.printStackTrace();
             }
-        });*/
+        });
         /*new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
             String shoutcast = "http://api.shoutcast.com/";
             HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
