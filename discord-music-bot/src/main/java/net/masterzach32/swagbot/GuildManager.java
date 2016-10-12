@@ -55,22 +55,6 @@ public class GuildManager {
         g.getPlaylistManager().load();
         if(!guilds.contains(g))
 		    guilds.add(g);
-
-        if(App.client.getVoiceChannelByID(g.getLastChannel()) != null && !g.getLastChannel().equals(""))
-            App.client.getVoiceChannelByID(g.getLastChannel()).join();
-        List<String> saved = g.getQueue();
-        if(saved.size() > 0) {
-            AudioSource source;
-            for (String url : saved) {
-                if (url.contains("youtube"))
-                    source = new YouTubeAudio(url);
-                else if (url.contains("soundcloud"))
-                    source = new SoundCloudAudio(url);
-                else
-                    source = new AudioStream(url);
-                AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).queue(source.getAudioTrack(null, false));
-            }
-        }
         g.saveSettings();
 	}
 
@@ -88,6 +72,7 @@ public class GuildManager {
 
             if(App.client.getVoiceChannelByID(g.getLastChannel()) != null && !g.getLastChannel().equals(""))
                 App.client.getVoiceChannelByID(g.getLastChannel()).join();
+
             List<String> saved = g.getQueue();
             if(saved.size() > 0) {
                 AudioSource source;
