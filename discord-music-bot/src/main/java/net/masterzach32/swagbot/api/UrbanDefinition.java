@@ -24,6 +24,9 @@ public class UrbanDefinition {
 					.header("X-Mashape-Key", App.prefs.getMashapApiKey())
 					.header("Accept", "text/plain")
 					.asJson();
+			if(response.getStatus() != 200) {
+                App.logger.info("TinyUrl api responded with status code " + response.getStatus() + ": " + response.getStatusText());
+            }
 			JSONObject def = response.getBody().getArray().getJSONObject(0);
             if(def.getJSONArray("list").length() == 0) {
                 hasEntry = false;
