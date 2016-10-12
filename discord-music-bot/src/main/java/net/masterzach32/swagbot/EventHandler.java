@@ -81,7 +81,7 @@ public class EventHandler {
                     .asJson();
             logger.info(json.getBody().getArray().getJSONObject(0).toString());
         }
-        int i = 1;
+        /*int i = 1;
         while(true) {
             Thread.sleep(600000);
             String status = "";
@@ -109,7 +109,7 @@ public class EventHandler {
             }
             event.getClient().changeStatus(Status.game(status));
             i++;
-        }
+        }*/
     }
 
     @EventSubscriber

@@ -53,8 +53,10 @@ public class GuildManager {
 		else
 		    g = new GuildSettings(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, true, false, null, new ArrayList<>());
         g.getPlaylistManager().load();
+
         if(!guilds.contains(g))
 		    guilds.add(g);
+
         g.saveSettings();
 	}
 
