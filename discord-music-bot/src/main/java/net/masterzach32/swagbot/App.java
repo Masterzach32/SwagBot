@@ -75,7 +75,7 @@ public class App {
 
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
-        client.login();
+        client.login(false);
 
         // register commands
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
@@ -165,7 +165,7 @@ public class App {
         new Command("Change Status", "status", "Change the bots status", 2, (message, params) -> {
             if(params.length > 0) {
                 String status = Utils.getContent(params, 0);
-                client.changeStatus(Status.game(status.substring(0, status.length()-1)));
+                client.changeStatus(Status.game(status.substring(0, status.length())));
             }
         });
         new Command("Reload", "reload", "Reloads the bot for this guild, should fix any audio problems", 1, (message, params) -> {
