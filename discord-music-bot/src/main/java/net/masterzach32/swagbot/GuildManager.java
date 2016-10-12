@@ -44,8 +44,12 @@ public class GuildManager {
 		
 		String json = new String(buffer);
 		GuildSettings temp = new Gson().fromJson(json, GuildSettings.class);
-		GuildSettings g = new GuildSettings(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled(), temp.shouldAnnounce(), temp.shouldChangeNick(), temp.getLastChannel(), temp.getQueue());
-		g.getPlaylistManager().load();
+        GuildSettings g;
+        if(temp != null)
+		    g = new GuildSettings(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled(), temp.shouldAnnounce(), temp.shouldChangeNick(), temp.getLastChannel(), temp.getQueue());
+		else
+		    g = new GuildSettings(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, true, false, null, new ArrayList<>());
+        g.getPlaylistManager().load();
         if(!guilds.contains(g))
 		    guilds.add(g);
 
