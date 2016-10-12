@@ -46,7 +46,8 @@ public class GuildManager {
 		GuildSettings temp = new Gson().fromJson(json, GuildSettings.class);
 		GuildSettings g = new GuildSettings(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled(), temp.shouldAnnounce(), temp.shouldChangeNick(), temp.getLastChannel(), temp.getQueue());
 		g.getPlaylistManager().load();
-		guilds.add(g);
+        if(!guilds.contains(g))
+		    guilds.add(g);
 
         if(App.client.getVoiceChannelByID(g.getLastChannel()) != null && !g.getLastChannel().equals(""))
             App.client.getVoiceChannelByID(g.getLastChannel()).join();

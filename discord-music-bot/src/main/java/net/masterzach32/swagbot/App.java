@@ -164,9 +164,10 @@ public class App {
         });
         new Command("Reload", "reload", "Reloads the bot for this guild, should fix any audio problems", 1, (message, params) -> {
             GuildSettings guild = guilds.removeGuild(message.getGuild());
-            guild.getAudioPlayer().clear();
+            if(guild.getAudioPlayer().getPlaylistSize() > 0)
+                guild.getAudioPlayer().clear();
             IVoiceChannel channel = getCurrentChannelForGuild(message.getGuild());
-            if(channel != null)
+            if(channel != null && channel.isConnected())
                 channel.leave();
             guild.saveSettings();
             try {
@@ -586,6 +587,7 @@ public class App {
                 return;
             } else if(AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getPlaylistSize() == 0) {
                 sendMessage("**There are no songs to skip!**", message.getAuthor(), message.getChannel());
+                return;
             }
             guilds.getGuild(message.getGuild()).addSkipID(message.getAuthor());
             boolean isBotCommander = false;
