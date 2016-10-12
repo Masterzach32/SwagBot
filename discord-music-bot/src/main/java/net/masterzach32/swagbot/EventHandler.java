@@ -35,11 +35,6 @@ public class EventHandler {
         RequestBuffer.request(() -> {
             if(event.getClient().isReady())
                 event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
-            try {
-                event.getGuild().setUserNickname(event.getClient().getOurUser(), "SwagBot");
-            } catch (MissingPermissionsException | DiscordException e) {
-                e.printStackTrace();
-            }
         });
     }
 

@@ -14,7 +14,10 @@ import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.RequestBuffer;
 import sx.blah.discord.util.audio.AudioPlayer;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -74,6 +77,13 @@ public class GuildManager {
 	public void applyGuildSettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {
         for(GuildSettings g : guilds) {
             IGuild guild = App.client.getGuildByID(g.getID());
+            RequestBuffer.request(() -> {
+                try {
+                    guild.setUserNickname(App.client.getOurUser(), "SwagBot");
+                } catch (MissingPermissionsException | DiscordException e) {
+                    e.printStackTrace();
+                }
+            });
             App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
 
             if(App.client.getVoiceChannelByID(g.getLastChannel()) != null && !g.getLastChannel().equals(""))
