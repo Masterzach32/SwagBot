@@ -896,9 +896,9 @@ public class App {
             } else
                 sendMessage("Incorrect parameters. Type `~help exchange` to get help with this command.", null, message.getChannel());
         });
-        new Command("TinyURL", "tinyurl", "Creates a tinyurl.com link for the given link.", 0, (message, params) -> {
+        new Command("URL Shortener", "shorten", "Creates a goo.gl link for the given link.", 0, (message, params) -> {
             if(params.length == 1)
-                sendMessage(new TinyUrl(params[0]).getUrl(), null, message.getChannel());
+                sendMessage(new URLShortener(params[0]).getUrl(), null, message.getChannel());
             else
                 sendMessage("You must provide a link to shorten!", null, message.getChannel());
         });

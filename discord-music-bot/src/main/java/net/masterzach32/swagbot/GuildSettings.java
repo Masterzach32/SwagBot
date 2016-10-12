@@ -156,7 +156,7 @@ public class GuildSettings {
         AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).clear();
 
         BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
-        fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(guild));
+        fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
         fout.close();
     }
 
