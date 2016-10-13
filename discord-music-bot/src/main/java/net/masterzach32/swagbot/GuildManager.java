@@ -12,6 +12,7 @@ import net.masterzach32.swagbot.utils.Constants;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
+import sx.blah.discord.handle.impl.obj.Guild;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
@@ -30,7 +31,7 @@ public class GuildManager {
 		guilds = new ArrayList<GuildSettings>();
 	}
 	
-	public void loadGuild(IGuild guild) throws IOException, UnirestException, NotStreamableException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, MissingPermissionsException {
+	public GuildSettings loadGuild(IGuild guild) throws IOException, UnirestException, NotStreamableException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, MissingPermissionsException {
 		App.manager.mkdir(Constants.GUILD_SETTINGS + guild.getID() + "/playlists/");
 		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON);
 		if(!prefs.exists()) {
@@ -58,6 +59,8 @@ public class GuildManager {
 		    guilds.add(g);
 
         g.saveSettings();
+
+		return g;
 	}
 
 	public void applyGuildSettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {

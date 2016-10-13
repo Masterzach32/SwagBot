@@ -115,6 +115,9 @@ public class EventHandler {
     @EventSubscriber
     public void onMessageEvent(MessageReceivedEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException, IOException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, NotStreamableException {
         String message = event.getMessage().getContent();
+        GuildSettings g = App.guilds.getGuild(event.getMessage().getGuild());
+        if (g == null)
+            g = App.guilds.loadGuild(event.getMessage().getGuild());
 
         if (App.guilds.getGuild(event.getMessage().getGuild()).isNSFWFilterEnabled()) {
             for (Attachment a : event.getMessage().getAttachments())
@@ -191,8 +194,8 @@ public class EventHandler {
     @EventSubscriber
     public void onTrackStartEvent(TrackStartEvent event) throws RateLimitException, MissingPermissionsException {
         try {
-            if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
-                App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
+            //if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
+              //  App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
             if(App.guilds.getGuild(event.getPlayer().getGuild()).shouldChangeNick()) {
                 String track;
                 if (((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().length() > 32)
