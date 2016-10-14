@@ -81,8 +81,6 @@ public class App {
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
             if (params.length == 0) {
                 Command.listAllCommands(message.getAuthor());
-                //if (!message.getChannel().isPrivate())
-                    //sendMessage(Command.listAllCommands(message.getAuthor()), message.getAuthor(), message.getChannel());
             } else {
                 for (Command c : Command.commands)
                     if (c.getIdentifier().equals(params[0])) {
@@ -99,13 +97,6 @@ public class App {
             }
         });
         new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot successfully shuts down.", 2, (message, params) -> stop(true));
-        new Command("Restart Bot", "restart", "Calls stop and restarts the bot.", 2, (message, params) -> {
-            try {
-                restart();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
         new Command("Update Bot", "update", "Downloads an update for the bot, if there is one.", 2, (message, params) -> {
             update();
         });
@@ -838,52 +829,6 @@ public class App {
         new Command("Swag", "swag", "sweg", 0, (message, params) -> {
             sendMessage("Sweg", null, message.getChannel());
         });
-        new Command("Osu Stats", "osu", "Get some stats on an osu user.", 0, (message, params) -> {
-            try {
-                Osu osu = new Osu(prefs.getOsuApiKey());
-
-                // Get the user
-                OsuUser user = osu.getUser(URLEncoder.encode(message.getContent().substring(5), "UTF-8"), OsuMode.STANDARD).withTopScores(5);
-
-                // Print basic information
-                String str = "";
-                str += OsuMode.STANDARD.getName() + " Information for **" + user.getUsername() + "**\n";
-                str += user.getURL() + "\n```";
-                str += "Rank: #" + user.getRank() + "\n";
-                str += "Performance Points: " + user.getPP() + "pp" + "\n";
-                str += "Total Score: " + user.getTotalScore() + "\n";
-
-                // Print top scores
-                str += "Top Scores:\n";
-                for(int i = 0; i < user.getTopScores().size(); i++){
-                    OsuScore score = user.getTopScores().get(i);
-                    OsuBeatmap beatmap = score.getBeatmap();
-                    str += "\t" + (i+1) + ": " + score.getScore() + " on " + beatmap.getArtist() + " - " + beatmap.getTitle() + "\n";
-                }
-                sendMessage(str + "```", null, message.getChannel());
-            } catch (OsuRateLimitException e) {
-                e.printStackTrace();
-            }
-        });
-        /*new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
-            String shoutcast = "http://api.shoutcast.com/";
-            HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
-                    .header("k", prefs.getShoutCastApiKey())
-                    .asJson();
-            logger.info(response.getBody().toString());
-            if(response.getStatus() != 200)
-                sendMessage("An error occurred while contacting the SHOUTcast API:\n```" + response.getBody().toString() + "\n```", message.getAuthor(), message.getChannel());
-            JSONObject json = response.getBody().getArray().getJSONObject(0);
-        }));*/
-        /*new Command("WordCloud", "wordcloud", "Creates a WordCloud based on the provided text. If no parameters are provided, then it will create a WordCloud based on the messages in the current channel.", 0, (message, params) -> {
-            WordCloud api = null;
-            sendMessage("Getting your wordcloud", null, message.getChannel());
-            if(params.length == 0)
-                api = new WordCloud(message.getChannel());
-            else
-                api = new WordCloud(message.getContent().substring(11));
-            sendMessage(api.getUrl(), null, message.getChannel());
-        });*/
         new Command("Currency Exchange", "exchange", "Convert from one currency to another.", 0, (message, params) -> {
             List<String> currencies = CurrencyConverter.getAvailableCurrencies();
             String str = "";
