@@ -7,13 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.GsonBuilder;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.music.PlaylistManager;
-import net.masterzach32.swagbot.music.player.AudioTrack;
+import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.Constants;
+import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
+import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
+import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.RequestBuffer;
 import sx.blah.discord.util.audio.AudioPlayer;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GuildSettings {
 	
@@ -27,11 +36,11 @@ public class GuildSettings {
 	private String lastChannel;
     private List<String> queue;
 	
-	public GuildSettings(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, boolean announce, boolean changeNick, String lastChannel, List<String> queue) {
+	protected GuildSettings(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, boolean announce, boolean changeNick, String lastChannel, List<String> queue) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
 		skipIDs = new ArrayList<>();
-		this.guildName = guild.getName();			
+		this.guildName = guild.getName();
 		this.commandPrefix = commandPrefix;
 		this.maxSkips = maxSkips;
 		this.volume = volume;
@@ -40,6 +49,8 @@ public class GuildSettings {
 		this.announce = announce;
         this.changeNick = changeNick;
         this.lastChannel = lastChannel;
+        for(String str : queue)
+            App.logger.info("loaded queue:" + str);
         this.queue = queue;
 	}
 	
@@ -139,21 +150,47 @@ public class GuildSettings {
         return queue;
     }
 
-    public void saveSettings() throws IOException {
+    public GuildSettings saveSettings() throws IOException {
         getPlaylistManager().save();
 
-        List<AudioPlayer.Track> tracks = AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).getPlaylist();
-        List<String> queue = new ArrayList<>();
+        List<AudioPlayer.Track> tracks = getAudioPlayer().getPlaylist();
+        queue = new ArrayList<>();
         for(AudioPlayer.Track track : tracks)
             if(track != null)
                 queue.add(((AudioTrack) track).getUrl());
-        setQueue(queue);
-
-        AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).clear();
 
         BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
         fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
         fout.close();
+        return this;
+    }
+
+    public GuildSettings applySettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {
+        RequestBuffer.request(() -> {
+            try {
+                guild.setUserNickname(App.client.getOurUser(), "SwagBot");
+            } catch (MissingPermissionsException | DiscordException e) {
+                e.printStackTrace();
+            }
+        });
+        App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
+
+        if (App.client.getVoiceChannelByID(lastChannel) != null && !lastChannel.equals(""))
+            App.client.getVoiceChannelByID(lastChannel).join();
+
+        if (queue.size() > 0) {
+            AudioSource source;
+            for (String url : queue) {
+                if (url.contains("youtube"))
+                    source = new YouTubeAudio(url);
+                else if (url.contains("soundcloud"))
+                    source = new SoundCloudAudio(url);
+                else
+                    source = new AudioStream(url);
+                getAudioPlayer().queue(source.getAudioTrack(null, false));
+            }
+        }
+        return this;
     }
 
     public AudioPlayer getAudioPlayer() {
