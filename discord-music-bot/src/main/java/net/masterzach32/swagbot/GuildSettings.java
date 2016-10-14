@@ -47,10 +47,6 @@ public class GuildSettings {
 		return guild.getID();
 	}
 	
-	public String getName() {
-		return guildName;
-	}
-	
 	public void resetSkipStats() {
 		skipIDs.clear();
 	}

@@ -865,7 +865,7 @@ public class App {
                 e.printStackTrace();
             }
         });
-        /*new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
+        new Command("SHOUTcast Radio", "radio", "Play a SHOUTcast radio station through SwagBot!", 0, ((message, params) -> {
             String shoutcast = "http://api.shoutcast.com/";
             HttpResponse<JsonNode> response = Unirest.get(shoutcast + "legacy/stationsearch?f=json&k=" + prefs.getShoutCastApiKey() + "&search=")
                     .header("k", prefs.getShoutCastApiKey())
@@ -874,8 +874,8 @@ public class App {
             if(response.getStatus() != 200)
                 sendMessage("An error occurred while contacting the SHOUTcast API:\n```" + response.getBody().toString() + "\n```", message.getAuthor(), message.getChannel());
             JSONObject json = response.getBody().getArray().getJSONObject(0);
-        }));*/
-        /*new Command("WordCloud", "wordcloud", "Creates a WordCloud based on the provided text. If no parameters are provided, then it will create a WordCloud based on the messages in the current channel.", 0, (message, params) -> {
+        }));
+        new Command("WordCloud", "wordcloud", "Creates a WordCloud based on the provided text. If no parameters are provided, then it will create a WordCloud based on the messages in the current channel.", 0, (message, params) -> {
             WordCloud api = null;
             sendMessage("Getting your wordcloud", null, message.getChannel());
             if(params.length == 0)
@@ -883,7 +883,7 @@ public class App {
             else
                 api = new WordCloud(message.getContent().substring(11));
             sendMessage(api.getUrl(), null, message.getChannel());
-        });*/
+        });
         new Command("Currency Exchange", "exchange", "Convert from one currency to another.", 0, (message, params) -> {
             List<String> currencies = CurrencyConverter.getAvailableCurrencies();
             String str = "";
@@ -1052,7 +1052,7 @@ public class App {
         }).get();
     }
 
-    private static void waitAndDeleteMessage(IMessage message, int seconds) {
+    public static void waitAndDeleteMessage(IMessage message, int seconds) {
         new Thread() {
             public void run() {
                 RequestBuffer.request(() -> {
