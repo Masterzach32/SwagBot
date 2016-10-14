@@ -26,13 +26,13 @@ public class PlaylistManager {
 	private String guildID;
 
 	public PlaylistManager(String guildID) {
-		playlists = new ArrayList<LocalPlaylist>();
+		playlists = new ArrayList<>();
 		this.guildID = guildID;
 	}
 	
 	public void save() {
 		for(LocalPlaylist p : playlists) {
-			BufferedWriter fout = null;
+			BufferedWriter fout;
 			try {
 				fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guildID + "/playlists/" + URLEncoder.encode(p.getName(), "UTF-8") + ".json"));
 				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(p));
@@ -47,7 +47,7 @@ public class PlaylistManager {
 		this.playlists.clear();
 		File[] playlists = App.manager.getFile(Constants.GUILD_SETTINGS + guildID + "/playlists/").listFiles();
 		for(File file : playlists) {
-			RandomAccessFile fin = null;
+			RandomAccessFile fin;
 			byte[] buffer = null;
 			
 			try {

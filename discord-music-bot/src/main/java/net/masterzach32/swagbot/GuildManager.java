@@ -58,39 +58,12 @@ public class GuildManager {
         if(!guilds.contains(g))
 		    guilds.add(g);
 
-        g.saveSettings();
-
 		return g;
 	}
 
 	public void applyGuildSettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {
-        for(GuildSettings g : guilds) {
-            IGuild guild = App.client.getGuildByID(g.getID());
-            RequestBuffer.request(() -> {
-                try {
-                    guild.setUserNickname(App.client.getOurUser(), "SwagBot");
-                } catch (MissingPermissionsException | DiscordException e) {
-                    e.printStackTrace();
-                }
-            });
-            App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
-
-            if(App.client.getVoiceChannelByID(g.getLastChannel()) != null && !g.getLastChannel().equals(""))
-                App.client.getVoiceChannelByID(g.getLastChannel()).join();
-
-            List<String> saved = g.getQueue();
-            if(saved.size() > 0) {
-                AudioSource source;
-                for (String url : saved) {
-                    if (url.contains("youtube"))
-                        source = new YouTubeAudio(url);
-                    else if (url.contains("soundcloud"))
-                        source = new SoundCloudAudio(url);
-                    else
-                        source = new AudioStream(url);
-                    AudioPlayer.getAudioPlayerForGuild(App.client.getGuildByID(guild.getID())).queue(source.getAudioTrack(null, false));
-                }
-            }
+        for(int i = 0; i < guilds.size(); i++) {
+			guilds.get(i).applySettings().saveSettings();
         }
 	}
 
@@ -108,9 +81,9 @@ public class GuildManager {
 	}
 	
 	public GuildSettings getGuild(IGuild guild) {
-		for(GuildSettings g : guilds)
-			if(g != null && g.getID().equals(guild.getID()))
-				return g;
+		for(int i = 0; i < guilds.size(); i++)
+			if(guilds.get(i) != null && guilds.get(i).getID().equals(guild.getID()))
+				return guilds.get(i);
 		return null;
 	}
 }

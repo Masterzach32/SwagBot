@@ -33,7 +33,7 @@ public class EventHandler {
     public void onGuildCreateEvent(GuildCreateEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
         App.guilds.loadGuild(event.getGuild());
         RequestBuffer.request(() -> {
-            if(event.getClient().isReady() && event.getClient().getGuilds().size() > 250)
+            if(event.getClient().isReady())
                 event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
         });
     }
@@ -157,8 +157,8 @@ public class EventHandler {
         }
 
         if (event.getMessage().getChannel().getID().equals("97342233241464832")) {
-            if (!event.getMessage().getEmbedded().isEmpty()) {
-                App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("Please follow the rules and dont post links in #chat.");
+            if (!event.getMessage().getEmbedded().isEmpty() || !event.getMessage().getAttachments().isEmpty() || message.contains("http://") || message.contains("https://")) {
+                App.waitAndDeleteMessage(App.sendMessage("please dont post links or attachments in #chat", event.getMessage().getAuthor(), event.getMessage().getChannel()), 30);
                 event.getMessage().delete();
                 return;
             }

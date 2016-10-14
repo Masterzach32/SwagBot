@@ -161,14 +161,20 @@ public class App {
         });
         new Command("Reload", "reload", "Reloads the bot for this guild, should fix any audio problems", 1, (message, params) -> {
             GuildSettings guild = guilds.removeGuild(message.getGuild());
+            guild.saveSettings();
             if(guild.getAudioPlayer().getPlaylistSize() > 0)
                 guild.getAudioPlayer().clear();
             IVoiceChannel channel = getCurrentChannelForGuild(message.getGuild());
             if(channel != null && channel.isConnected())
                 channel.leave();
-            guild.saveSettings();
             try {
-                guilds.loadGuild(message.getGuild());
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                GuildSettings g = guilds.loadGuild(message.getGuild()).applySettings().saveSettings();
+                g.getAudioPlayer().setPaused(false);
             } catch (NotStreamableException | UnsupportedAudioFileException | YouTubeDLException | FFMPEGException e) {
                 e.printStackTrace();
             }
@@ -997,7 +1003,7 @@ public class App {
         }).get();
     }
 
-    private static void waitAndDeleteMessage(IMessage message, int seconds) {
+    public static void waitAndDeleteMessage(IMessage message, int seconds) {
         new Thread() {
             public void run() {
                 RequestBuffer.request(() -> {
