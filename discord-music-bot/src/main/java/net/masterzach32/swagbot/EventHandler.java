@@ -33,7 +33,7 @@ public class EventHandler {
     public void onGuildCreateEvent(GuildCreateEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
         App.guilds.loadGuild(event.getGuild());
         RequestBuffer.request(() -> {
-            if(event.getClient().isReady())
+            if(event.getClient().isReady() && event.getClient().getGuilds().size() > 250)
                 event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
         });
     }
@@ -194,14 +194,18 @@ public class EventHandler {
     @EventSubscriber
     public void onTrackStartEvent(TrackStartEvent event) throws RateLimitException, MissingPermissionsException {
         try {
-            //if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
-              //  App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
+            if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
+                App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
             if(App.guilds.getGuild(event.getPlayer().getGuild()).shouldChangeNick()) {
                 String track;
                 if (((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().length() > 32)
                     track = ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().substring(0, 32);
                 else
                     track = ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle();
+                if(track == null) {
+                    logger.warn("An audio track returned a null value for getTitle() " + event.getPlayer().getCurrentTrack().toString());
+                    track = "SwagBot";
+                }
                 event.getPlayer().getGuild().setUserNickname(event.getClient().getOurUser(), track);
             }
         } catch (DiscordException e) {

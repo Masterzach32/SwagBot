@@ -73,28 +73,28 @@ public class App {
         // load guild-specific settings
         guilds = new GuildManager();
 
-        client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).withMaxReconnectAttempts(5).build();
+        client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
         client.login();
 
         // register commands
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
             if (params.length == 0) {
-                //Command.listAllCommands(message.getAuthor());
-                if (!message.getChannel().isPrivate())
-                    sendMessage(Command.listAllCommands(message.getAuthor()), message.getAuthor(), message.getChannel());
+                Command.listAllCommands(message.getAuthor());
+                //if (!message.getChannel().isPrivate())
+                    //sendMessage(Command.listAllCommands(message.getAuthor()), message.getAuthor(), message.getChannel());
             } else {
                 for (Command c : Command.commands)
                     if (c.getIdentifier().equals(params[0])) {
-                        /*if (message.getChannel().isPrivate())
+                        if (message.getChannel().isPrivate())
                             App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + c.getName() + "** `" + Constants.DEFAULT_COMMAND_PREFIX + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo());
-                        else*/
+                        else
                             sendMessage("**" + c.getName() + "** `" + guilds.getGuild(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo(), null, message.getChannel());
                         return;
                     }
-                /*if (message.getChannel().isPrivate())
+                if (message.getChannel().isPrivate())
                     App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Could not find command **" + Constants.DEFAULT_COMMAND_PREFIX + params[0] + "**");
-                */else
+                else
                     sendMessage("Could not find command **" + guilds.getGuild(message.getGuild()).getCommandPrefix() + params[0] + "**", null, message.getChannel());
             }
         });
