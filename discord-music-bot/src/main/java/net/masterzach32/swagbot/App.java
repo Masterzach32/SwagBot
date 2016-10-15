@@ -419,8 +419,7 @@ public class App {
             if (command.equals("create")) {
                 guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name, false, false));
                 response = "Created playlist **" + name + "**";
-            }
-            if (command.equals("import") && params.length == 3) {
+            } else if (command.equals("import") && params.length == 3) {
                 String id = null;
                 if(params[2].contains("playlist")) {
                     id = params[2].substring(params[2].indexOf("list=") + 5);
@@ -456,7 +455,8 @@ public class App {
                     response = "You must provide a YouTube or SoundCloud link!";
                 else {
                     message.delete();
-                    response = playlist.add(params[2]) ? "Added **" + new YouTubeAudio(params[2]).getTitle() + "** to **" + playlist.getName() + "**" : "Playlist **" + playlist.getName() + "** already has " + new YouTubeAudio(params[2]).getTitle();
+                    AudioSource s = playlist.add(params[2]);
+                    response = s != null ? "Added **" + s.getTitle() + "** to **" + playlist.getName() + "**" : "Could not add `" + params[2] + "` to playlist **" + playlist.getName() + "**";
                 }
             } else if (command.equals("remove") && perms && !playlist.isLocked()) {
                 playlist.remove(params[2]);
@@ -483,9 +483,9 @@ public class App {
                     if(params[0].contains("playlist")) {
                         message.delete();
                         m = sendMessage("Queuing Playlist " + params[0], null, message.getChannel());
-                        for(String music : getYouTubeVideosFromPlaylist(params[0].substring(params[0].indexOf("list=") + 5)))
+                        for(YouTubeAudio music : getYouTubeVideosFromPlaylist(params[0].substring(params[0].indexOf("list=") + 5)))
                             try {
-                                playAudioFromAudioSource(new YouTubeAudio(music), true, null, message.getAuthor(), message.getGuild());
+                                playAudioFromAudioSource(music, true, null, message.getAuthor(), message.getGuild());
                             } catch (IOException | UnsupportedAudioFileException e) {
                                 e.printStackTrace();
                             }
@@ -500,9 +500,9 @@ public class App {
                                 id = str.replace("list=", "");
                         message.delete();
                         m = sendMessage("Queuing Playlist " + params[0], null, message.getChannel());
-                        for(String music : getYouTubeVideosFromPlaylist(id))
+                        for(YouTubeAudio music : getYouTubeVideosFromPlaylist(id))
                             try {
-                                playAudioFromAudioSource(new YouTubeAudio(music), true, null, message.getAuthor(), message.getGuild());
+                                playAudioFromAudioSource(music, true, null, message.getAuthor(), message.getGuild());
                             } catch (IOException | UnsupportedAudioFileException e) {
                                 e.printStackTrace();
                             }
@@ -1090,8 +1090,8 @@ public class App {
         });
     }
 
-    private static List<String> getYouTubeVideosFromPlaylist(String id) throws UnirestException {
-        List<String> music = new ArrayList<>();
+    private static List<YouTubeAudio> getYouTubeVideosFromPlaylist(String id) throws UnirestException {
+        List<YouTubeAudio> music = new ArrayList<>();
         HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems?" +
                 "part=contentDetails" +
                 "&maxResults=50" +
@@ -1103,7 +1103,7 @@ public class App {
             nextPage = json.getString("nextPageToken");
         for(Object obj : json.getJSONArray("items"))
             if(obj instanceof JSONObject)
-                music.add("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId"));
+                music.add(new YouTubeAudio("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId")));
         while(nextPage != null) {
             response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems?" +
                     "part=contentDetails" +
@@ -1118,7 +1118,7 @@ public class App {
                 nextPage = null;
             for(Object obj : json.getJSONArray("items"))
                 if(obj instanceof JSONObject)
-                    music.add("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId"));
+                    music.add(new YouTubeAudio("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId")));
         }
         return music;
     }

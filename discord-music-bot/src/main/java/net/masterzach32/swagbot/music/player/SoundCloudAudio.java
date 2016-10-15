@@ -14,12 +14,13 @@ import sx.blah.discord.handle.obj.IUser;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 
-public class SoundCloudAudio implements AudioSource {
+public class SoundCloudAudio extends AudioSource {
 
-    private String url, streamUrl, name, author, id;
+    private String streamUrl, author, id;
 
     public SoundCloudAudio(String url) throws NotStreamableException {
         this.url = url;
+        this.source = "soundcloud";
         try {
             HttpResponse<JsonNode> response = Unirest.get("http://api.soundcloud.com/resolve?url=" + url + "&client_id=" + App.prefs.getSCClientId())
                     .header("Content-Type", "application/json")
@@ -29,7 +30,7 @@ public class SoundCloudAudio implements AudioSource {
             if(response.getStatus() != 200)
                 App.logger.warn("Error with SoundCloud api: " + url);
 
-            name = json.getString("title");
+            title = json.getString("title");
             author = json.getJSONObject("user").getString("username");
             id = json.getInt("id") + "";
             if(!json.getBoolean("streamable"))
@@ -42,11 +43,7 @@ public class SoundCloudAudio implements AudioSource {
     }
 
     public String getTitle() {
-        return name + " - " + author;
-    }
-
-    public String getSource() {
-        return "soundcloud";
+        return title + " - " + author;
     }
 
     public String getUrl() {
