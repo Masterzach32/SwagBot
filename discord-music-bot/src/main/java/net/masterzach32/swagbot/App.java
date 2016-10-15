@@ -655,30 +655,35 @@ public class App {
                 sendMessage("**Cleared the queue.**", null, message.getChannel());
             }
         });
-        new Command("Queue", "queue", "Displays the songs queue.", 0, (message, params) -> {
+        new Command("Queue", "queue", "Display the given queue page, default 1.\n~queue [page number]", 0, (message, params) -> {
             AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
-            if(player.getPlaylist().size() == 0) {
-                sendMessage("There are no songs in the queue!", null, message.getChannel());
+            String str = "";
+            int pageNumber = 0;
+            if (player.getPlaylistSize() == 0) {
+                sendMessage("There are no songs in the queue!", message.getAuthor(), message.getChannel());
                 return;
+            } else if (params.length == 0 || params[0] == null || params[0].equals(""))
+                pageNumber = 0;
+            else {
+                try {
+                    pageNumber = Integer.parseInt(params[0]);
+                    if (pageNumber > player.getPlaylistSize() / 15 + 1 || pageNumber < 1)
+                        pageNumber = 0;
+                    else
+                        pageNumber = pageNumber - 1;
+                } catch (NumberFormatException e) {
+                    sendMessage("You didn't provide a number!", message.getAuthor(), message.getChannel());
+                }
             }
-            String str = " There are **" + (player.getPlaylistSize() - 1) + "** song(s) in queue.\n";
-            String name;
-            if(((AudioTrack) player.getPlaylist().get(0)).getUser() == null)
-                name = "Unknown";
-            else
-                name = ((AudioTrack) player.getPlaylist().get(0)).getUser().getName();
-            str += "Currently Playing: **" + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "** (**" + name + "**)\n";
-            for (int i = 1; i < player.getPlaylist().size(); i++) {
-                if(((AudioTrack) player.getPlaylist().get(i)).getUser() == null)
-                    name = "Unknown";
-                else
-                    name = ((AudioTrack) player.getPlaylist().get(i)).getUser().getName();
-                String s = "**(" + i + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + name + "**)\n";
-                if ((str + s).length() > 1800)
-                    break;
-                str += s;
 
+            str += "There are **" + (player.getPlaylistSize() - 1) + "** song(s) in queue.\n";
+            str += "Currently Playing: **" + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "** (**" + ((AudioTrack) player.getPlaylist().get(0)).getUser() + "**)\n";
+            str += "Queue Page " + (pageNumber + 1) + ":\n";
+
+            for(int i = pageNumber * 15; i < player.getPlaylistSize() && i < (pageNumber + 1) * 15; i++) {
+                str += "**(" + (i + 1) + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + ((AudioTrack) player.getPlaylist().get(i)).getUser() + "**)\n";
             }
+
             sendMessage(str, null, message.getChannel());
         });
         new Command("Roll a Dice", "dice", "Rolls a number on a dice from 1 to the amount you put. Default 6.", 0, (message, params) -> {
