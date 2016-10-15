@@ -45,18 +45,34 @@ public class LocalPlaylist {
         this.requiresPerms = json.getBoolean("requiresPerms");
         this.sources = new ArrayList<>();
         for(int i = 0; i < json.getJSONArray("sources").length(); i++) {
-            JSONObject jsonSource = (JSONObject) json.getJSONArray("sources").get(i);
-            AudioSource source;
-            try {
-                if (jsonSource.getString("source").equals("youtube"))
-                    source = new YouTubeAudio(jsonSource.getString("url"));
-                else if (jsonSource.getString("source").equals("soundcloud"))
-                    source = new SoundCloudAudio(jsonSource.getString("url"));
-                else
-                    source = new AudioStream(jsonSource.getString("url"));
-                sources.add(source);
-            } catch (NotStreamableException | UnirestException e) {
-                e.printStackTrace();
+			if(json.getJSONArray("sources").get(i) instanceof JSONObject) {
+                JSONObject jsonSource = (JSONObject) json.getJSONArray("sources").get(i);
+                AudioSource source;
+                try {
+                    if (jsonSource.getString("source").equals("youtube"))
+                        source = new YouTubeAudio(jsonSource.getString("url"));
+                    else if (jsonSource.getString("source").equals("soundcloud"))
+                        source = new SoundCloudAudio(jsonSource.getString("url"));
+                    else
+                        source = new AudioStream(jsonSource.getString("url"));
+                    sources.add(source);
+                } catch (NotStreamableException | UnirestException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                String url = (String) json.getJSONArray("sources").get(i);
+                AudioSource source;
+                try {
+                    if (url.contains("youtube"))
+                        source = new YouTubeAudio(url);
+                    else if (url.contains("soundcloud"))
+                        source = new SoundCloudAudio(url);
+                    else
+                        source = new AudioStream(url);
+                    sources.add(source);
+                } catch (NotStreamableException | UnirestException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -33,7 +33,7 @@ public class EventHandler {
     public void onGuildCreateEvent(GuildCreateEvent event) throws UnsupportedAudioFileException, UnirestException, FFMPEGException, NotStreamableException, YouTubeDLException, IOException, MissingPermissionsException {
         App.guilds.loadGuild(event.getGuild());
         RequestBuffer.request(() -> {
-            if(event.getClient().isReady())
+            if(event.getClient().isReady() && event.getClient().isLoggedIn())
                 event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
         });
     }
