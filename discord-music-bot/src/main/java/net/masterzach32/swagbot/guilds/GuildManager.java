@@ -75,7 +75,7 @@ public class GuildManager {
         return null;
 	}
 	
-	public void saveGuildSettings() throws IOException {
+	public void saveGuildSettings() {
 		for(int i = 0; i < guilds.size(); i++) {
             guilds.get(i).saveSettings();
 		}

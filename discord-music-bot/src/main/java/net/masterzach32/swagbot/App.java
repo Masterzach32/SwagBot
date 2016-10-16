@@ -871,7 +871,6 @@ public class App {
     private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
         logger.info("user initiated shutdown");
         client.changeStatus(Status.game("Shutting Down"));
-        guilds.saveGuildSettings();
         prefs.save();
         if (prefs.clearCacheOnShutdown())
             clearCache();

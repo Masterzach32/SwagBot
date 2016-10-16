@@ -47,6 +47,8 @@ public class EventHandler {
     @EventSubscriber
     public void onDiscordDisconnectEvent(DiscordDisconnectedEvent event) {
         logger.error("DISCONNECTED FROM DISCORD");
+        logger.error(event.getReason().toString());
+        App.guilds.saveGuildSettings();
     }
 
     @EventSubscriber
