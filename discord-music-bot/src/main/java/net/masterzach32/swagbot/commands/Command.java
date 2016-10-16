@@ -109,7 +109,7 @@ public class Command implements Comparable<Command> {
 		str += "\n\n";
 		str += "For more info on the bot and its commands:\nhttp://masterzach32.net/projects/swagbot";
 		str += "\n\n";
-		str += "Join SwagBot Hub:\nhttps://discord.gg/RFHKKvR";
+		str += "Join SwagBot Hub:\nhttps://discord.me/swagbothub";
 		str += "\n\n";
 		str += "Want to add SwagBot to your server? Click the link below:\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8";
 		App.client.getOrCreatePMChannel(user).sendMessage(str);
