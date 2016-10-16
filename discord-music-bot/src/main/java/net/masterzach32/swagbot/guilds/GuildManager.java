@@ -1,4 +1,4 @@
-package net.masterzach32.swagbot;
+package net.masterzach32.swagbot.guilds;
 
 import java.io.*;
 import java.util.*;
@@ -7,19 +7,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import net.masterzach32.swagbot.music.player.*;
+import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.Constants;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
-import sx.blah.discord.handle.impl.obj.Guild;
 import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IVoiceChannel;
-import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
-import sx.blah.discord.util.RequestBuffer;
-import sx.blah.discord.util.audio.AudioPlayer;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -28,7 +22,7 @@ public class GuildManager {
 	private List<GuildSettings> guilds;
 
 	public GuildManager() {
-		guilds = new ArrayList<GuildSettings>();
+		guilds = new ArrayList<>();
 	}
 	
 	public GuildSettings loadGuild(IGuild guild) throws IOException, UnirestException, NotStreamableException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, MissingPermissionsException {

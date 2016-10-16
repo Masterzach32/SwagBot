@@ -9,6 +9,13 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
+import net.masterzach32.swagbot.music.player.AudioSource;
+import net.masterzach32.swagbot.music.player.AudioStream;
+import net.masterzach32.swagbot.music.player.SoundCloudAudio;
+import net.masterzach32.swagbot.music.player.YouTubeAudio;
+import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +67,9 @@ public class PlaylistManager {
 			}
 			
 			String json = new String(buffer);
-			this.playlists.add(new Gson().fromJson(json, LocalPlaylist.class));
+            JSONObject obj = new JSONObject(json);
+            LocalPlaylist p = new LocalPlaylist(obj);
+			this.playlists.add(p);
 			logger.info("loaded:" + file.getName());
 		}
 	}
@@ -70,15 +79,15 @@ public class PlaylistManager {
 	}
 	
 	public void remove(String name) {
-		for(LocalPlaylist p : playlists)
-			if(p.getName().toLowerCase().equals(name.toLowerCase()))
-				playlists.remove(p);
+		for(int i = 0; i < playlists.size(); i++)
+			if(playlists.get(i).getName().toLowerCase().equals(name.toLowerCase()))
+				playlists.remove(i);
 	}
 	
 	public LocalPlaylist get(String name) {
-		for(LocalPlaylist p : playlists)
-			if(p.getName().toLowerCase().equals(name.toLowerCase()))
-				return p;
+		for(int i = 0; i < playlists.size(); i++)
+			if(playlists.get(i).getName().toLowerCase().equals(name.toLowerCase()))
+				return playlists.get(i);
 		return null;
 	}
 	

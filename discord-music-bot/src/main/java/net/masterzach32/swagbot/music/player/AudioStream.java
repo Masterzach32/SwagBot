@@ -5,20 +5,15 @@ import sx.blah.discord.handle.obj.IUser;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 
-public class AudioStream implements AudioSource {
-
-    private String url;
+public class AudioStream extends AudioSource {
 
     public AudioStream(String url) {
         this.url = url;
+        this.source = "stream";
     }
 
     public String getTitle() {
         return url;
-    }
-
-    public String getSource() {
-        return "stream";
     }
 
     public String getUrl() {
@@ -29,12 +24,7 @@ public class AudioStream implements AudioSource {
         return url;
     }
 
-    public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) {
-        try {
-            return new AudioTrack(url, shouldAnnounce, url, user);
-        } catch (IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException {
+        return new AudioTrack(url, shouldAnnounce, url, user);
     }
 }

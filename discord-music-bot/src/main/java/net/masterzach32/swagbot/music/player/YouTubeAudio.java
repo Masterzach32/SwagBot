@@ -26,21 +26,22 @@ import java.util.regex.Matcher;
 
 import static net.dv8tion.jda.player.source.AudioStream.TIME_PATTERN;
 
-public class YouTubeAudio implements AudioSource {
+public class YouTubeAudio extends AudioSource {
 
-    private String url, name, video_id;
+    private String video_id;
     private boolean isLiveStream;
 
     public YouTubeAudio(String url) throws UnirestException {
         this.url = url;
+        this.source = "youtube";
         video_id = url.substring(url.indexOf("?v=") + 3, url.indexOf("=") + 12);
         HttpResponse<JsonNode> response =  Unirest.get("https://www.googleapis.com/youtube/v3/videos" +
                 "?part=snippet" +
                 "&id=" + video_id +
                 "&key=" + App.prefs.getGoogleAuthKey()).asJson();
         if(response.getStatus() == 200) {
-            JSONObject json = response.getBody().getArray().getJSONObject(0).getJSONArray("items").getJSONObject(0).getJSONObject("snippet");
-            name = json.getString("title");
+            JSONObject json = response.getBody().getObject().getJSONArray("items").getJSONObject(0).getJSONObject("snippet");
+            title = json.getString("title");
             isLiveStream = json.getString("liveBroadcastContent").equals("live");
         } else
             App.logger.warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
@@ -48,11 +49,7 @@ public class YouTubeAudio implements AudioSource {
     }
 
     public String getTitle() {
-        return name;
-    }
-
-    public String getSource() {
-        return "youtube";
+        return title;
     }
 
     public String getUrl() {
@@ -66,7 +63,7 @@ public class YouTubeAudio implements AudioSource {
     public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException {
         for (File file : App.manager.getFile(Constants.AUDIO_CACHE).listFiles())
             if (file.getName().contains(video_id))
-                return new AudioTrack(file, url, shouldAnnounce, name, user);
+                return new AudioTrack(file, url, shouldAnnounce, title, user);
         App.logger.info("downloading:" + video_id);
         ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", url);
         int yt_err = -1;
@@ -120,7 +117,7 @@ public class YouTubeAudio implements AudioSource {
 
         for (File file : App.manager.getFile(Constants.AUDIO_CACHE).listFiles())
             if (file.getName().contains(video_id))
-                return new AudioTrack(file, url, shouldAnnounce, name, user);
+                return new AudioTrack(file, url, shouldAnnounce, title, user);
         return null;
     }
 

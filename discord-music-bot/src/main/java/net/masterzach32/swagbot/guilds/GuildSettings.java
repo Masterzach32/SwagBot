@@ -1,4 +1,4 @@
-package net.masterzach32.swagbot;
+package net.masterzach32.swagbot.guilds;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.music.PlaylistManager;
 import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.Constants;
@@ -16,7 +17,6 @@ import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
-import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.RequestBuffer;
@@ -49,8 +49,6 @@ public class GuildSettings {
 		this.announce = announce;
         this.changeNick = changeNick;
         this.lastChannel = lastChannel;
-        for(String str : queue)
-            App.logger.info("loaded queue:" + str);
         this.queue = queue;
 	}
 	
