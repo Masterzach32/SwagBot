@@ -359,7 +359,7 @@ public class App {
                 return;
             }
             if (params.length == 0)
-                sendMessage("Volume is currently set to **" + AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100 + "**", null, message.getChannel());
+                sendMessage("Volume is currently set to **" + (int) (AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getVolume() * 100) + "**", null, message.getChannel());
             else {
                 float vol = 0;
                 try {
