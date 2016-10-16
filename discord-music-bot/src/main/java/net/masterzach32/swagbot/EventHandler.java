@@ -158,7 +158,7 @@ public class EventHandler {
 
         if (event.getMessage().getChannel().getID().equals("97342233241464832")) {
             if (!event.getMessage().getEmbedded().isEmpty() || !event.getMessage().getAttachments().isEmpty() || message.contains("http://") || message.contains("https://")) {
-                App.waitAndDeleteMessage(App.sendMessage("please dont post links or attachments in #chat", event.getMessage().getAuthor(), event.getMessage().getChannel()), 30);
+                App.waitAndDeleteMessage(App.sendMessage("please don't post links or attachments in " + event.getMessage().getChannel().mention(), event.getMessage().getAuthor(), event.getMessage().getChannel()), 30);
                 event.getMessage().delete();
                 return;
             }

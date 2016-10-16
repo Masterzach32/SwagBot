@@ -81,8 +81,6 @@ public class App {
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
             if (params.length == 0) {
                 Command.listAllCommands(message.getAuthor());
-                //if (!message.getChannel().isPrivate())
-                    //sendMessage(Command.listAllCommands(message.getAuthor()), message.getAuthor(), message.getChannel());
             } else {
                 for (Command c : Command.commands)
                     if (c.getIdentifier().equals(params[0])) {
