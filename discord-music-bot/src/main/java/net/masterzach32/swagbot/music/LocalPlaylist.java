@@ -109,18 +109,12 @@ public class LocalPlaylist {
 	
 	public void queue(IUser user, IGuild guild) {
 		Collections.shuffle(music);
-		ExecutorService executor = Executors.newFixedThreadPool(2);
 		for(AudioSource s : music) {
-			Thread task = new Thread("loadAudioFromPlaylist:" + s) {
-				public void run() {
-					try {
-						App.playAudioFromAudioSource(s, true, null, user, guild);
-					} catch (IOException | UnsupportedAudioFileException e) {
-						e.printStackTrace();
-					}
-				}
-			};
-			executor.execute(task);
+            try {
+                App.playAudioFromAudioSource(s, true, null, user, guild);
+            } catch (IOException | UnsupportedAudioFileException e) {
+                e.printStackTrace();
+            }
 		}
 	}
 	

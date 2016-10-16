@@ -678,8 +678,8 @@ public class App {
             str += "Currently Playing: **" + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "** (**" + ((AudioTrack) player.getPlaylist().get(0)).getUser() + "**)\n";
             str += "Queue Page " + (pageNumber + 1) + ":\n";
 
-            for(int i = pageNumber * 15; i < player.getPlaylistSize() && i < (pageNumber + 1) * 15; i++) {
-                str += "**(" + (i + 1) + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + ((AudioTrack) player.getPlaylist().get(i)).getUser() + "**)\n";
+            for(int i = pageNumber * 15 + 1; i < player.getPlaylistSize() && i < (pageNumber + 1) * 15; i++) {
+                str += "**(" + (i) + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getDisplayName(message.getGuild()) + "**)\n";
             }
 
             sendMessage(str, null, message.getChannel());
