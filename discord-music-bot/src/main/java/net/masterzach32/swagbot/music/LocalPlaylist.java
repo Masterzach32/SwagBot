@@ -21,32 +21,32 @@ public class LocalPlaylist {
 	
 	private String name;
 	private boolean locked, requiresPerms;
-	private List<AudioSource> sources;
+	private List<AudioSource> music;
 
 	public LocalPlaylist(String name, boolean locked, boolean requiresPerms) {
 		this.name = name;
 		this.locked = locked;
 		this.requiresPerms = requiresPerms;
-		sources = new ArrayList<>();
+		music = new ArrayList<>();
 	}
 
 	public LocalPlaylist(String name, List<YouTubeAudio> music, boolean locked, boolean requiresPerms) throws UnirestException {
 		this.name = name;
 		this.locked = locked;
 		this.requiresPerms = requiresPerms;
-		this.sources = new ArrayList<>();
+		this.music = new ArrayList<>();
         for(int i = 0; i < music.size(); i++)
-            this.sources.add(music.get(i));
+            this.music.add(music.get(i));
 	}
 
 	protected LocalPlaylist(JSONObject json) {
         this.name = json.getString("name");
         this.locked = json.getBoolean("locked");
         this.requiresPerms = json.getBoolean("requiresPerms");
-        this.sources = new ArrayList<>();
-        for(int i = 0; i < json.getJSONArray("sources").length(); i++) {
-			if(json.getJSONArray("sources").get(i) instanceof JSONObject) {
-                JSONObject jsonSource = (JSONObject) json.getJSONArray("sources").get(i);
+        this.music = new ArrayList<>();
+        for(int i = 0; i < json.getJSONArray("music").length(); i++) {
+			if(json.getJSONArray("music").get(i) instanceof JSONObject) {
+                JSONObject jsonSource = (JSONObject) json.getJSONArray("music").get(i);
                 AudioSource source;
                 try {
                     if (jsonSource.getString("source").equals("youtube"))
@@ -55,12 +55,12 @@ public class LocalPlaylist {
                         source = new SoundCloudAudio(jsonSource.getString("url"));
                     else
                         source = new AudioStream(jsonSource.getString("url"));
-                    sources.add(source);
+                    music.add(source);
                 } catch (NotStreamableException | UnirestException e) {
                     e.printStackTrace();
                 }
             } else {
-                String url = (String) json.getJSONArray("sources").get(i);
+                String url = (String) json.getJSONArray("music").get(i);
                 AudioSource source;
                 try {
                     if (url.contains("youtube"))
@@ -69,7 +69,7 @@ public class LocalPlaylist {
                         source = new SoundCloudAudio(url);
                     else
                         source = new AudioStream(url);
-                    sources.add(source);
+                    music.add(source);
                 } catch (NotStreamableException | UnirestException e) {
                     e.printStackTrace();
                 }
@@ -78,9 +78,9 @@ public class LocalPlaylist {
     }
 	
 	public AudioSource add(String audio) {
-		for(int i = 0; i < sources.size(); i++)
-		    if(sources.get(i).getUrl().equals(audio))
-                return sources.get(i);
+		for(int i = 0; i < music.size(); i++)
+		    if(music.get(i).getUrl().equals(audio))
+                return music.get(i);
         AudioSource source;
         try {
             if(audio.contains("youtube"))
@@ -89,7 +89,7 @@ public class LocalPlaylist {
                 source = new SoundCloudAudio(audio);
             else
                 source = new AudioStream(audio);
-            sources.add(source);
+            music.add(source);
             return source;
         } catch (NotStreamableException | UnirestException e) {
             e.printStackTrace();
@@ -98,9 +98,9 @@ public class LocalPlaylist {
 	}
 	
 	public void remove(String audio) {
-		for(int i = 0; i < sources.size(); i++)
-			if(sources.get(i).getUrl().equals(audio))
-				sources.remove(i);
+		for(int i = 0; i < music.size(); i++)
+			if(music.get(i).getUrl().equals(audio))
+				music.remove(i);
 	}
 	
 	public String getName() {
@@ -108,9 +108,9 @@ public class LocalPlaylist {
 	}
 	
 	public void queue(IUser user, IGuild guild) {
-		Collections.shuffle(sources);
+		Collections.shuffle(music);
 		ExecutorService executor = Executors.newFixedThreadPool(2);
-		for(AudioSource s : sources) {
+		for(AudioSource s : music) {
 			Thread task = new Thread("loadAudioFromPlaylist:" + s) {
 				public void run() {
 					try {
@@ -126,19 +126,19 @@ public class LocalPlaylist {
 	
 	public String getInfo() {
 		String str = "";
-		for(int i = 0; i < sources.size(); i++) {
-            AudioSource source = sources.get(i);
+		for(int i = 0; i < music.size(); i++) {
+            AudioSource source = music.get(i);
 			str += "" + (i + 1) + ". **" + source.getTitle() + "**\n";
 		}
 		return str;
 	}
 
 	public List<AudioSource> getSources() {
-        return sources;
+        return music;
     }
 	
 	public int songs() {
-		return sources.size();
+		return music.size();
 	}
 	
 	public boolean isLocked() {

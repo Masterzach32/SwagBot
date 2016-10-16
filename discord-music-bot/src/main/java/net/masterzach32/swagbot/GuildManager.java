@@ -28,7 +28,7 @@ public class GuildManager {
 	private List<GuildSettings> guilds;
 
 	public GuildManager() {
-		guilds = new ArrayList<GuildSettings>();
+		guilds = new ArrayList<>();
 	}
 	
 	public GuildSettings loadGuild(IGuild guild) throws IOException, UnirestException, NotStreamableException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, MissingPermissionsException {
