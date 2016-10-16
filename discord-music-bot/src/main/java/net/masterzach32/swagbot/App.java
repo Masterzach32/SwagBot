@@ -256,6 +256,7 @@ public class App {
                         if(channel.getName().equals(str)) {
                             from = channel;
                             str = Utils.getContent(params, i+1, params.length);
+                            break;
                         }
                     for(IVoiceChannel c : message.getGuild().getVoiceChannels())
                         if(c.getName().equals(str)) {
@@ -282,7 +283,7 @@ public class App {
             }
             List<IUser> users = from.getConnectedUsers();
             moveUsers(users, to);
-            sendMessage("Successfully moved **" + (users.size() - 1) + "** guild members from **" + from + "** to **" + to + "**", null, message.getChannel());
+            sendMessage("Successfully moved **" + (users.size()) + "** guild members from **" + from + "** to **" + to + "**", null, message.getChannel());
         });
         new Command("Bring Users", "bring", "Brings all users in a server to you.", 1, (message, params) -> {
             if (message.getAuthor().getConnectedVoiceChannels().size() == 0) {
