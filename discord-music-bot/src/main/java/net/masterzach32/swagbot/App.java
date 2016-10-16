@@ -34,6 +34,7 @@ import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
+import sx.blah.discord.handle.impl.obj.VoiceChannel;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
 import sx.blah.discord.util.audio.AudioPlayer;
@@ -245,28 +246,27 @@ public class App {
                 }
             }
         });
-        new Command("Migrate Channels", "migrate", "Move anyone from one channel into another (beta).\nUsage: ~migrate [from] [to]. Use - or _ to replace spaces in Voice Channel names. \nIf no parameters are supplied then the bot will move everyone in the bots channel to the channel you are currently in.", 1, (message, params) -> {
+        new Command("Migrate Channels", "migrate", "Move anyone from one channel into another.\nUsage: ~migrate [from] [to]. \nIf no parameters are supplied then the bot will move everyone in the bots channel to the channel you are currently in.", 1, (message, params) -> {
             IVoiceChannel from = null, to = null;
-            if (params.length == 2) {
-                for (int i = 0; i < params.length; i++)
-                    if (params[i] != null) {
-                        params[i] = params[i].replaceAll("_", " ");
-                        params[i] = params[i].replaceAll("-", " ");
-                    }
-                for (IVoiceChannel c : message.getGuild().getVoiceChannels())
-                    if (c.getName().equals(params[0])) {
-                        from = c;
-                        break;
-                    }
-                for (IVoiceChannel c : message.getGuild().getVoiceChannels())
-                    if (c.getName().equals(params[1])) {
-                        to = c;
-                        break;
-                    }
-                if(from == null)
-                    sendMessage("Could not find channel **" + params[0] + "**", null, message.getChannel());
-                else if(to == null)
-                    sendMessage("Could not find channel **" + params[1] + "**", null, message.getChannel());
+            if (params.length > 2) {
+                int i;
+                for(i = 0; i < params.length; i++) {
+                    String str = Utils.getContent(params, 0, i+1);
+                    for(IVoiceChannel channel : message.getGuild().getVoiceChannels())
+                        if(channel.getName().equals(str)) {
+                            from = channel;
+                            str = Utils.getContent(params, i+1, params.length);
+                        }
+                    for(IVoiceChannel c : message.getGuild().getVoiceChannels())
+                        if(c.getName().equals(str)) {
+                            to = c;
+                            break;
+                        }
+                }
+                if(from == null || to == null) {
+                    sendMessage("Could not find voice channels with those names.", message.getAuthor(), message.getChannel());
+                    return;
+                }
             } else {
                 if (message.getAuthor().getConnectedVoiceChannels().size() == 0) {
                     sendMessage("**Make sure you are in the channel you want to populate!**", null, message.getChannel());
