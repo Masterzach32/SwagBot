@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.GsonBuilder;
+import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.music.PlaylistManager;
 import net.masterzach32.swagbot.music.player.*;
@@ -149,7 +151,7 @@ public class GuildSettings {
         return queue;
     }
 
-    public GuildSettings saveSettings() throws IOException {
+    public GuildSettings saveSettings() {
         getPlaylistManager().save();
 
         List<AudioPlayer.Track> tracks = getAudioPlayer().getPlaylist();
@@ -158,13 +160,17 @@ public class GuildSettings {
             if(track != null)
                 queue.add(((AudioTrack) track).getUrl());
 
-        BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
-        fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
-        fout.close();
+        try {
+            BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
+            fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
+            fout.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return this;
     }
 
-    public GuildSettings applySettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {
+    public GuildSettings applySettings() {
         RequestBuffer.request(() -> {
             try {
 				if(!App.client.getOurUser().getDisplayName(guild).equals("SwagBot"))
@@ -173,12 +179,16 @@ public class GuildSettings {
                 e.printStackTrace();
             }
         });
-        App.setVolume(App.guilds.getGuild(guild).getVolume(), guild);
+        App.setVolume(App.guilds.getGuildSettings(guild).getVolume(), guild);
 
-        if (App.client.getVoiceChannelByID(lastChannel) != null && !lastChannel.equals(""))
-            App.client.getVoiceChannelByID(lastChannel).join();
+		try {
+			if (App.client.getVoiceChannelByID(lastChannel) != null && !lastChannel.equals(""))
+				App.client.getVoiceChannelByID(lastChannel).join();
+		} catch (MissingPermissionsException e) {
+			e.printStackTrace();
+		}
 
-        if (queue.size() > 0) {
+		if (queue.size() > 0) {
             AudioSource source;
             for (String url : queue) {
 				try {
@@ -189,10 +199,10 @@ public class GuildSettings {
 					else
 						source = new AudioStream(url);
 					getAudioPlayer().queue(source.getAudioTrack(null, false));
-				} catch (YouTubeAPIException e) {
+				} catch (NotStreamableException | YouTubeAPIException | UnirestException | YouTubeDLException | IOException | FFMPEGException | UnsupportedAudioFileException e) {
 					e.printStackTrace();
 				}
-            }
+			}
         }
         return this;
     }

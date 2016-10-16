@@ -25,23 +25,29 @@ public class GuildManager {
 		guilds = new ArrayList<>();
 	}
 	
-	public GuildSettings loadGuild(IGuild guild) throws IOException, UnirestException, NotStreamableException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, MissingPermissionsException {
+	public GuildSettings loadGuild(IGuild guild) {
 		App.manager.mkdir(Constants.GUILD_SETTINGS + guild.getID() + "/playlists/");
 		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON);
-		if(!prefs.exists()) {
-			prefs.createNewFile();
-			BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
-			fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new GuildSettings(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, true, false, null, new ArrayList<>())));
-			fout.close();
+		GuildSettings temp = null;
+		try {
+			if (!prefs.exists()) {
+				prefs.createNewFile();
+				BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
+				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new GuildSettings(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, true, false, null, new ArrayList<>())));
+				fout.close();
+			}
+
+			RandomAccessFile fin = new RandomAccessFile(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON, "r"); // "r" = open file for reading only
+			byte[] buffer = new byte[(int) fin.length()];
+			fin.readFully(buffer);
+			fin.close();
+
+			String json = new String(buffer);
+			temp = new Gson().fromJson(json, GuildSettings.class);
+		} catch (IOException e) {
+
 		}
 
-        RandomAccessFile fin = new RandomAccessFile(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON, "r"); // "r" = open file for reading only
-        byte[] buffer = new byte[(int) fin.length()];
-		fin.readFully(buffer);
-		fin.close();
-		
-		String json = new String(buffer);
-		GuildSettings temp = new Gson().fromJson(json, GuildSettings.class);
         GuildSettings g;
         if(temp != null)
 		    g = new GuildSettings(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled(), temp.shouldAnnounce(), temp.shouldChangeNick(), temp.getLastChannel(), temp.getQueue());
@@ -56,7 +62,7 @@ public class GuildManager {
 		return g;
 	}
 
-	public void applyGuildSettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {
+	public void applyGuildSettings() {
         for(int i = 0; i < guilds.size(); i++) {
 			guilds.get(i).applySettings().saveSettings();
         }
@@ -75,10 +81,10 @@ public class GuildManager {
 		}
 	}
 	
-	public GuildSettings getGuild(IGuild guild) {
+	public GuildSettings getGuildSettings(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
 			if(guilds.get(i) != null && guilds.get(i).getID().equals(guild.getID()))
 				return guilds.get(i);
-		return null;
+		return loadGuild(guild);
 	}
 }

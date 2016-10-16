@@ -67,11 +67,7 @@ public class EventHandler {
     public void onReady(ReadyEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException, InterruptedException {
         RequestBuffer.request(() -> {
             event.getClient().changeStatus(Status.game(event.getClient().getGuilds().size() + " servers | ~help"));
-            try {
-                App.guilds.applyGuildSettings();
-            } catch (MissingPermissionsException | UnirestException | IOException | YouTubeDLException | FFMPEGException | UnsupportedAudioFileException | NotStreamableException e) {
-                e.printStackTrace();
-            }
+            App.guilds.applyGuildSettings();
         });
         if (App.prefs.shouldPostBotStats()) {
             HttpResponse<JsonNode> json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.getDiscordClientId() + "/stats")
@@ -106,9 +102,7 @@ public class EventHandler {
             return;
         }
 
-        GuildSettings g = App.guilds.getGuild(event.getMessage().getGuild());
-        if (g == null)
-            g = App.guilds.loadGuild(event.getMessage().getGuild());
+        GuildSettings g = App.guilds.getGuildSettings(event.getMessage().getGuild());
 
         if (g.isNSFWFilterEnabled()) {
             for (Attachment a : event.getMessage().getAttachments())
@@ -138,7 +132,7 @@ public class EventHandler {
 
         String identifier;
         String[] params;
-        if (message.indexOf(App.guilds.getGuild(event.getMessage().getGuild()).getCommandPrefix()) == 0) {
+        if (message.indexOf(App.guilds.getGuildSettings(event.getMessage().getGuild()).getCommandPrefix()) == 0) {
             message = message.substring(1, message.length());
             String[] split = message.split(" ");
             identifier = split[0];
@@ -165,9 +159,9 @@ public class EventHandler {
     @EventSubscriber
     public void onTrackStartEvent(TrackStartEvent event) throws RateLimitException, MissingPermissionsException {
         try {
-            if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuild(event.getPlayer().getGuild()).shouldAnnounce())
+            if (((AudioTrack) event.getPlayer().getCurrentTrack()).shouldAnnounce() && App.guilds.getGuildSettings(event.getPlayer().getGuild()).shouldAnnounce())
                 App.client.getOrCreatePMChannel(((AudioTrack) event.getPlayer().getCurrentTrack()).getUser()).sendMessage("Your song, **" + ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle() + "** is now playing in **" + event.getPlayer().getGuild().getName() + "!**");
-            if(App.guilds.getGuild(event.getPlayer().getGuild()).shouldChangeNick()) {
+            if(App.guilds.getGuildSettings(event.getPlayer().getGuild()).shouldChangeNick()) {
                 String track;
                 if (((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().length() > 32)
                     track = ((AudioTrack) event.getPlayer().getCurrentTrack()).getTitle().substring(0, 32);
@@ -182,13 +176,13 @@ public class EventHandler {
         } catch (DiscordException e) {
             logger.warn("Could not send message to " + ((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().getName());
         }
-        App.guilds.getGuild(event.getPlayer().getGuild()).resetSkipStats();
+        App.guilds.getGuildSettings(event.getPlayer().getGuild()).resetSkipStats();
     }
 
     @EventSubscriber
     public void onTrackFinishEvent(TrackFinishEvent event) {
         try {
-            if(App.guilds.getGuild(event.getPlayer().getGuild()).shouldChangeNick() && event.getPlayer().getPlaylistSize() == 0)
+            if(App.guilds.getGuildSettings(event.getPlayer().getGuild()).shouldChangeNick() && event.getPlayer().getPlaylistSize() == 0)
                 event.getPlayer().getGuild().setUserNickname(event.getClient().getOurUser(), "SwagBot");
         } catch (MissingPermissionsException | DiscordException | RateLimitException e) {
             e.printStackTrace();
