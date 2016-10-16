@@ -456,13 +456,13 @@ public class App {
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the title and artist for a song and SwagBot will attempt to find a video for it.", 0, (message, params) -> {
             if (guilds.getGuildSettings(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             }
             if(params.length == 0) {
-                sendMessage("Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.", message.getAuthor(), message.getChannel());
+                sendMessage("Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the title and artist for a song and SwagBot will attempt to find a video for it.", message.getAuthor(), message.getChannel());
                 return;
             }
             AudioSource source = null;
