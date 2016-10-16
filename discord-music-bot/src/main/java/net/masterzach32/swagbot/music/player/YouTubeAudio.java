@@ -4,11 +4,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import net.dv8tion.jda.player.source.RemoteSource;
-import net.dv8tion.jda.player.source.RemoteStream;
 import net.masterzach32.swagbot.App;
-import net.masterzach32.swagbot.music.player.AudioSource;
-import net.masterzach32.swagbot.music.player.AudioTrack;
 import net.masterzach32.swagbot.utils.Constants;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
@@ -16,15 +12,8 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IUser;
 
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-
-import static net.dv8tion.jda.player.source.AudioStream.TIME_PATTERN;
 
 public class YouTubeAudio extends AudioSource {
 

@@ -11,12 +11,6 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import com.github.oopsjpeg.osu4j.Osu;
-import com.github.oopsjpeg.osu4j.OsuMode;
-import com.github.oopsjpeg.osu4j.OsuScore;
-import com.github.oopsjpeg.osu4j.OsuUser;
-import com.github.oopsjpeg.osu4j.beatmap.OsuBeatmap;
-import com.github.oopsjpeg.osu4j.util.OsuRateLimitException;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;

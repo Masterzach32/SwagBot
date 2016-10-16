@@ -166,7 +166,8 @@ public class GuildSettings {
     public GuildSettings applySettings() throws MissingPermissionsException, UnirestException, NotStreamableException, UnsupportedAudioFileException, FFMPEGException, YouTubeDLException, IOException {
         RequestBuffer.request(() -> {
             try {
-                guild.setUserNickname(App.client.getOurUser(), "SwagBot");
+				if(!App.client.getOurUser().getDisplayName(guild).equals("SwagBot"))
+                	guild.setUserNickname(App.client.getOurUser(), "SwagBot");
             } catch (MissingPermissionsException | DiscordException e) {
                 e.printStackTrace();
             }

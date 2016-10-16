@@ -82,35 +82,6 @@ public class EventHandler {
                     .asJson();
             logger.info(json.getBody().getArray().getJSONObject(0).toString());
         }
-        /*int i = 1;
-        while(true) {
-            Thread.sleep(600000);
-            String status = "";
-            if(i == 0)
-                status = event.getClient().getGuilds().size() + " servers | ~help";
-            else if(i == 1) {
-                int num = 0;
-                for(int j = 0; j < event.getClient().getUsers().size(); i++)
-                    if(!event.getClient().getUsers().get(j).isBot())
-                        num++;
-                status = num + " humans | ~help";
-            } else if(i == 2) {
-                int num = 0;
-                for(int j = 0; j < event.getClient().getUsers().size(); i++)
-                    if(event.getClient().getUsers().get(j).isBot())
-                        num++;
-                status = num + " bots | ~help";
-            } else if(i == 3) {
-                status = App.manager.getFile(Constants.AUDIO_CACHE).listFiles().length + " songs | ~help";
-            } else if(i == 4)
-                status = 2 + " shards | ~help";
-            else if(i == 5) {
-                status = Command.commands.size() + " commands | ~help";
-                i = 0;
-            }
-            event.getClient().changeStatus(Status.game(status));
-            i++;
-        }*/
     }
 
     @EventSubscriber

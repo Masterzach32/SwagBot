@@ -9,17 +9,10 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mashape.unirest.http.exceptions.UnirestException;
-import net.masterzach32.swagbot.music.player.AudioSource;
-import net.masterzach32.swagbot.music.player.AudioStream;
-import net.masterzach32.swagbot.music.player.SoundCloudAudio;
-import net.masterzach32.swagbot.music.player.YouTubeAudio;
-import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.masterzach32.swagbot.App;

@@ -5,8 +5,6 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
-import net.masterzach32.swagbot.music.player.AudioSource;
-import net.masterzach32.swagbot.music.player.AudioTrack;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IUser;
