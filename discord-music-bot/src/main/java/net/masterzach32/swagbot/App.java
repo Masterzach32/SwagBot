@@ -110,6 +110,7 @@ public class App {
             else {
                 for (AudioSource thread : threads)
                     str += thread.getTitle() + "\n";
+                logger.info(threads.size() + "");
                 sendMessage(str, null, message.getChannel());
             }
         });
