@@ -21,6 +21,8 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import net.masterzach32.swagbot.guilds.GuildManager;
+import net.masterzach32.swagbot.guilds.GuildSettings;
 import net.masterzach32.swagbot.music.LocalPlaylist;
 import net.masterzach32.swagbot.utils.exceptions.*;
 import org.json.JSONArray;
@@ -675,11 +677,11 @@ public class App {
             }
 
             str += "There are **" + (player.getPlaylistSize() - 1) + "** song(s) in queue.\n";
-            str += "Currently Playing: **" + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "** (**" + ((AudioTrack) player.getPlaylist().get(0)).getUser() + "**)\n";
+            str += "Currently Playing: **" + ((AudioTrack) player.getPlaylist().get(0)).getTitle() + "** (**" + (((AudioTrack) player.getPlaylist().get(0)).getUser() == null ? "null" : ((AudioTrack) player.getPlaylist().get(0)).getUser().getDisplayName(message.getGuild())) + "**)\n";
             str += "Queue Page " + (pageNumber + 1) + ":\n";
 
-            for(int i = pageNumber * 15 + 1; i < player.getPlaylistSize() && i < (pageNumber + 1) * 15; i++) {
-                str += "**(" + (i) + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + ((AudioTrack) player.getPlaylist().get(i)).getUser().getDisplayName(message.getGuild()) + "**)\n";
+            for(int i = pageNumber * 15 + 1; i < player.getPlaylistSize() && i < (pageNumber + 1) * 15 + 1; i++) {
+                str += "**(" + (i) + ")** - " + ((AudioTrack) player.getPlaylist().get(i)).getTitle() + " (**" + (((AudioTrack) player.getPlaylist().get(i)).getUser() == null ? "null" : ((AudioTrack) player.getPlaylist().get(i)).getUser().getDisplayName(message.getGuild()))  + "**)\n";
             }
 
             sendMessage(str, null, message.getChannel());

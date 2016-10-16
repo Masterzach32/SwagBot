@@ -2,6 +2,7 @@ package net.masterzach32.swagbot;
 
 import java.io.IOException;
 
+import net.masterzach32.swagbot.guilds.GuildSettings;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
