@@ -418,8 +418,13 @@ public class App {
                             id = str.replace("list=", "");
                 }
                 if(id != null) {
-                    guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name, getYouTubeVideosFromPlaylist(id), false, false));
-                    response = "Imported YouTube playlist **" + params[2] + "** into playlist **" + name + "**";
+                    try {
+                        guilds.getGuild(message.getGuild()).getPlaylistManager().add(new LocalPlaylist(name, getYouTubeVideosFromPlaylist(id), false, false));
+                        response = "Imported YouTube playlist **" + params[2] + "** into playlist **" + name + "**";
+                    } catch (YouTubeAPIException e) {
+                        response = "Could not import " + params[2];
+                        e.printStackTrace();
+                    }
                 } else
                     response = "Could not get playlist id from **" + params[2] + "**";
                 message.delete();
@@ -517,12 +522,16 @@ public class App {
                     String search = URLEncoder.encode(Utils.getContent(params, 0), "UTF-8");
                     source = getVideoFromSearch(search);
                     if(source == null) {
-                        m.edit(message.getAuthor().mention() + " I couldn't find a video for **" + Utils.getContent(params, 0) + "**, try searching for the artist's name and song tiwwwwtle.");
+                        m.edit(message.getAuthor().mention() + " I couldn't find a video for **" + Utils.getContent(params, 0) + "**, try searching for the artist's name and song title.");
                         return;
                     }
                 }
             } catch (NotStreamableException e) {
-                waitAndDeleteMessage(sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel()), 25);
+                waitAndDeleteMessage(sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel()), 30);
+                e.printStackTrace();
+                return;
+            } catch (YouTubeAPIException e) {
+                waitAndDeleteMessage(sendMessage("Please make sure your video link contains a valid YouTube video and is not private!", message.getAuthor(), message.getChannel()), 30);
                 e.printStackTrace();
                 return;
             }
@@ -931,6 +940,8 @@ public class App {
     }
 
     public static void playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IMessage message, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
+        if(source == null)
+            return;
         Thread t = new Thread("streaming: " + source.getTitle()) {
             public void run() {
                 AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
@@ -1031,7 +1042,7 @@ public class App {
         });
     }
 
-    private static List<YouTubeAudio> getYouTubeVideosFromPlaylist(String id) throws UnirestException {
+    private static List<YouTubeAudio> getYouTubeVideosFromPlaylist(String id) throws UnirestException, YouTubeAPIException {
         List<YouTubeAudio> music = new ArrayList<>();
         HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems?" +
                 "part=contentDetails" +
@@ -1064,7 +1075,7 @@ public class App {
         return music;
     }
 
-    private static YouTubeAudio getVideoFromSearch(String search) throws UnirestException {
+    private static YouTubeAudio getVideoFromSearch(String search) throws UnirestException, YouTubeAPIException {
         HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" + search + "&key=" + prefs.getGoogleAuthKey()).asJson();
         if(response.getStatus() != 200)
             return null;

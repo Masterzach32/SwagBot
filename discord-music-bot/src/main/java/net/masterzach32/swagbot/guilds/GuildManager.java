@@ -47,10 +47,11 @@ public class GuildManager {
 		    g = new GuildSettings(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled(), temp.shouldAnnounce(), temp.shouldChangeNick(), temp.getLastChannel(), temp.getQueue());
 		else
 		    g = new GuildSettings(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, true, false, null, new ArrayList<>());
-        g.getPlaylistManager().load();
 
-        if(!guilds.contains(g))
-		    guilds.add(g);
+		if(!guilds.contains(g))
+			guilds.add(g);
+
+        g.getPlaylistManager().load();
 
 		return g;
 	}

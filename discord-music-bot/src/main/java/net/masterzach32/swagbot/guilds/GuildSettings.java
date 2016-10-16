@@ -14,6 +14,7 @@ import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.Constants;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
+import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
@@ -180,13 +181,17 @@ public class GuildSettings {
         if (queue.size() > 0) {
             AudioSource source;
             for (String url : queue) {
-                if (url.contains("youtube"))
-                    source = new YouTubeAudio(url);
-                else if (url.contains("soundcloud"))
-                    source = new SoundCloudAudio(url);
-                else
-                    source = new AudioStream(url);
-                getAudioPlayer().queue(source.getAudioTrack(null, false));
+				try {
+					if (url.contains("youtube"))
+						source = new YouTubeAudio(url);
+					else if (url.contains("soundcloud"))
+						source = new SoundCloudAudio(url);
+					else
+						source = new AudioStream(url);
+					getAudioPlayer().queue(source.getAudioTrack(null, false));
+				} catch (YouTubeAPIException e) {
+					e.printStackTrace();
+				}
             }
         }
         return this;

@@ -7,8 +7,10 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.Constants;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
+import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IUser;
 
@@ -20,7 +22,7 @@ public class YouTubeAudio extends AudioSource {
     private String video_id;
     private boolean isLiveStream;
 
-    public YouTubeAudio(String url) throws UnirestException {
+    public YouTubeAudio(String url) throws UnirestException, YouTubeAPIException {
         this.url = url;
         this.source = "youtube";
         video_id = url.substring(url.indexOf("?v=") + 3, url.indexOf("=") + 12);
@@ -29,9 +31,13 @@ public class YouTubeAudio extends AudioSource {
                 "&id=" + video_id +
                 "&key=" + App.prefs.getGoogleAuthKey()).asJson();
         if(response.getStatus() == 200) {
-            JSONObject json = response.getBody().getObject().getJSONArray("items").getJSONObject(0).getJSONObject("snippet");
-            title = json.getString("title");
-            isLiveStream = json.getString("liveBroadcastContent").equals("live");
+            try {
+                JSONObject json = response.getBody().getObject().getJSONArray("items").getJSONObject(0).getJSONObject("snippet");
+                title = json.getString("title");
+                isLiveStream = json.getString("liveBroadcastContent").equals("live");
+            } catch (JSONException e){
+                throw new YouTubeAPIException(url);
+            }
         } else
             App.logger.warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
 

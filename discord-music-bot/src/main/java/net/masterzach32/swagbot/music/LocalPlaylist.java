@@ -11,6 +11,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
+import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
@@ -54,7 +55,7 @@ public class LocalPlaylist {
                     else
                         source = new AudioStream(jsonSource.getString("url"));
                     music.add(source);
-                } catch (NotStreamableException | UnirestException e) {
+                } catch (NotStreamableException | UnirestException | YouTubeAPIException e) {
                     e.printStackTrace();
                 }
             } else {
@@ -68,7 +69,7 @@ public class LocalPlaylist {
                     else
                         source = new AudioStream(url);
                     music.add(source);
-                } catch (NotStreamableException | UnirestException e) {
+                } catch (NotStreamableException | UnirestException | YouTubeAPIException e) {
                     e.printStackTrace();
                 }
             }
@@ -89,7 +90,7 @@ public class LocalPlaylist {
                 source = new AudioStream(audio);
             music.add(source);
             return source;
-        } catch (NotStreamableException | UnirestException e) {
+        } catch (NotStreamableException | UnirestException | YouTubeAPIException e) {
             e.printStackTrace();
         }
         return null;
