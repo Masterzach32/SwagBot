@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -724,18 +725,20 @@ public class App {
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = new ArrayList<>();
-            for(IUser user : message.getMentions())
-                users.add(user);
-            /*for(IRole role : message.getRoleMentions())
-                for(IUser user : message.getGuild().getUsersByRole(role))
-                    users.add(user);*/
-            if(message.mentionsEveryone())
-                users = message.getGuild().getUsers();
-            if(users.size() == 1) {
-                sendMessage(users.get(0).mention() + " needs at least one other person to fight!", null, message.getChannel());
-                return;
-            } else if(users.size() == 0) {
-            	sendMessage("You need to mention users that will fight!", null, message.getChannel());
+            if(message.getContent().contains("@everyone")) {
+                for (IUser user : message.getGuild().getUsers())
+                    users.add(user);
+            } else if(message.getContent().contains("@here")) {
+                for (IUser user : message.getGuild().getUsers())
+                    if (user.getPresence() == Presences.ONLINE)
+                        users.add(user);
+            } else
+                users.addAll(message.getMentions());
+            for(IRole role : message.getRoleMentions())
+                for(IUser user : getUsersByRole(message.getGuild(), role))
+                    users.add(user);
+            if(users.size() < 2) {
+                sendMessage("You must specify at least 2 users to fight!", message.getAuthor(), message.getChannel());
                 return;
             }
             sendMessage("**Let the brawl begin!**", null, message.getChannel());
@@ -754,7 +757,7 @@ public class App {
                 }
                 IMessage m = sendMessage(str, null, message.getChannel());
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(1500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -1080,5 +1083,10 @@ public class App {
         if(json.has("items") && json.getJSONArray("items").length() > 0 && json.getJSONArray("items").getJSONObject(0).has("id") && json.getJSONArray("items").getJSONObject(0).getJSONObject("id").has("videoId"))
             return new YouTubeAudio("https://youtube.com/watch?v=" + json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId"));
         return null;
+    }
+
+    private static List<IUser> getUsersByRole(IGuild guild, IRole role) {
+        return guild.getUsers().stream().filter((user) -> user.getRolesForGuild(guild).contains(role))
+                .collect(Collectors.toList());
     }
 }
