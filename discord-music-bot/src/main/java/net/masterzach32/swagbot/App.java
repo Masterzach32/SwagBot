@@ -605,10 +605,13 @@ public class App {
                 if(message.getAuthor().getRolesForGuild(message.getGuild()).contains(botCommander))
                     isBotCommander = true;
             if (guilds.getGuildSettings(message.getGuild()).numUntilSkip() == 0 || isBotCommander) {
-                AudioTrack track = (AudioTrack) AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getCurrentTrack();
-                AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
+                AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
+                AudioTrack track = (AudioTrack) player.getCurrentTrack();
+                player.skip();
                 guilds.getGuildSettings(message.getGuild()).resetSkipStats();
                 sendMessage("Skipped **" + track.getTitle() + "**", null, message.getChannel());
+                if(player.getPlaylistSize() == 0 && !client.getOurUser().getDisplayName(message.getGuild()).equals("SwagBot"))
+                    message.getGuild().setUserNickname(client.getOurUser(), "SwagBot");
             } else
                 sendMessage("**" + guilds.getGuildSettings(message.getGuild()).numUntilSkip() + "** more votes needed to skip the current song.", null, message.getChannel());
         });
