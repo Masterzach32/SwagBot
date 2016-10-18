@@ -16,6 +16,9 @@ import sx.blah.discord.handle.obj.IUser;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class YouTubeAudio extends AudioSource {
 
@@ -56,88 +59,163 @@ public class YouTubeAudio extends AudioSource {
     }
 
     public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException {
-        for (File file : App.manager.getFile(Constants.AUDIO_CACHE).listFiles())
-            if (file.getName().contains(video_id))
-                return new AudioTrack(file, url, shouldAnnounce, title, user);
-        App.logger.info("downloading:" + video_id);
-        ProcessBuilder yt_dn = new ProcessBuilder("py", Constants.BINARY_STORAGE + "youtube-dl", url);
-        int yt_err = -1;
+        Process ytdlProcess;
+        Process ffmpegProcess;
+
+        Thread ytdlToFFmpegThread;
+        Thread ytdlErrGobler;
+        Thread ffmpegErrGobler;
+
+        List<String> ytdlLaunchArgs = new ArrayList<>();
+        ytdlLaunchArgs.add("python");
+        ytdlLaunchArgs.add("./bin/youtube-dl");
+        ytdlLaunchArgs.add("-q");
+        ytdlLaunchArgs.add("-f");
+        ytdlLaunchArgs.add("bestaudio/best");
+        ytdlLaunchArgs.add("--no-playlist");
+        ytdlLaunchArgs.add("-4");
+        ytdlLaunchArgs.add("--no-cache-dir");
+        ytdlLaunchArgs.add("-o");
+        ytdlLaunchArgs.add("-");
+        List<String> ffmpegLaunchArgs = new ArrayList<>();
+        ffmpegLaunchArgs.add("ffmpeg");
+        ffmpegLaunchArgs.add("-i");
+        ffmpegLaunchArgs.add("-");
+        ffmpegLaunchArgs.add("-f");
+        ffmpegLaunchArgs.add("s16be");
+        ffmpegLaunchArgs.add("-ac");
+        ffmpegLaunchArgs.add("2");
+        ffmpegLaunchArgs.add("-ar");
+        ffmpegLaunchArgs.add("48000");
+        ffmpegLaunchArgs.add("-map");
+        ffmpegLaunchArgs.add("a");
+        ffmpegLaunchArgs.add("-");
 
         try {
-            final Process process = yt_dn.start();
-            final StringWriter writer = new StringWriter();
+            ProcessBuilder pBuilder = new ProcessBuilder();
 
-            new Thread(() -> {
-                try {
-                    IOUtils.copy(process.getInputStream(), writer);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            ytdlLaunchArgs.add("--");
+            ytdlLaunchArgs.add(url);
+            pBuilder.command(ytdlLaunchArgs);
+            ytdlProcess = pBuilder.start();
+
+            pBuilder.command(ffmpegLaunchArgs);
+            ffmpegProcess = pBuilder.start();
+
+            final Process ytdlProcessF = ytdlProcess;
+            final Process ffmpegProcessF = ffmpegProcess;
+
+            ytdlToFFmpegThread = new Thread("RemoteSource ytdlToFFmpeg Bridge") {
+                @Override
+                public void run() {
+                    InputStream fromYTDL = null;
+                    OutputStream toFFmpeg = null;
+                    try {
+                        fromYTDL = ytdlProcessF.getInputStream();
+                        toFFmpeg = ffmpegProcessF.getOutputStream();
+
+                        byte[] buffer = new byte[1024];
+                        int amountRead = -1;
+                        while (!isInterrupted() && ((amountRead = fromYTDL.read(buffer)) > -1)) {
+                            toFFmpeg.write(buffer, 0, amountRead);
+                        }
+                        toFFmpeg.flush();
+                    } catch (IOException e) {
+                        //If the pipe being closed caused this problem, it was because it tried to write when it closed.
+                        String msg = e.getMessage().toLowerCase();
+                        if (e.getMessage().contains("The pipe has been ended") || e.getMessage().contains("Broken pipe"))
+                            App.logger.error("RemoteStream encountered an 'error' : " + e.getMessage() + " (not really an error.. probably)");
+                        else
+                            e.printStackTrace();
+                    } finally {
+                        try {
+                            if (fromYTDL != null)
+                                fromYTDL.close();
+                        } catch (Throwable e) {
+                        }
+                        try {
+                            if (toFFmpeg != null)
+                                toFFmpeg.close();
+                        } catch (Throwable e) {
+                        }
+                    }
                 }
-            }).start();
+            };
 
-            yt_err = process.waitFor();
-            final String processOutput = writer.toString();
-            App.logger.trace(processOutput);
-        } catch (InterruptedException | IOException e) {
+            ytdlErrGobler = new Thread("RemoteStream ytdlErrGobler") {
+                @Override
+                public void run() {
+                    InputStream fromYTDL = null;
+                    try {
+                        fromYTDL = ytdlProcessF.getErrorStream();
+                        if (fromYTDL == null)
+                            App.logger.error("RemoteStream: YTDL-ErrGobler: fromYTDL is null");
+
+                        byte[] buffer = new byte[1024];
+                        int amountRead = -1;
+                        while (!isInterrupted() && ((amountRead = fromYTDL.read(buffer)) > -1)) {
+                            App.logger.warn("ERR YTDL: " + new String(Arrays.copyOf(buffer, amountRead)));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (fromYTDL != null)
+                                fromYTDL.close();
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                }
+            };
+
+            ffmpegErrGobler = new Thread("RemoteStream ffmpegErrGobler") {
+                @Override
+                public void run() {
+                    InputStream fromFFmpeg = null;
+                    try {
+                        fromFFmpeg = ffmpegProcessF.getErrorStream();
+                        if (fromFFmpeg == null)
+                            App.logger.error("RemoteStream: FFmpeg-ErrGobler: fromYTDL is null");
+
+                        byte[] buffer = new byte[1024];
+                        int amountRead = -1;
+                        while (!isInterrupted() && ((amountRead = fromFFmpeg.read(buffer)) > -1)) {
+                            String info = new String(Arrays.copyOf(buffer, amountRead));
+                            /*if (info.contains("time=")) {
+                                Matcher m = TIME_PATTERN.matcher(info);
+                                if (m.find()) {
+                                    timestamp = AudioTimestamp.fromFFmpegTimestamp(m.group());
+                                }
+                            }*/
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (fromFFmpeg != null)
+                                fromFFmpeg.close();
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                }
+            };
+
+            ytdlToFFmpegThread.start();
+            ytdlErrGobler.start();
+            ffmpegErrGobler.start();
+            return new AudioTrack(ffmpegProcess.getInputStream(), url, shouldAnnounce, title, user);
+        } catch (IOException e) {
             e.printStackTrace();
+            /*try {
+                close();
+            } catch (IOException e1) {
+                e.printStackTrace();
+            }*/
         }
-        App.logger.info("youtube-dl:" + video_id + " exit:" + yt_err);
-        if(yt_err != 0)
-            throw new YouTubeDLException(url, yt_err);
-
-        File yt = null;
-        ProcessBuilder ffmpeg = null;
-        int ffmpeg_err = -1;
-        for (File file : App.manager.getFile(Constants.WORKING_DIRECTORY).listFiles())
-            if (file.getName().contains(video_id)) {
-                ffmpeg = new ProcessBuilder(Constants.BINARY_STORAGE + "ffmpeg.exe", "-i", file.toString(), Constants.AUDIO_CACHE + video_id + ".mp3")
-                        .redirectErrorStream(true);
-                yt = file;
-            }
-        try {
-            final Process process = ffmpeg.start();
-            InputStream is = process.getInputStream();
-            String processOutput = convertStreamToStr(is);
-            ffmpeg_err = process.waitFor();
-            App.logger.trace(processOutput);
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        App.logger.info("ffmpeg:" + video_id + " exit:" + ffmpeg_err);
-        if(ffmpeg_err != 0)
-            throw new FFMPEGException(yt, url, ffmpeg_err);
-
-        if (yt != null)
-            yt.delete();
-
-        for (File file : App.manager.getFile(Constants.AUDIO_CACHE).listFiles())
-            if (file.getName().contains(video_id))
-                return new AudioTrack(file, url, shouldAnnounce, title, user);
         return null;
     }
 
     public boolean isLive() {
         return isLiveStream;
-    }
-
-    public static String convertStreamToStr(InputStream is) throws IOException {
-        if (is != null) {
-            Writer writer = new StringWriter();
-
-            char[] buffer = new char[1024];
-            try {
-                Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                int n;
-                while ((n = reader.read(buffer)) != -1) {
-                    writer.write(buffer, 0, n);
-                }
-            } finally {
-                is.close();
-            }
-            return writer.toString();
-        }
-        else {
-            return "";
-        }
     }
 }

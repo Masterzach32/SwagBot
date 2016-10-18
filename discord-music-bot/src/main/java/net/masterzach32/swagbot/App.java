@@ -939,46 +939,40 @@ public class App {
     public static void playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IMessage message, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
         if(source == null)
             return;
-        Thread t = new Thread("streaming: " + source.getTitle()) {
-            public void run() {
-                AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-                if (message != null)
-                    editMessage(message, "Queuing **" + source.getTitle() + "**");
-                try {
-                    if(source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
-                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
-                        threads.remove(source);
-                        return;
-                    }
-                    player.queue(source.getAudioTrack(user, shouldAnnounce));
-                    joinChannel(user, guild);
-                    if (message != null)
-                        waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
-                    threads.remove(source);
-                    return;
-                } catch (YouTubeDLException e) {
-                    e.printStackTrace();
-                    if (message != null)
-                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
-                    threads.remove(source);
-                    return;
-                } catch (FFMPEGException e) {
-                    e.printStackTrace();
-                    if(message != null)
-                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
-                    threads.remove(source);
-                    return;
-                } catch (IOException | UnsupportedAudioFileException | MissingPermissionsException e) {
-                    e.printStackTrace();
-                }
-                if (message != null)
-                    waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
+        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
+        if (message != null)
+            editMessage(message, "Queuing **" + source.getTitle() + "**");
+        try {
+            if (source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
                 threads.remove(source);
                 return;
             }
-        };
-        threads.add(source);
-        executor.execute(t);
+            player.queue(source.getAudioTrack(user, shouldAnnounce));
+            joinChannel(user, guild);
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
+            threads.remove(source);
+            return;
+        } catch (YouTubeDLException e) {
+            e.printStackTrace();
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
+            threads.remove(source);
+            return;
+        } catch (FFMPEGException e) {
+            e.printStackTrace();
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
+            threads.remove(source);
+            return;
+        } catch (IOException | UnsupportedAudioFileException | MissingPermissionsException e) {
+            e.printStackTrace();
+        }
+        if (message != null)
+            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
+        threads.remove(source);
+        return;
     }
 
     // Change AudioPlayer volume for guild
