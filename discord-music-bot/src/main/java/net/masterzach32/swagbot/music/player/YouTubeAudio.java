@@ -69,27 +69,28 @@ public class YouTubeAudio extends AudioSource {
         List<String> ytdlLaunchArgs = new ArrayList<>();
         ytdlLaunchArgs.add("python");
         ytdlLaunchArgs.add("./bin/youtube-dl");
-        ytdlLaunchArgs.add("-q");
-        ytdlLaunchArgs.add("-f");
+        ytdlLaunchArgs.add("-q"); //quiet. No standard out.
+        ytdlLaunchArgs.add("-f"); //Format to download. Attempts best audio-only, followed by best video/audio combo
         ytdlLaunchArgs.add("bestaudio/best");
-        ytdlLaunchArgs.add("--no-playlist");
-        ytdlLaunchArgs.add("-4");
-        ytdlLaunchArgs.add("--no-cache-dir");
-        ytdlLaunchArgs.add("-o");
+        ytdlLaunchArgs.add("--no-playlist"); //If the provided link is part of a Playlist, only grabs the video, not playlist too.
+        ytdlLaunchArgs.add("-4"); //Forcing Ipv4 for OVH's Ipv6 range is blocked by youtube
+        ytdlLaunchArgs.add("--no-cache-dir"); //We don't want random screaming
+        ytdlLaunchArgs.add("-o"); //Output, output to STDout
         ytdlLaunchArgs.add("-");
+
         List<String> ffmpegLaunchArgs = new ArrayList<>();
         ffmpegLaunchArgs.add("ffmpeg");
-        ffmpegLaunchArgs.add("-i");
+        ffmpegLaunchArgs.add("-i"); //Input file, specifies to read from STDin (pipe)
         ffmpegLaunchArgs.add("-");
-        ffmpegLaunchArgs.add("-f");
+        ffmpegLaunchArgs.add("-f"); //Format.  PCM, signed, 16bit, Big Endian
         ffmpegLaunchArgs.add("s16be");
-        ffmpegLaunchArgs.add("-ac");
+        ffmpegLaunchArgs.add("-ac"); //Channels. Specify 2 for stereo audio.
         ffmpegLaunchArgs.add("2");
-        ffmpegLaunchArgs.add("-ar");
+        ffmpegLaunchArgs.add("-ar"); //Rate. Opus requires an audio rate of 48000hz
         ffmpegLaunchArgs.add("48000");
-        ffmpegLaunchArgs.add("-map");
+        ffmpegLaunchArgs.add("-map"); //Makes sure to only output audio, even if the specified format supports other streams
         ffmpegLaunchArgs.add("a");
-        ffmpegLaunchArgs.add("-");
+        ffmpegLaunchArgs.add("-"); //Used to specify STDout as the output location (pipe)
 
         try {
             ProcessBuilder pBuilder = new ProcessBuilder();
