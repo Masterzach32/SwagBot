@@ -64,20 +64,26 @@ public class GuildManager {
 
 	public void applyGuildSettings() {
         for(int i = 0; i < guilds.size(); i++) {
-			guilds.get(i).applySettings().saveSettings();
+            if(guilds.get(i) != null)
+			    guilds.get(i).applySettings().saveSettings();
+            else
+                guilds.remove(i);
         }
 	}
 
 	public GuildSettings removeGuild(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
-			if(guilds.get(i).getID().equals(guild.getID()))
+			if(guilds.get(i) != null && guilds.get(i).getID().equals(guild.getID()))
                 return guilds.remove(i);
         return null;
 	}
 	
 	public void saveGuildSettings() {
 		for(int i = 0; i < guilds.size(); i++) {
-            guilds.get(i).saveSettings();
+			if(guilds.get(i) != null)
+            	guilds.get(i).saveSettings();
+			else
+				guilds.remove(i);
 		}
 	}
 	
