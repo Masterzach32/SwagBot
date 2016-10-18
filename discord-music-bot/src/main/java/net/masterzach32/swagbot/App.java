@@ -46,9 +46,6 @@ public class App {
     public static BotConfig prefs;
     public static GuildManager guilds;
     public static FileManager manager;
-    public static ExecutorService executor;
-
-    private static List<AudioSource> threads = new ArrayList<>();
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException, RateLimitException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
@@ -56,10 +53,6 @@ public class App {
         if (Discord4J.LOGGER instanceof Discord4J.Discord4JLogger) {
             ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.INFO);
         }
-        ThreadFactory threadFactory = new ThreadFactoryBuilder()
-                .setDaemon(true)
-                .build();
-        executor = Executors.newFixedThreadPool(4, threadFactory);
 
         // load all files into bot
         manager = new FileManager();
@@ -95,24 +88,6 @@ public class App {
         new Command("Shutdown Bot", "stop", "Logs the bot out of discord and shuts it down. This command doesn't return if the bot successfully shuts down.", 2, (message, params) -> stop(true));
         new Command("Update Bot", "update", "Downloads an update for the bot, if there is one.", 2, (message, params) -> {
             update();
-        });
-        new Command("Change Thread Queue Amount", "tq", "Changes the thread queue.", 2, (message, params) -> {
-            ExecutorService end = executor;
-            executor = Executors.newFixedThreadPool(Integer.parseInt(params[0]), threadFactory);
-            List<Runnable> rejected = end.shutdownNow();
-            for(Runnable thread : rejected)
-                executor.execute(thread);
-        });
-        new Command("Get Sources in Queue", "sq", "Gets all AudioSources in queue.", 2, (message, params) -> {
-            String str = "";
-            if(threads.size() == 0)
-                sendMessage("No songs in queue", null, message.getChannel());
-            else {
-                for (AudioSource thread : threads)
-                    str += thread.getTitle() + "\n";
-                logger.info(threads.size() + "");
-                sendMessage(str, null, message.getChannel());
-            }
         });
         new Command("Thread Count", "threads", "Prints the number of threads active in SwagBot.", 2, ((message, params) -> {
             sendMessage(Thread.activeCount() + " threads active", null, message.getChannel());
@@ -875,7 +850,6 @@ public class App {
         prefs.save();
         if (prefs.clearCacheOnShutdown())
             clearCache();
-        executor.shutdownNow();
         client.logout();
         if(exit) {
             Unirest.shutdown();
@@ -945,33 +919,28 @@ public class App {
         try {
             if (source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
-                threads.remove(source);
                 return;
             }
             player.queue(source.getAudioTrack(user, shouldAnnounce));
             joinChannel(user, guild);
             if (message != null)
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
-            threads.remove(source);
             return;
         } catch (YouTubeDLException e) {
             e.printStackTrace();
             if (message != null)
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
-            threads.remove(source);
             return;
         } catch (FFMPEGException e) {
             e.printStackTrace();
             if (message != null)
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
-            threads.remove(source);
             return;
-        } catch (IOException | UnsupportedAudioFileException | MissingPermissionsException e) {
+        } catch (IOException | MissingPermissionsException e) {
             e.printStackTrace();
         }
         if (message != null)
             waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
-        threads.remove(source);
         return;
     }
 
