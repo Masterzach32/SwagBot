@@ -725,10 +725,10 @@ public class App {
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = new ArrayList<>();
-            if(message.getContent().contains("@everyone")) {
+            if(message.mentionsEveryone()) {
                 for (IUser user : message.getGuild().getUsers())
                     users.add(user);
-            } else if(message.getContent().contains("@here")) {
+            } else if(message.mentionsHere()) {
                 for (IUser user : message.getGuild().getUsers())
                     if (user.getPresence() == Presences.ONLINE)
                         users.add(user);
@@ -917,11 +917,7 @@ public class App {
     }
 
     private static IVoiceChannel getCurrentChannelForGuild(IGuild guild) {
-        for (IVoiceChannel c : client.getConnectedVoiceChannels())
-            if (guild.getVoiceChannelByID(c.getID()) != null) {
-                return c;
-        }
-        return null;
+        return client.getConnectedVoiceChannels().stream().filter((iVoiceChannel -> guild.getVoiceChannels().contains(iVoiceChannel))).findFirst().orElse(null);
     }
 
     private static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
