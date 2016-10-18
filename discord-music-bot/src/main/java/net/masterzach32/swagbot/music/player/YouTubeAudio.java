@@ -82,14 +82,14 @@ public class YouTubeAudio extends AudioSource {
         ffmpegLaunchArgs.add("ffmpeg");
         ffmpegLaunchArgs.add("-i"); //Input file, specifies to read from STDin (pipe)
         ffmpegLaunchArgs.add("-");
-        ffmpegLaunchArgs.add("-f"); //Format.  PCM, signed, 16bit, Big Endian
-        ffmpegLaunchArgs.add("s16be");
-        ffmpegLaunchArgs.add("-ac"); //Channels. Specify 2 for stereo audio.
-        ffmpegLaunchArgs.add("2");
-        ffmpegLaunchArgs.add("-ar"); //Rate. Opus requires an audio rate of 48000hz
-        ffmpegLaunchArgs.add("48000");
+        ffmpegLaunchArgs.add("-vcodec");
+        ffmpegLaunchArgs.add("mp4");
         ffmpegLaunchArgs.add("-map"); //Makes sure to only output audio, even if the specified format supports other streams
         ffmpegLaunchArgs.add("a");
+        ffmpegLaunchArgs.add("-f"); // format to mp3
+        ffmpegLaunchArgs.add("mp3");
+        ffmpegLaunchArgs.add("-loglevel"); // don't print anything to the console
+        ffmpegLaunchArgs.add("quiet");
         ffmpegLaunchArgs.add("-"); //Used to specify STDout as the output location (pipe)
 
         try {
@@ -207,11 +207,6 @@ public class YouTubeAudio extends AudioSource {
             return new AudioTrack(ffmpegProcess.getInputStream(), url, shouldAnnounce, title, user);
         } catch (IOException e) {
             e.printStackTrace();
-            /*try {
-                close();
-            } catch (IOException e1) {
-                e.printStackTrace();
-            }*/
         }
         return null;
     }
