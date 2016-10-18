@@ -19,14 +19,16 @@ import java.io.*;
 
 public class YouTubeAudio extends AudioSource {
 
-    private String video_id;
+    private String video_id, duration;
     private boolean isLiveStream;
 
     public YouTubeAudio(String url) throws UnirestException, YouTubeAPIException {
         this.url = url;
         this.source = "youtube";
         video_id = url.substring(url.indexOf("?v=") + 3, url.indexOf("=") + 12);
-        HttpResponse<JsonNode> response =  Unirest.get("https://www.googleapis.com/youtube/v3/videos" +
+        HttpResponse<JsonNode> response;
+
+        response =  Unirest.get("https://www.googleapis.com/youtube/v3/videos" +
                 "?part=snippet" +
                 "&id=" + video_id +
                 "&key=" + App.prefs.getGoogleAuthKey()).asJson();
@@ -38,6 +40,19 @@ public class YouTubeAudio extends AudioSource {
             } catch (JSONException e){
                 throw new YouTubeAPIException(url);
             }
+            response =  Unirest.get("https://www.googleapis.com/youtube/v3/videos" +
+                    "?part=contentDetails" +
+                    "&id=" + video_id +
+                    "&key=" + App.prefs.getGoogleAuthKey()).asJson();
+            if(response.getStatus() == 200) {
+                try {
+                    JSONObject json = response.getBody().getObject().getJSONArray("items").getJSONObject(0).getJSONObject("contentDetails");
+                    duration = json.getString("duration");
+                } catch (JSONException e){
+                    throw new YouTubeAPIException(url);
+                }
+            } else
+                App.logger.warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
         } else
             App.logger.warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
 
@@ -118,6 +133,10 @@ public class YouTubeAudio extends AudioSource {
 
     public boolean isLive() {
         return isLiveStream;
+    }
+
+    public boolean isDurationAnHour() {
+        return duration.contains("H");
     }
 
     public static String convertStreamToStr(InputStream is) throws IOException {

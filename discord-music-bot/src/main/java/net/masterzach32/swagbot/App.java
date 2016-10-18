@@ -211,6 +211,7 @@ public class App {
                     x = Integer.parseInt(params[0]);
                 } catch (NumberFormatException e) {
                     sendMessage("Amount must be a number.", null, channel);
+                    return;
                 }
                 if (x < 2 || x > 100)
                     sendMessage("Invalid amount specified. Must prune between 2-100 messages.", null, channel);
@@ -950,33 +951,32 @@ public class App {
                 try {
                     if(source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
                         waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
-                        threads.remove(source);
-                        return;
+                    } else if(source instanceof YouTubeAudio && ((YouTubeAudio) source).isDurationAnHour()) {
+                        waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Video length must be less than an hour!"), 120);
+                    } else {
+                        player.queue(source.getAudioTrack(user, shouldAnnounce));
+                        joinChannel(user, guild);
+                        if (message != null)
+                            waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
                     }
-                    player.queue(source.getAudioTrack(user, shouldAnnounce));
-                    joinChannel(user, guild);
-                    if (message != null)
-                        waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
-                    threads.remove(source);
                     return;
                 } catch (YouTubeDLException e) {
                     e.printStackTrace();
                     if (message != null)
                         waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
-                    threads.remove(source);
                     return;
                 } catch (FFMPEGException e) {
                     e.printStackTrace();
                     if(message != null)
                         waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
-                    threads.remove(source);
                     return;
                 } catch (IOException | UnsupportedAudioFileException | MissingPermissionsException e) {
                     e.printStackTrace();
+                } finally {
+                    threads.remove(source);
                 }
                 if (message != null)
                     waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
-                threads.remove(source);
                 return;
             }
         };
