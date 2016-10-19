@@ -445,7 +445,10 @@ public class App {
                     if(params[0].contains("playlist")) {
                         message.delete();
                         m = sendMessage("Queuing Playlist " + params[0], null, message.getChannel());
-                        for(YouTubeAudio music : getYouTubeVideosFromPlaylist(params[0].substring(params[0].indexOf("list=") + 5)))
+                        List<YouTubeAudio> playlist = getYouTubeVideosFromPlaylist(params[0].substring(params[0].indexOf("list=") + 5));
+                        if(playlist.size() > 20)
+                            waitAndDeleteMessage(sendMessage("You might experience problems with a playlist with over 10-15 videos, I am working on a fix.", message.getAuthor(), message.getChannel()), 25);
+                        for(YouTubeAudio music : playlist)
                             try {
                                 playAudioFromAudioSource(music, true, null, message.getAuthor(), message.getGuild());
                             } catch (IOException | UnsupportedAudioFileException e) {
@@ -854,6 +857,7 @@ public class App {
         prefs.save();
         if (prefs.clearCacheOnShutdown())
             clearCache();
+        guilds.saveGuildSettings();
         client.logout();
         if(exit) {
             Unirest.shutdown();
