@@ -920,6 +920,9 @@ public class App {
             if (source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
                 return;
+            } else if (source instanceof YouTubeAudio && ((YouTubeAudio) source).isDurationAnHour()) {
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Video length must be less than 1 hour!"), 120);
+                return;
             }
             player.queue(source.getAudioTrack(user, shouldAnnounce));
             joinChannel(user, guild);
