@@ -181,6 +181,7 @@ public class App {
                     x = Integer.parseInt(params[0]);
                 } catch (NumberFormatException e) {
                     sendMessage("Amount must be a number.", null, channel);
+                    return;
                 }
                 if (x < 2 || x > 100)
                     sendMessage("Invalid amount specified. Must prune between 2-100 messages.", null, channel);
@@ -427,13 +428,13 @@ public class App {
             }
             sendMessage(response, null, message.getChannel());
         });
-        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.", 0, (message, params) -> {
+        new Command("Play music", "play", "Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the title and artist for a song and SwagBot will attempt to find a video for it.", 0, (message, params) -> {
             if (guilds.getGuildSettings(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());
                 return;
             }
             if(params.length == 0) {
-                sendMessage("Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the name and artist of a song and SwagBot will attempt to find a video for it.", message.getAuthor(), message.getChannel());
+                sendMessage("Add a song or playlist to the queue.\nUsage: ~play <link or search query>. Supports YouTube, SoundCloud, and direct links. You can also type in the title and artist for a song and SwagBot will attempt to find a video for it.", message.getAuthor(), message.getChannel());
                 return;
             }
             AudioSource source = null;
@@ -575,10 +576,13 @@ public class App {
                 if(message.getAuthor().getRolesForGuild(message.getGuild()).contains(botCommander))
                     isBotCommander = true;
             if (guilds.getGuildSettings(message.getGuild()).numUntilSkip() == 0 || isBotCommander) {
-                AudioTrack track = (AudioTrack) AudioPlayer.getAudioPlayerForGuild(message.getGuild()).getCurrentTrack();
-                AudioPlayer.getAudioPlayerForGuild(message.getGuild()).skip();
+                AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(message.getGuild());
+                AudioTrack track = (AudioTrack) player.getCurrentTrack();
+                player.skip();
                 guilds.getGuildSettings(message.getGuild()).resetSkipStats();
                 sendMessage("Skipped **" + track.getTitle() + "**", null, message.getChannel());
+                if(player.getPlaylistSize() == 0 && !client.getOurUser().getDisplayName(message.getGuild()).equals("SwagBot"))
+                    message.getGuild().setUserNickname(client.getOurUser(), "SwagBot");
             } else
                 sendMessage("**" + guilds.getGuildSettings(message.getGuild()).numUntilSkip() + "** more votes needed to skip the current song.", null, message.getChannel());
         });
@@ -617,6 +621,8 @@ public class App {
             else {
                 player.clear();
                 sendMessage("**Cleared the queue.**", null, message.getChannel());
+                if(!client.getOurUser().getDisplayName(message.getGuild()).equals("SwagBot"))
+                    message.getGuild().setUserNickname(client.getOurUser(), "SwagBot");
             }
         });
         new Command("Queue", "queue", "Display the given queue page, default 1.\n~queue [page number]", 0, (message, params) -> {
@@ -695,18 +701,20 @@ public class App {
         });
         new Command("Fight", "fight", "Make multiple users fight!\nUse @mention to list users to fight.", 0, (message, params) -> {
             List<IUser> users = new ArrayList<>();
-            for(IUser user : message.getMentions())
-                users.add(user);
-            /*for(IRole role : message.getRoleMentions())
-                for(IUser user : message.getGuild().getUsersByRole(role))
-                    users.add(user);*/
-            if(message.mentionsEveryone())
-                users = message.getGuild().getUsers();
-            if(users.size() == 1) {
-                sendMessage(users.get(0).mention() + " needs at least one other person to fight!", null, message.getChannel());
-                return;
-            } else if(users.size() == 0) {
-            	sendMessage("You need to mention users that will fight!", null, message.getChannel());
+            if(message.mentionsEveryone()) {
+                for (IUser user : message.getGuild().getUsers())
+                    users.add(user);
+            } else if(message.mentionsHere()) {
+                for (IUser user : message.getGuild().getUsers())
+                    if (user.getPresence() == Presences.ONLINE)
+                        users.add(user);
+            } else
+                users.addAll(message.getMentions());
+            for(IRole role : message.getRoleMentions())
+                for(IUser user : getUsersByRole(message.getGuild(), role))
+                    users.add(user);
+            if(users.size() < 2) {
+                sendMessage("You must specify at least 2 users to fight!", message.getAuthor(), message.getChannel());
                 return;
             }
             sendMessage("**Let the brawl begin!**", null, message.getChannel());
@@ -725,7 +733,7 @@ public class App {
                 }
                 IMessage m = sendMessage(str, null, message.getChannel());
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(1500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -842,7 +850,6 @@ public class App {
     private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
         logger.info("user initiated shutdown");
         client.changeStatus(Status.game("Shutting Down"));
-        guilds.saveGuildSettings();
         prefs.save();
         if (prefs.clearCacheOnShutdown())
             clearCache();
@@ -885,11 +892,7 @@ public class App {
     }
 
     private static IVoiceChannel getCurrentChannelForGuild(IGuild guild) {
-        for (IVoiceChannel c : client.getConnectedVoiceChannels())
-            if (guild.getVoiceChannelByID(c.getID()) != null) {
-                return c;
-        }
-        return null;
+        return client.getConnectedVoiceChannels().stream().filter((iVoiceChannel -> guild.getVoiceChannels().contains(iVoiceChannel))).findFirst().orElse(null);
     }
 
     private static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
@@ -1040,5 +1043,10 @@ public class App {
         if(json.has("items") && json.getJSONArray("items").length() > 0 && json.getJSONArray("items").getJSONObject(0).has("id") && json.getJSONArray("items").getJSONObject(0).getJSONObject("id").has("videoId"))
             return new YouTubeAudio("https://youtube.com/watch?v=" + json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId"));
         return null;
+    }
+
+    private static List<IUser> getUsersByRole(IGuild guild, IRole role) {
+        return guild.getUsers().stream().filter((user) -> user.getRolesForGuild(guild).contains(role))
+                .collect(Collectors.toList());
     }
 }

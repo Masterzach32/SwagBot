@@ -47,6 +47,8 @@ public class EventHandler {
     @EventSubscriber
     public void onDiscordDisconnectEvent(DiscordDisconnectedEvent event) {
         logger.error("DISCONNECTED FROM DISCORD");
+        logger.error(event.getReason().toString());
+        App.guilds.saveGuildSettings();
     }
 
     @EventSubscriber
@@ -84,7 +86,7 @@ public class EventHandler {
     public void onMessageEvent(MessageReceivedEvent event) throws MissingPermissionsException, RateLimitException, DiscordException, UnirestException, IOException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException, NotStreamableException {
         String message = event.getMessage().getContent();
 
-        if (message.length() < 1 || event.getMessage().getAuthor().isBot())
+        if (message.length() < 1 || event.getMessage().getAuthor() != null && event.getMessage().getAuthor().isBot())
             return;
 
         if (event.getMessage().getChannel().isPrivate()) {
@@ -171,7 +173,11 @@ public class EventHandler {
                     logger.warn("An audio track returned a null value for getTitle() " + event.getPlayer().getCurrentTrack().toString());
                     track = "SwagBot";
                 }
-                event.getPlayer().getGuild().setUserNickname(event.getClient().getOurUser(), track);
+                try {
+                    event.getPlayer().getGuild().setUserNickname(event.getClient().getOurUser(), track);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
             }
         } catch (DiscordException e) {
             logger.warn("Could not send message to " + ((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().getName());

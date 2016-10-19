@@ -45,15 +45,15 @@ public class BotConfig {
 	}
 
 	public void save() throws IOException {
-		BufferedWriter fout = null;
+		BufferedWriter fout;
 		fout = new BufferedWriter(new FileWriter(Constants.BOT_JSON));
 		fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
 		fout.close();
 	}
 	
 	public void load() throws IOException {
-		RandomAccessFile fin = null;
-		byte[] buffer = null;
+		RandomAccessFile fin;
+		byte[] buffer;
 		
 		fin = new RandomAccessFile(Constants.BOT_JSON, "r");
 		buffer = new byte[(int) fin.length()];
