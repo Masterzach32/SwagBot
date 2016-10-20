@@ -39,8 +39,8 @@ public class AudioTrack extends Track {
 		this.user = user;
 	}
 
-	public AudioTrack(InputStream stream, String url, boolean announce, String title, IUser user) throws IOException, UnsupportedAudioFileException {
-        super(AudioSystem.getAudioInputStream(stream));
+	public AudioTrack(IAudioProvider provider, String url, boolean announce, String title, IUser user) throws IOException, UnsupportedAudioFileException {
+        super(provider);
         this.url = url;
         this.announce = announce;
         this.title = title;
