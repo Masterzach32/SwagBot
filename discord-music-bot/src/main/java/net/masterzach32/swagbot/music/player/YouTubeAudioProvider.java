@@ -2,7 +2,7 @@ package net.masterzach32.swagbot.music.player;
 
 import net.masterzach32.swagbot.App;
 import sx.blah.discord.handle.audio.IAudioProvider;
-import sx.blah.discord.handle.audio.impl.AudioManager;
+import sx.blah.discord.util.audio.processors.VolumeProcessor;
 import sx.blah.discord.util.audio.providers.AudioInputStreamProvider;
 
 import javax.sound.sampled.AudioInputStream;
@@ -19,12 +19,13 @@ public class YouTubeAudioProvider implements IAudioProvider {
 
     private volatile AudioInputStream stream;
     private AudioInputStreamProvider provider;
+    private VolumeProcessor volumeProcessor;
     private String video_id;
-    private boolean isClosed = false;
 
     public YouTubeAudioProvider(String video_id) throws IOException, UnsupportedAudioFileException {
         stream = null;
         provider = null;
+        volumeProcessor = new VolumeProcessor();
         this.video_id = video_id;
     }
 
@@ -34,6 +35,7 @@ public class YouTubeAudioProvider implements IAudioProvider {
                 if (stream == null) try {
                     stream = getStream();
                     provider = new AudioInputStreamProvider(stream);
+                    volumeProcessor.setProvider(provider);
                 } catch (IOException | UnsupportedAudioFileException e) {
                     e.printStackTrace();
                 }
@@ -47,6 +49,7 @@ public class YouTubeAudioProvider implements IAudioProvider {
                 if (stream == null) try {
                     stream = getStream();
                     provider = new AudioInputStreamProvider(stream);
+                    volumeProcessor.setProvider(provider);
                 } catch (IOException | UnsupportedAudioFileException e) {
                     e.printStackTrace();
                 }
@@ -60,6 +63,10 @@ public class YouTubeAudioProvider implements IAudioProvider {
 
     public AudioEncodingType getAudioEncodingType() {
         return AudioEncodingType.PCM;
+    }
+
+    public void setVolume(float vol) {
+        volumeProcessor.setVolume(vol);
     }
 
     public AudioInputStream getStream() throws IOException, UnsupportedAudioFileException {
@@ -208,5 +215,13 @@ public class YouTubeAudioProvider implements IAudioProvider {
         ytdlErrGobler.start();
         ffmpegErrGobler.start();
         return AudioSystem.getAudioInputStream(ffmpegProcessF.getInputStream());
+    }
+
+    public void close() {
+        try {
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

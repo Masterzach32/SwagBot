@@ -2,7 +2,9 @@ package net.masterzach32.swagbot.utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +15,13 @@ public class FileManager {
 	public List<File> files;
 
 	public FileManager() {
-		files = new ArrayList<File>();
+		files = new ArrayList<>();
 		setup();
+		File[] files = getFile(Constants.WORKING_DIRECTORY).listFiles();
+		Arrays.stream(files)
+                .filter((file -> file.getName().toLowerCase().contains("frag")))
+                .collect(Collectors.toList())
+                .forEach(File::delete);
 	}
 	
 	public synchronized File getFile(String fileName) {

@@ -14,6 +14,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.guilds.GuildManager;
 import net.masterzach32.swagbot.guilds.GuildSettings;
+import net.masterzach32.swagbot.guilds.StatusListener;
 import net.masterzach32.swagbot.music.LocalPlaylist;
 import net.masterzach32.swagbot.utils.exceptions.*;
 import org.json.JSONArray;
@@ -340,6 +341,38 @@ public class App {
                 else {
                     setVolume(vol, message.getGuild());
                     sendMessage("Set volume to **" + vol + "**", null, message.getChannel());
+                }
+            }
+        });
+        new Command("Switch Channel per Game", "game", "Switch channels based on the game you're playing", 1, (message, params) -> {
+            StatusListener listener = guilds.getGuildSettings(message.getGuild()).getStatusListener();
+            String command = params[0];
+            if (command.equals("enable")) {
+                listener.setEnabled(true);
+                sendMessage("Enabled voice channel switching", message.getAuthor(), message.getChannel());
+            } else if (command.equals("disable")) {
+                listener.setEnabled(false);
+                sendMessage("Disabled voice channel switching", message.getAuthor(), message.getChannel());
+            } else {
+                String game, channel;
+                if (command.equals("add")) {
+                    for (int i = 1; i < params.length; i++) {
+                        if (params[i].contains("|")) {
+                            game = Utils.getContent(params, 1, i);
+                            channel = Utils.getContent(params, i + 1);
+                            listener.addEntry(game, message.getGuild().getVoiceChannels().stream()
+                                    .filter((voiceChannel) -> voiceChannel.getName().equals(channel))
+                                    .findFirst().orElse(message.getGuild().getVoiceChannelByID(channel)));
+                            sendMessage("Updated trigger: **" + game + "** assigned to **" + channel + "**", null, message.getChannel());
+                            return;
+                        }
+                    }
+                } else if (command.equals("remove")) {
+                    game = Utils.getContent(params, 1, params.length);
+                    if(listener.removeEntry(game))
+                        sendMessage("Removed trigger: **" + game + "**", null, message.getChannel());
+                    else
+                        sendMessage("Could not find trigger: **" + game + "**", null, message.getChannel());
                 }
             }
         });
@@ -954,7 +987,10 @@ public class App {
     // Change AudioPlayer volume for guild
     public static void setVolume(float vol, IGuild guild) {
         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-        player.setVolume(vol / 100);
+        AudioTrack track = (AudioTrack) player.getCurrentTrack();
+        if(track != null) {
+            ((YouTubeAudioProvider)track.getProvider()).setVolume(vol / 100);
+        }
         guilds.getGuildSettings(guild).setVolume((int) vol);
     }
 

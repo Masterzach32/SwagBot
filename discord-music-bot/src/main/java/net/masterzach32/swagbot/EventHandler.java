@@ -3,6 +3,7 @@ package net.masterzach32.swagbot;
 import java.io.IOException;
 
 import net.masterzach32.swagbot.guilds.GuildSettings;
+import net.masterzach32.swagbot.music.player.YouTubeAudioProvider;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
@@ -179,6 +180,7 @@ public class EventHandler {
                     e.printStackTrace();
                 }
             }
+            ((YouTubeAudioProvider) event.getPlayer().getCurrentTrack().getProvider()).setVolume(App.guilds.getGuildSettings(event.getPlayer().getGuild()).getVolume() / 100);
         } catch (DiscordException e) {
             logger.warn("Could not send message to " + ((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().getName());
         }
@@ -193,6 +195,11 @@ public class EventHandler {
         } catch (MissingPermissionsException | DiscordException | RateLimitException e) {
             e.printStackTrace();
         }
+    }
+
+    @EventSubscriber
+    public void onStatusChangeEvent(StatusChangeEvent event) throws RateLimitException, DiscordException, MissingPermissionsException {
+        App.guilds.forEach(guild -> guild.dispatchStatusChangedEvent(event));
     }
 
     @EventSubscriber

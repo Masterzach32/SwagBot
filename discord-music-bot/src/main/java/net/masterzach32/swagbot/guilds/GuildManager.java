@@ -2,20 +2,14 @@ package net.masterzach32.swagbot.guilds;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.Constants;
-import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
-import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
-import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.util.MissingPermissionsException;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GuildManager {
 	
@@ -33,7 +27,17 @@ public class GuildManager {
 			if (!prefs.exists()) {
 				prefs.createNewFile();
 				BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
-				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new GuildSettings(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, true, false, null, new ArrayList<>())));
+				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new GuildSettings(guild,
+                        Constants.DEFAULT_COMMAND_PREFIX,
+                        3,
+                        50,
+                        false,
+                        false,
+                        true,
+                        false,
+                        null,
+                        new ArrayList<>(),
+                        new StatusListener(guild, false))));
 				fout.close();
 			}
 
@@ -50,9 +54,29 @@ public class GuildManager {
 
         GuildSettings g;
         if(temp != null)
-		    g = new GuildSettings(guild, temp.getCommandPrefix(), temp.getMaxSkips(), temp.getVolume(), temp.isBotLocked(), temp.isNSFWFilterEnabled(), temp.shouldAnnounce(), temp.shouldChangeNick(), temp.getLastChannel(), temp.getQueue());
+		    g = new GuildSettings(guild,
+                    temp.getCommandPrefix(),
+                    temp.getMaxSkips(),
+                    temp.getVolume(),
+                    temp.isBotLocked(),
+                    temp.isNSFWFilterEnabled(),
+                    temp.shouldAnnounce(),
+                    temp.shouldChangeNick(),
+                    temp.getLastChannel(),
+                    temp.getQueue(),
+                    temp.getStatusListener() != null ? temp.getStatusListener() : new StatusListener(guild, false));
 		else
-		    g = new GuildSettings(guild, Constants.DEFAULT_COMMAND_PREFIX, 3, 50, false, false, true, false, null, new ArrayList<>());
+		    g = new GuildSettings(guild,
+                    Constants.DEFAULT_COMMAND_PREFIX,
+                    3,
+                    50,
+                    false,
+                    false,
+                    true,
+                    false,
+                    null,
+                    new ArrayList<>(),
+                    new StatusListener(guild, false));
 
 		if(!guilds.contains(g))
 			guilds.add(g);
@@ -93,4 +117,9 @@ public class GuildManager {
 				return guilds.get(i);
 		return loadGuild(guild);
 	}
+
+	public void forEach(Consumer<? super GuildSettings> action) {
+        Iterator<GuildSettings> iterator = guilds.iterator();
+        iterator.forEachRemaining(action);
+    }
 }

@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.GsonBuilder;
-import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.music.PlaylistManager;
 import net.masterzach32.swagbot.music.player.*;
@@ -18,6 +16,7 @@ import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
+import sx.blah.discord.handle.impl.events.StatusChangeEvent;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.DiscordException;
@@ -38,8 +37,9 @@ public class GuildSettings {
 	private boolean botLocked, enableNSFWFilter, announce, changeNick;
 	private String lastChannel;
     private List<String> queue;
+    private StatusListener listener;
 	
-	protected GuildSettings(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, boolean announce, boolean changeNick, String lastChannel, List<String> queue) {
+	protected GuildSettings(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, boolean announce, boolean changeNick, String lastChannel, List<String> queue, StatusListener listener) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
 		skipIDs = new ArrayList<>();
@@ -53,6 +53,7 @@ public class GuildSettings {
         this.changeNick = changeNick;
         this.lastChannel = lastChannel;
         this.queue = queue;
+        this.listener = listener;
 	}
 	
 	public String getID() {
@@ -150,6 +151,18 @@ public class GuildSettings {
     public List<String> getQueue() {
         return queue;
     }
+
+    public StatusListener getStatusListener() {
+        return listener;
+    }
+
+    public boolean dispatchStatusChangedEvent(StatusChangeEvent event) {
+        return listener.passEvent(event);
+    }
+
+    public IGuild getIGuild() {
+		return guild;
+	}
 
     public GuildSettings saveSettings() {
         getPlaylistManager().save();
