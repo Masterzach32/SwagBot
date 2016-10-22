@@ -13,6 +13,7 @@ import net.masterzach32.swagbot.music.player.AudioSource;
 import net.masterzach32.swagbot.utils.Constants;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.Status;
 
 public class GuildManager {
@@ -73,7 +74,12 @@ public class GuildManager {
                 obj.has("listener") ? new StatusListener(guild, obj.getJSONObject("listener").getBoolean("enabled"), gson.fromJson(obj.getJSONObject("listener").get("entries").toString(), HashMap.class)) : new StatusListener(guild, false)
         );
 
-		if(!guilds.contains(guilds.stream().filter(guildSettings -> guildSettings.getIGuild().getID().equals(guild.getID())).findFirst().orElse(null)))
+		/*boolean isAlreadyAdded = false;
+		for(int i = 0; i < guilds.size(); i++) {
+			if(guilds.get(i).getIGuild().getID().equals(temp.getIGuild().getID()))
+				isAlreadyAdded = true;
+		}
+		if(!isAlreadyAdded)*/
 			guilds.add(temp);
 
         temp.getPlaylistManager().load();

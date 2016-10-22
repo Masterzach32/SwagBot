@@ -625,7 +625,13 @@ public class App {
                 guilds.getGuildSettings(message.getGuild()).resetSkipStats();
                 sendMessage("Skipped **" + track.getTitle() + "**", null, message.getChannel());
                 if(player.getPlaylistSize() == 0 && !client.getOurUser().getDisplayName(message.getGuild()).equals("SwagBot"))
-                    message.getGuild().setUserNickname(client.getOurUser(), "SwagBot");
+                    RequestBuffer.request(() -> {
+                        try {
+                            message.getGuild().setUserNickname(client.getOurUser(), "SwagBot");
+                        } catch (MissingPermissionsException | DiscordException e) {
+                            e.printStackTrace();
+                        }
+                    });
             } else
                 sendMessage("**" + guilds.getGuildSettings(message.getGuild()).numUntilSkip() + "** more votes needed to skip the current song.", null, message.getChannel());
         });
@@ -940,7 +946,7 @@ public class App {
     }
 
     private static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
-        setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
+        //setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
         IVoiceChannel channel = getCurrentChannelForGuild(guild);
         if(channel != null)
             return channel;
