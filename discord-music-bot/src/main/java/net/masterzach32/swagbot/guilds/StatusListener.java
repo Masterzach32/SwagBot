@@ -31,8 +31,12 @@ public class StatusListener {
         this.entries = entries;
     }
 
-    public void setDefault(IVoiceChannel channel) {
+    public void setDefaultChannel(IVoiceChannel channel) {
         defaultChannel = channel.getID();
+    }
+
+    public String getDefaultChannel() {
+        return defaultChannel;
     }
 
     public void setEnabled(boolean enabled) {

@@ -353,6 +353,12 @@ public class App {
             } else if (command.equals("disable")) {
                 listener.setEnabled(false);
                 sendMessage("Disabled voice channel switching", message.getAuthor(), message.getChannel());
+            } else if (command.equals("set-def-channel")) {
+                String channel = Utils.getContent(params, 1, params.length);
+                listener.setDefaultChannel(message.getGuild().getVoiceChannels().stream()
+                        .filter((voiceChannel) -> voiceChannel.getName().equals(channel))
+                        .findFirst().orElse(message.getGuild().getVoiceChannelByID(channel)));
+                sendMessage("Set default channel to **" + message.getGuild().getVoiceChannelByID(listener.getDefaultChannel()) + "**", message.getAuthor(), message.getChannel());
             } else {
                 String game, channel;
                 if (command.equals("add")) {
@@ -369,7 +375,7 @@ public class App {
                     }
                 } else if (command.equals("remove")) {
                     game = Utils.getContent(params, 1, params.length);
-                    if(listener.removeEntry(game))
+                    if (listener.removeEntry(game))
                         sendMessage("Removed trigger: **" + game + "**", null, message.getChannel());
                     else
                         sendMessage("Could not find trigger: **" + game + "**", null, message.getChannel());
