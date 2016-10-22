@@ -190,8 +190,10 @@ public class EventHandler {
     @EventSubscriber
     public void onTrackFinishEvent(TrackFinishEvent event) {
         try {
-            if(App.guilds.getGuildSettings(event.getPlayer().getGuild()).shouldChangeNick() && event.getPlayer().getPlaylistSize() == 0)
+            if(App.guilds.getGuildSettings(event.getPlayer().getGuild()).shouldChangeNick() && event.getNewTrack().isPresent())
                 event.getPlayer().getGuild().setUserNickname(event.getClient().getOurUser(), "SwagBot");
+            if(event.getOldTrack().getProvider() instanceof YouTubeAudioProvider)
+                ((YouTubeAudioProvider) event.getOldTrack().getProvider()).close();
         } catch (MissingPermissionsException | DiscordException | RateLimitException e) {
             e.printStackTrace();
         }

@@ -3,13 +3,17 @@ package net.masterzach32.swagbot.guilds;
 import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.masterzach32.swagbot.App;
+import net.masterzach32.swagbot.music.player.AudioSource;
 import net.masterzach32.swagbot.utils.Constants;
+import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
+import sx.blah.discord.handle.obj.Status;
 
 public class GuildManager {
 	
@@ -22,7 +26,9 @@ public class GuildManager {
 	public GuildSettings loadGuild(IGuild guild) {
 		App.manager.mkdir(Constants.GUILD_SETTINGS + guild.getID() + "/playlists/");
 		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON);
-		GuildSettings temp = null;
+		Gson gson = new Gson();
+		GuildSettings temp;
+        String json = null;
 		try {
 			if (!prefs.exists()) {
 				prefs.createNewFile();
@@ -46,44 +52,33 @@ public class GuildManager {
 			fin.readFully(buffer);
 			fin.close();
 
-			String json = new String(buffer);
-			temp = new Gson().fromJson(json, GuildSettings.class);
+			json = new String(buffer);
 		} catch (IOException e) {
 
 		}
 
-        GuildSettings g;
-        if(temp != null)
-		    g = new GuildSettings(guild,
-                    temp.getCommandPrefix(),
-                    temp.getMaxSkips(),
-                    temp.getVolume(),
-                    temp.isBotLocked(),
-                    temp.isNSFWFilterEnabled(),
-                    temp.shouldAnnounce(),
-                    temp.shouldChangeNick(),
-                    temp.getLastChannel(),
-                    temp.getQueue(),
-                    temp.getStatusListener() != null ? temp.getStatusListener() : new StatusListener(guild, false));
-		else
-		    g = new GuildSettings(guild,
-                    Constants.DEFAULT_COMMAND_PREFIX,
-                    3,
-                    50,
-                    false,
-                    false,
-                    true,
-                    false,
-                    null,
-                    new ArrayList<>(),
-                    new StatusListener(guild, false));
+        JSONObject obj = new JSONObject(json);
 
-		if(!guilds.contains(g))
-			guilds.add(g);
+        temp = new GuildSettings(
+                guild,
+                obj.has("commandPrefix") ? obj.getString("commandPrefix").charAt(0) : '~',
+                obj.has("maxSkips") ? obj.getInt("maxSkips") : 3,
+                obj.has("volume") ? obj.getInt("volume") : 50,
+                obj.has("botLocked") ? obj.getBoolean("botLocked") : false,
+                obj.has("enableNSFWFilter") ? obj.getBoolean("enableNSFWFilter") : false,
+                obj.has("announce") ? obj.getBoolean("announce") : true,
+                obj.has("changeNick") ? obj.getBoolean("changeNick") : false,
+                obj.has("lastChannel") ? obj.getString("lastChannel") : "",
+                obj.has("queue") ? gson.fromJson(obj.get("queue").toString(), ArrayList.class) : new ArrayList<>(),
+                obj.has("listener") ? new StatusListener(guild, obj.getJSONObject("listener").getBoolean("enabled"), gson.fromJson(obj.getJSONObject("listener").get("entries").toString(), HashMap.class)) : new StatusListener(guild, false)
+        );
 
-        g.getPlaylistManager().load();
+		if(!guilds.contains(guilds.stream().filter(guildSettings -> guildSettings.getIGuild().getID().equals(guild.getID())).findFirst().orElse(null)))
+			guilds.add(temp);
 
-		return g;
+        temp.getPlaylistManager().load();
+
+		return temp;
 	}
 
 	public void applyGuildSettings() {

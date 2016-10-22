@@ -15,6 +15,7 @@ import java.util.List;
 public class StatusListener {
 
     private boolean enabled;
+    private String defaultChannel;
     private HashMap<String, String> entries;
     private transient IGuild guild;
 
@@ -22,6 +23,16 @@ public class StatusListener {
         this.guild = guild;
         this.enabled = enabled;
         entries = new HashMap<>();
+    }
+
+    public StatusListener(IGuild guild, boolean enabled, HashMap<String, String> entries) {
+        this.guild = guild;
+        this.enabled = enabled;
+        this.entries = entries;
+    }
+
+    public void setDefault(IVoiceChannel channel) {
+        defaultChannel = channel.getID();
     }
 
     public void setEnabled(boolean enabled) {
@@ -42,13 +53,13 @@ public class StatusListener {
         IUser user = event.getUser();
         String oldStatus = event.getOldStatus().getStatusMessage();
         String newStatus = event.getNewStatus().getStatusMessage();
-        if(guild.getUsers().contains(user)) {
+        if(!user.isBot() && guild.getUsers().contains(user)) {
             if(user.getConnectedVoiceChannels().stream().findFirst().get() != null) {
                 try {
                     if (entries.containsKey(newStatus))
                         user.moveToVoiceChannel(guild.getVoiceChannelByID(entries.get(newStatus)));
                     else if(newStatus == null && !getGames().stream().filter((game) -> game.equals(oldStatus)).findFirst().orElse("").equals(""))
-                        user.moveToVoiceChannel(guild.getVoiceChannelByID(guild.getID()));
+                        user.moveToVoiceChannel(guild.getVoiceChannelByID(defaultChannel));
                 } catch (DiscordException | RateLimitException | MissingPermissionsException e) {
                     e.printStackTrace();
                 }

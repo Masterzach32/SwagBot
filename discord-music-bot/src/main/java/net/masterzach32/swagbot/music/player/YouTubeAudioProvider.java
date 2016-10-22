@@ -8,6 +8,7 @@ import sx.blah.discord.util.audio.providers.AudioInputStreamProvider;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,12 +16,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class YouTubeAudioProvider implements IAudioProvider {
+public class YouTubeAudioProvider implements IAudioProvider, Closeable {
 
     private volatile AudioInputStream stream;
     private AudioInputStreamProvider provider;
     private VolumeProcessor volumeProcessor;
     private String video_id;
+
+    private Process ytdlProcess;
+    private Process ffmpegProcess;
+
+    private Thread ytdlToFFmpegThread;
+    private Thread ytdlErrGobler;
+    private Thread ffmpegErrGobler;
 
     public YouTubeAudioProvider(String video_id) throws IOException, UnsupportedAudioFileException {
         stream = null;
@@ -70,13 +78,6 @@ public class YouTubeAudioProvider implements IAudioProvider {
     }
 
     public AudioInputStream getStream() throws IOException, UnsupportedAudioFileException {
-        Process ytdlProcess;
-        Process ffmpegProcess;
-
-        Thread ytdlToFFmpegThread;
-        Thread ytdlErrGobler;
-        Thread ffmpegErrGobler;
-
         List<String> ytdl = new ArrayList<>();
         ytdl.add("python");
         ytdl.add("./bin/youtube-dl");
@@ -219,8 +220,19 @@ public class YouTubeAudioProvider implements IAudioProvider {
 
     public void close() {
         try {
-            stream.close();
-        } catch (IOException e) {
+            if(stream != null)
+                stream.close();
+            if(ytdlProcess != null)
+                ytdlProcess.destroyForcibly();
+            if(ffmpegProcess != null)
+                ffmpegProcess.destroyForcibly();
+            if(ytdlToFFmpegThread != null)
+                ytdlToFFmpegThread.join();
+            if(ytdlErrGobler != null)
+                ytdlErrGobler.join();
+            if(ffmpegErrGobler != null)
+                ffmpegErrGobler.join();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

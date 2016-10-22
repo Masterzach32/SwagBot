@@ -901,8 +901,8 @@ public class App {
     private static void restart() throws RateLimitException, IOException, DiscordException, UnirestException, InterruptedException {
         logger.info("restarting");
         stop(false);
-        Thread.sleep(5000);
-        main(null);
+        new ProcessBuilder("start-bot.bat").start();
+        System.exit(0);
     }
 
     private static void update() throws RateLimitException, IOException, DiscordException {
@@ -989,7 +989,7 @@ public class App {
         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
         AudioTrack track = (AudioTrack) player.getCurrentTrack();
         if(track != null) {
-            ((YouTubeAudioProvider)track.getProvider()).setVolume(vol / 100);
+            ((YouTubeAudioProvider) track.getProvider()).setVolume(vol / 100);
         }
         guilds.getGuildSettings(guild).setVolume((int) vol);
     }
