@@ -347,10 +347,13 @@ public class App {
         new Command("Switch Channel per Game", "game", "Switch channels based on the game you're playing", 1, (message, params) -> {
             StatusListener listener = guilds.getGuildSettings(message.getGuild()).getStatusListener();
             String command = params[0];
+            String str;
             if (command.equals("enable")) {
                 listener.setEnabled(true);
-                sendMessage("You have enabled voice-channel switching based on your detected game!\n" +
-                        "Now you need to set a default voice channel by using `~game set-def-channel <voice channel name or id>`", message.getAuthor(), message.getChannel());
+                str = "You have enabled voice-channel switching based on your detected game!";
+                if(listener.getDefaultChannel() == null || listener.getDefaultChannel().equals(""))
+                    str += "\nNow you need to set a default voice channel by using `~game set-def-channel <voice channel name or id>`";
+                sendMessage(str, message.getAuthor(), message.getChannel());
             } else if (command.equals("disable")) {
                 listener.setEnabled(false);
                 sendMessage("Disabled voice channel switching", message.getAuthor(), message.getChannel());
@@ -359,19 +362,32 @@ public class App {
                 listener.setDefaultChannel(message.getGuild().getVoiceChannels().stream()
                         .filter((voiceChannel) -> voiceChannel.getName().equals(channel))
                         .findFirst().orElse(message.getGuild().getVoiceChannelByID(channel)));
-                sendMessage("Set default channel to **" + message.getGuild().getVoiceChannelByID(listener.getDefaultChannel()) + "**\n" +
-                        "Now you need to add some games by using `~game add <game> | <voice channel name or id>`", message.getAuthor(), message.getChannel());
+                if(listener.getDefaultChannel() != null && !listener.getDefaultChannel().equals("")) {
+                    str = "Set default channel to **" + message.getGuild().getVoiceChannelByID(listener.getDefaultChannel()) + "**";
+                    if (!listener.hasEntries())
+                        str += "\nNow you need to add some games by using `~game add <game> | <voice channel name or id>`";
+                } else
+                    str = "Could not find Voice Channel: **" + Utils.getContent(params, 1, params.length) + "**";
+                sendMessage(str, message.getAuthor(), message.getChannel());
+            } else if (command.equals("list")) {
+                str = "Currently registered games:\n" + listener.listEntries();
+                sendMessage(str, null, message.getChannel());
             } else {
-                String game, channel;
+                String game;
+                IVoiceChannel channel;
                 if (command.equals("add")) {
                     for (int i = 1; i < params.length; i++) {
                         if (params[i].contains("|")) {
                             game = Utils.getContent(params, 1, i);
-                            channel = Utils.getContent(params, i + 1);
-                            listener.addEntry(game, message.getGuild().getVoiceChannels().stream()
-                                    .filter((voiceChannel) -> voiceChannel.getName().equals(channel))
-                                    .findFirst().orElse(message.getGuild().getVoiceChannelByID(channel)));
-                            sendMessage("**Added/Edited** status trigger: **" + game + "** assigned to **" + channel + "**", null, message.getChannel());
+                            int c = i;
+                            channel = message.getGuild().getVoiceChannels().stream()
+                                    .filter((voiceChannel) -> voiceChannel.getName().equals(Utils.getContent(params, c + 1)))
+                                    .findFirst().orElse(message.getGuild().getVoiceChannelByID(Utils.getContent(params, i + 1)));
+                            if(channel != null) {
+                                listener.addEntry(game, channel);
+                                sendMessage("**Added/Edited** status trigger: **" + game + "** assigned to **" + channel.getName() + "**", null, message.getChannel());
+                            } else
+                                sendMessage("Could not find Voice Channel: **" + Utils.getContent(params, c + 1) + "", message.getAuthor(), message.getChannel());
                             return;
                         }
                     }

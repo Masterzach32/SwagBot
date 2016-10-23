@@ -51,6 +51,10 @@ public class StatusListener {
         return entries.remove(game) != null;
     }
 
+    public boolean hasEntries() {
+        return entries.size() > 0;
+    }
+
     public boolean passEvent(StatusChangeEvent event) {
         if(!enabled)
             return false;
@@ -75,5 +79,14 @@ public class StatusListener {
         List<String> games = new ArrayList<>();
         entries.forEach((game, channel) -> games.add(game));
         return games;
+    }
+
+    public String listEntries() {
+        List<String> games = new ArrayList<>();
+        entries.forEach((game, channel) -> games.add("**" + game + "**: " + channel));
+        String str = "";
+        for(String s : games)
+            str += s + "\n";
+        return str;
     }
 }
