@@ -68,7 +68,7 @@ public class App {
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
             if (params.length == 0) {
                 if(!message.getChannel().isPrivate())
-                    sendMessage("A list of commands has been sent to your direct messages!", message.getAuthor(), message.getChannel())
+                    sendMessage("A list of commands has been sent to your direct messages!", message.getAuthor(), message.getChannel());
                 Command.listAllCommands(message.getAuthor());
             } else {
                 for (Command c : Command.commands)
@@ -563,7 +563,7 @@ public class App {
                 e.printStackTrace();
                 return;
             } catch (YouTubeAPIException e) {
-                waitAndDeleteMessage(sendMessage("Please make sure your video link contains a valid YouTube video and is not private!", message.getAuthor(), message.getChannel()), 30);
+                waitAndDeleteMessage(sendMessage("Your video cannot be listed because it may be listed as private or not available in the region for SwagBot's server.", message.getAuthor(), message.getChannel()), 30);
                 e.printStackTrace();
                 return;
             }

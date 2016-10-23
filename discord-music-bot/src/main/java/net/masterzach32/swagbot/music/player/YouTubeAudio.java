@@ -8,12 +8,14 @@ import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IUser;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
+import java.util.Iterator;
 
 public class YouTubeAudio extends AudioSource {
 
@@ -46,6 +48,12 @@ public class YouTubeAudio extends AudioSource {
                 try {
                     JSONObject json = response.getBody().getObject().getJSONArray("items").getJSONObject(0).getJSONObject("contentDetails");
                     duration = json.getString("duration");
+                    JSONArray array = json.getJSONObject("regionRestriction").getJSONArray("blocked");
+                    Iterator it = array.iterator();
+                    while (it.hasNext())
+                        if(it.next().equals("US"))
+                            throw new YouTubeAPIException(url);
+
                 } catch (JSONException e){
                     throw new YouTubeAPIException(url);
                 }
