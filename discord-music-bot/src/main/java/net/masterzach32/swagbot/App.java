@@ -67,6 +67,8 @@ public class App {
         // register commands
         new Command("Help", "help", "Displays a list of all commands and their functions.", 0, (message, params) -> {
             if (params.length == 0) {
+                if(!message.getChannel().isPrivate())
+                    sendMessage("A list of commands has been sent to your direct messages!", message.getAuthor(), message.getChannel())
                 Command.listAllCommands(message.getAuthor());
             } else {
                 for (Command c : Command.commands)
