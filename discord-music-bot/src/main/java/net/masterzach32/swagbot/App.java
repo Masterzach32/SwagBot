@@ -349,7 +349,8 @@ public class App {
             String command = params[0];
             if (command.equals("enable")) {
                 listener.setEnabled(true);
-                sendMessage("Enabled voice channel switching", message.getAuthor(), message.getChannel());
+                sendMessage("You have enabled voice-channel switching based on your detected game!\n" +
+                        "Now you need to set a default voice channel by using `~game set-def-channel <voice channel name or id>`", message.getAuthor(), message.getChannel());
             } else if (command.equals("disable")) {
                 listener.setEnabled(false);
                 sendMessage("Disabled voice channel switching", message.getAuthor(), message.getChannel());
@@ -358,7 +359,8 @@ public class App {
                 listener.setDefaultChannel(message.getGuild().getVoiceChannels().stream()
                         .filter((voiceChannel) -> voiceChannel.getName().equals(channel))
                         .findFirst().orElse(message.getGuild().getVoiceChannelByID(channel)));
-                sendMessage("Set default channel to **" + message.getGuild().getVoiceChannelByID(listener.getDefaultChannel()) + "**", message.getAuthor(), message.getChannel());
+                sendMessage("Set default channel to **" + message.getGuild().getVoiceChannelByID(listener.getDefaultChannel()) + "**\n" +
+                        "Now you need to add some games by using `~game add <game> | <voice channel name or id>`", message.getAuthor(), message.getChannel());
             } else {
                 String game, channel;
                 if (command.equals("add")) {
@@ -369,16 +371,16 @@ public class App {
                             listener.addEntry(game, message.getGuild().getVoiceChannels().stream()
                                     .filter((voiceChannel) -> voiceChannel.getName().equals(channel))
                                     .findFirst().orElse(message.getGuild().getVoiceChannelByID(channel)));
-                            sendMessage("Updated trigger: **" + game + "** assigned to **" + channel + "**", null, message.getChannel());
+                            sendMessage("**Added/Edited** status trigger: **" + game + "** assigned to **" + channel + "**", null, message.getChannel());
                             return;
                         }
                     }
                 } else if (command.equals("remove")) {
                     game = Utils.getContent(params, 1, params.length);
                     if (listener.removeEntry(game))
-                        sendMessage("Removed trigger: **" + game + "**", null, message.getChannel());
+                        sendMessage("**Removed** status trigger: **" + game + "**", null, message.getChannel());
                     else
-                        sendMessage("Could not find trigger: **" + game + "**", null, message.getChannel());
+                        sendMessage("Could not find status trigger: **" + game + "**", null, message.getChannel());
                 }
             }
         });

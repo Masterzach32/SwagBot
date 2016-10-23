@@ -55,14 +55,13 @@ public class StatusListener {
         if(!enabled)
             return false;
         IUser user = event.getUser();
-        String oldStatus = event.getOldStatus().getStatusMessage();
         String newStatus = event.getNewStatus().getStatusMessage();
         if(!user.isBot() && guild.getUsers().contains(user)) {
-            if(user.getConnectedVoiceChannels().stream().findFirst().get() != null) {
+            if(user.getConnectedVoiceChannels().stream().findFirst().isPresent()) {
                 try {
                     if (entries.containsKey(newStatus))
                         user.moveToVoiceChannel(guild.getVoiceChannelByID(entries.get(newStatus)));
-                    else if(newStatus == null && !getGames().stream().filter((game) -> game.equals(oldStatus)).findFirst().orElse("").equals(""))
+                    else
                         user.moveToVoiceChannel(guild.getVoiceChannelByID(defaultChannel));
                 } catch (DiscordException | RateLimitException | MissingPermissionsException e) {
                     e.printStackTrace();
