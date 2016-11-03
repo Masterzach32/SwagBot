@@ -14,9 +14,8 @@ public class Command implements Comparable<Command> {
 	private String name, identifier, info;
 	private CommandEvent event;
 	private int permLevel;
-	private boolean showInHelp;
 	
-	public static final List<Command> commands = new ArrayList<Command>();
+	public static final List<Command> commands = new ArrayList<>();
 
 	public Command(String name, String identifier, String info, int permLevel, CommandEvent event) {
 		this.name = name;
@@ -38,10 +37,6 @@ public class Command implements Comparable<Command> {
 	public String getInfo() {
 		return info;
 	}
-
-	public boolean shouldShowInHelp() {
-        return showInHelp;
-    }
 	
 	public int getPermissionLevel() {
 		return permLevel;

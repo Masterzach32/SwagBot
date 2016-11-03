@@ -891,7 +891,7 @@ public class App {
             sendMessage("Sweg", null, message.getChannel());
         });
         new Command("Currency Exchange", "exchange", "Convert from one currency to another.", 0, (message, params) -> {
-            List<String> currencies = CurrencyConverter.getAvailableCurrencies();
+            List<String> currencies = CurrencyConverter.Companion.getAvailableCurrencies();
             String str = "";
             if(params.length == 0) {
                 for(String money : currencies)

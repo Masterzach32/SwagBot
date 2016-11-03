@@ -113,7 +113,7 @@ public class EventHandler {
             for (IEmbedded image : event.getMessage().getEmbedded()) {
                 logger.info("embed: " + image.getUrl());
                 if (image.getUrl() != null) {
-                    NSFWFilter filter = new NSFWFilter(event.getMessage().getGuild(), image.getUrl());
+                    NSFWFilter filter = new NSFWFilter(image.getUrl());
                     if (filter.isNSFW()) {
                         App.client.getOrCreatePMChannel(event.getMessage().getAuthor()).sendMessage("Your image, `" + filter.getUrl() + "` which you posted in **" + event.getMessage().getGuild().getName() + "** **" + event.getMessage().getChannel() + "**, was flagged as containing NSFW content, and has been removed. If you believe this is an error, contact the server owner or one of my developers.");
                         event.getMessage().delete();

@@ -27,7 +27,7 @@ import sx.blah.discord.util.audio.AudioPlayer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class GuildSettings {
-	
+
 	private transient IGuild guild;
 	private transient PlaylistManager playlists;
 	private transient List<String> skipIDs;
@@ -38,7 +38,7 @@ public class GuildSettings {
 	private String lastChannel;
     private List<String> queue;
     private StatusListener listener;
-	
+
 	protected GuildSettings(IGuild guild, char commandPrefix, int maxSkips, int volume, boolean botLocked, boolean nsfwfilter, boolean announce, boolean changeNick, String lastChannel, List<String> queue, StatusListener listener) {
 		this.guild = guild;
 		playlists = new PlaylistManager(guild.getID());
@@ -55,27 +55,27 @@ public class GuildSettings {
         this.queue = queue;
         this.listener = listener;
 	}
-	
+
 	public String getID() {
 		return guild.getID();
 	}
-	
+
 	public void resetSkipStats() {
 		skipIDs.clear();
 	}
-	
+
 	public void addSkipID(IUser user) {
 		skipIDs.add(user.getID());
 	}
-	
+
 	public boolean hasUserSkipped(String userID) {
 		return skipIDs.contains(userID);
 	}
-	
+
 	public int numUntilSkip() {
 		return maxSkips - skipIDs.size();
 	}
-	
+
 	public int getMaxSkips() {
 		return maxSkips;
 	}
@@ -83,39 +83,39 @@ public class GuildSettings {
 	public void setMaxSkips(int maxSkips) {
 		this.maxSkips = maxSkips;
 	}
-	
+
 	public int getVolume() {
 		return volume;
 	}
-	
+
 	public void setVolume(int vol) {
 		this.volume = vol;
 	}
-	
+
 	public boolean toggleBotLocked() {
 		return botLocked = !botLocked;
 	}
-	
+
 	public boolean isBotLocked() {
 		return botLocked;
 	}
-	
+
 	public PlaylistManager getPlaylistManager() {
 		return playlists;
 	}
-	
+
 	public char getCommandPrefix() {
 		return commandPrefix;
 	}
-	
+
 	public void setCommandPrefix(char prefix) {
 		this.commandPrefix = prefix;
 	}
-	
+
 	public boolean isNSFWFilterEnabled() {
 		return enableNSFWFilter;
 	}
-	
+
 	public void toggleNSFWFilter() {
 		enableNSFWFilter = !enableNSFWFilter;
 	}

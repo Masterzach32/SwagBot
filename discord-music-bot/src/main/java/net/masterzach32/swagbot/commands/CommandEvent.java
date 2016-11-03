@@ -11,5 +11,5 @@ import java.io.IOException;
 public interface CommandEvent {
 
 	public void execute(IMessage message, String[] params) throws RateLimitException, MissingPermissionsException, DiscordException, UnirestException, IOException;
-	
+
 }

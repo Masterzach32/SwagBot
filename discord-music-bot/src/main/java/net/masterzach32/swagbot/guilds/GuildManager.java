@@ -17,13 +17,13 @@ import sx.blah.discord.handle.obj.IVoiceChannel;
 import sx.blah.discord.handle.obj.Status;
 
 public class GuildManager {
-	
+
 	private List<GuildSettings> guilds;
 
 	public GuildManager() {
 		guilds = new ArrayList<>();
 	}
-	
+
 	public GuildSettings loadGuild(IGuild guild) {
 		App.manager.mkdir(Constants.GUILD_SETTINGS + guild.getID() + "/playlists/");
 		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON);
@@ -102,7 +102,7 @@ public class GuildManager {
                 return guilds.remove(i);
         return null;
 	}
-	
+
 	public void saveGuildSettings() {
 		for(int i = 0; i < guilds.size(); i++) {
 			if(guilds.get(i) != null)
@@ -111,7 +111,7 @@ public class GuildManager {
 				guilds.remove(i);
 		}
 	}
-	
+
 	public GuildSettings getGuildSettings(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
 			if(guilds.get(i) != null && guilds.get(i).getID().equals(guild.getID()))
