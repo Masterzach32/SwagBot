@@ -74,13 +74,13 @@ public class App {
                 for (Command c : Command.commands)
                     if (c.getIdentifier().equals(params[0])) {
                         if (message.getChannel().isPrivate())
-                            App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + c.getName() + "** `" + Constants.DEFAULT_COMMAND_PREFIX + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo());
+                            App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("**" + c.getName() + "** `" + Constants.INSTANCE.getDEFAULT_COMMAND_PREFIX() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo());
                         else
                             sendMessage("**" + c.getName() + "** `" + guilds.getGuildSettings(message.getGuild()).getCommandPrefix() + c.getIdentifier() + "` Perm Level: " + c.getPermissionLevel() + "\n" + c.getInfo(), null, message.getChannel());
                         return;
                     }
                 if (message.getChannel().isPrivate())
-                    App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Could not find command **" + Constants.DEFAULT_COMMAND_PREFIX + params[0] + "**");
+                    App.client.getOrCreatePMChannel(message.getAuthor()).sendMessage("Could not find command **" + Constants.INSTANCE.getDEFAULT_COMMAND_PREFIX() + params[0] + "**");
                 else
                     sendMessage("Could not find command **" + guilds.getGuildSettings(message.getGuild()).getCommandPrefix() + params[0] + "**", null, message.getChannel());
             }
@@ -944,7 +944,7 @@ public class App {
     }
 
     private static int clearCache() {
-        File[] cache = manager.getFile(Constants.AUDIO_CACHE).listFiles();
+        File[] cache = manager.getFile(Constants.INSTANCE.getAUDIO_CACHE()).listFiles();
         int count = 0;
         for (File file : cache) {
             if (file.delete()) {

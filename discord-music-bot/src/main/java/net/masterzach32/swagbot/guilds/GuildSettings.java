@@ -174,7 +174,7 @@ public class GuildSettings {
                 queue.add(((AudioTrack) track).getUrl());
 
         try {
-            BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
+            BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON()));
             fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
             fout.close();
         } catch (IOException e) {

@@ -34,7 +34,7 @@ public class PlaylistManager {
 		for(LocalPlaylist p : playlists) {
 			BufferedWriter fout;
 			try {
-				fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guildID + "/playlists/" + URLEncoder.encode(p.getName(), "UTF-8") + ".json"));
+				fout = new BufferedWriter(new FileWriter(Constants.INSTANCE.getGUILD_SETTINGS() + guildID + "/playlists/" + URLEncoder.encode(p.getName(), "UTF-8") + ".json"));
 				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(p));
 				fout.close();
 			} catch (IOException e) {
@@ -45,7 +45,7 @@ public class PlaylistManager {
 	
 	public void load() {
 		this.playlists.clear();
-		File[] playlists = App.manager.getFile(Constants.GUILD_SETTINGS + guildID + "/playlists/").listFiles();
+		File[] playlists = App.manager.getFile(Constants.INSTANCE.getGUILD_SETTINGS() + guildID + "/playlists/").listFiles();
 		for(File file : playlists) {
 			RandomAccessFile fin;
 			byte[] buffer = null;

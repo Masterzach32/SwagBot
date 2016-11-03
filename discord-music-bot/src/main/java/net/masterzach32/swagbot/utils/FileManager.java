@@ -17,7 +17,7 @@ public class FileManager {
 	public FileManager() {
 		files = new ArrayList<>();
 		setup();
-		File[] files = getFile(Constants.WORKING_DIRECTORY).listFiles();
+		File[] files = getFile(Constants.INSTANCE.getWORKING_DIRECTORY()).listFiles();
 		Arrays.stream(files)
                 .filter((file -> file.getName().toLowerCase().contains("frag")))
                 .collect(Collectors.toList())
@@ -42,12 +42,12 @@ public class FileManager {
 	
 	private void setup() {
 		logger.info("preparing:filesystem");
-		files.add(new File(Constants.BINARY_STORAGE));
-		files.add(new File(Constants.DIRECTORY_STORAGE));
-		files.add(new File(Constants.AUDIO_CACHE));
-		files.add(new File(Constants.GUILD_SETTINGS));
-		files.add(new File(Constants.LOG_STORAGE));
-		files.add(new File(Constants.TEMP_STORAGE));
+		files.add(new File(Constants.INSTANCE.getBINARY_STORAGE()));
+		files.add(new File(Constants.INSTANCE.getDIRECTORY_STORAGE()));
+		files.add(new File(Constants.INSTANCE.getAUDIO_CACHE()));
+		files.add(new File(Constants.INSTANCE.getGUILD_SETTINGS()));
+		files.add(new File(Constants.INSTANCE.getLOG_STORAGE()));
+		files.add(new File(Constants.INSTANCE.getTEMP_STORAGE()));
 		for(File file : files) {
 			if(!file.exists()) {
 				file.mkdir();
@@ -71,7 +71,7 @@ public class FileManager {
 	
 	private synchronized void refresh() {
 		files.clear();
-		refresh(new File(Constants.WORKING_DIRECTORY));
+		refresh(new File(Constants.INSTANCE.getWORKING_DIRECTORY()));
 		//logger.info("refresh:complete");
 	}
 }

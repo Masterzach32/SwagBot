@@ -25,17 +25,17 @@ public class GuildManager {
 	}
 
 	public GuildSettings loadGuild(IGuild guild) {
-		App.manager.mkdir(Constants.GUILD_SETTINGS + guild.getID() + "/playlists/");
-		File prefs = new File(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON);
+		App.manager.mkdir(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
+		File prefs = new File(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON());
 		Gson gson = new Gson();
 		GuildSettings temp;
         String json = null;
 		try {
 			if (!prefs.exists()) {
 				prefs.createNewFile();
-				BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON));
+				BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON()));
 				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new GuildSettings(guild,
-                        Constants.DEFAULT_COMMAND_PREFIX,
+                        Constants.INSTANCE.getDEFAULT_COMMAND_PREFIX(),
                         3,
                         50,
                         false,
@@ -48,7 +48,7 @@ public class GuildManager {
 				fout.close();
 			}
 
-			RandomAccessFile fin = new RandomAccessFile(Constants.GUILD_SETTINGS + guild.getID() + "/" + Constants.GUILD_JSON, "r"); // "r" = open file for reading only
+			RandomAccessFile fin = new RandomAccessFile(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON(), "r"); // "r" = open file for reading only
 			byte[] buffer = new byte[(int) fin.length()];
 			fin.readFully(buffer);
 			fin.close();
