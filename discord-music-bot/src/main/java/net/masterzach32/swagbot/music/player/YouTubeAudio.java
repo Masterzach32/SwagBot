@@ -48,15 +48,26 @@ public class YouTubeAudio extends AudioSource {
                 try {
                     JSONObject json = response.getBody().getObject().getJSONArray("items").getJSONObject(0).getJSONObject("contentDetails");
                     duration = json.getString("duration");
-                    JSONArray array = json.getJSONObject("regionRestriction").getJSONArray("allowed");
-                    Iterator it = array.iterator();
-                    boolean allowed = false;
-                    while (it.hasNext() && !allowed)
-                        if(it.next().equals("US"))
-                            allowed = true;
-                    if(!allowed)
-                        throw new YouTubeAPIException(url);
+                    if (json.has("regionRestriction")) {
+                        json = json.getJSONObject("regionRestriction");
+                        if (json.has("allowed")) {
+                            JSONArray array = json.getJSONArray("allowed");
+                            Iterator it = array.iterator();
+                            boolean allowed = false;
+                            while (it.hasNext() && !allowed)
+                                if (it.next().equals("US"))
+                                    allowed = true;
+                            if (!allowed)
+                                throw new YouTubeAPIException(url);
 
+                        } else if (json.has("blocked")) {
+                            JSONArray array = json.getJSONObject("regionRestriction").getJSONArray("blocked");
+                            for (Object obj : array)
+                                if (obj.equals("US"))
+                                    throw new YouTubeAPIException(url);
+                        } else
+                            throw new YouTubeAPIException(url);
+                    }
                 } catch (JSONException e){
                     throw new YouTubeAPIException(url);
                 }

@@ -98,7 +98,7 @@ public class GuildManager {
 
 	public GuildSettings removeGuild(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
-			if(guilds.get(i) != null && guilds.get(i).getID().equals(guild.getID()))
+			if(guilds.get(i) != null && guilds.get(i).getId().equals(guild.getID()))
                 return guilds.remove(i);
         return null;
 	}
@@ -114,7 +114,7 @@ public class GuildManager {
 
 	public GuildSettings getGuildSettings(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
-			if(guilds.get(i) != null && guilds.get(i).getID().equals(guild.getID()))
+			if(guilds.get(i) != null && guilds.get(i).getId().equals(guild.getID()))
 				return guilds.get(i);
 		return loadGuild(guild);
 	}

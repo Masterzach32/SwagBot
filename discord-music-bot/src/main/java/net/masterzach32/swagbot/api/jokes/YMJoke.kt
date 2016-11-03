@@ -3,7 +3,7 @@ package net.masterzach32.swagbot.api.jokes
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 
-class YMJoke : IRandomJoke {
+class YMJoke: IRandomJoke {
 
     private var joke: String = ""
 
