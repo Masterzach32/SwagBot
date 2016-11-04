@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileManager {
-	
+
 	public static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 	public List<File> files;
 
@@ -23,7 +23,7 @@ public class FileManager {
                 .collect(Collectors.toList())
                 .forEach(File::delete);
 	}
-	
+
 	public synchronized File getFile(String fileName) {
 		logger.info("fetching:" + fileName);
 		refresh();
@@ -32,14 +32,14 @@ public class FileManager {
 				return file;
 		return new File(fileName);
 	}
-	
+
 	public synchronized void mkdir(String dir) {
 		File file = new File(dir);
 		if(!file.exists()) {
 			file.mkdirs();
 		}
 	}
-	
+
 	private void setup() {
 		logger.info("preparing:filesystem");
 		files.add(new File(Constants.INSTANCE.getBINARY_STORAGE()));
@@ -58,7 +58,7 @@ public class FileManager {
 		}
 		refresh();
 	}
-	
+
 	private void refresh(File dir) {
 		for(File file : dir.listFiles()) {
 			files.add(file);
@@ -68,7 +68,7 @@ public class FileManager {
 			}
 		}
 	}
-	
+
 	private synchronized void refresh() {
 		files.clear();
 		refresh(new File(Constants.INSTANCE.getWORKING_DIRECTORY()));
