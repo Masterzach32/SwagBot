@@ -1,32 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>net.masterzach32</groupId>
-  <artifactId>swagbot</artifactId>
-  <packaging>jar</packaging>
+    <groupId>net.masterzach32</groupId>
+    <artifactId>swagbot</artifactId>
+    <packaging>jar</packaging>
 
-  <name>swagbot</name>
-  <url>http://masterzach32.net</url>
+    <name>swagbot</name>
+    <url>http://masterzach32.net</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-      <kotlin.version>1.0.4</kotlin.version>
-  </properties>
-  
-  <repositories>
-    <repository>
-        <id>jcenter</id>
-        <name>jcenter-bintray</name>
-        <url>http://jcenter.bintray.com</url>
-    </repository>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <kotlin.version>1.0.4</kotlin.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <name>jcenter-bintray</name>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -55,31 +55,21 @@
     </build>
 
     <dependencies>
-      <dependency>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-          <version>19.0</version>
-      </dependency>
-      <dependency>
-          <groupId>net.dv8tion</groupId>
-          <artifactId>d4j-player</artifactId>
-          <version>0.2.3_24</version>
-      </dependency>
-      <dependency>
-          <groupId>com.github.austinv11</groupId>
-          <artifactId>Discord4j</artifactId>
-          <version>websocket-rewrite-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-          <version>1.1.7</version>
-      </dependency>
-    <dependency>
-    	<groupId>com.mashape.unirest</groupId>
-    	<artifactId>unirest-java</artifactId>
-    	<version>1.4.9</version>
-    </dependency>
+        <dependency>
+            <groupId>com.github.austinv11</groupId>
+            <artifactId>Discord4j</artifactId>
+            <version>websocket-rewrite-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mashape.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>1.4.9</version>
+        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
@@ -92,10 +82,10 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-  <version>1.1.1</version>
-  <description>Music and Moderation bot for Discord</description>
-  <organization>
-  	<name>Masterzach32.net</name>
-  	<url>http://masterzach32.net</url>
-  </organization>
+    <version>1.0.0</version>
+    <description>Music and Moderation bot for Discord</description>
+    <organization>
+        <name>Masterzach32.net</name>
+        <url>http://masterzach32.net</url>
+    </organization>
 </project>

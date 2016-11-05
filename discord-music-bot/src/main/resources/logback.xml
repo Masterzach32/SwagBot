@@ -7,9 +7,9 @@
     </layout>
   </appender>
   
-  <logger name="net.masterzach32.swagbot.App" level="TRACE"/>
+  <logger name="net.masterzach32.swagbot.App" level="INFO"/>
 
-  <root level="TRACE">
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

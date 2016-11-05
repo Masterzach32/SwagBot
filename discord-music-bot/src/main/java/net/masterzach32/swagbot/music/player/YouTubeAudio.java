@@ -59,9 +59,8 @@ public class YouTubeAudio extends AudioSource {
                                     allowed = true;
                             if (!allowed)
                                 throw new YouTubeAPIException(url);
-
                         } else if (json.has("blocked")) {
-                            JSONArray array = json.getJSONObject("regionRestriction").getJSONArray("blocked");
+                            JSONArray array = json.getJSONArray("blocked");
                             for (Object obj : array)
                                 if (obj.equals("US"))
                                     throw new YouTubeAPIException(url);

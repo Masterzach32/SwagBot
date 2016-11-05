@@ -69,6 +69,7 @@ public class Command implements Comparable<Command> {
 		}
 
         try {
+			App.logger.info("Executing command " + message.getContent());
 			c.execute(message, params);
 		} catch (MissingPermissionsException e){
 			App.sendMessage("Please make sure I have the Discord permission below so I can function correctly:\n`" + e.getMessage() + "`\nIf your still having trouble join SwagBot Hub, the link is in ~help.\nPlease don't complain to me that the bot doesn't work if it doesn't have the necessary permissions!", message.getAuthor(), message.getChannel());
