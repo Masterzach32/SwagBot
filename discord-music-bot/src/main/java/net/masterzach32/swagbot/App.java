@@ -492,7 +492,7 @@ public class App {
                 playlist.toggleRequiresPerms();
                 response = playlist.requiresPerms() ? "Playlist **" + playlist.getName() + "** now requires moderator privelages to edit." : "Playlist **" + playlist.getName() + "** no longer requires moderator privelages to edit.";
             } else if (command.equals("add") && !(playlist.requiresPerms() && !perms) && !playlist.isLocked()) {
-                if(!params[2].contains("youtube") && !params[2].contains("soundcloud"))
+                if(params.length < 3 || !params[2].contains("youtube") && !params[2].contains("soundcloud"))
                     response = "You must provide a YouTube or SoundCloud link!";
                 else {
                     message.delete();
