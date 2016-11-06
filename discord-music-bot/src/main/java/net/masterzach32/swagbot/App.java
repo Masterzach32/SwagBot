@@ -928,6 +928,7 @@ public class App {
         client.logout();
         if(exit) {
             Unirest.shutdown();
+            logger.info("Successfully shut down SwagBot");
             System.exit(0);
         }
     }
