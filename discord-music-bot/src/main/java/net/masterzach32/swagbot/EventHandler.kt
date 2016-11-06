@@ -155,7 +155,7 @@ class EventHandler {
         val params: Array<String?>
         if (message.indexOf(App.guilds.getGuildSettings(event.message.guild).commandPrefix) == 0) {
             message = message.substring(1, message.length)
-            val split = message.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val split = message.split(" ".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
             identifier = split[0]
             params = arrayOfNulls<String>(split.size - 1)
             for (i in params.indices) {
@@ -163,15 +163,14 @@ class EventHandler {
             }
             Command.executeCommand(event.message, identifier, params)
         } else if (event.message.mentions.contains(event.client.ourUser) && !event.message.mentionsEveryone()) {
-            val split = message.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val split = message.split(" ".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
             val command = arrayOfNulls<String>(split.size - 1)
             for (i in command.indices) {
                 command[i] = split[i + 1]
             }
-            if(command.size > 0)
-                identifier = command[0]!!
-            else
-                identifier = ""
+            if(command.size == 0)
+                return
+            identifier = command[0]!!
             params = arrayOfNulls<String>(command.size - 1)
             for (i in params.indices) {
                 params[i] = command[i + 1]
