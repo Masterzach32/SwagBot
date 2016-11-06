@@ -3,18 +3,13 @@ package net.masterzach32.swagbot.guilds;
 import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import net.masterzach32.swagbot.App;
-import net.masterzach32.swagbot.music.player.AudioSource;
 import net.masterzach32.swagbot.utils.Constants;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IVoiceChannel;
-import sx.blah.discord.handle.obj.Status;
 
 public class GuildManager {
 
@@ -25,7 +20,7 @@ public class GuildManager {
 	}
 
 	public GuildSettings loadGuild(IGuild guild) {
-		App.manager.mkdir(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
+		App.INSTANCE.getManager().mkdir(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
 		File prefs = new File(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON());
 		Gson gson = new Gson();
 		GuildSettings temp;

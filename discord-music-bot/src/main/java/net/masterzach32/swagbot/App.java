@@ -288,13 +288,13 @@ public class App {
 
             sendMessage("Moved everyone in the afk channel to **" + channel.getName() + "**.", null, message.getChannel());
         });
-		new Command("Mass AFK", "mafk", "Move everyone in your server to the afk channel.", 1, (message, params) -> {
-			IVoiceChannel channel = message.getGuild().getAFKChannel();
-			for (IUser user : message.getGuild().getUsers())
-			    if(!user.equals(message.getAuthor()) && user.getConnectedVoiceChannels().size() > 0)
-				    user.moveToVoiceChannel(channel);
-			sendMessage("Moved everyone to **" + channel.getName() + "**.", null, message.getChannel());
-		});
+        new Command("Mass AFK", "mafk", "Move everyone in your server to the afk channel.", 1, (message, params) -> {
+            IVoiceChannel channel = message.getGuild().getAFKChannel();
+            for (IUser user : message.getGuild().getUsers())
+                if(!user.equals(message.getAuthor()) && user.getConnectedVoiceChannels().size() > 0)
+                    user.moveToVoiceChannel(channel);
+            sendMessage("Moved everyone to **" + channel.getName() + "**.", null, message.getChannel());
+        });
         new Command("Summon", "summon", "Summons the bot to your voice channel.", 0, (message, params) -> {
             if (guilds.getGuildSettings(message.getGuild()).isBotLocked()) {
                 sendMessage("**SwagBot is currently locked.**", null, message.getChannel());

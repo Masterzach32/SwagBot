@@ -7,7 +7,6 @@ import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 
-import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.EventHandler
 import sx.blah.discord.handle.obj.IGuild
 

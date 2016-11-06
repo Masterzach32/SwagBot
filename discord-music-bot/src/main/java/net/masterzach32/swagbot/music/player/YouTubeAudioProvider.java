@@ -1,6 +1,5 @@
 package net.masterzach32.swagbot.music.player;
 
-import net.masterzach32.swagbot.App;
 import sx.blah.discord.handle.audio.IAudioProvider;
 import sx.blah.discord.util.audio.processors.VolumeProcessor;
 import sx.blah.discord.util.audio.providers.AudioInputStreamProvider;
@@ -136,7 +135,7 @@ public class YouTubeAudioProvider implements IAudioProvider, Closeable {
                     //If the pipe being closed caused this problem, it was because it tried to write when it closed.
                     String msg = e.getMessage().toLowerCase();
                     if (e.getMessage().contains("The pipe has been ended") || e.getMessage().contains("Broken pipe"))
-                        App.logger.error("RemoteStream encountered an 'error' : " + e.getMessage() + " (not really an error.. probably)");
+                        App.INSTANCE.getLogger().error("RemoteStream encountered an 'error' : " + e.getMessage() + " (not really an error.. probably)");
                     else
                         e.printStackTrace();
                 } finally {
@@ -161,12 +160,12 @@ public class YouTubeAudioProvider implements IAudioProvider, Closeable {
                 try {
                     fromYTDL = ytdlProcessF.getErrorStream();
                     if (fromYTDL == null)
-                        App.logger.error("RemoteStream: YTDL-ErrGobler: fromYTDL is null");
+                        App.INSTANCE.getLogger().error("RemoteStream: YTDL-ErrGobler: fromYTDL is null");
 
                     byte[] buffer = new byte[1024];
                     int amountRead = -1;
                     while (!isInterrupted() && ((amountRead = fromYTDL.read(buffer)) > -1)) {
-                        App.logger.warn("ERR YTDL: " + new String(Arrays.copyOf(buffer, amountRead)));
+                        App.INSTANCE.getLogger().warn("ERR YTDL: " + new String(Arrays.copyOf(buffer, amountRead)));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -187,7 +186,7 @@ public class YouTubeAudioProvider implements IAudioProvider, Closeable {
                 try {
                     fromFFmpeg = ffmpegProcessF.getErrorStream();
                     if (fromFFmpeg == null)
-                        App.logger.error("RemoteStream: FFmpeg-ErrGobler: fromYTDL is null");
+                        App.INSTANCE.getLogger().error("RemoteStream: FFmpeg-ErrGobler: fromYTDL is null");
 
                     byte[] buffer = new byte[1024];
                     int amountRead = -1;

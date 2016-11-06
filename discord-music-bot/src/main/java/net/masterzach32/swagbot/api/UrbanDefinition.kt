@@ -8,8 +8,6 @@ import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 
-import net.masterzach32.swagbot.App
-
 import java.io.UnsupportedEncodingException
 
 class UrbanDefinition(term: String) {

@@ -2,7 +2,6 @@ package net.masterzach32.swagbot.api
 
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
-import net.masterzach32.swagbot.App
 import org.json.JSONObject
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.util.RequestBuffer

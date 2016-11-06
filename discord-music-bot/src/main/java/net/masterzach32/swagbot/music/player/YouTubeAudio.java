@@ -4,7 +4,6 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
@@ -31,7 +30,7 @@ public class YouTubeAudio extends AudioSource {
         response =  Unirest.get("https://www.googleapis.com/youtube/v3/videos" +
                 "?part=snippet" +
                 "&id=" + video_id +
-                "&key=" + App.prefs.getGoogleAuthKey()).asJson();
+                "&key=" + App.INSTANCE.getPrefs().getGoogleAuthKey()).asJson();
         if(response.getStatus() == 200) {
             try {
                 JSONObject json = response.getBody().getObject().getJSONArray("items").getJSONObject(0).getJSONObject("snippet");
@@ -43,7 +42,7 @@ public class YouTubeAudio extends AudioSource {
             response =  Unirest.get("https://www.googleapis.com/youtube/v3/videos" +
                     "?part=contentDetails" +
                     "&id=" + video_id +
-                    "&key=" + App.prefs.getGoogleAuthKey()).asJson();
+                    "&key=" + App.INSTANCE.getPrefs().getGoogleAuthKey()).asJson();
             if(response.getStatus() == 200) {
                 try {
                     JSONObject json = response.getBody().getObject().getJSONArray("items").getJSONObject(0).getJSONObject("contentDetails");
@@ -71,9 +70,9 @@ public class YouTubeAudio extends AudioSource {
                     throw new YouTubeAPIException(url);
                 }
             } else
-                App.logger.warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
+                App.INSTANCE.getLogger().warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
         } else
-            App.logger.warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
+            App.INSTANCE.getLogger().warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
 
     }
 
