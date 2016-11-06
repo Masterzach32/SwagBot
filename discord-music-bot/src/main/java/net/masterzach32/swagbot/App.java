@@ -348,6 +348,8 @@ public class App {
         });
         new Command("Switch Channel per Game", "game", "Switch channels based on the game you're playing", 1, (message, params) -> {
             StatusListener listener = guilds.getGuildSettings(message.getGuild()).getStatusListener();
+            if(params.length == 0)
+                return;
             String command = params[0];
             String str;
             if (command.equals("enable")) {
@@ -1019,11 +1021,8 @@ public class App {
     // Change AudioPlayer volume for guild
     public static void setVolume(float vol, IGuild guild) {
         AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-        AudioTrack track = (AudioTrack) player.getCurrentTrack();
-        if(track != null) {
-            ((YouTubeAudioProvider) track.getProvider()).setVolume(vol / 100);
-        }
         guilds.getGuildSettings(guild).setVolume((int) vol);
+        player.setVolume(vol);
     }
 
     public static IMessage sendMessage(String message, IUser user, IChannel channel) {

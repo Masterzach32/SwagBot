@@ -46,7 +46,7 @@ public class EventHandler {
     }
 
     @EventSubscriber
-    public void onDiscordDisconnectEvent(DiscordDisconnectedEvent event) {
+    public void onDiscordDisconnectEvent(DisconnectedEvent event) {
         logger.error("DISCONNECTED FROM DISCORD");
         logger.error(event.getReason().toString());
         App.guilds.saveGuildSettings();
@@ -175,12 +175,18 @@ public class EventHandler {
                     track = "SwagBot";
                 }
                 try {
-                    event.getPlayer().getGuild().setUserNickname(event.getClient().getOurUser(), track);
+                    String str = track;
+                    RequestBuffer.request(() -> {
+                        try {
+                            event.getPlayer().getGuild().setUserNickname(event.getClient().getOurUser(), str);
+                        } catch (MissingPermissionsException | DiscordException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
-            ((YouTubeAudioProvider) event.getPlayer().getCurrentTrack().getProvider()).setVolume(App.guilds.getGuildSettings(event.getPlayer().getGuild()).getVolume() / 100);
         } catch (DiscordException e) {
             logger.warn("Could not send message to " + ((AudioTrack) event.getPlayer().getCurrentTrack()).getUser().getName());
         }
