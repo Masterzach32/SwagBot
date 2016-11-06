@@ -710,8 +710,14 @@ public class App {
             else {
                 player.clear();
                 sendMessage("**Cleared the queue.**", null, message.getChannel());
-                if(!client.getOurUser().getDisplayName(message.getGuild()).equals("SwagBot"))
-                    message.getGuild().setUserNickname(client.getOurUser(), "SwagBot");
+                RequestBuffer.request(() -> {
+                    try {
+                        if (!client.getOurUser().getDisplayName(message.getGuild()).equals("SwagBot"))
+                            message.getGuild().setUserNickname(client.getOurUser(), "SwagBot");
+                    } catch (MissingPermissionsException | DiscordException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         });
         new Command("Queue", "queue", "Display the given queue page, default 1.\n~queue [page number]", 0, (message, params) -> {
