@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.Constants;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
@@ -20,7 +21,7 @@ public class GuildManager {
 	}
 
 	public GuildSettings loadGuild(IGuild guild) {
-		App.INSTANCE.getManager().mkdir(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
+		App.manager.mkdir(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
 		File prefs = new File(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON());
 		Gson gson = new Gson();
 		GuildSettings temp;

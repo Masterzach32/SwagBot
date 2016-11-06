@@ -7,6 +7,7 @@ import java.util.ArrayList
 
 import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.exceptions.UnirestException
+import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.music.PlaylistManager
 import net.masterzach32.swagbot.music.player.*
 import net.masterzach32.swagbot.utils.Constants

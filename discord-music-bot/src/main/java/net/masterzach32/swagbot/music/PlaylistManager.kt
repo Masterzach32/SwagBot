@@ -13,6 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import com.google.gson.GsonBuilder
+import net.masterzach32.swagbot.App
 
 import net.masterzach32.swagbot.utils.Constants
 

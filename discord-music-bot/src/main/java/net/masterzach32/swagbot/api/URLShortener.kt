@@ -2,6 +2,7 @@ package net.masterzach32.swagbot.api
 
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
+import net.masterzach32.swagbot.App
 import org.json.JSONObject
 
 class URLShortener(url: String) {
