@@ -79,9 +79,10 @@ public class App {
 
         cmds = new Commands();
         cmds.add(new HelpCommand());
+        cmds.add(new ShutdownCommand());
     }
 
-    private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
+    public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
         logger.info("user initiated shutdown");
         client.changeStatus(Status.game("Shutting Down"));
         prefs.save();

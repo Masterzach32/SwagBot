@@ -59,8 +59,7 @@ class EventHandler {
 
     @EventSubscriber
     fun onDiscordDisconnectEvent(event: DisconnectedEvent) {
-        logger.error("DISCONNECTED FROM DISCORD")
-        logger.error(event.reason.toString())
+        logger.error("DISCONNECTED FROM DISCORD ${event.reason}")
         App.guilds.saveGuildSettings()
     }
 

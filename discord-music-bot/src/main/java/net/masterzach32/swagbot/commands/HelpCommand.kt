@@ -30,11 +30,15 @@ import sx.blah.discord.handle.obj.IUser
 class HelpCommand : Command("Help", "help", "h") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder {
-        val builder = MetadataMessageBuilder(channel)
-        if(args.size == 0) {
+        val builder: MetadataMessageBuilder
+        if (args.size == 0) {
+            if (!channel.isPrivate) {
+                MetadataMessageBuilder(channel).withContent("${user.mention()} A list of commands has been sent to your direct messages!")
+            }
+            builder = MetadataMessageBuilder(channel.client.getOrCreatePMChannel(user))
             builder.withContent("Commands for SwagBot:\n\n```")
-            for(cmd in App.cmds.getCommandList())
-                if(!cmd.hidden)
+            for (cmd in App.cmds.getCommandList())
+                if (!cmd.hidden)
                     builder.appendContent("$DEFAULT_COMMAND_PREFIX${cmd.aliases[0]}\n")
             builder.appendContent("```\n\n" +
                     "**Note**: Command prefixes may be different per guild!" +
@@ -53,10 +57,10 @@ class HelpCommand : Command("Help", "help", "h") {
                     "\n\n" +
                     "Want to add SwagBot to your server? Click the link below:\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8")
         } else {
-            val cmd = App.cmds.getCommand(args[0])
-            if(cmd != null) {
-                builder.withContent("${cmd.name}, ${cmd.aliases}")
-            }
+            builder = MetadataMessageBuilder(channel).withContent("No command found with alias `${args[0]}")
+            for(cmd in App.cmds.getCommandList())
+                if(cmd.aliases.contains(args[0]))
+                    builder.withContent("**${cmd.name}**: Aliases: `${cmd.aliases}` Permission Required: ${cmd.permission}")
         }
         return builder
     }
