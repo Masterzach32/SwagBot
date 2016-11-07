@@ -30,6 +30,10 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import net.masterzach32.commands4j.Commands;
+import net.masterzach32.swagbot.commands.dev.ShutdownCommand;
+import net.masterzach32.swagbot.commands.dev.ThreadCommand;
+import net.masterzach32.swagbot.commands.dev.UpdateCommand;
+import net.masterzach32.swagbot.commands.test.PingCommand;
 import net.masterzach32.swagbot.guilds.GuildManager;
 import net.masterzach32.swagbot.utils.exceptions.*;
 
@@ -77,9 +81,12 @@ public class App {
         client.getDispatcher().registerListener(new EventHandler());
         client.login();
 
-        cmds = new Commands();
-        cmds.add(new HelpCommand());
-        cmds.add(new ShutdownCommand());
+        cmds = new Commands()
+                .add(new HelpCommand())
+                .add(new ShutdownCommand())
+                .add(new UpdateCommand())
+                .add(new ThreadCommand())
+                .add(new PingCommand());
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
@@ -97,14 +104,14 @@ public class App {
         }
     }
 
-    private static void restart() throws RateLimitException, IOException, DiscordException, UnirestException, InterruptedException {
+    public static void restart() throws RateLimitException, IOException, DiscordException, UnirestException, InterruptedException {
         logger.info("restarting");
         stop(false);
         new ProcessBuilder("start-bot.bat").start();
         System.exit(0);
     }
 
-    private static void update() throws RateLimitException, IOException, DiscordException {
+    public static void update() throws RateLimitException, IOException, DiscordException {
         stop(false);
         new ProcessBuilder("java", "-jar", "-Xmx1G", "update.jar").start();
         System.exit(0);

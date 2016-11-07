@@ -16,21 +16,19 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-package net.masterzach32.swagbot.commands
+package net.masterzach32.swagbot.commands.test
 
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
 import net.masterzach32.commands4j.util.MetadataMessageBuilder
-import net.masterzach32.swagbot.App
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class ShutdownCommand: Command("Shutdown", "shutdown", "stop", hidden = true, permission = Permission.DEVELOPER) {
+class PingCommand: Command("Ping", "ping", "p") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder {
-        App.stop(true)
-        return MetadataMessageBuilder(channel).withContent("Shutting Down")
+        return MetadataMessageBuilder(channel).withContent("Pong!")
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
