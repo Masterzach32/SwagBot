@@ -18,8 +18,6 @@
  */
 package net.masterzach32.swagbot.utils
 
-object Constants {
-
     val DEFAULT_COMMAND_PREFIX = '~'
 
     // storage
@@ -32,5 +30,3 @@ object Constants {
     val TEMP_STORAGE = DIRECTORY_STORAGE + "temp/"
     val BOT_JSON = "settings.json"
     val GUILD_JSON = "guild.json"
-
-}

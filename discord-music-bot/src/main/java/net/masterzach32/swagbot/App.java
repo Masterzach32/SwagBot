@@ -30,6 +30,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import net.masterzach32.commands4j.Commands;
 import net.masterzach32.swagbot.guilds.GuildManager;
 import net.masterzach32.swagbot.guilds.GuildSettings;
 import net.masterzach32.swagbot.guilds.StatusListener;
@@ -62,6 +63,7 @@ public class App {
     public static BotConfig prefs;
     public static GuildManager guilds;
     public static FileManager manager;
+    public static Commands cmds;
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException, RateLimitException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
@@ -82,6 +84,8 @@ public class App {
         client.getDispatcher().registerListener(new EventHandler());
         client.login();
 
+        cmds = new Commands();
+        cmds.add(new HelpCommand());
     }
 
     private static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
@@ -113,7 +117,7 @@ public class App {
     }
 
     private static int clearCache() {
-        File[] cache = manager.getFile(Constants.INSTANCE.getAUDIO_CACHE()).listFiles();
+        File[] cache = manager.getFile(ConstantsKt.getAUDIO_CACHE()).listFiles();
         int count = 0;
         for (File file : cache) {
             if (file.delete()) {

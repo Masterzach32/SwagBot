@@ -21,14 +21,13 @@ package net.masterzach32.swagbot
 import java.io.IOException
 
 import net.masterzach32.swagbot.music.player.YouTubeAudioProvider
-import net.masterzach32.swagbot.utils.exceptions.FFMPEGException
-import net.masterzach32.swagbot.utils.exceptions.NotStreamableException
-import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException
+import net.masterzach32.swagbot.utils.exceptions.*
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 
 import com.mashape.unirest.http.*
 import com.mashape.unirest.http.exceptions.UnirestException
+import net.masterzach32.commands4j.Permission
 
 import net.masterzach32.swagbot.api.NSFWFilter
 import net.masterzach32.swagbot.music.player.AudioTrack
@@ -133,8 +132,14 @@ class EventHandler {
         }
 
         val identifier: String
-        val params: Array<String?>
-        // TODO command stuffs
+        val params: Array<String>
+        if(message.startsWith(g.commandPrefix)) {
+            params = message.substring(1).split(" ").toTypedArray()
+            if(params.size == 0)
+                return
+            identifier = params.drop(1)[0]
+            App.cmds.getCommand(identifier)?.execute(identifier, params, event.message.author, event.message, event.message.channel, Permission.NORMAL)?.build()
+        }
     }
 
     @EventSubscriber

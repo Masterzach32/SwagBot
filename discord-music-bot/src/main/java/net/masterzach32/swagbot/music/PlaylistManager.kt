@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory
 import com.google.gson.GsonBuilder
 import net.masterzach32.swagbot.App
 
-import net.masterzach32.swagbot.utils.Constants
+import net.masterzach32.swagbot.utils.GUILD_SETTINGS
 
 class PlaylistManager(private val guildID: String) {
 
@@ -47,7 +47,7 @@ class PlaylistManager(private val guildID: String) {
         for (p in playlists) {
             val fout: BufferedWriter
             try {
-                fout = BufferedWriter(FileWriter(Constants.GUILD_SETTINGS + guildID + "/playlists/" + URLEncoder.encode(p.name!!, "UTF-8") + ".json"))
+                fout = BufferedWriter(FileWriter("$GUILD_SETTINGS$guildID/playlists/" + URLEncoder.encode(p.name!!, "UTF-8") + ".json"))
                 fout.write(GsonBuilder().setPrettyPrinting().create().toJson(p))
                 fout.close()
             } catch (e: IOException) {
@@ -59,7 +59,7 @@ class PlaylistManager(private val guildID: String) {
 
     fun load() {
         this.playlists.clear()
-        val playlists = App.manager.getFile(Constants.GUILD_SETTINGS + guildID + "/playlists/").listFiles()
+        val playlists = App.manager.getFile("$GUILD_SETTINGS$guildID/playlists/").listFiles()
         for (file in playlists!!) {
             val fin: RandomAccessFile
             var buffer: ByteArray? = null

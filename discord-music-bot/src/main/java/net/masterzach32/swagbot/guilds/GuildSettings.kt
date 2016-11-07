@@ -28,7 +28,8 @@ import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.music.PlaylistManager
 import net.masterzach32.swagbot.music.player.*
-import net.masterzach32.swagbot.utils.Constants
+import net.masterzach32.swagbot.utils.GUILD_JSON
+import net.masterzach32.swagbot.utils.GUILD_SETTINGS
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException
 import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
@@ -126,7 +127,7 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
                 queue!!.add((track as AudioTrack).url)
 
         try {
-            val fout = BufferedWriter(FileWriter(Constants.GUILD_SETTINGS + iGuild.id + "/" + Constants.GUILD_JSON))
+            val fout = BufferedWriter(FileWriter("${GUILD_SETTINGS}${iGuild.id}/$GUILD_JSON"))
             fout.write(GsonBuilder().setPrettyPrinting().create().toJson(this))
             fout.close()
         } catch (e: IOException) {

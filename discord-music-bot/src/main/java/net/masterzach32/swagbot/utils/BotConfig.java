@@ -55,7 +55,7 @@ public class BotConfig {
 				"${killed} was defeated by ${killer}!"
 		};
 
-		File prefs = new File(Constants.INSTANCE.getBOT_JSON());
+		File prefs = new File(ConstantsKt.getBOT_JSON());
 		if(!prefs.exists()) {
             prefs.createNewFile();
             save();
@@ -64,7 +64,7 @@ public class BotConfig {
 
 	public void save() throws IOException {
 		BufferedWriter fout;
-		fout = new BufferedWriter(new FileWriter(Constants.INSTANCE.getBOT_JSON()));
+		fout = new BufferedWriter(new FileWriter(ConstantsKt.getBOT_JSON()));
 		fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
 		fout.close();
 	}
@@ -73,7 +73,7 @@ public class BotConfig {
 		RandomAccessFile fin;
 		byte[] buffer;
 
-		fin = new RandomAccessFile(Constants.INSTANCE.getBOT_JSON(), "r");
+		fin = new RandomAccessFile(ConstantsKt.getBOT_JSON(), "r");
 		buffer = new byte[(int) fin.length()];
 		fin.readFully(buffer);
 		fin.close();

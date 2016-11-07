@@ -26,7 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.masterzach32.swagbot.App;
-import net.masterzach32.swagbot.utils.Constants;
+import net.masterzach32.swagbot.utils.ConstantsKt;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
 
@@ -39,17 +39,17 @@ public class GuildManager {
 	}
 
 	public GuildSettings loadGuild(IGuild guild) {
-		App.manager.mkdir(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
-		File prefs = new File(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON());
+		App.manager.mkdir(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
+		File prefs = new File(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/" + ConstantsKt.getGUILD_JSON());
 		Gson gson = new Gson();
 		GuildSettings temp;
         String json = null;
 		try {
 			if (!prefs.exists()) {
 				prefs.createNewFile();
-				BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON()));
+				BufferedWriter fout = new BufferedWriter(new FileWriter(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/" + ConstantsKt.getGUILD_JSON()));
 				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new GuildSettings(guild,
-                        Constants.INSTANCE.getDEFAULT_COMMAND_PREFIX(),
+						ConstantsKt.getDEFAULT_COMMAND_PREFIX(),
                         3,
                         50,
                         false,
@@ -62,7 +62,7 @@ public class GuildManager {
 				fout.close();
 			}
 
-			RandomAccessFile fin = new RandomAccessFile(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON(), "r"); // "r" = open file for reading only
+			RandomAccessFile fin = new RandomAccessFile(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/" + ConstantsKt.getGUILD_JSON(), "r"); // "r" = open file for reading only
 			byte[] buffer = new byte[(int) fin.length()];
 			fin.readFully(buffer);
 			fin.close();
