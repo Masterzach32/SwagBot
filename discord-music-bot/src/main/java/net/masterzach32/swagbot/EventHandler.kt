@@ -31,9 +31,7 @@ import com.mashape.unirest.http.*
 import com.mashape.unirest.http.exceptions.UnirestException
 
 import net.masterzach32.swagbot.api.NSFWFilter
-import net.masterzach32.swagbot.commands.Command
 import net.masterzach32.swagbot.music.player.AudioTrack
-import net.masterzach32.swagbot.utils.Constants
 import sx.blah.discord.api.events.EventSubscriber
 import sx.blah.discord.handle.impl.events.*
 import sx.blah.discord.handle.obj.*
@@ -103,25 +101,8 @@ class EventHandler {
         if (message.length < 1 || event.message.author != null && event.message.author.isBot)
             return
 
-        if (event.message.channel.isPrivate) {
-            try {
-                if (message.startsWith(Constants.DEFAULT_COMMAND_PREFIX + "help")) {
-                    var params = arrayOfNulls<String>(0)
-                    if (message.length > 5)
-                        params = message.substring(6).split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                    Command.executeCommand(event.message, "help", params)
-                } else
-                    App.client.getOrCreatePMChannel(event.message.author).sendMessage("**SwagBot** does not currently support DM commands. The only command available to DMs is ``" + Constants.DEFAULT_COMMAND_PREFIX + "help``")
-            } catch (e: RateLimitException) {
-                e.printStackTrace()
-            } catch (e: MissingPermissionsException) {
-                e.printStackTrace()
-            } catch (e: DiscordException) {
-                e.printStackTrace()
-            }
-
+        if(event.message.channel.isPrivate)
             return
-        }
 
         val g = App.guilds.getGuildSettings(event.message.guild)
 
@@ -153,30 +134,7 @@ class EventHandler {
 
         val identifier: String
         val params: Array<String?>
-        if (message.indexOf(App.guilds.getGuildSettings(event.message.guild).commandPrefix) == 0) {
-            message = message.substring(1, message.length)
-            val split = message.split(" ".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
-            identifier = split[0]
-            params = arrayOfNulls<String>(split.size - 1)
-            for (i in params.indices) {
-                params[i] = split[i + 1]
-            }
-            Command.executeCommand(event.message, identifier, params)
-        } else if (event.message.mentions.contains(event.client.ourUser) && !event.message.mentionsEveryone()) {
-            val split = message.split(" ".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()
-            val command = arrayOfNulls<String>(split.size - 1)
-            for (i in command.indices) {
-                command[i] = split[i + 1]
-            }
-            if(command.size == 0)
-                return
-            identifier = command[0]!!
-            params = arrayOfNulls<String>(command.size - 1)
-            for (i in params.indices) {
-                params[i] = command[i + 1]
-            }
-            Command.executeCommand(event.message, identifier, params)
-        }
+        // TODO command stuffs
     }
 
     @EventSubscriber
