@@ -20,8 +20,6 @@ package net.masterzach32.swagbot;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,22 +28,17 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
+
 import net.masterzach32.commands4j.Commands;
 import net.masterzach32.swagbot.guilds.GuildManager;
-import net.masterzach32.swagbot.guilds.GuildSettings;
-import net.masterzach32.swagbot.guilds.StatusListener;
-import net.masterzach32.swagbot.music.LocalPlaylist;
 import net.masterzach32.swagbot.utils.exceptions.*;
-import org.json.JSONArray;
-import org.json.JSONException;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mashape.unirest.http.Unirest;
 
-import net.masterzach32.swagbot.api.*;
-import net.masterzach32.swagbot.api.jokes.*;
 import net.masterzach32.swagbot.commands.*;
 import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.*;

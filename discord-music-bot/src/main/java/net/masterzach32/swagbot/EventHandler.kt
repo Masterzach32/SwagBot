@@ -64,10 +64,11 @@ class EventHandler {
         App.guilds.saveGuildSettings()
     }
 
+    /*
     @EventSubscriber
     @Throws(MissingPermissionsException::class, InterruptedException::class)
     fun onDiscordReconnectedEvent(event: DiscordReconnectedEvent) {
-        /*for(IGuild guild : event.getClient().getGuilds()) {
+        for(IGuild guild : event.getClient().getGuilds()) {
             for(IVoiceChannel channel : guild.getVoiceChannels())
                 for(IVoiceChannel connected : event.getClient().getConnectedVoiceChannels())
                     if(connected == channel) {
@@ -76,8 +77,8 @@ class EventHandler {
                         Thread.sleep(500);
                         connected.join();
                     }
-        }*/
-    }
+        }
+    }*/
 
     @EventSubscriber
     @Throws(MissingPermissionsException::class, RateLimitException::class, DiscordException::class, UnirestException::class, InterruptedException::class)
@@ -132,12 +133,14 @@ class EventHandler {
         }
 
         val identifier: String
+        val args: Array<String>
         val params: Array<String>
         if(message.startsWith(g.commandPrefix)) {
-            params = message.substring(1).split(" ").toTypedArray()
-            if(params.size == 0)
+            args = message.substring(1).split(" ").toTypedArray()
+            if(args.size == 0)
                 return
-            identifier = params.drop(1)[0]
+            identifier = args.drop(0)[0]
+            params = args.copyOfRange(1, args.size)
             App.cmds.getCommand(identifier)?.execute(identifier, params, event.message.author, event.message, event.message.channel, Permission.NORMAL)?.build()
         }
     }
