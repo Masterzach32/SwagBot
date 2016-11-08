@@ -30,6 +30,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import net.masterzach32.commands4j.Commands;
+import net.masterzach32.swagbot.commands.dev.ReloadCommand;
 import net.masterzach32.swagbot.commands.dev.ShutdownCommand;
 import net.masterzach32.swagbot.commands.dev.ThreadCommand;
 import net.masterzach32.swagbot.commands.dev.UpdateCommand;
@@ -86,7 +87,8 @@ public class App {
                 .add(new ShutdownCommand())
                 .add(new UpdateCommand())
                 .add(new ThreadCommand())
-                .add(new PingCommand());
+                .add(new PingCommand())
+                .add(new ReloadCommand(prefs));
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
