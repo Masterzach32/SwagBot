@@ -30,10 +30,10 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import net.masterzach32.commands4j.Commands;
-import net.masterzach32.swagbot.commands.dev.ReloadCommand;
-import net.masterzach32.swagbot.commands.dev.ShutdownCommand;
-import net.masterzach32.swagbot.commands.dev.ThreadCommand;
-import net.masterzach32.swagbot.commands.dev.UpdateCommand;
+import net.masterzach32.swagbot.commands.admin.ChangePrefixCommand;
+import net.masterzach32.swagbot.commands.admin.NSFWCommand;
+import net.masterzach32.swagbot.commands.dev.*;
+import net.masterzach32.swagbot.commands.mod.*;
 import net.masterzach32.swagbot.commands.test.PingCommand;
 import net.masterzach32.swagbot.guilds.GuildManager;
 import net.masterzach32.swagbot.utils.exceptions.*;
@@ -88,7 +88,15 @@ public class App {
                 .add(new UpdateCommand())
                 .add(new ThreadCommand())
                 .add(new PingCommand())
-                .add(new ReloadCommand(prefs));
+                .add(new ReloadCommand(prefs))
+                .add(new NSFWCommand())
+                .add(new ChangePrefixCommand())
+                .add(new StatusCommand())
+                .add(new RefreshCommand())
+                .add(new BanCommand())
+                .add(new PardonCommand())
+                .add(new SoftBanCommand())
+                .add(new KickCommand());
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
@@ -137,11 +145,11 @@ public class App {
         return count;
     }
 
-    private static IVoiceChannel getCurrentChannelForGuild(IGuild guild) {
+    public static IVoiceChannel getCurrentChannelForGuild(IGuild guild) {
         return client.getConnectedVoiceChannels().stream().filter((iVoiceChannel -> guild.getVoiceChannels().contains(iVoiceChannel))).findFirst().orElse(null);
     }
 
-    private static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
+    public static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
         //setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
         IVoiceChannel channel = getCurrentChannelForGuild(guild);
         if(channel != null)
