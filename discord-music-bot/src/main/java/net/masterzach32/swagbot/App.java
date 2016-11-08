@@ -97,7 +97,11 @@ public class App {
                 .add(new PardonCommand())
                 .add(new SoftBanCommand())
                 .add(new KickCommand())
-                .add(new PruneCommand());
+                .add(new PruneCommand())
+                .add(new MigrateCommand())
+                .add(new BringCommand())
+                .add(new DisconnectCommand())
+                .add(new AFKCommand());
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
@@ -245,18 +249,6 @@ public class App {
                 });
             }
         }.start();
-    }
-
-    private static void moveUsers(List<IUser> users, IVoiceChannel to) {
-        RequestBuffer.request(() -> {
-            for (IUser user : users) {
-                try {
-                    user.moveToVoiceChannel(to);
-                } catch (DiscordException | MissingPermissionsException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 
     private static List<YouTubeAudio> getYouTubeVideosFromPlaylist(String id) throws UnirestException, YouTubeAPIException {
