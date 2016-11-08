@@ -238,7 +238,7 @@ class EventHandler {
     @EventSubscriber
     @Throws(RateLimitException::class, DiscordException::class, MissingPermissionsException::class)
     fun onStatusChangeEvent(event: StatusChangeEvent) {
-        App.guilds.forEach { guild -> guild.dispatchStatusChangedEvent(event) }
+        App.guilds.forEach { guild -> guild?.dispatchStatusChangedEvent(event) }
     }
 
     @EventSubscriber
