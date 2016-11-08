@@ -96,7 +96,8 @@ public class App {
                 .add(new BanCommand())
                 .add(new PardonCommand())
                 .add(new SoftBanCommand())
-                .add(new KickCommand());
+                .add(new KickCommand())
+                .add(new PruneCommand());
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
