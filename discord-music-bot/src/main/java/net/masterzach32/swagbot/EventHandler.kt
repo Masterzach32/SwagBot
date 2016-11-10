@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory
 import com.mashape.unirest.http.*
 import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.commands4j.Permission
+import net.masterzach32.commands4j.waitAndDeleteMessage
+import net.masterzach32.swagbot.App.sendMessage
 
 import net.masterzach32.swagbot.api.NSFWFilter
 import net.masterzach32.swagbot.music.player.AudioTrack
@@ -59,7 +61,7 @@ class EventHandler {
 
     @EventSubscriber
     fun onDiscordDisconnectEvent(event: DisconnectedEvent) {
-        logger.error("DISCONNECTED FROM DISCORD - ${event.reason}")
+        logger.warn("DISCONNECTED FROM DISCORD - ${event.reason}")
         App.guilds.saveGuildSettings()
     }
 
@@ -125,7 +127,7 @@ class EventHandler {
 
         if (event.message.channel.id == "97342233241464832") {
             if (!event.message.embedded.isEmpty() || !event.message.attachments.isEmpty() || message.contains("http://") || message.contains("https://")) {
-                App.waitAndDeleteMessage(App.sendMessage("please don't post links or attachments in " + event.message.channel.mention(), event.message.author, event.message.channel), 30)
+                waitAndDeleteMessage(sendMessage("please don't post links or attachments in " + event.message.channel.mention(), event.message.author, event.message.channel), 30)
                 event.message.delete()
                 return
             }

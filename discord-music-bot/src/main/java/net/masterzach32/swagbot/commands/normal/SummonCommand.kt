@@ -16,27 +16,38 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-package net.masterzach32.swagbot.commands.mod
+package net.masterzach32.swagbot.commands.normal
 
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
+import net.masterzach32.commands4j.getBotLockedMessage
 import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.swagbot.App
+import net.masterzach32.swagbot.utils.Utils
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.IVoiceChannel
 
-class BringCommand: Command("Bring Users", "bring", permission = Permission.MOD) {
+class SummonCommand: Command("Summon Bot", "summon", "s") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if(message.author.connectedVoiceChannels.size == 0)
-            return MetadataMessageBuilder(channel).withContent("**You need to be in a voice channel to summon users.**")
-        val vc = message.author.connectedVoiceChannels[0]
-        for(u in message.guild.users.filter { it.connectedVoiceChannels.size == 1 })
-            u.moveToVoiceChannel(vc)
-        return MetadataMessageBuilder(vc).withContent("Moved everyone to **$channel**.")
+        if(App.guilds.getGuildSettings(message.guild).isBotLocked)
+            return getBotLockedMessage(channel)
+        val vc: IVoiceChannel
+        if(args.size > 0) {
+            vc = message.guild.getVoiceChannelsByName(Utils.getContent(args, 0))[0]
+        } else {
+            if(user.connectedVoiceChannels.size == 0)
+                return MetadataMessageBuilder(channel).withContent("**You need to be in a voice channel to summon the bot.**")
+            vc = user.connectedVoiceChannels[0]
+        }
+        vc?.join()
+        return MetadataMessageBuilder(channel).withContent("Joined **$vc**.")
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Brings all users currently connected to a voice channel to you.")
+        usage.put("", "Summon the bot to the voice channel you are connected to.")
+        usage.put("<voice channel>", "Summon the bot to the specified voice channel.")
     }
 }

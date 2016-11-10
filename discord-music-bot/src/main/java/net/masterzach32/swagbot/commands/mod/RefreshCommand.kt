@@ -33,7 +33,7 @@ class RefreshCommand: Command("Refresh Bot", "refresh", "r", permission = Permis
         guild.saveSettings()
         if(guild.audioPlayer.playlistSize > 0)
             guild.audioPlayer.clear()
-        val vc = App.getCurrentChannelForGuild(channel.guild)
+        val vc = message.guild.connectedVoiceChannel
         if(vc != null && vc.isConnected)
             vc.leave()
         try {

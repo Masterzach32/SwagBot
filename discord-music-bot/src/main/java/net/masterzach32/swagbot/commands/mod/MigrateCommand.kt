@@ -37,11 +37,11 @@ class MigrateCommand: Command("Migrate", "migrate", "populate", "m", permission 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val from: IVoiceChannel?
         val to: IVoiceChannel?
-        if(args.size == 0) {
+        if(args.isEmpty()) {
             if(message.author.connectedVoiceChannels.size == 0)
                 return MetadataMessageBuilder(channel).withContent("**Make sure you are in the channel you want to populate!**")
 
-            from = App.getCurrentChannelForGuild(message.guild)
+            from = message.guild.connectedVoiceChannel
             to = message.author.connectedVoiceChannels[0]
 
             if(from == null)

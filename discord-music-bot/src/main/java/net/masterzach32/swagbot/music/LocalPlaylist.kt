@@ -26,6 +26,7 @@ import javax.sound.sampled.UnsupportedAudioFileException
 
 import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.swagbot.App
+import net.masterzach32.swagbot.guilds.GuildSettings
 import net.masterzach32.swagbot.music.player.*
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException
 import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
@@ -138,11 +139,11 @@ class LocalPlaylist {
                 music!!.removeAt(i)
     }
 
-    fun queue(user: IUser, guild: IGuild) {
+    fun queue(user: IUser, guild: GuildSettings) {
         Collections.shuffle(music!!)
         for (s in music!!) {
             try {
-                App.playAudioFromAudioSource(s, true, null, user, guild)
+                guild.playAudioFromAudioSource(s, null, user)
             } catch (e: IOException) {
                 e.printStackTrace()
             } catch (e: UnsupportedAudioFileException) {

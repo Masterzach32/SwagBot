@@ -28,7 +28,7 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.handle.obj.Status
 
-class StatusCommand: Command("Change Status", "status", "s", hidden = true, permission = Permission.DEVELOPER) {
+class StatusCommand: Command("Change Status", "status", hidden = true, permission = Permission.DEVELOPER) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         if(args.size < 1)

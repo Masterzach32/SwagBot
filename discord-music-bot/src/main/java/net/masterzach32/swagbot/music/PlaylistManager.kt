@@ -19,7 +19,6 @@
 package net.masterzach32.swagbot.music
 
 import java.io.BufferedWriter
-import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -27,7 +26,6 @@ import java.net.URLEncoder
 import java.util.ArrayList
 
 import org.json.JSONObject
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import com.google.gson.GsonBuilder
@@ -85,10 +83,11 @@ class PlaylistManager(private val guildID: String) {
         playlists.add(p)
     }
 
-    fun remove(name: String) {
-        for (i in playlists.indices)
-            if (playlists[i].name!!.toLowerCase() == name.toLowerCase())
-                playlists.removeAt(i)
+    fun remove(name: String): Boolean {
+        playlists
+                .filter { it.name!!.toLowerCase() == name.toLowerCase() }
+                .forEach { return playlists.remove(it) }
+        return false
     }
 
     operator fun get(name: String): LocalPlaylist? {

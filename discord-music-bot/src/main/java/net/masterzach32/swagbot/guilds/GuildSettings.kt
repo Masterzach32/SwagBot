@@ -25,6 +25,8 @@ import java.util.ArrayList
 
 import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.exceptions.UnirestException
+import net.masterzach32.commands4j.editMessage
+import net.masterzach32.commands4j.waitAndDeleteMessage
 import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.music.PlaylistManager
 import net.masterzach32.swagbot.music.player.*
@@ -36,6 +38,7 @@ import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException
 import sx.blah.discord.handle.impl.events.StatusChangeEvent
 import sx.blah.discord.handle.obj.IGuild
+import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MissingPermissionsException
@@ -191,4 +194,47 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
 
     val audioPlayer: AudioPlayer
         get() = AudioPlayer.getAudioPlayerForGuild(iGuild)
+
+    @Throws(IOException::class, UnsupportedAudioFileException::class)
+    fun playAudioFromAudioSource(source: AudioSource?, message: IMessage?, user: IUser) {
+        if (source == null)
+            return
+        val player = AudioPlayer.getAudioPlayerForGuild(iGuild)
+        if (message != null)
+            editMessage(message, "Queuing **" + source.title + "**")
+        try {
+            if (source is YouTubeAudio && source.isLive) {
+                if(message != null)
+                    waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: Live Streams are currently not supported!"), 120)
+                return
+            } else if (source is YouTubeAudio && source.isDurationAnHour) {
+                if(message != null)
+                    waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: Video length must be less than 1 hour!"), 120)
+                return
+            }
+            player.queue(source.getAudioTrack(user, shouldAnnounce()))
+            App.joinChannel(user, iGuild)
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.title + "**"), 30)
+            return
+        } catch (e: YouTubeDLException) {
+            e.printStackTrace()
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: An error occurred while downloading the video."), 120)
+            return
+        } catch (e: FFMPEGException) {
+            e.printStackTrace()
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: An error occurred while converting to audio stream"), 120)
+            return
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: MissingPermissionsException) {
+            e.printStackTrace()
+        }
+
+        if (message != null)
+            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: (unknown reason)"), 120)
+        return
+    }
 }

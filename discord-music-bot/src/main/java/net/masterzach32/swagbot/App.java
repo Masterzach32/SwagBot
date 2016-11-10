@@ -34,11 +34,15 @@ import net.masterzach32.swagbot.commands.admin.ChangePrefixCommand;
 import net.masterzach32.swagbot.commands.admin.NSFWCommand;
 import net.masterzach32.swagbot.commands.dev.*;
 import net.masterzach32.swagbot.commands.mod.*;
+import net.masterzach32.swagbot.commands.music.PlayCommand;
+import net.masterzach32.swagbot.commands.music.PlaylistCommand;
+import net.masterzach32.swagbot.commands.normal.LeaveCommand;
+import net.masterzach32.swagbot.commands.normal.SummonCommand;
+import net.masterzach32.swagbot.commands.normal.VolumeCommand;
 import net.masterzach32.swagbot.commands.test.PingCommand;
 import net.masterzach32.swagbot.guilds.GuildManager;
 import net.masterzach32.swagbot.utils.exceptions.*;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +105,13 @@ public class App {
                 .add(new MigrateCommand())
                 .add(new BringCommand())
                 .add(new DisconnectCommand())
-                .add(new AFKCommand());
+                .add(new AFKCommand())
+                .add(new SummonCommand())
+                .add(new LeaveCommand())
+                .add(new VolumeCommand())
+                .add(new GameCommand())
+                .add(new PlaylistCommand())
+                .add(new PlayCommand());
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
@@ -150,13 +160,9 @@ public class App {
         return count;
     }
 
-    public static IVoiceChannel getCurrentChannelForGuild(IGuild guild) {
-        return client.getConnectedVoiceChannels().stream().filter((iVoiceChannel -> guild.getVoiceChannels().contains(iVoiceChannel))).findFirst().orElse(null);
-    }
-
     public static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
         //setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
-        IVoiceChannel channel = getCurrentChannelForGuild(guild);
+        IVoiceChannel channel = guild.getConnectedVoiceChannel();
         if(channel != null)
             return channel;
         for (IVoiceChannel c : guild.getVoiceChannels())
@@ -166,43 +172,6 @@ public class App {
             }
         guild.getVoiceChannels().get(0).join();
         return guild.getVoiceChannels().get(0);
-    }
-
-    public static void playAudioFromAudioSource(AudioSource source, boolean shouldAnnounce, IMessage message, IUser user, IGuild guild) throws IOException, UnsupportedAudioFileException {
-        if(source == null)
-            return;
-        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-        if (message != null)
-            editMessage(message, "Queuing **" + source.getTitle() + "**");
-        try {
-            if (source instanceof YouTubeAudio && ((YouTubeAudio) source).isLive()) {
-                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Live Streams are currently not supported!"), 120);
-                return;
-            } else if (source instanceof YouTubeAudio && ((YouTubeAudio) source).isDurationAnHour()) {
-                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: Video length must be less than 1 hour!"), 120);
-                return;
-            }
-            player.queue(source.getAudioTrack(user, shouldAnnounce));
-            joinChannel(user, guild);
-            if (message != null)
-                waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.getTitle() + "**"), 30);
-            return;
-        } catch (YouTubeDLException e) {
-            e.printStackTrace();
-            if (message != null)
-                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while downloading the video."), 120);
-            return;
-        } catch (FFMPEGException e) {
-            e.printStackTrace();
-            if (message != null)
-                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: An error occurred while converting to audio stream"), 120);
-            return;
-        } catch (IOException | MissingPermissionsException e) {
-            e.printStackTrace();
-        }
-        if (message != null)
-            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.getTitle() + "**: (unknown reason)"), 120);
-        return;
     }
 
     // Change AudioPlayer volume for guild
@@ -223,80 +192,5 @@ public class App {
             }
             return null;
         }).get();
-    }
-
-    public static IMessage editMessage(IMessage message, String contents) {
-        return RequestBuffer.request(() -> {
-            try {
-                return message.edit(contents);
-            } catch (DiscordException | MissingPermissionsException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }).get();
-    }
-
-    public static void waitAndDeleteMessage(IMessage message, int seconds) {
-        new Thread() {
-            public void run() {
-                RequestBuffer.request(() -> {
-                    try {
-                        Thread.sleep(seconds * 1000);
-                        message.delete();
-                    } catch (MissingPermissionsException | DiscordException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-        }.start();
-    }
-
-    private static List<YouTubeAudio> getYouTubeVideosFromPlaylist(String id) throws UnirestException, YouTubeAPIException {
-        List<YouTubeAudio> music = new ArrayList<>();
-        HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems?" +
-                "part=contentDetails" +
-                "&maxResults=50" +
-                "&playlistId=" + id +
-                "&key=" + App.prefs.getGoogleAuthKey()).asJson();
-        JSONObject json = response.getBody().getArray().getJSONObject(0);
-        String nextPage = null;
-        if(json.has("nextPageToken"))
-            nextPage = json.getString("nextPageToken");
-        for(Object obj : json.getJSONArray("items"))
-            if(obj instanceof JSONObject)
-                music.add(new YouTubeAudio("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId")));
-        while(nextPage != null) {
-            response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems?" +
-                    "part=contentDetails" +
-                    "&maxResults=50" +
-                    "&playlistId=" + id +
-                    "&pageToken=" + nextPage +
-                    "&key=" + App.prefs.getGoogleAuthKey()).asJson();
-            json = response.getBody().getArray().getJSONObject(0);
-            if(json.has("nextPageToken"))
-                nextPage = json.getString("nextPageToken");
-            else
-                nextPage = null;
-            for(Object obj : json.getJSONArray("items"))
-                if(obj instanceof JSONObject)
-                    music.add(new YouTubeAudio("https://www.youtube.com/watch?v=" + ((JSONObject) obj).getJSONObject("contentDetails").getString("videoId")));
-        }
-        return music;
-    }
-
-    private static YouTubeAudio getVideoFromSearch(String search) throws UnirestException, YouTubeAPIException {
-        HttpResponse<JsonNode> response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" + search + "&key=" + prefs.getGoogleAuthKey()).asJson();
-        if(response.getStatus() != 200)
-            return null;
-        JSONObject json;
-        json = response.getBody().getArray().getJSONObject(0);
-        if(json.has("items") && json.getJSONArray("items").length() > 0 && json.getJSONArray("items").getJSONObject(0).has("id") && json.getJSONArray("items").getJSONObject(0).getJSONObject("id").has("videoId"))
-            return new YouTubeAudio("https://youtube.com/watch?v=" + json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId"));
-        return null;
-    }
-
-    private static List<IUser> getUsersByRole(IGuild guild, IRole role) {
-        return guild.getUsers().stream().filter((user) -> user.getRolesForGuild(guild).contains(role))
-                .collect(Collectors.toList());
     }
 }
