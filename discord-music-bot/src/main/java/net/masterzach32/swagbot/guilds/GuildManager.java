@@ -80,7 +80,7 @@ public class GuildManager {
                 obj.has("maxSkips") ? obj.getInt("maxSkips") : 3,
                 obj.has("volume") ? obj.getInt("volume") : 50,
                 obj.has("botLocked") ? obj.getBoolean("botLocked") : false,
-                obj.has("enableNSFWFilter") ? obj.getBoolean("enableNSFWFilter") : false,
+                obj.has("nsfwFilter") ? obj.getBoolean("nsfwFilter") : false,
                 obj.has("announce") ? obj.getBoolean("announce") : true,
                 obj.has("changeNick") ? obj.getBoolean("changeNick") : false,
                 obj.has("lastChannel") ? obj.getString("lastChannel") : "",
@@ -105,7 +105,7 @@ public class GuildManager {
 
 	public GuildSettings removeGuild(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
-			if(guilds.get(i) != null && guilds.get(i).getId().equals(guild.getID()))
+			if(guilds.get(i) != null && guilds.get(i).getIGuild().getID().equals(guild.getID()))
                 return guilds.remove(i);
         return null;
 	}
@@ -121,7 +121,7 @@ public class GuildManager {
 
 	public GuildSettings getGuildSettings(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
-			if(guilds.get(i) != null && guilds.get(i).getId().equals(guild.getID()))
+			if(guilds.get(i) != null && guilds.get(i).getIGuild().getID().equals(guild.getID()))
 				return guilds.get(i);
 		return loadGuild(guild);
 	}

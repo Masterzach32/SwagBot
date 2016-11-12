@@ -43,11 +43,11 @@ import javax.sound.sampled.UnsupportedAudioFileException
 class PlayCommand : Command("Play Music", "play", "p") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if (App.guilds.getGuildSettings(message.guild).isBotLocked)
+        val guild = App.guilds.getGuildSettings(message.guild)
+        if (guild.botLocked)
             return getBotLockedMessage(channel)
         if (args.isEmpty())
             return getWrongArgumentsMessage(channel, this, cmdUsed)
-        val guild = App.guilds.getGuildSettings(message.guild)
         var source: AudioSource? = null
         var msg: IMessage? = null
         try {

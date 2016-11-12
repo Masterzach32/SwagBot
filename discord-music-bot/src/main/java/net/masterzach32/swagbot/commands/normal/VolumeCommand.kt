@@ -32,12 +32,12 @@ class VolumeCommand: Command("Change Volume", "volume", "v") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val guild = App.guilds.getGuildSettings(message.guild)
-        if(guild.isBotLocked)
+        if(guild.botLocked)
             return getBotLockedMessage(channel)
         if(args.size > 1)
             return getWrongArgumentsMessage(channel, this, cmdUsed)
         val vol: Float
-        if(args.size == 0)
+        if(args.isEmpty())
             return MetadataMessageBuilder(channel).withContent("Volume is currently set to ${guild.audioPlayer.volume*100}")
         try {
             vol = args[0].toFloat()

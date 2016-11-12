@@ -20,6 +20,7 @@ package net.masterzach32.swagbot.commands.admin
 
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
+import net.masterzach32.commands4j.getWrongArgumentsMessage
 import net.masterzach32.commands4j.util.MetadataMessageBuilder
 import net.masterzach32.swagbot.App
 import sx.blah.discord.handle.obj.IChannel
@@ -31,15 +32,15 @@ class AnnounceTrackCommand: Command("Announce Track Start", "tannounce", "ta", p
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val guild = App.guilds.getGuildSettings(message.guild)
         val builder = MetadataMessageBuilder(channel)
-        if (args.size === 0)
-            guild.setShouldAnnounce(!guild.shouldChangeNick())
+        if (args.isEmpty())
+            guild.announce = !guild.announce
         else if (args[0].toLowerCase() == "true")
-            guild.setShouldAnnounce(true)
+            guild.announce = true
         else if (args[0].toLowerCase() == "false")
-            guild.setShouldAnnounce(false)
+            guild.announce = false
         else
-            guild.setShouldAnnounce(!guild.shouldAnnounce())
-        if(guild.shouldAnnounce())
+            return getWrongArgumentsMessage(channel, this, cmdUsed)
+        if(guild.announce)
             return builder.withContent("**SwagBot will now announce when a user's queued track starts.**")
         else
             return builder.withContent("**SwagBot will no longer message a user when their queued track starts.**")

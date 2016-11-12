@@ -30,9 +30,10 @@ import sx.blah.discord.handle.obj.IUser
 class PauseCommand: Command("Pause", "pause", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if (guilds.getGuildSettings(message.guild).isBotLocked)
+        val guild = guilds.getGuildSettings(message.guild)
+        if (guild.botLocked)
             return getBotLockedMessage(channel)
-        guilds.getGuildSettings(message.guild).audioPlayer.isPaused = true
+        guild.audioPlayer.isPaused = true
         return MetadataMessageBuilder(channel).withContent("**Paused the queue.**")
     }
 

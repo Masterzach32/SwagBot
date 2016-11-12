@@ -29,9 +29,9 @@ import sx.blah.discord.handle.obj.IUser
 class NSFWCommand: Command("NSFW Filter", "nsfw", permission = Permission.ADMIN) {
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder {
         val guild = App.guilds.getGuildSettings(channel.guild)
-        guild.toggleNSFWFilter()
+        guild.nsfwFilter = !guild.nsfwFilter
         val builder = MetadataMessageBuilder(channel)
-        if(guild.isNSFWFilterEnabled)
+        if(guild.nsfwFilter)
             builder.withContent("**NSFW filter enabled**")
         else
             builder.withContent("**NSFW filter disabled**")

@@ -32,10 +32,10 @@ import sx.blah.discord.handle.obj.IVoiceChannel
 class SummonCommand: Command("Summon Bot", "summon", "s") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if(App.guilds.getGuildSettings(message.guild).isBotLocked)
+        if(App.guilds.getGuildSettings(message.guild).botLocked)
             return getBotLockedMessage(channel)
         val vc: IVoiceChannel
-        if(args.size > 0) {
+        if(args.isNotEmpty()) {
             vc = message.guild.getVoiceChannelsByName(Utils.getContent(args, 0))[0]
         } else {
             if(user.connectedVoiceChannels.size == 0)

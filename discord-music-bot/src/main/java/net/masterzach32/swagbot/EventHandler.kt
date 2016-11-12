@@ -99,7 +99,7 @@ class EventHandler {
     fun onMessageEvent(event: MessageReceivedEvent) {
         var message = event.message.content
 
-        if (message.length < 1 || event.message.author != null && event.message.author.isBot)
+        if (message.isEmpty() || event.message.author != null && event.message.author.isBot)
             return
 
         if(event.message.channel.isPrivate)
@@ -107,7 +107,7 @@ class EventHandler {
 
         val g = App.guilds.getGuildSettings(event.message.guild)
 
-        if (g.isNSFWFilterEnabled) {
+        if (g.nsfwFilter) {
             for (a in event.message.attachments)
                 logger.info("attachment: " + a.url + " " + a.filename)
             for (image in event.message.embedded) {
@@ -150,9 +150,10 @@ class EventHandler {
     @Throws(RateLimitException::class, MissingPermissionsException::class)
     fun onTrackStartEvent(event: TrackStartEvent) {
         try {
-            if ((event.player.currentTrack as AudioTrack).shouldAnnounce() && App.guilds.getGuildSettings(event.player.guild).shouldAnnounce())
+            val guild = App.guilds.getGuildSettings(event.player.guild)
+            if ((event.player.currentTrack as AudioTrack).shouldAnnounce() && guild.announce)
                 App.client.getOrCreatePMChannel((event.player.currentTrack as AudioTrack).user).sendMessage("Your song, **" + (event.player.currentTrack as AudioTrack).title + "** is now playing in **" + event.player.guild.name + "!**")
-            if (App.guilds.getGuildSettings(event.player.guild).shouldChangeNick()) {
+            if (guild.changeNick) {
                 var track: String?
                 if ((event.player.currentTrack as AudioTrack).title.length > 32)
                     track = (event.player.currentTrack as AudioTrack).title.substring(0, 32)
@@ -188,7 +189,7 @@ class EventHandler {
     @EventSubscriber
     fun onTrackFinishEvent(event: TrackFinishEvent) {
         try {
-            if (App.guilds.getGuildSettings(event.player.guild).shouldChangeNick() && event.newTrack.isPresent)
+            if (App.guilds.getGuildSettings(event.player.guild).changeNick && event.newTrack.isPresent)
                 event.player.guild.setUserNickname(event.client.ourUser, "SwagBot")
             if (event.oldTrack.provider is YouTubeAudioProvider)
                 (event.oldTrack.provider as YouTubeAudioProvider).close()

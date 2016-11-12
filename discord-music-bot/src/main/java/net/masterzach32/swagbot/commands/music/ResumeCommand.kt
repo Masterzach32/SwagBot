@@ -30,9 +30,10 @@ import sx.blah.discord.handle.obj.IUser
 class ResumeCommand: Command("Resume", "resume", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if (App.guilds.getGuildSettings(message.guild).isBotLocked)
+        val guild = App.guilds.getGuildSettings(message.guild)
+        if (guild.botLocked)
             return getBotLockedMessage(channel)
-        App.guilds.getGuildSettings(message.guild).audioPlayer.isPaused = false
+        guild.audioPlayer.isPaused = false
         return MetadataMessageBuilder(channel).withContent("**Resumed the queue.**")
     }
 

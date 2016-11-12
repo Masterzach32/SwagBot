@@ -32,13 +32,13 @@ import sx.blah.discord.handle.obj.IUser
 class PlaylistCommand: Command("Playlist", "playlist", "plist") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if(App.guilds.getGuildSettings(message.guild).isBotLocked)
+        val guild = App.guilds.getGuildSettings(channel.guild)
+        if(guild.botLocked)
             return getBotLockedMessage(channel)
         if(args.isEmpty())
             return getWrongArgumentsMessage(channel, this, cmdUsed)
         val perms = true // TODO get user perms
         val action = args[0]
-        val guild = App.guilds.getGuildSettings(channel.guild)
         val manager = guild.playlistManager
         val builder = MetadataMessageBuilder(channel)
         // admin actions

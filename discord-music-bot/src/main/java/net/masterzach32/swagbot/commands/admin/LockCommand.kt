@@ -30,9 +30,9 @@ class LockCommand: Command("Lock", "lock", "l", permission = Permission.ADMIN) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder {
         val guild = App.guilds.getGuildSettings(channel.guild)
-        guild.toggleBotLocked()
+        guild.botLocked = !guild.botLocked
         val builder = MetadataMessageBuilder(channel)
-        if(guild.isBotLocked)
+        if(guild.botLocked)
             builder.withContent("**SwagBot is now locked.**")
         else
             builder.withContent("**SwagBot is no longer locked.**")

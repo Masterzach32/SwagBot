@@ -20,6 +20,7 @@ package net.masterzach32.swagbot.commands.admin
 
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
+import net.masterzach32.commands4j.getWrongArgumentsMessage
 import net.masterzach32.commands4j.util.MetadataMessageBuilder
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
@@ -33,15 +34,15 @@ class NickCommand: Command("Change Nickname to Song", "cns", permission = Permis
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val guild = guilds.getGuildSettings(message.guild)
         val builder = MetadataMessageBuilder(channel)
-        if (args.size === 0)
-            guild.setChangeNick(!guild.shouldChangeNick())
+        if (args.isEmpty())
+            guild.changeNick = !guild.changeNick
         else if (args[0].toLowerCase() == "true")
-            guild.setChangeNick(true)
+            guild.changeNick = true
         else if (args[0].toLowerCase() == "false")
-            guild.setChangeNick(false)
+            guild.changeNick = false
         else
-            guild.setChangeNick(!guild.shouldChangeNick())
-        if(guild.shouldChangeNick())
+            return getWrongArgumentsMessage(channel, this, cmdUsed)
+        if(guild.changeNick)
             return builder.withContent("**SwagBot will now change its nickname based on the current song in the queue.**")
         else
             return builder.withContent("**SwagBot will no longer change its nickname based on the current song in the queue.**")

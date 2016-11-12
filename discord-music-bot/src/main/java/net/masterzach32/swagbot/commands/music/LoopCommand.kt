@@ -27,11 +27,11 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class LoopCommand : Command("Loop Queue", "loop", "repeat", permission = Permission.MOD) {
+class LoopCommand: Command("Loop Queue", "loop", "repeat", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val guild = guilds.getGuildSettings(message.guild)
-        if (guild.isBotLocked)
+        if (guild.botLocked)
             return getBotLockedMessage(channel)
         guild.audioPlayer.setLoop(!guild.audioPlayer.isLooping)
         return MetadataMessageBuilder(channel).withContent("${guild.audioPlayer.isLooping}")

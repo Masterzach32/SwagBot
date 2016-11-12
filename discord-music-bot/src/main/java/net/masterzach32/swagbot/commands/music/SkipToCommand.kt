@@ -30,7 +30,7 @@ import sx.blah.discord.handle.obj.IUser
 class SkipToCommand: Command("Skip To", "skipto", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if (guilds.getGuildSettings(message.guild).isBotLocked)
+        if (guilds.getGuildSettings(message.guild).botLocked)
             return getBotLockedMessage(channel)
         val guild = guilds.getGuildSettings(message.guild)
         val builder = MetadataMessageBuilder(channel)

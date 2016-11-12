@@ -29,15 +29,17 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.RequestBuffer
 
-class SkipCommand: Command("Skip", "skip", "s") {
+class SkipCommand: Command("Skip", "skip") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if (guilds.getGuildSettings(message.guild).isBotLocked)
+        if (guilds.getGuildSettings(message.guild).botLocked)
             return getBotLockedMessage(channel)
         val builder = MetadataMessageBuilder(channel)
         val guild = guilds.getGuildSettings(message.guild)
         if (guild.audioPlayer.playlistSize == 0)
             return builder.withContent("**There are no songs to skip!**")
+        if (guild.hasUserSkipped(user.id))
+            return builder.withContent("**You have already voted to skip this song!**")
         guild.addSkipID(user)
         val vc = message.guild.connectedVoiceChannel
         if(vc != null)

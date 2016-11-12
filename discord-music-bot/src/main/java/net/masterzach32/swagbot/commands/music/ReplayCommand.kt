@@ -30,9 +30,10 @@ import sx.blah.discord.handle.obj.IUser
 class ReplayCommand: Command("Replay", "replay") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if (guilds.getGuildSettings(message.guild).isBotLocked)
+        val guild = guilds.getGuildSettings(message.guild)
+        if (guild.botLocked)
             return getBotLockedMessage(channel)
-        val player = guilds.getGuildSettings(message.guild).audioPlayer
+        val player = guild.audioPlayer
         if(player.currentTrack != null)
             player.queue(player.currentTrack)
         return null

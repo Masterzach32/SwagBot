@@ -30,7 +30,7 @@ import sx.blah.discord.handle.obj.IUser
 class LeaveCommand: Command("Kick Bot", "leave") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if(App.guilds.getGuildSettings(message.guild).isBotLocked)
+        if(App.guilds.getGuildSettings(message.guild).botLocked)
             return getBotLockedMessage(channel)
         val builder = MetadataMessageBuilder(channel)
         val vc = message.guild.connectedVoiceChannel ?: return builder.withContent("The bot is not currently in a voice channel.")

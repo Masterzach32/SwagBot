@@ -47,26 +47,15 @@ import sx.blah.discord.util.audio.AudioPlayer
 
 import javax.sound.sampled.UnsupportedAudioFileException
 
-class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var maxSkips: Int, var volume: Int, botLocked: Boolean, nsfwfilter: Boolean, private var announce: Boolean, private var changeNick: Boolean, var lastChannel: String?, private var queue: MutableList<String>?, val statusListener: StatusListener) {
+data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var maxSkips: Int, var volume: Int, var botLocked: Boolean, var nsfwFilter: Boolean, var announce: Boolean, var changeNick: Boolean, var lastChannel: String?, var queue: MutableList<String>?, val statusListener: StatusListener) {
 
     @Transient val playlistManager: PlaylistManager
     @Transient private val skipIDs: MutableList<String>
-    private val guildName: String
-    var isBotLocked: Boolean = false
-        private set
-    var isNSFWFilterEnabled: Boolean = false
-        private set
 
     init {
         playlistManager = PlaylistManager(iGuild.id)
         skipIDs = ArrayList<String>()
-        this.guildName = iGuild.name
-        this.isBotLocked = botLocked
-        this.isNSFWFilterEnabled = nsfwfilter
     }
-
-    val id: String
-        get() = iGuild.id
 
     fun resetSkipStats() {
         skipIDs.clear()
@@ -82,38 +71,6 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
 
     fun numUntilSkip(): Int {
         return maxSkips - skipIDs.size
-    }
-
-    fun toggleBotLocked() {
-        isBotLocked = !isBotLocked
-    }
-
-    fun toggleNSFWFilter() {
-        isNSFWFilterEnabled = !isNSFWFilterEnabled
-    }
-
-    fun shouldAnnounce(): Boolean {
-        return announce
-    }
-
-    fun setShouldAnnounce(announce: Boolean) {
-        this.announce = announce
-    }
-
-    fun shouldChangeNick(): Boolean {
-        return changeNick
-    }
-
-    fun setChangeNick(changeNick: Boolean) {
-        this.changeNick = changeNick
-    }
-
-    fun setQueue(queue: MutableList<String>) {
-        this.queue = queue
-    }
-
-    fun getQueue(): MutableList<String>? {
-        return queue
     }
 
     fun dispatchStatusChangedEvent(event: StatusChangeEvent): Boolean {
@@ -212,7 +169,7 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
                     waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: Video length must be less than 1 hour!"), 120)
                 return
             }
-            player.queue(source.getAudioTrack(user, shouldAnnounce()))
+            player.queue(source.getAudioTrack(user, announce))
             App.joinChannel(user, iGuild)
             if (message != null)
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.title + "**"), 30)
