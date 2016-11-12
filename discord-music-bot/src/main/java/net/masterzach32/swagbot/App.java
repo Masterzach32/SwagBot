@@ -20,28 +20,22 @@ package net.masterzach32.swagbot;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import net.masterzach32.commands4j.Commands;
+import net.masterzach32.swagbot.commands.admin.AnnounceTrackCommand;
 import net.masterzach32.swagbot.commands.admin.ChangePrefixCommand;
 import net.masterzach32.swagbot.commands.admin.NSFWCommand;
+import net.masterzach32.swagbot.commands.admin.NickCommand;
 import net.masterzach32.swagbot.commands.dev.*;
 import net.masterzach32.swagbot.commands.mod.*;
-import net.masterzach32.swagbot.commands.music.PlayCommand;
-import net.masterzach32.swagbot.commands.music.PlaylistCommand;
+import net.masterzach32.swagbot.commands.music.*;
 import net.masterzach32.swagbot.commands.normal.LeaveCommand;
 import net.masterzach32.swagbot.commands.normal.SummonCommand;
 import net.masterzach32.swagbot.commands.normal.VolumeCommand;
 import net.masterzach32.swagbot.commands.test.PingCommand;
 import net.masterzach32.swagbot.guilds.GuildManager;
-import net.masterzach32.swagbot.utils.exceptions.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +43,6 @@ import org.slf4j.LoggerFactory;
 import com.mashape.unirest.http.Unirest;
 
 import net.masterzach32.swagbot.commands.*;
-import net.masterzach32.swagbot.music.player.*;
 import net.masterzach32.swagbot.utils.*;
 import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
@@ -111,7 +104,16 @@ public class App {
                 .add(new VolumeCommand())
                 .add(new GameCommand())
                 .add(new PlaylistCommand())
-                .add(new PlayCommand());
+                .add(new PlayCommand())
+                .add(new AnnounceTrackCommand())
+                .add(new NickCommand())
+                .add(new ReplayCommand())
+                .add(new SkipCommand())
+                .add(new SkipToCommand())
+                .add(new ShuffleCommand())
+                .add(new PauseCommand())
+                .add(new ResumeCommand())
+                .add(new LoopCommand());
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
