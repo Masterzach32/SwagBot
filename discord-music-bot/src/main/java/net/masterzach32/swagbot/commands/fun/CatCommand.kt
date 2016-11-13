@@ -22,6 +22,8 @@ import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
+import net.masterzach32.commands4j.Type
+import net.masterzach32.commands4j.getApiErrorMessage
 import net.masterzach32.commands4j.util.MetadataMessageBuilder
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
@@ -30,22 +32,14 @@ import sx.blah.discord.handle.obj.IUser
 class CatCommand: Command("Random Cat", "cat") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        return MetadataMessageBuilder(channel).withContent(RandomCat().url)
+        val url = "http://random.cat/meow"
+        val response = Unirest.get(url).asJson()
+        if (response.status != 200)
+            return getApiErrorMessage(channel, Type.GET, url, "none", response.status, response.statusText)
+        return MetadataMessageBuilder(channel).withContent(response.body.`object`.getString("file"))
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
         usage.put("", "Gives you a random cat picture.")
-    }
-
-    class RandomCat {
-        val url: String
-        init {
-            url = try {
-                Unirest.get("http://random.cat/meow").asJson().body.`object`.getString("file")
-            } catch (e: UnirestException) {
-                e.printStackTrace()
-                "random.cat api error, please report this to the developer"
-            }
-        }
     }
 }

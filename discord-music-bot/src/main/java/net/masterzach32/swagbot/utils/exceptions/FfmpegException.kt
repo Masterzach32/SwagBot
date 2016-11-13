@@ -18,4 +18,6 @@
  */
 package net.masterzach32.swagbot.utils.exceptions
 
-class YouTubeAPIException(url: String) : Throwable("Could not parse API call on " + url)
+import java.io.File
+
+class FfmpegException(val file: File, val url: String, val exitCode: Int) : Throwable()

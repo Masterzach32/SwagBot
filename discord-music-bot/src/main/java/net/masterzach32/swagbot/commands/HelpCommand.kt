@@ -31,7 +31,7 @@ class HelpCommand : Command("Help", "help", "h") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder {
         val builder: MetadataMessageBuilder
-        if (args.size == 0) {
+        if (args.isEmpty()) {
             if (!channel.isPrivate) {
                 MetadataMessageBuilder(channel).withContent("${user.mention()} A list of commands has been sent to your direct messages!")
             }
@@ -49,9 +49,9 @@ class HelpCommand : Command("Help", "help", "h") {
                     "\n\n" +
                     "Check out the development for SwagBot at:\nhttps://github.com/Masterzach32/SwagBot" +
                     "\nHelp development of SwagBot by donating to my PayPal:\nhttps://paypal.me/ultimatedoge" +
-                    "\nOr pledge a small amount on Patreon:\nhttps://patreon.com/ultimatedoge" +
+                    "\nOr pledge a small amount on Patreon:\n<https://patreon.com/ultimatedoge>" +
                     "\n\n" +
-                    "For more info on the bot and its commands:\nhttp://masterzach32.net/projects/swagbot" +
+                    "For more info on the bot and its commands:\n<http://masterzach32.net/projects/swagbot>" +
                     "\n\n" +
                     "Join SwagBot Hub:\nhttps://discord.me/swagbothub" +
                     "\n\n" +

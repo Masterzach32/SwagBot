@@ -23,8 +23,8 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.masterzach32.swagbot.App;
-import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
-import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException;
+import net.masterzach32.swagbot.utils.exceptions.FfmpegException;
+import net.masterzach32.swagbot.utils.exceptions.YouTubeApiException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +40,7 @@ public class YouTubeAudio extends AudioSource {
     private String video_id, duration;
     private boolean isLiveStream;
 
-    public YouTubeAudio(String url) throws UnirestException, YouTubeAPIException {
+    public YouTubeAudio(String url) throws UnirestException, YouTubeApiException {
         this.url = url;
         this.source = "youtube";
         video_id = url.substring(url.indexOf("?v=") + 3, url.indexOf("=") + 12);
@@ -56,7 +56,7 @@ public class YouTubeAudio extends AudioSource {
                 title = json.getString("title");
                 isLiveStream = json.getString("liveBroadcastContent").equals("live");
             } catch (JSONException e){
-                throw new YouTubeAPIException(url);
+                throw new YouTubeApiException(url);
             }
             response =  Unirest.get("https://www.googleapis.com/youtube/v3/videos" +
                     "?part=contentDetails" +
@@ -76,17 +76,17 @@ public class YouTubeAudio extends AudioSource {
                                 if (it.next().equals("US"))
                                     allowed = true;
                             if (!allowed)
-                                throw new YouTubeAPIException(url);
+                                throw new YouTubeApiException(url);
                         } else if (json.has("blocked")) {
                             JSONArray array = json.getJSONArray("blocked");
                             for (Object obj : array)
                                 if (obj.equals("US"))
-                                    throw new YouTubeAPIException(url);
+                                    throw new YouTubeApiException(url);
                         } else
-                            throw new YouTubeAPIException(url);
+                            throw new YouTubeApiException(url);
                     }
                 } catch (JSONException e){
-                    throw new YouTubeAPIException(url);
+                    throw new YouTubeApiException(url);
                 }
             } else
                 App.logger.warn("Youtube Data API responded with status code " + response.getStatus() + " for video id " + video_id);
@@ -107,7 +107,7 @@ public class YouTubeAudio extends AudioSource {
         return null;
     }
 
-    public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException {
+    public AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException, YouTubeDLException, FfmpegException {
         return new AudioTrack(new YouTubeAudioProvider(video_id), url, shouldAnnounce, title, user);
     }
 

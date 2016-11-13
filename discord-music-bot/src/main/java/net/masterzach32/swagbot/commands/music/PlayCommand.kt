@@ -28,7 +28,7 @@ import net.masterzach32.swagbot.music.player.SoundCloudAudio
 import net.masterzach32.swagbot.music.player.YouTubeAudio
 import net.masterzach32.swagbot.utils.Utils
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException
-import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
+import net.masterzach32.swagbot.utils.exceptions.YouTubeApiException
 import org.json.JSONObject
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
@@ -103,7 +103,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
             }
         } catch (e: NotStreamableException) {
             return builder.withContent("The track you queued cannot be streamed: ${e.url}").setAutoDelete(30)
-        } catch (e: YouTubeAPIException) {
+        } catch (e: YouTubeApiException) {
             return builder.withContent("Your video cannot be listed because it may be listed as private or not available in the region for SwagBot's server.").setAutoDelete(30)
         }
         try {
@@ -126,7 +126,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
         usage.put("<search query>", "Search youtube for a song and play it.")
     }
 
-    @Throws(UnirestException::class, YouTubeAPIException::class)
+    @Throws(UnirestException::class, YouTubeApiException::class)
     private fun getYouTubeVideosFromPlaylist(id: String): List<YouTubeAudio> {
         val music = ArrayList<YouTubeAudio>()
         var response = Unirest.get("https://www.googleapis.com/youtube/v3/playlistItems?" +
@@ -160,7 +160,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
         return music
     }
 
-    @Throws(UnirestException::class, YouTubeAPIException::class)
+    @Throws(UnirestException::class, YouTubeApiException::class)
     private fun getVideoFromSearch(search: String): YouTubeAudio? {
         val response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" + search + "&key=" + App.prefs.googleAuthKey).asJson()
         if (response.status != 200)

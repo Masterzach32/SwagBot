@@ -16,31 +16,38 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-package net.masterzach32.swagbot.commands.`fun`
+package net.masterzach32.swagbot.commands.normal
 
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
-import net.masterzach32.commands4j.Command
-import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.Type
-import net.masterzach32.commands4j.getApiErrorMessage
+import net.masterzach32.commands4j.*
 import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.swagbot.App
+import org.json.JSONObject
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class R8BallCommand: Command("8 Ball", "8ball", "8") {
+class UrlShortenCommand: Command("URL Shortener", "shorten", "goo.gl") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        val url = "https://apis.rtainc.co/twitchbot/8ball"
-        val response = Unirest.get(url).asString()
+        if (args.isEmpty())
+            return getWrongArgumentsMessage(channel, this, cmdUsed)
+        val builder = MetadataMessageBuilder(channel)
+
+        val obj = JSONObject()
+        obj.put("longUrl", args[0])
+
+        val url = "https://www.googleapis.com/urlshortener/v1/url?key=" + App.prefs.googleAuthKey
+        val response = Unirest.post(url).header("Content-Type", "application/json").body(obj.toString()).asJson()
 
         if (response.status != 200)
-            return getApiErrorMessage(channel, Type.GET, url, "none", response.status, response.statusText)
-        return MetadataMessageBuilder(channel).withContent(response.body)
+            return getApiErrorMessage(channel, Type.POST, url, obj.toString(2), response.status, response.statusText)
+        else
+            return builder.withContent(response.body.`object`.getString("id"))
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("[question]", "Gives you a prediction to your question.")
+        usage.put("<link>", "Create a goo.gl link for the given link.")
     }
 }

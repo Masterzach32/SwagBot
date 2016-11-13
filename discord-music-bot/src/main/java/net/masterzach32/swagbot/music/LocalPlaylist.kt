@@ -29,7 +29,7 @@ import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.guilds.GuildSettings
 import net.masterzach32.swagbot.music.player.*
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException
-import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
+import net.masterzach32.swagbot.utils.exceptions.YouTubeApiException
 import org.json.JSONObject
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IUser
@@ -81,7 +81,7 @@ class LocalPlaylist {
                     e.printStackTrace()
                 } catch (e: UnirestException) {
                     e.printStackTrace()
-                } catch (e: YouTubeAPIException) {
+                } catch (e: YouTubeApiException) {
                     e.printStackTrace()
                 }
 
@@ -100,7 +100,7 @@ class LocalPlaylist {
                     e.printStackTrace()
                 } catch (e: UnirestException) {
                     e.printStackTrace()
-                } catch (e: YouTubeAPIException) {
+                } catch (e: YouTubeApiException) {
                     e.printStackTrace()
                 }
 
@@ -126,7 +126,7 @@ class LocalPlaylist {
             e.printStackTrace()
         } catch (e: UnirestException) {
             e.printStackTrace()
-        } catch (e: YouTubeAPIException) {
+        } catch (e: YouTubeApiException) {
             e.printStackTrace()
         }
 

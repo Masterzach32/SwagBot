@@ -130,7 +130,11 @@ public class App {
                 .add(new UrbanDictionaryCommand())
                 .add(new FightCommand(prefs))
                 .add(new LmgtfyCommand())
-                .add(new StackoverflowCommand());
+                .add(new StackoverflowCommand())
+                .add(new StrawpollCommand())
+                .add(new SwagCommand())
+                //.add(new CurrencyExchange(prefs))
+                .add(new UrlShortenCommand());
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {

@@ -44,7 +44,7 @@ import javax.sound.sampled.UnsupportedAudioFileException
 class EventHandler {
 
     @EventSubscriber
-    @Throws(UnsupportedAudioFileException::class, UnirestException::class, FFMPEGException::class, NotStreamableException::class, YouTubeDLException::class, IOException::class, MissingPermissionsException::class)
+    @Throws(UnsupportedAudioFileException::class, UnirestException::class, FfmpegException::class, NotStreamableException::class, YouTubeDLException::class, IOException::class, MissingPermissionsException::class)
     fun onGuildCreateEvent(event: GuildCreateEvent) {
         App.guilds.loadGuild(event.guild)
         RequestBuffer.request {
@@ -54,7 +54,7 @@ class EventHandler {
     }
 
     @EventSubscriber
-    @Throws(UnsupportedAudioFileException::class, UnirestException::class, FFMPEGException::class, NotStreamableException::class, YouTubeDLException::class, IOException::class, MissingPermissionsException::class)
+    @Throws(UnsupportedAudioFileException::class, UnirestException::class, FfmpegException::class, NotStreamableException::class, YouTubeDLException::class, IOException::class, MissingPermissionsException::class)
     fun onGuildLeaveEvent(event: GuildLeaveEvent) {
         App.guilds.removeGuild(event.guild)
     }
@@ -95,7 +95,7 @@ class EventHandler {
     }
 
     @EventSubscriber
-    @Throws(MissingPermissionsException::class, RateLimitException::class, DiscordException::class, UnirestException::class, IOException::class, UnsupportedAudioFileException::class, YouTubeDLException::class, FFMPEGException::class, NotStreamableException::class)
+    @Throws(MissingPermissionsException::class, RateLimitException::class, DiscordException::class, UnirestException::class, IOException::class, UnsupportedAudioFileException::class, YouTubeDLException::class, FfmpegException::class, NotStreamableException::class)
     fun onMessageEvent(event: MessageReceivedEvent) {
         var message = event.message.content
 

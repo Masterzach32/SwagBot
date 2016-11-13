@@ -22,6 +22,8 @@ import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
+import net.masterzach32.commands4j.Type
+import net.masterzach32.commands4j.getApiErrorMessage
 import net.masterzach32.commands4j.util.MetadataMessageBuilder
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
@@ -30,7 +32,11 @@ import sx.blah.discord.handle.obj.IUser
 class JokeCommand: Command("Random Joke", "joke") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        return MetadataMessageBuilder(channel).withContent(Joke().joke)
+        val url = "https://api.icndb.com/jokes/random"
+        val response = Unirest.get(url).asJson()
+        if (response.status != 200)
+            return getApiErrorMessage(channel, Type.GET, url, "none", response.status, response.statusText)
+        return MetadataMessageBuilder(channel).withContent(response.body.`object`.getJSONObject("value").getString("joke"))
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {

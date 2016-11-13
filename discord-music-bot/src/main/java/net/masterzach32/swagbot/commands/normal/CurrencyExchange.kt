@@ -16,31 +16,23 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-package net.masterzach32.swagbot.commands.`fun`
+package net.masterzach32.swagbot.commands.normal
 
-import com.mashape.unirest.http.Unirest
-import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.Type
-import net.masterzach32.commands4j.getApiErrorMessage
 import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.swagbot.utils.BotConfig
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class R8BallCommand: Command("8 Ball", "8ball", "8") {
+class CurrencyExchange(val prefs: BotConfig): Command("Currency Exchange", "exchange") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        val url = "https://apis.rtainc.co/twitchbot/8ball"
-        val response = Unirest.get(url).asString()
-
-        if (response.status != 200)
-            return getApiErrorMessage(channel, Type.GET, url, "none", response.status, response.statusText)
-        return MetadataMessageBuilder(channel).withContent(response.body)
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("[question]", "Gives you a prediction to your question.")
+        usage.put("", "")
     }
 }
