@@ -555,9 +555,10 @@ public class App {
                         return;
                     } else
                         source = new YouTubeAudio(params[0]);
-                else if(params[0].contains("soundcloud"))
-                    source = new SoundCloudAudio(params[0]);
-                else if(params[0].contains("iheart")) {
+                else if(params[0].contains("soundcloud")) {
+                    sendMessage("SoundCloud traks have been temporarly disabled due to a bug.", null, message.getChannel());
+                    return;
+                } else if(params[0].contains("iheart")) {
                     sendMessage("SwagBot does not currently support iHeartRadio, please check SwagBot Hub for updates.", message.getAuthor(), message.getChannel());
                     return;
                 } else if(params[0].contains("shoutcast")) {
@@ -578,10 +579,10 @@ public class App {
                         return;
                     }
                 }
-            } catch (NotStreamableException e) {
+            /*} catch (NotStreamableException e) {
                 waitAndDeleteMessage(sendMessage("The track you queued cannot be streamed: " + e.getUrl(), message.getAuthor(), message.getChannel()), 30);
                 e.printStackTrace();
-                return;
+                return;*/
             } catch (YouTubeAPIException e) {
                 waitAndDeleteMessage(sendMessage("Your video cannot be listed because it may be listed as private or not available in the region for SwagBot's server.", message.getAuthor(), message.getChannel()), 30);
                 e.printStackTrace();

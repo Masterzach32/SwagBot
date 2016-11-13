@@ -163,7 +163,7 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
                     if (url.contains("youtube"))
                         source = YouTubeAudio(url)
                     else if (url.contains("soundcloud"))
-                        source = SoundCloudAudio(url)
+                        continue
                     else
                         source = AudioStream(url)
                     audioPlayer.queue(source.getAudioTrack(null, false))
