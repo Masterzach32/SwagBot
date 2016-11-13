@@ -37,6 +37,8 @@ import net.masterzach32.swagbot.commands.normal.VolumeCommand;
 import net.masterzach32.swagbot.commands.test.PingCommand;
 import net.masterzach32.swagbot.guilds.GuildManager;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +80,11 @@ public class App {
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
         client.login();
+
+        HttpClient httpClient = HttpClients.custom()
+                .disableCookieManagement()
+                .build();
+        Unirest.setHttpClient(httpClient);
 
         cmds = new Commands()
                 .add(new HelpCommand())

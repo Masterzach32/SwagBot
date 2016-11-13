@@ -39,12 +39,13 @@ public class SoundCloudAudio extends AudioSource {
         this.source = "soundcloud";
         try {
             HttpResponse<JsonNode> response = Unirest.get("http://api.soundcloud.com/resolve?url=" + url + "&client_id=" + App.prefs.getSCClientId())
-                    .header("Content-Type", "application/json")
+                    .header("accept", "application/json")
                     .asJson();
-            JSONObject json = response.getBody().getArray().getJSONObject(0);
 
             if(response.getStatus() != 200)
                 App.logger.warn("Error with SoundCloud api: " + url);
+
+            JSONObject json = response.getBody().getObject();
 
             title = json.getString("title");
             author = json.getJSONObject("user").getString("username");

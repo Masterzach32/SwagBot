@@ -44,6 +44,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val guild = App.guilds.getGuildSettings(message.guild)
+        val builder = MetadataMessageBuilder(channel)
         if (guild.botLocked)
             return getBotLockedMessage(channel)
         if (args.isEmpty())
@@ -54,7 +55,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
             if (args[0].contains("youtube")) {
                 if (args[0].contains("playlist")) {
                     RequestBuffer.request { message.delete() }
-                    msg = MetadataMessageBuilder(channel).withContent("Queuing playlist ${args[0]}").build()
+                    msg = builder.withContent("Queuing playlist ${args[0]}").build()
                     val playlist = getYouTubeVideosFromPlaylist(args[0].substring(args[0].indexOf("list=") + 5))
                     for (music in playlist) {
                         try {
@@ -73,7 +74,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
                     parts.filter { it.contains("list=") }
                             .forEach { id = it.replace("list=", "") }
                     message.delete()
-                    msg = MetadataMessageBuilder(channel).withContent("Queuing Playlist ${args[0]}").build()
+                    msg = builder.withContent("Queuing Playlist ${args[0]}").build()
                     if (id != null)
                         for (music in getYouTubeVideosFromPlaylist(id!!))
                             try {
@@ -88,27 +89,27 @@ class PlayCommand : Command("Play Music", "play", "p") {
                     source = YouTubeAudio(args[0])
                 }
             } else if (args[0].contains("soundcloud")) {
-                source = SoundCloudAudio(args[0])
+                return builder.withContent("Soundcloud tracks have been temporarly disabled.")//source = SoundCloudAudio(args[0])
             } else if (args[0].contains("iheart") || args[0].contains("shoutcast") || args[0].contains("spotify")) {
-                return MetadataMessageBuilder(channel).withContent("SwagBot currently doesn't support that streaming service due to copyright reasons.")
+                return builder.withContent("SwagBot currently doesn't support that streaming service due to copyright reasons.")
             } else if ((args[0].startsWith("http://") || args[0].startsWith("https://")) && args[0].substring(args.size - 3) == "mp3") {
 
             } else {
-                msg = MetadataMessageBuilder(channel).withContent("Searching Youtube...").build()
+                msg = builder.withContent("Searching Youtube...").build()
                 val search = URLEncoder.encode(Utils.getContent(args, 0), "UTF-8")
                 source = getVideoFromSearch(search)
                 if (source == null)
                     editMessage(msg, "${message.author} I couldn't find a video for **${Utils.getContent(args, 0)}**, try searching for the artist's name and song title.")
             }
         } catch (e: NotStreamableException) {
-            return MetadataMessageBuilder(channel).withContent("The track you queued cannot be streamed: ${e.url}").setAutoDelete(30)
+            return builder.withContent("The track you queued cannot be streamed: ${e.url}").setAutoDelete(30)
         } catch (e: YouTubeAPIException) {
-            return MetadataMessageBuilder(channel).withContent("Your video cannot be listed because it may be listed as private or not available in the region for SwagBot's server.").setAutoDelete(30)
+            return builder.withContent("Your video cannot be listed because it may be listed as private or not available in the region for SwagBot's server.").setAutoDelete(30)
         }
         try {
             message.delete()
             if(msg == null)
-                msg = MetadataMessageBuilder(channel).withContent("Queuing...").build()
+                msg = builder.withContent("Queuing...").build()
             else
                 editMessage(msg, "Queuing...")
             guild.playAudioFromAudioSource(source, msg, user)
