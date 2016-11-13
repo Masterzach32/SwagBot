@@ -29,11 +29,10 @@ import net.masterzach32.swagbot.commands.admin.ChangePrefixCommand;
 import net.masterzach32.swagbot.commands.admin.NSFWCommand;
 import net.masterzach32.swagbot.commands.admin.NickCommand;
 import net.masterzach32.swagbot.commands.dev.*;
+import net.masterzach32.swagbot.commands.fun.*;
 import net.masterzach32.swagbot.commands.mod.*;
 import net.masterzach32.swagbot.commands.music.*;
-import net.masterzach32.swagbot.commands.normal.LeaveCommand;
-import net.masterzach32.swagbot.commands.normal.SummonCommand;
-import net.masterzach32.swagbot.commands.normal.VolumeCommand;
+import net.masterzach32.swagbot.commands.normal.*;
 import net.masterzach32.swagbot.commands.test.PingCommand;
 import net.masterzach32.swagbot.guilds.GuildManager;
 
@@ -120,7 +119,18 @@ public class App {
                 .add(new ShuffleCommand())
                 .add(new PauseCommand())
                 .add(new ResumeCommand())
-                .add(new LoopCommand());
+                .add(new LoopCommand())
+                .add(new QueueCommand())
+                .add(new DiceCommand())
+                .add(new QuoteCommand())
+                .add(new R8BallCommand())
+                .add(new JokeCommand())
+                .add(new ChooseCommand())
+                .add(new CatCommand())
+                .add(new UrbanDictionaryCommand())
+                .add(new FightCommand(prefs))
+                .add(new LmgtfyCommand())
+                .add(new StackoverflowCommand());
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
