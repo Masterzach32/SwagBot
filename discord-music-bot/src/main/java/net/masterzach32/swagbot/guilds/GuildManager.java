@@ -27,6 +27,7 @@ import com.google.gson.GsonBuilder;
 
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.ConstantsKt;
+import org.json.JSONException;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
 
@@ -72,7 +73,13 @@ public class GuildManager {
 
 		}
 
-        JSONObject obj = new JSONObject(json);
+        JSONObject obj;
+		try {
+			obj = new JSONObject(json);
+		} catch (JSONException | NullPointerException e) {
+			obj = new JSONObject();
+			App.logger.info("Could not parse guild settings file for " + guild.getID());
+		}
 
         temp = new GuildSettings(
                 guild,
