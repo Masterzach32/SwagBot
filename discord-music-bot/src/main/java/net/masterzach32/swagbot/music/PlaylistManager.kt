@@ -26,7 +26,6 @@ import java.net.URLEncoder
 import java.util.ArrayList
 
 import org.json.JSONObject
-import org.slf4j.LoggerFactory
 
 import com.google.gson.GsonBuilder
 import net.masterzach32.swagbot.App
@@ -46,7 +45,7 @@ class PlaylistManager(private val guildID: String) {
         for (p in playlists) {
             val fout: BufferedWriter
             try {
-                fout = BufferedWriter(FileWriter("$GUILD_SETTINGS$guildID/playlists/" + URLEncoder.encode(p.name!!, "UTF-8") + ".json"))
+                fout = BufferedWriter(FileWriter("$GUILD_SETTINGS$guildID/playlists/" + URLEncoder.encode(p.name, "UTF-8") + ".json"))
                 fout.write(GsonBuilder().setPrettyPrinting().create().toJson(p))
                 fout.close()
             } catch (e: IOException) {
@@ -82,7 +81,7 @@ class PlaylistManager(private val guildID: String) {
             if(obj != null) {
                 val p = LocalPlaylist(obj)
                 this.playlists.add(p)
-                logger.info("loaded:" + file.name)
+                App.logger.info("loaded:" + file.name)
             }
         }
     }
@@ -93,16 +92,14 @@ class PlaylistManager(private val guildID: String) {
 
     fun remove(name: String): Boolean {
         playlists
-                .filter { it.name!!.toLowerCase() == name.toLowerCase() }
+                .filter { it.name.toLowerCase() == name.toLowerCase() }
                 .forEach { return playlists.remove(it) }
         return false
     }
 
     operator fun get(name: String): LocalPlaylist? {
-        for (i in playlists.indices)
-            if (playlists[i].name!!.toLowerCase() == name.toLowerCase())
-                return playlists[i]
-        return null
+        return playlists
+                .firstOrNull { it.name.toLowerCase() == name.toLowerCase() }
     }
 
     override fun toString(): String {
@@ -110,10 +107,5 @@ class PlaylistManager(private val guildID: String) {
         for (p in playlists)
             str += p.name + ":" + p.songs() + " "
         return str
-    }
-
-    companion object {
-
-        val logger = LoggerFactory.getLogger(App::class.java)
     }
 }

@@ -83,26 +83,6 @@ class LocalPlaylist {
                 } catch (e: YouTubeAPIException) {
                     e.printStackTrace()
                 }
-
-            } else {
-                val url = json.getJSONArray("music").get(i) as String
-                val source: AudioSource
-                try {
-                    if (url.contains("youtube"))
-                        source = YouTubeAudio(url)
-                    else if (url.contains("soundcloud"))
-                        source = SoundCloudAudio(url)
-                    else
-                        source = AudioStream(url)
-                    music.add(source)
-                } catch (e: NotStreamableException) {
-                    e.printStackTrace()
-                } catch (e: UnirestException) {
-                    e.printStackTrace()
-                } catch (e: YouTubeAPIException) {
-                    e.printStackTrace()
-                }
-
             }
         }
     }
