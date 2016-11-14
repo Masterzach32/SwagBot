@@ -32,6 +32,7 @@ import com.google.gson.GsonBuilder
 import net.masterzach32.swagbot.App
 
 import net.masterzach32.swagbot.utils.GUILD_SETTINGS
+import org.json.JSONException
 
 class PlaylistManager(private val guildID: String) {
 
@@ -72,10 +73,17 @@ class PlaylistManager(private val guildID: String) {
             }
 
             val json = String(buffer!!)
-            val obj = JSONObject(json)
-            val p = LocalPlaylist(obj)
-            this.playlists.add(p)
-            logger.info("loaded:" + file.name)
+            val obj = try { JSONObject(json) }
+            catch (e: JSONException) {
+                file.delete()
+                null
+            }
+
+            if(obj != null) {
+                val p = LocalPlaylist(obj)
+                this.playlists.add(p)
+                logger.info("loaded:" + file.name)
+            }
         }
     }
 
