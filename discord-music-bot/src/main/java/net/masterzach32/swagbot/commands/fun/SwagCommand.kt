@@ -16,7 +16,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-package net.masterzach32.swagbot.commands.dev
+package net.masterzach32.swagbot.commands.`fun`
 
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
@@ -25,13 +25,13 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class ThreadCommand: Command("Thread Count", "threads", "t", hidden = true, permission = Permission.DEVELOPER) {
+class SwagCommand: Command("Swag", "swag", "sweg") {
 
-    override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder {
-        return MetadataMessageBuilder(channel).withContent("${Thread.activeCount()} threads active")
+    override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
+        return MetadataMessageBuilder(channel).withContent("Sweg")
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-
+        usage.put("", "Sweg")
     }
 }

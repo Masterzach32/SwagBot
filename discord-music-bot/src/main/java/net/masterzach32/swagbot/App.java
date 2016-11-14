@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import net.masterzach32.commands4j.Commands;
+import net.masterzach32.commands4j.CommandManager;
 import net.masterzach32.swagbot.commands.admin.AnnounceTrackCommand;
 import net.masterzach32.swagbot.commands.admin.ChangePrefixCommand;
 import net.masterzach32.swagbot.commands.admin.NSFWCommand;
@@ -59,7 +59,8 @@ public class App {
     public static BotConfig prefs;
     public static GuildManager guilds;
     public static FileManager manager;
-    public static Commands cmds;
+    public static CommandManager cmds;
+    public static StatManager stats;
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException, RateLimitException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
@@ -76,6 +77,8 @@ public class App {
         // load guild-specific settings
         guilds = new GuildManager();
 
+        stats = StatManagerKt.load(prefs.getStatsStorage());
+
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
         client.login();
@@ -85,11 +88,10 @@ public class App {
                 .build();
         Unirest.setHttpClient(httpClient);
 
-        cmds = new Commands()
+        cmds = new CommandManager()
                 .add(new HelpCommand())
                 .add(new ShutdownCommand())
                 .add(new UpdateCommand())
-                .add(new ThreadCommand())
                 .add(new PingCommand())
                 .add(new ReloadCommand(prefs))
                 .add(new NSFWCommand())
@@ -134,12 +136,14 @@ public class App {
                 .add(new StrawpollCommand())
                 .add(new SwagCommand())
                 //.add(new CurrencyExchange(prefs))
-                .add(new UrlShortenCommand());
+                .add(new UrlShortenCommand())
+                .add(new StatsCommand(stats));
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
         logger.info("user initiated shutdown");
         client.changeStatus(Status.game("Shutting Down"));
+        stats.save(prefs.getStatsStorage());
         prefs.save();
         if (prefs.clearCacheOnShutdown())
             clearCache();

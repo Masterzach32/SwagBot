@@ -29,7 +29,7 @@ import com.google.gson.GsonBuilder;
 
 public class BotConfig {
 
-	private String discordClientId, discordAuthKey, dbAuthKey, googleAuthKey, shoutCastApiKey, osuApiKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
+	private String statStorage, discordClientId, discordAuthKey, dbAuthKey, googleAuthKey, shoutCastApiKey, osuApiKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
 	private boolean clearCacheOnShutdown, postBotStats;
 	private String[] fightSituations;
 
@@ -39,6 +39,7 @@ public class BotConfig {
 	 */
 	public BotConfig() throws IOException {
 		// defaults
+		statStorage = ConstantsKt.getSTATS_JSON();
 		discordClientId = "";
 		discordAuthKey = "";
 		dbAuthKey = "";
@@ -80,6 +81,7 @@ public class BotConfig {
 
 		String json = new String(buffer);
 		BotConfig file = new Gson().fromJson(json, BotConfig.class);
+		statStorage = file.statStorage;
 		discordClientId = file.discordClientId;
 		discordAuthKey = file.getDiscordAuthKey();
 		dbAuthKey = file.dbAuthKey;
@@ -146,4 +148,8 @@ public class BotConfig {
 	public String[] getFightSituations() {
         return fightSituations;
     }
+
+    public String getStatsStorage() {
+		return statStorage;
+	}
 }

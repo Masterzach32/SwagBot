@@ -1,6 +1,6 @@
 /*
-    SwagBot - A Discord Music Bot
-    Copyright (C) 2016  Zachary Kozar
+    SwagBot-java
+    Copyright (C) 2016 Zach Kozar
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,19 +15,25 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
+*/
 package net.masterzach32.swagbot.utils
 
-    val DEFAULT_COMMAND_PREFIX = '~'
+class UptimeCounter : Thread("Uptime Counter") {
 
-    // storage
-    val WORKING_DIRECTORY = "./"
-    val BINARY_STORAGE = "bin/"
-    val DIRECTORY_STORAGE = "storage/"
-    val AUDIO_CACHE = DIRECTORY_STORAGE + "cache/"
-    val GUILD_SETTINGS = DIRECTORY_STORAGE + "guilds/"
-    val LOG_STORAGE = DIRECTORY_STORAGE + "logs/"
-    val TEMP_STORAGE = DIRECTORY_STORAGE + "temp/"
-    val BOT_JSON = "settings.json"
-    val GUILD_JSON = "guild.json"
-    val STATS_JSON = "stats.json"
+    var uptime: Long = 0
+
+    init {
+        start()
+    }
+
+    override fun run() {
+        while (true) {
+            uptime++
+            Thread.sleep(1000)
+        }
+    }
+
+    override fun toString(): String {
+        return "${uptime/3600}:${uptime/60%60}:${uptime%60}"
+    }
+}

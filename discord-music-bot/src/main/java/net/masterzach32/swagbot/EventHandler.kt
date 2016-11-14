@@ -47,9 +47,10 @@ class EventHandler {
     @Throws(UnsupportedAudioFileException::class, UnirestException::class, FfmpegException::class, NotStreamableException::class, YouTubeDLException::class, IOException::class, MissingPermissionsException::class)
     fun onGuildCreateEvent(event: GuildCreateEvent) {
         App.guilds.loadGuild(event.guild)
+        //App.stats.put("Guilds", (App.stats["Guilds"] as Int) + 1)
         RequestBuffer.request {
             if (event.client.isReady && event.client.isLoggedIn)
-                event.client.changeStatus(Status.game("" + event.client.guilds.size + " servers | ~help"))
+                event.client.changeStatus(Status.game("" + App.stats.map["Guilds"] + " servers | ~help"))
         }
     }
 
@@ -57,6 +58,7 @@ class EventHandler {
     @Throws(UnsupportedAudioFileException::class, UnirestException::class, FfmpegException::class, NotStreamableException::class, YouTubeDLException::class, IOException::class, MissingPermissionsException::class)
     fun onGuildLeaveEvent(event: GuildLeaveEvent) {
         App.guilds.removeGuild(event.guild)
+        //App.stats.put("Guilds", (App.stats["Guilds"] as Int) - 1)
     }
 
     @EventSubscriber
@@ -117,6 +119,7 @@ class EventHandler {
                     if (filter.isNSFW) {
                         App.client.getOrCreatePMChannel(event.message.author).sendMessage("Your image, `" + filter.url + "` which you posted in **" + event.message.guild.name + "** **" + event.message.channel + "**, was flagged as containing NSFW content, and has been removed. If you believe this is an error, contact the server owner or one of my developers.")
                         event.message.delete()
+                        //App.stats.put("Pictures Filtered", (App.stats["Pictures Filtered"] as Int) + 1)
                     } else if (filter.isPartial) {
                         App.client.getOrCreatePMChannel(event.message.author).sendMessage("Your image, `" + filter.url + "` which you posted in **" + event.message.guild.name + "** **" + event.message.channel + "**, was flagged as containing some or partial NSFW content. Please be aware that NSFW images will be automatically deleted. If you believe this is an error, contact the server owner or one of my developers.")
                     }
@@ -138,11 +141,15 @@ class EventHandler {
         val params: Array<String>
         if(message.startsWith(g.commandPrefix)) {
             args = message.substring(1).split(" ").toTypedArray()
-            if(args.size == 0)
+            if(args.isEmpty())
                 return
             identifier = args.drop(0)[0]
             params = args.copyOfRange(1, args.size)
-            App.cmds.getCommand(identifier)?.execute(identifier, params, event.message.author, event.message, event.message.channel, Permission.NORMAL)?.build()
+            val cmd = App.cmds.getCommand(identifier)
+            if(cmd != null) {
+                cmd.execute(identifier, params, event.message.author, event.message, event.message.channel, Permission.NORMAL)?.build()
+                //App.stats.put("Commands Received", (App.stats["Commands Received"] as Int) + 1)
+            }
         }
     }
 

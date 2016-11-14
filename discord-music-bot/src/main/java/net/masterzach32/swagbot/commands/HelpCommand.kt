@@ -36,7 +36,7 @@ class HelpCommand : Command("Help", "help", "h") {
                 MetadataMessageBuilder(channel).withContent("${user.mention()} A list of commands has been sent to your direct messages!")
             }
             builder = MetadataMessageBuilder(channel.client.getOrCreatePMChannel(user))
-            builder.withContent("Commands for SwagBot:\n\n```")
+            builder.withContent("CommandManager for SwagBot:\n\n```")
             for (cmd in App.cmds.getCommandList())
                 if (!cmd.hidden)
                     builder.appendContent("$DEFAULT_COMMAND_PREFIX${cmd.aliases[0]}\n")
