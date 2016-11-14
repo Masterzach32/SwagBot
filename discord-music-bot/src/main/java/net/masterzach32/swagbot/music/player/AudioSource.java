@@ -18,7 +18,7 @@
  */
 package net.masterzach32.swagbot.music.player;
 
-import net.masterzach32.swagbot.utils.exceptions.FfmpegException;
+import net.masterzach32.swagbot.utils.exceptions.FFMPEGException;
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IUser;
@@ -40,7 +40,7 @@ public abstract class AudioSource {
 
     public abstract String getStreamUrl();
 
-    public abstract AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException, YouTubeDLException, FfmpegException;
+    public abstract AudioTrack getAudioTrack(IUser user, boolean shouldAnnounce) throws IOException, UnsupportedAudioFileException, YouTubeDLException, FFMPEGException;
 
     public JSONObject saveToJson() {
         JSONObject obj = new JSONObject();

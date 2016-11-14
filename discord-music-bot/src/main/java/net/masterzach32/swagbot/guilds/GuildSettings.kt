@@ -32,9 +32,9 @@ import net.masterzach32.swagbot.music.PlaylistManager
 import net.masterzach32.swagbot.music.player.*
 import net.masterzach32.swagbot.utils.GUILD_JSON
 import net.masterzach32.swagbot.utils.GUILD_SETTINGS
-import net.masterzach32.swagbot.utils.exceptions.FfmpegException
+import net.masterzach32.swagbot.utils.exceptions.FFMPEGException
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException
-import net.masterzach32.swagbot.utils.exceptions.YouTubeApiException
+import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException
 import sx.blah.discord.handle.impl.events.StatusChangeEvent
 import sx.blah.discord.handle.obj.IGuild
@@ -130,7 +130,7 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
                     audioPlayer.queue(source.getAudioTrack(null, false))
                 } catch (e: NotStreamableException) {
                     e.printStackTrace()
-                } catch (e: YouTubeApiException) {
+                } catch (e: YouTubeAPIException) {
                     e.printStackTrace()
                 } catch (e: UnirestException) {
                     e.printStackTrace()
@@ -138,7 +138,7 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
                     e.printStackTrace()
                 } catch (e: IOException) {
                     e.printStackTrace()
-                } catch (e: FfmpegException) {
+                } catch (e: FFMPEGException) {
                     e.printStackTrace()
                 } catch (e: UnsupportedAudioFileException) {
                     e.printStackTrace()
@@ -179,7 +179,7 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
             if (message != null)
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: An error occurred while downloading the video."), 120)
             return
-        } catch (e: FfmpegException) {
+        } catch (e: FFMPEGException) {
             e.printStackTrace()
             if (message != null)
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: An error occurred while converting to audio stream"), 120)
