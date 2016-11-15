@@ -70,7 +70,7 @@ public class GuildManager {
 
 			json = new String(buffer);
 		} catch (IOException e) {
-
+            e.printStackTrace();
 		}
 
         JSONObject obj;

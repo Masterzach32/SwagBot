@@ -25,11 +25,12 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class AFKCommand: Command("Mass AFK", "afk", permission = Permission.MOD) {
+class AFKCommand: Command("Mass AFK", "mafk", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        for(u in message.guild.users.filter { it.connectedVoiceChannels.size == 1 })
-            u.moveToVoiceChannel(message.guild.afkChannel)
+        message.guild.users
+                .filter { it.connectedVoiceChannels.size == 1 && it != message.client.ourUser }
+                .forEach { it.moveToVoiceChannel(message.guild.afkChannel) }
         return null
     }
 

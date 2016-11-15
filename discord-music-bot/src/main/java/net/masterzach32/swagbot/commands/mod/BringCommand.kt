@@ -31,8 +31,9 @@ class BringCommand: Command("Bring Users", "bring", permission = Permission.MOD)
         if(message.author.connectedVoiceChannels.size == 0)
             return MetadataMessageBuilder(channel).withContent("**You need to be in a voice channel to summon users.**")
         val vc = message.author.connectedVoiceChannels[0]
-        for(u in message.guild.users.filter { it.connectedVoiceChannels.size == 1 })
-            u.moveToVoiceChannel(vc)
+        message.guild.users
+                .filter { it.connectedVoiceChannels.size == 1 }
+                .forEach { it.moveToVoiceChannel(vc) }
         return MetadataMessageBuilder(vc).withContent("Moved everyone to **$channel**.")
     }
 

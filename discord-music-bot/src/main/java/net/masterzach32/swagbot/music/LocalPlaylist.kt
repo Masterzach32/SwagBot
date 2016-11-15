@@ -50,13 +50,12 @@ class LocalPlaylist {
     }
 
     @Throws(UnirestException::class)
-    constructor(name: String, music: List<YouTubeAudio>, locked: Boolean, requiresPerms: Boolean) {
+    constructor(name: String, music: List<AudioSource>, locked: Boolean, requiresPerms: Boolean) {
         this.name = name
         this.isLocked = locked
         this.requiresPerms = requiresPerms
         this.music = ArrayList<AudioSource>()
-        for (i in music.indices)
-            this.music.add(music[i])
+        music.forEach { this.music.add(it) }
     }
 
     constructor(json: JSONObject) {
