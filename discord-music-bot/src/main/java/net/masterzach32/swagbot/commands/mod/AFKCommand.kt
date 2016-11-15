@@ -24,13 +24,16 @@ import net.masterzach32.commands4j.util.MetadataMessageBuilder
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.util.RequestBuffer
 
 class AFKCommand: Command("Mass AFK", "mafk", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        message.guild.users
+        RequestBuffer.request {
+            message.guild.users
                 .filter { it.connectedVoiceChannels.size == 1 && it != message.client.ourUser }
                 .forEach { it.moveToVoiceChannel(message.guild.afkChannel) }
+        }
         return null
     }
 

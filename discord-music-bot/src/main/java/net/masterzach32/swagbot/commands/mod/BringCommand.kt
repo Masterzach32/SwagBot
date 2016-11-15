@@ -24,6 +24,7 @@ import net.masterzach32.commands4j.util.MetadataMessageBuilder
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.util.RequestBuffer
 
 class BringCommand: Command("Bring Users", "bring", permission = Permission.MOD) {
 
@@ -31,10 +32,12 @@ class BringCommand: Command("Bring Users", "bring", permission = Permission.MOD)
         if(message.author.connectedVoiceChannels.size == 0)
             return MetadataMessageBuilder(channel).withContent("**You need to be in a voice channel to summon users.**")
         val vc = message.author.connectedVoiceChannels[0]
-        message.guild.users
-                .filter { it.connectedVoiceChannels.size == 1 }
-                .forEach { it.moveToVoiceChannel(vc) }
-        return MetadataMessageBuilder(vc).withContent("Moved everyone to **$channel**.")
+        RequestBuffer.request {
+            message.guild.users
+                    .filter { it.connectedVoiceChannels.size == 1 }
+                    .forEach { it.moveToVoiceChannel(vc) }
+        }
+        return null
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {

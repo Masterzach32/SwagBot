@@ -57,28 +57,15 @@ class MigrateCommand: Command("Migrate", "migrate", "populate", "m", permission 
             if(from == null || to == null)
                 return getWrongArgumentsMessage(channel, this, cmdUsed)
         }
-        val users = from.connectedUsers
-        moveUsers(users, to)
-        return MetadataMessageBuilder(channel).withContent("Successfully moved **${users.size}** server members from **$from** to **$to**.")
+        RequestBuffer.request {
+            from.connectedUsers
+                    .forEach { it.moveToVoiceChannel(to) }
+        }
+        return null
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
         usage.put("", "Move everyone from the bot's voice channel to your voice channel.")
         usage.put("<from> | <to>", "Move everyone from one voice channel to another, case-sensitive.")
-    }
-
-    private fun moveUsers(users: List<IUser>, to: IVoiceChannel) {
-        RequestBuffer.request({
-            for (user in users) {
-                try {
-                    user.moveToVoiceChannel(to)
-                } catch (e: DiscordException) {
-                    e.printStackTrace()
-                } catch (e: MissingPermissionsException) {
-                    e.printStackTrace()
-                }
-
-            }
-        })
     }
 }
