@@ -25,6 +25,7 @@ import java.util.ArrayList
 
 import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.exceptions.UnirestException
+import net.masterzach32.commands4j.Permission
 import net.masterzach32.commands4j.editMessage
 import net.masterzach32.commands4j.waitAndDeleteMessage
 import net.masterzach32.swagbot.App
@@ -47,7 +48,7 @@ import sx.blah.discord.util.audio.AudioPlayer
 
 import javax.sound.sampled.UnsupportedAudioFileException
 
-data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var maxSkips: Int, var volume: Int, var botLocked: Boolean, var nsfwFilter: Boolean, var announce: Boolean, var changeNick: Boolean, var lastChannel: String?, var queue: MutableList<String>?, val statusListener: StatusListener) {
+data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var maxSkips: Int, var volume: Int, var botLocked: Boolean, var nsfwFilter: Boolean, var announce: Boolean, var changeNick: Boolean, var lastChannel: String?, var queue: MutableList<String>?, val statusListener: StatusListener, val userPerms: MutableList<UserPerms>) {
 
     @Transient val playlistManager: PlaylistManager
     @Transient private val skipIDs: MutableList<String>
@@ -87,7 +88,7 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
                 queue!!.add((track as AudioTrack).url)
 
         try {
-            val fout = BufferedWriter(FileWriter("${GUILD_SETTINGS}${iGuild.id}/$GUILD_JSON"))
+            val fout = BufferedWriter(FileWriter("$GUILD_SETTINGS${iGuild.id}/$GUILD_JSON"))
             fout.write(GsonBuilder().setPrettyPrinting().create().toJson(this))
             fout.close()
         } catch (e: IOException) {
@@ -117,7 +118,7 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
             e.printStackTrace()
         }
 
-        if (queue!!.size > 0) {
+        if (queue != null && queue!!.size > 0) {
             var source: AudioSource
             for (url in queue!!) {
                 try {
@@ -143,10 +144,25 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
                 } catch (e: UnsupportedAudioFileException) {
                     e.printStackTrace()
                 }
-
             }
         }
         return this
+    }
+
+    fun getUserPerms(user: IUser): Permission {
+        userPerms
+                .filter { it.id == user.id }
+                .forEach { return it.permission }
+        return Permission.NORMAL
+    }
+
+    fun setUserPerms(user: IUser, permission: Permission) {
+        val users = userPerms.filter { it.id == user.id }
+        if (users.isNotEmpty())
+            users.forEach { it.permission = permission }
+        else
+            userPerms.add(UserPerms(user).setPerms(permission))
+
     }
 
     val audioPlayer: AudioPlayer

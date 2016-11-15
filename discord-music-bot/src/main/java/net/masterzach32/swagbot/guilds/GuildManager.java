@@ -25,8 +25,10 @@ import java.util.function.Consumer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import net.masterzach32.commands4j.Permission;
 import net.masterzach32.swagbot.App;
 import net.masterzach32.swagbot.utils.ConstantsKt;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
@@ -59,7 +61,8 @@ public class GuildManager {
                         false,
                         null,
                         new ArrayList<>(),
-                        new StatusListener(guild, false))));
+                        new StatusListener(guild, false),
+						new ArrayList<>())));
 				fout.close();
 			}
 
@@ -81,6 +84,14 @@ public class GuildManager {
 			App.logger.info("Could not parse guild settings file for " + guild.getID());
 		}
 
+		List<UserPerms> userPerms = new ArrayList<>();
+		if (obj.has("userPerms")) {
+			JSONArray users = obj.getJSONArray("userPerms");
+			for (int i = 0; i < users.length(); i++) {
+				userPerms.add(gson.fromJson(users.getJSONObject(i).toString(), UserPerms.class));
+			}
+		}
+
         temp = new GuildSettings(
                 guild,
                 obj.has("commandPrefix") ? obj.getString("commandPrefix").charAt(0) : '~',
@@ -92,8 +103,12 @@ public class GuildManager {
                 obj.has("changeNick") ? obj.getBoolean("changeNick") : false,
                 obj.has("lastChannel") ? obj.getString("lastChannel") : "",
                 obj.has("queue") ? gson.fromJson(obj.get("queue").toString(), ArrayList.class) : new ArrayList<>(),
-                obj.has("listener") ? new StatusListener(guild, obj.getJSONObject("listener").getBoolean("enabled"), gson.fromJson(obj.getJSONObject("listener").get("entries").toString(), HashMap.class)) : new StatusListener(guild, false)
+                obj.has("listener") ? new StatusListener(guild, obj.getJSONObject("listener").getBoolean("enabled"), gson.fromJson(obj.getJSONObject("listener").get("entries").toString(), HashMap.class)) : new StatusListener(guild, false),
+				userPerms
         );
+
+		if(!temp.getUserPerms().stream().filter( u -> u.getId().equals(guild.getOwnerID())).findFirst().isPresent())
+			temp.setUserPerms(guild.getOwner(), Permission.ADMIN);
 
 		guilds.add(temp);
         temp.getPlaylistManager().load();

@@ -91,7 +91,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
             } else if (args[0].contains("soundcloud")) {
                 source = SoundCloudAudio(args[0])
             } else if (args[0].contains("iheart") || args[0].contains("shoutcast") || args[0].contains("spotify")) {
-                return builder.withContent("SwagBot currently doesn't support that streaming service due to copyright reasons.")
+                return builder.withContent("SwagBot doesn't support that streaming service due to copyright reasons.")
             } else if ((args[0].startsWith("http://") || args[0].startsWith("https://")) && args[0].substring(args.size - 3) == "mp3") {
 
             } else {

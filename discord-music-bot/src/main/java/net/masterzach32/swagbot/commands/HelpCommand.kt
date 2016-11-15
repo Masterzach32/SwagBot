@@ -26,6 +26,7 @@ import net.masterzach32.swagbot.utils.*
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import java.util.*
 
 class HelpCommand : Command("Help", "help", "h") {
 
@@ -57,10 +58,16 @@ class HelpCommand : Command("Help", "help", "h") {
                     "\n\n" +
                     "Want to add SwagBot to your server? Click the link below:\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8")
         } else {
-            builder = MetadataMessageBuilder(channel).withContent("No command found with alias `${args[0]}")
-            for(cmd in App.cmds.getCommandList())
-                if(cmd.aliases.contains(args[0]))
-                    builder.withContent("**${cmd.name}**: Aliases: `${cmd.aliases}` Permission Required: ${cmd.permission}")
+            builder = MetadataMessageBuilder(channel).withContent("No command found with alias `${args[0]}`")
+            App.cmds.getCommandList()
+                    .filter { it.aliases.contains(args[0]) }
+                    .forEach {
+                        builder.withContent("**${it.name}**: Aliases: `${it.aliases}` Permission Required: ${it.permission}")
+                        val map = HashMap<String, String>()
+                        it.getCommandHelp(map)
+                        map.forEach { k, v -> builder.appendContent("\n`$k` $v") }
+                    }
+
         }
         return builder
     }

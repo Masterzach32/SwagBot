@@ -139,15 +139,19 @@ class EventHandler {
         val identifier: String
         val args: Array<String>
         val params: Array<String>
-        if(message.startsWith(g.commandPrefix)) {
+        if (message.startsWith(g.commandPrefix)) {
             args = message.substring(1).split(" ").toTypedArray()
             if(args.isEmpty())
                 return
             identifier = args.drop(0)[0]
             params = args.copyOfRange(1, args.size)
             val cmd = App.cmds.getCommand(identifier)
-            if(cmd != null) {
-                cmd.execute(identifier, params, event.message.author, event.message, event.message.channel, Permission.NORMAL)?.build()
+            if (cmd != null) {
+                val userPerms = App.guilds.getGuildSettings(event.message.guild).getUserPerms(event.message.author)
+                if (userPerms.ordinal >= cmd.permission.ordinal)
+                    cmd.execute(identifier, params, event.message.author, event.message, event.message.channel, userPerms)?.build()
+                else
+                    App.logger.info("User doesnt have permission to use that command: $userPerms")
                 //App.stats.put("Commands Received", (App.stats["Commands Received"] as Int) + 1)
             }
         }

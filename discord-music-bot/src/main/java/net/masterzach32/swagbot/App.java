@@ -24,10 +24,7 @@ import java.io.IOException;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import net.masterzach32.commands4j.CommandManager;
-import net.masterzach32.swagbot.commands.admin.AnnounceTrackCommand;
-import net.masterzach32.swagbot.commands.admin.ChangePrefixCommand;
-import net.masterzach32.swagbot.commands.admin.NSFWCommand;
-import net.masterzach32.swagbot.commands.admin.NickCommand;
+import net.masterzach32.swagbot.commands.admin.*;
 import net.masterzach32.swagbot.commands.dev.*;
 import net.masterzach32.swagbot.commands.fun.*;
 import net.masterzach32.swagbot.commands.mod.*;
@@ -136,7 +133,8 @@ public class App {
                 .add(new SwagCommand())
                 //.add(new CurrencyExchange(prefs))
                 .add(new UrlShortenCommand())
-                .add(new StatsCommand(stats));
+                .add(new StatsCommand(stats))
+                .add(new PermCommand());
 
         client.login();
     }
@@ -144,7 +142,7 @@ public class App {
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
         logger.info("user initiated shutdown");
         client.changeStatus(Status.game("Shutting Down"));
-        stats.save(prefs.getStatsStorage());
+        //stats.save(prefs.getStatsStorage()); TODO fix gson error
         prefs.save();
         if (prefs.clearCacheOnShutdown())
             clearCache();

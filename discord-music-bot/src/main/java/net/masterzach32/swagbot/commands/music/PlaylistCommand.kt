@@ -37,7 +37,7 @@ class PlaylistCommand: Command("Playlist", "playlist", "plist") {
             return getBotLockedMessage(channel)
         if(args.isEmpty())
             return getWrongArgumentsMessage(channel, this, cmdUsed)
-        val perms = true // TODO get user perms
+        val perms = permission.ordinal >= Permission.MOD.ordinal
         val action = args[0]
         val manager = guild.playlistManager
         val builder = MetadataMessageBuilder(channel)
