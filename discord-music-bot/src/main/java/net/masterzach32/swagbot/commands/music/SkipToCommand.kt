@@ -21,7 +21,7 @@ package net.masterzach32.swagbot.commands.music
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
 import net.masterzach32.commands4j.getBotLockedMessage
-import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.App.guilds
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage

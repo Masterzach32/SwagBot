@@ -21,7 +21,7 @@ package net.masterzach32.swagbot.commands.music
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.commands4j.*
-import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.music.player.AudioSource
 import net.masterzach32.swagbot.music.player.SoundCloudAudio

@@ -19,7 +19,7 @@
 package net.masterzach32.swagbot.commands
 
 import net.masterzach32.commands4j.*
-import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.utils.*
 

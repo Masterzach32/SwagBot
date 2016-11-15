@@ -21,7 +21,7 @@ package net.masterzach32.swagbot.commands.normal
 import com.mashape.unirest.http.Unirest
 import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.commands4j.*
-import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.App
 import org.json.JSONObject
 import sx.blah.discord.handle.obj.IChannel

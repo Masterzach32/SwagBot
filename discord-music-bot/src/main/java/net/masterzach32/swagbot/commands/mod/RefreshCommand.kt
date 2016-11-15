@@ -20,7 +20,7 @@ package net.masterzach32.swagbot.commands.mod
 
 import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.App
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage

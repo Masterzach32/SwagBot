@@ -20,7 +20,7 @@ package net.masterzach32.swagbot.commands.normal
 
 import com.mashape.unirest.http.Unirest
 import net.masterzach32.commands4j.*
-import net.masterzach32.commands4j.util.MetadataMessageBuilder
+import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.utils.Utils
 import org.json.JSONArray
 import org.json.JSONObject

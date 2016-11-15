@@ -81,7 +81,6 @@ public class App {
 
         client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
         client.getDispatcher().registerListener(new EventHandler());
-        client.login();
 
         HttpClient httpClient = HttpClients.custom()
                 .disableCookieManagement()
@@ -138,6 +137,8 @@ public class App {
                 //.add(new CurrencyExchange(prefs))
                 .add(new UrlShortenCommand())
                 .add(new StatsCommand(stats));
+
+        client.login();
     }
 
     public static void stop(boolean exit) throws IOException, RateLimitException, DiscordException {
