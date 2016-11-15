@@ -32,22 +32,32 @@ import sx.blah.discord.util.RequestBuffer
 class SkipCommand: Command("Skip", "skip") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if (guilds.getGuildSettings(message.guild).botLocked)
+        val guild = guilds.getGuildSettings(message.guild)
+        if (guild.botLocked)
             return getBotLockedMessage(channel)
         val builder = MetadataMessageBuilder(channel)
-        val guild = guilds.getGuildSettings(message.guild)
+        if (args.size == 1 && args[0] == "disable") {
+            guild.maxSkips = -1
+            return builder.withContent("Voting to skip has been disabled.")
+        } else if (args.size == 1 && args[0] == "enable") {
+            guild.maxSkips = 0
+            return builder.withContent("Voting to skip has been enabled.")
+        }
         if (guild.audioPlayer.playlistSize == 0)
             return builder.withContent("**There are no songs to skip!**")
         if (guild.hasUserSkipped(user.id))
             return builder.withContent("**You have already voted to skip this song!**")
         guild.addSkipID(user)
         val vc = message.guild.connectedVoiceChannel
-        if(vc != null)
-            guild.maxSkips = ((vc.connectedUsers.size-1) * 2 / 3.0 + 0.5).toInt()
+        if(vc != null && guild.maxSkips != -1)
+            if(vc.connectedUsers.size > 2)
+                guild.maxSkips = ((vc.connectedUsers.size-1) * 2 / 3.0 + 0.5).toInt()
+            else
+                guild.maxSkips = 1
         val isBotCommander = message.guild.getRolesByName("Bot Commander")
                 .filter { user.getRolesForGuild(message.guild).contains(it) }
                 .isNotEmpty()
-        if (guild.numUntilSkip() == 0 || isBotCommander) {
+        if (guild.numUntilSkip() <= 0 || isBotCommander || guild.maxSkips == -1) {
             val track = guild.audioPlayer.skip() as AudioTrack
             guild.resetSkipStats()
             if (guild.audioPlayer.playlistSize == 0 && message.client.ourUser.getDisplayName(message.guild) != "SwagBot")
@@ -59,5 +69,6 @@ class SkipCommand: Command("Skip", "skip") {
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
         usage.put("", "Vote to skip the current song in the queue.")
+        usage.put("<enable/disable>", "Enable or disable the voting system. NOTE: ANYONE can skip songs with this disabled!")
     }
 }
