@@ -37,7 +37,11 @@ public class SoundCloudAudio extends AudioSource {
     public SoundCloudAudio(String url) throws NotStreamableException {
         this.url = url;
         this.source = "soundcloud";
-        try {
+        App.logger.info("Soundcloud tracks are disabled.");
+        streamUrl = "";
+        author = "";
+        id = "";
+        /*try {
             HttpResponse<JsonNode> response = Unirest.get("http://api.soundcloud.com/resolve?url=" + url + "&client_id=" + App.prefs.getSCClientId())
                     .header("accept", "application/json")
                     .asJson();
@@ -56,7 +60,7 @@ public class SoundCloudAudio extends AudioSource {
                 streamUrl = json.getString("stream_url");
         } catch (UnirestException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public String getTitle() {

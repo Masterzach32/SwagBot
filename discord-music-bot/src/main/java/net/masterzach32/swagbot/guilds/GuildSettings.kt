@@ -161,12 +161,16 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
             editMessage(message, "Queuing **" + source.title + "**")
         try {
             if (source is YouTubeAudio && source.isLive) {
-                if(message != null)
+                if (message != null)
                     waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: Live Streams are currently not supported!"), 120)
                 return
             } else if (source is YouTubeAudio && source.isDurationAnHour) {
-                if(message != null)
+                if (message != null)
                     waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: Video length must be less than 1 hour!"), 120)
+                return
+            } else if (source is SoundCloudAudio) {
+                if (message != null)
+                    waitAndDeleteMessage(editMessage(message, "$user Soundcloud playback is currently disabled."), 120) // TODO fix soundcloud
                 return
             }
             player.queue(source.getAudioTrack(user, announce))
