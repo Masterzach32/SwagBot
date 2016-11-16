@@ -201,7 +201,7 @@ class EventHandler {
     fun onTrackFinishEvent(event: TrackFinishEvent) {
         try {
             if (App.guilds.getGuildSettings(event.player.guild).changeNick && event.newTrack.isPresent)
-                event.player.guild.setUserNickname(event.client.ourUser, "SwagBot")
+                RequestBuffer.request { event.player.guild.setUserNickname(event.client.ourUser, "SwagBot") }
             if (event.oldTrack.provider is YouTubeAudioProvider)
                 (event.oldTrack.provider as YouTubeAudioProvider).close()
         } catch (e: MissingPermissionsException) {

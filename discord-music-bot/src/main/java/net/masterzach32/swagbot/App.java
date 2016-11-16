@@ -134,7 +134,8 @@ public class App {
                 //.add(new CurrencyExchange(prefs))
                 .add(new UrlShortenCommand())
                 .add(new StatsCommand(stats))
-                .add(new PermCommand());
+                .add(new PermCommand())
+                .add(new ClearCommand());
 
         client.login();
     }

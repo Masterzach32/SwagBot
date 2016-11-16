@@ -28,7 +28,7 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import java.util.*
 
-class HelpCommand : Command("Help", "help", "h") {
+class HelpCommand : Command("Help", "help", "h", permission = Permission.NONE) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder {
         val builder: MetadataMessageBuilder

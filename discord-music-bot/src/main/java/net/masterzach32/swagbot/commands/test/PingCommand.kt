@@ -25,7 +25,7 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class PingCommand: Command("Ping", "ping") {
+class PingCommand: Command("Ping", "ping", permission = Permission.NONE) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder {
         return MetadataMessageBuilder(channel).withContent("Pong!")
