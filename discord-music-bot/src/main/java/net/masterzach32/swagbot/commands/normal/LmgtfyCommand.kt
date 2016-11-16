@@ -28,7 +28,7 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import java.net.URLEncoder
 
-class LmgtfyCommand: Command("Let Me Google that for You", "lmgtfy") {
+class LmgtfyCommand: Command("Let Me Google that for You", "lmgtfy", "google") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         if(args.isEmpty())

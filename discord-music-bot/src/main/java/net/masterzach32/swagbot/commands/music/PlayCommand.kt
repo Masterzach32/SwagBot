@@ -24,6 +24,7 @@ import net.masterzach32.commands4j.*
 import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.music.player.AudioSource
+import net.masterzach32.swagbot.music.player.AudioStream
 import net.masterzach32.swagbot.music.player.SoundCloudAudio
 import net.masterzach32.swagbot.music.player.YouTubeAudio
 import net.masterzach32.swagbot.utils.Utils
@@ -91,7 +92,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
             } else if (args[0].contains("iheart") || args[0].contains("shoutcast") || args[0].contains("spotify")) {
                 return builder.withContent("SwagBot doesn't support that streaming service due to copyright reasons.")
             } else if ((args[0].startsWith("http://") || args[0].startsWith("https://")) && args[0].substring(args.size - 3) == "mp3") {
-
+                source = AudioStream(args[0])
             } else {
                 msg = builder.withContent("Searching Youtube...").build()
                 val search = URLEncoder.encode(Utils.getContent(args, 0), "UTF-8")

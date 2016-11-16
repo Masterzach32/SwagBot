@@ -27,7 +27,7 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class ShuffleCommand : Command("Shuffle", "shuffle", permission = Permission.MOD) {
+class ShuffleCommand : Command("Shuffle", "shuffle") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val guild = guilds.getGuildSettings(message.guild)

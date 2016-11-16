@@ -26,7 +26,7 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.RequestBuffer
 
-class BringCommand: Command("Bring Users", "bring", permission = Permission.MOD) {
+class BringCommand: Command("Bring Users", "bring", "here", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         if(message.author.connectedVoiceChannels.size == 0)

@@ -32,7 +32,7 @@ import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MissingPermissionsException
 import sx.blah.discord.util.RequestBuffer
 
-class MigrateCommand: Command("Migrate", "migrate", "populate", "m", permission = Permission.MOD) {
+class MigrateCommand: Command("Migrate", "migrate", "populate", "m", "move", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val from: IVoiceChannel?

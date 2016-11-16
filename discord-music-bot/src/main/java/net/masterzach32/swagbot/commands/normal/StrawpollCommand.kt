@@ -29,7 +29,7 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import java.util.*
 
-class StrawpollCommand: Command("Create Strawpoll", "strawpoll") {
+class StrawpollCommand: Command("Create Strawpoll", "strawpoll", "spoll") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val choices = Utils.delimitWithoutEmpty(Utils.getContent(args, 0), "\\|")
