@@ -50,7 +50,7 @@ class EventHandler {
         //App.stats.put("Guilds", (App.stats["Guilds"] as Int) + 1)
         RequestBuffer.request {
             if (event.client.isReady && event.client.isLoggedIn)
-                event.client.changeStatus(Status.game("" + App.stats.map["Guilds"] + " servers | ~help"))
+                event.client.changeStatus(Status.game("" + event.client.guilds.size + " servers | ~help"))
         }
     }
 
