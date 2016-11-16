@@ -111,7 +111,6 @@ class PlayCommand : Command("Play Music", "play", "p") {
             else
                 editMessage(msg, "Queuing...")
             guild.playAudioFromAudioSource(source, msg, user)
-            joinChannel(user, guild.iGuild)
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: UnsupportedAudioFileException) {
@@ -169,20 +168,5 @@ class PlayCommand : Command("Play Music", "play", "p") {
         if (json.has("items") && json.getJSONArray("items").length() > 0 && json.getJSONArray("items").getJSONObject(0).has("id") && json.getJSONArray("items").getJSONObject(0).getJSONObject("id").has("videoId"))
             return YouTubeAudio("https://youtube.com/watch?v=" + json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId"))
         return null
-    }
-
-    @Throws(MissingPermissionsException::class)
-    fun joinChannel(user: IUser, guild: IGuild): IVoiceChannel {
-        //setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
-        val channel = guild.connectedVoiceChannel
-        if (channel != null)
-            return channel
-        for (c in guild.voiceChannels)
-            if (user.connectedVoiceChannels.size > 0 && c.id == user.connectedVoiceChannels[0].id) {
-                c.join()
-                return c
-            }
-        guild.voiceChannels[0].join()
-        return guild.voiceChannels[0]
     }
 }

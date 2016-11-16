@@ -41,6 +41,7 @@ import sx.blah.discord.handle.impl.events.StatusChangeEvent
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MissingPermissionsException
 import sx.blah.discord.util.RequestBuffer
@@ -190,7 +191,7 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
                 return
             }
             player.queue(source.getAudioTrack(user, announce))
-            App.joinChannel(user, iGuild)
+            joinChannel(user, iGuild)
             if (message != null)
                 waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.title + "**"), 30)
             return
@@ -213,5 +214,20 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
         if (message != null)
             waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: (unknown reason)"), 120)
         return
+    }
+
+    @Throws(MissingPermissionsException::class)
+    fun joinChannel(user: IUser, guild: IGuild): IVoiceChannel {
+        //setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
+        val channel = guild.connectedVoiceChannel
+        if (channel != null)
+            return channel
+        for (c in guild.voiceChannels)
+            if (user.connectedVoiceChannels.size > 0 && c.id == user.connectedVoiceChannels[0].id) {
+                c.join()
+                return c
+            }
+        guild.voiceChannels[0].join()
+        return guild.voiceChannels[0]
     }
 }
