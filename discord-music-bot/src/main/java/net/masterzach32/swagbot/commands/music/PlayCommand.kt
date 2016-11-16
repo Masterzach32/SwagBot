@@ -121,7 +121,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<link>", "Play a YouTube video, SoundCloud track, or direct audio file.")
+        usage.put("<link>", "Play a YouTube video, ~~SoundCloud track~~ **DISABLED**, or direct audio file.")
         usage.put("<search query>", "Search youtube for a song and play it.")
     }
 

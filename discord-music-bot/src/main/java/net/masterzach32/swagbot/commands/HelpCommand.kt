@@ -62,10 +62,10 @@ class HelpCommand : Command("Help", "help", "h", permission = Permission.NONE) {
             App.cmds.getCommandList()
                     .filter { it.aliases.contains(args[0]) }
                     .forEach {
-                        builder.withContent("**${it.name}**: Aliases: `${it.aliases}` Permission Required: ${it.permission}")
+                        builder.withContent("**${it.name}**: Aliases: `${it.aliases}` Permission Required: `${it.permission}`")
                         val map = HashMap<String, String>()
                         it.getCommandHelp(map)
-                        map.forEach { k, v -> builder.appendContent("\n`$k` $v") }
+                        map.forEach { k, v -> builder.appendContent("\n`${if (k.isEmpty()) "default" else k}` $v") }
                     }
 
         }
@@ -73,6 +73,7 @@ class HelpCommand : Command("Help", "help", "h", permission = Permission.NONE) {
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("[command]", "Display detailed information about that command.")
+        usage.put("", "Display a list of commands.")
+        usage.put("<command>", "Display detailed information about that command.")
     }
 }

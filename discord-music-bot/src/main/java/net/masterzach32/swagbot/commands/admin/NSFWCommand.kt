@@ -41,5 +41,4 @@ class NSFWCommand: Command("NSFW Filter", "nsfw", permission = Permission.ADMIN)
     override fun getCommandHelp(usage: MutableMap<String, String>) {
         usage.put("", "Toggle whether the NSFW filter is enabled.")
     }
-
 }

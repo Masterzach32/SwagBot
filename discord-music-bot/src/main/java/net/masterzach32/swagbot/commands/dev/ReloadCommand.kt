@@ -37,5 +37,4 @@ class ReloadCommand(val prefs: BotConfig): Command("Reload", "reload", "rs", hid
     override fun getCommandHelp(usage: MutableMap<String, String>) {
 
     }
-
 }

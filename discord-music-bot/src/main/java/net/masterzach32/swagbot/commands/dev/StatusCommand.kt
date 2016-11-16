@@ -42,5 +42,4 @@ class StatusCommand: Command("Change Status", "status", hidden = true, permissio
     override fun getCommandHelp(usage: MutableMap<String, String>) {
         usage.put("<string>", "The string to change the bot's status to.")
     }
-
 }
