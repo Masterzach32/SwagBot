@@ -37,7 +37,7 @@ class HelpCommand : Command("Help", "help", "h", permission = Permission.NONE) {
                 MetadataMessageBuilder(channel).withContent("${user.mention()} A list of commands has been sent to your direct messages!")
             }
             builder = MetadataMessageBuilder(channel.client.getOrCreatePMChannel(user))
-            builder.withContent("Commands for SwagBot:\nNote you can only see the commands available to you with your permission $permission in ${message.guild.name}\n```")
+            builder.withContent("Commands for SwagBot:\nNote you can only see the commands available to you with your permission **$permission** in **${message.guild.name}**\n```")
             App.cmds.getCommandList()
                     .filterNot { it.hidden || it.permission.ordinal > permission.ordinal }
                     .forEach { builder.appendContent("$DEFAULT_COMMAND_PREFIX${it.aliases[0]}\n") }
