@@ -23,17 +23,19 @@ import net.masterzach32.commands4j.Permission
 import net.masterzach32.commands4j.getWrongArgumentsMessage
 import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.utils.Utils
+import sx.blah.discord.api.internal.Requests
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.handle.obj.Status
+import sx.blah.discord.util.RequestBuffer
 
 class StatusCommand: Command("Change Status", "status", hidden = true, permission = Permission.DEVELOPER) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if(args.size < 1)
+        if(args.isEmpty())
             return getWrongArgumentsMessage(channel, this, cmdUsed)
-        message.client.changeStatus(Status.game(Utils.getContent(args, 0)))
+        RequestBuffer.request { message.client.changeStatus(Status.game(Utils.getContent(args, 0))) }
         return null
     }
 
