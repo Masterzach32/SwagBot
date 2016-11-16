@@ -22,6 +22,7 @@ import net.masterzach32.commands4j.Command
 import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.commands4j.Permission
 import net.masterzach32.commands4j.getWrongArgumentsMessage
+import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.App.guilds
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
@@ -37,7 +38,7 @@ class PermCommand: Command("Change Permissions", "permission", "perm", permissio
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val guild = guilds.getGuildSettings(message.guild)
-        if (args.size >= 2 && message.mentions.isNotEmpty())
+        if (args.size < 2 || message.mentions.isEmpty())
             return getWrongArgumentsMessage(channel, this, cmdUsed)
         val users = message.mentions
         val perm = perms.filter { it.name == args[0] }
