@@ -27,12 +27,11 @@ import net.masterzach32.commands4j.getWrongArgumentsMessage
 import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.music.LocalPlaylist
-import sx.blah.discord.handle.obj.IChannel
-import sx.blah.discord.handle.obj.IMessage
-import sx.blah.discord.handle.obj.IUser
 import net.masterzach32.swagbot.music.player.YouTubeAudio
 import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
 import org.json.JSONObject
+import sx.blah.discord.handle.obj.*
+import sx.blah.discord.util.MissingPermissionsException
 import java.util.*
 
 class PlaylistCommand: Command("Playlist", "playlist", "plist") {
@@ -80,6 +79,7 @@ class PlaylistCommand: Command("Playlist", "playlist", "plist") {
         } else if (action == "queue") {
             if(playlist != null) {
                 playlist.queue(user, guild)
+                joinChannel(user, guild.iGuild)
                 return builder.withContent("Queued playlist $name")
             } else
                 return builder.withContent("Could not find playlist **$name**")
@@ -187,5 +187,20 @@ class PlaylistCommand: Command("Playlist", "playlist", "plist") {
         if (json.has("items") && json.getJSONArray("items").length() > 0 && json.getJSONArray("items").getJSONObject(0).has("id") && json.getJSONArray("items").getJSONObject(0).getJSONObject("id").has("videoId"))
             return YouTubeAudio("https://youtube.com/watch?v=" + json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId"))
         return null
+    }
+
+    @Throws(MissingPermissionsException::class)
+    fun joinChannel(user: IUser, guild: IGuild): IVoiceChannel {
+        //setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
+        val channel = guild.connectedVoiceChannel
+        if (channel != null)
+            return channel
+        for (c in guild.voiceChannels)
+            if (user.connectedVoiceChannels.size > 0 && c.id == user.connectedVoiceChannels[0].id) {
+                c.join()
+                return c
+            }
+        guild.voiceChannels[0].join()
+        return guild.voiceChannels[0]
     }
 }

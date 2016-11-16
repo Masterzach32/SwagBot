@@ -145,8 +145,6 @@ public class App {
         client.changeStatus(Status.game("Shutting Down"));
         //stats.save(prefs.getStatsStorage()); TODO fix gson error
         prefs.save();
-        if (prefs.clearCacheOnShutdown())
-            clearCache();
         guilds.saveGuildSettings();
         client.logout();
         if(exit) {
@@ -167,38 +165,6 @@ public class App {
         stop(false);
         new ProcessBuilder("java", "-jar", "-Xmx1G", "update.jar").start();
         System.exit(0);
-    }
-
-    private static int clearCache() {
-        File[] cache = manager.getFile(ConstantsKt.getAUDIO_CACHE()).listFiles();
-        int count = 0;
-        for (File file : cache) {
-            if (file.delete()) {
-                logger.info("deleted:" + file.getName());
-                count++;
-            } else {
-                logger.info("failed:" + file.getName());
-            }
-        }
-        if (count < cache.length)
-            logger.info("cleared:" + count + "/" + cache.length);
-        else
-            logger.info("cleared:" + count);
-        return count;
-    }
-
-    public static IVoiceChannel joinChannel(IUser user, IGuild guild) throws MissingPermissionsException {
-        //setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
-        IVoiceChannel channel = guild.getConnectedVoiceChannel();
-        if(channel != null)
-            return channel;
-        for (IVoiceChannel c : guild.getVoiceChannels())
-            if (user.getConnectedVoiceChannels().size() > 0 && c.getID().equals(user.getConnectedVoiceChannels().get(0).getID())) {
-                c.join();
-                return c;
-            }
-        guild.getVoiceChannels().get(0).join();
-        return guild.getVoiceChannels().get(0);
     }
 
     // Change AudioPlayer volume for guild
