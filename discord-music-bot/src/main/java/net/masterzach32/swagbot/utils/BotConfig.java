@@ -29,8 +29,8 @@ import com.google.gson.GsonBuilder;
 
 public class BotConfig {
 
-	private String discordClientId, discordAuthKey, dbAuthKey, googleAuthKey, shoutCastApiKey, osuApiKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
-	private boolean clearCacheOnShutdown, postBotStats;
+	private String statStorage, discordClientId, discordAuthKey, dbAuthKey, googleAuthKey, shoutCastApiKey, osuApiKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
+	private boolean postBotStats;
 	private String[] fightSituations;
 
 	/**
@@ -39,6 +39,7 @@ public class BotConfig {
 	 */
 	public BotConfig() throws IOException {
 		// defaults
+		statStorage = ConstantsKt.getSTATS_JSON();
 		discordClientId = "";
 		discordAuthKey = "";
 		dbAuthKey = "";
@@ -46,7 +47,6 @@ public class BotConfig {
 		shoutCastApiKey = "";
 		osuApiKey = "";
 		scClientId = "";
-		clearCacheOnShutdown = false;
 		postBotStats = false;
 		mashapApiKey = "";
 		se_api_user = "";
@@ -55,7 +55,7 @@ public class BotConfig {
 				"${killed} was defeated by ${killer}!"
 		};
 
-		File prefs = new File(Constants.INSTANCE.getBOT_JSON());
+		File prefs = new File(ConstantsKt.getBOT_JSON());
 		if(!prefs.exists()) {
             prefs.createNewFile();
             save();
@@ -64,7 +64,7 @@ public class BotConfig {
 
 	public void save() throws IOException {
 		BufferedWriter fout;
-		fout = new BufferedWriter(new FileWriter(Constants.INSTANCE.getBOT_JSON()));
+		fout = new BufferedWriter(new FileWriter(ConstantsKt.getBOT_JSON()));
 		fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(this));
 		fout.close();
 	}
@@ -73,13 +73,14 @@ public class BotConfig {
 		RandomAccessFile fin;
 		byte[] buffer;
 
-		fin = new RandomAccessFile(Constants.INSTANCE.getBOT_JSON(), "r");
+		fin = new RandomAccessFile(ConstantsKt.getBOT_JSON(), "r");
 		buffer = new byte[(int) fin.length()];
 		fin.readFully(buffer);
 		fin.close();
 
 		String json = new String(buffer);
 		BotConfig file = new Gson().fromJson(json, BotConfig.class);
+		statStorage = file.statStorage;
 		discordClientId = file.discordClientId;
 		discordAuthKey = file.getDiscordAuthKey();
 		dbAuthKey = file.dbAuthKey;
@@ -87,7 +88,6 @@ public class BotConfig {
         shoutCastApiKey = file.shoutCastApiKey;
 		osuApiKey = file.osuApiKey;
         scClientId = file.scClientId;
-		clearCacheOnShutdown = file.clearCacheOnShutdown();
 		postBotStats = file.postBotStats;
 		mashapApiKey = file.mashapApiKey;
 		se_api_user = file.se_api_user;
@@ -123,10 +123,6 @@ public class BotConfig {
         return scClientId;
     }
 
-	public boolean clearCacheOnShutdown() {
-		return clearCacheOnShutdown;
-	}
-
 	public boolean shouldPostBotStats() {
 		return postBotStats;
 	}
@@ -146,4 +142,8 @@ public class BotConfig {
 	public String[] getFightSituations() {
         return fightSituations;
     }
+
+    public String getStatsStorage() {
+		return statStorage;
+	}
 }

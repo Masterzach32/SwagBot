@@ -1,6 +1,6 @@
 /*
-    SwagBot - A Discord Music Bot
-    Copyright (C) 2016  Zachary Kozar
+    SwagBot-java
+    Copyright (C) 2016 Zach Kozar
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,20 +15,25 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-package net.masterzach32.swagbot.commands
+*/
+package net.masterzach32.swagbot.utils
 
-import com.mashape.unirest.http.exceptions.UnirestException
-import sx.blah.discord.handle.obj.IMessage
-import sx.blah.discord.util.DiscordException
-import sx.blah.discord.util.MissingPermissionsException
-import sx.blah.discord.util.RateLimitException
+class UptimeCounter : Thread("Uptime Counter") {
 
-import java.io.IOException
+    var uptime: Long = 0
 
-interface CommandEvent {
+    init {
+        start()
+    }
 
-    @Throws(RateLimitException::class, MissingPermissionsException::class, DiscordException::class, UnirestException::class, IOException::class)
-    fun execute(message: IMessage, params: Array<String>)
+    override fun run() {
+        while (true) {
+            uptime++
+            Thread.sleep(1000)
+        }
+    }
 
+    override fun toString(): String {
+        return "${uptime/3600}:${uptime/60%60}:${uptime%60}"
+    }
 }

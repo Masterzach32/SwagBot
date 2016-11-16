@@ -36,7 +36,7 @@ public class FileManager {
 	public FileManager() {
 		files = new ArrayList<>();
 		setup();
-		File[] files = getFile(Constants.INSTANCE.getWORKING_DIRECTORY()).listFiles();
+		File[] files = getFile(ConstantsKt.getWORKING_DIRECTORY()).listFiles();
 		Arrays.stream(files)
                 .filter((file -> file.getName().toLowerCase().contains("frag")))
                 .collect(Collectors.toList())
@@ -61,12 +61,12 @@ public class FileManager {
 
 	private void setup() {
 		logger.info("preparing:filesystem");
-		files.add(new File(Constants.INSTANCE.getBINARY_STORAGE()));
-		files.add(new File(Constants.INSTANCE.getDIRECTORY_STORAGE()));
-		files.add(new File(Constants.INSTANCE.getAUDIO_CACHE()));
-		files.add(new File(Constants.INSTANCE.getGUILD_SETTINGS()));
-		files.add(new File(Constants.INSTANCE.getLOG_STORAGE()));
-		files.add(new File(Constants.INSTANCE.getTEMP_STORAGE()));
+		files.add(new File(ConstantsKt.getBINARY_STORAGE()));
+		files.add(new File(ConstantsKt.getDIRECTORY_STORAGE()));
+		files.add(new File(ConstantsKt.getAUDIO_CACHE()));
+		files.add(new File(ConstantsKt.getGUILD_SETTINGS()));
+		files.add(new File(ConstantsKt.getLOG_STORAGE()));
+		files.add(new File(ConstantsKt.getTEMP_STORAGE()));
 		for(File file : files) {
 			if(!file.exists()) {
 				file.mkdir();
@@ -90,7 +90,7 @@ public class FileManager {
 
 	private synchronized void refresh() {
 		files.clear();
-		refresh(new File(Constants.INSTANCE.getWORKING_DIRECTORY()));
+		refresh(new File(ConstantsKt.getWORKING_DIRECTORY()));
 		//logger.info("refresh:complete");
 	}
 }

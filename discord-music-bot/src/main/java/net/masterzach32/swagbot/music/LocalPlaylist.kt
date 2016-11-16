@@ -26,6 +26,7 @@ import javax.sound.sampled.UnsupportedAudioFileException
 
 import com.mashape.unirest.http.exceptions.UnirestException
 import net.masterzach32.swagbot.App
+import net.masterzach32.swagbot.guilds.GuildSettings
 import net.masterzach32.swagbot.music.player.*
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException
 import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
@@ -49,51 +50,30 @@ class LocalPlaylist {
     }
 
     @Throws(UnirestException::class)
-    constructor(name: String, music: List<YouTubeAudio>, locked: Boolean, requiresPerms: Boolean) {
+    constructor(name: String, music: List<AudioSource>, locked: Boolean, requiresPerms: Boolean) {
         this.name = name
         this.isLocked = locked
         this.requiresPerms = requiresPerms
         this.music = ArrayList<AudioSource>()
-        for (i in music.indices)
-            this.music.add(music[i])
+        music.forEach { this.music.add(it) }
     }
 
     constructor(json: JSONObject) {
         this.name = json.getString("name")
-        this.isLocked = json.getBoolean("isLocked")
+        this.isLocked = if (json.has("isLocked")) json.getBoolean("isLocked") else false
         this.requiresPerms = json.getBoolean("requiresPerms")
         this.music = ArrayList<AudioSource>()
         for (i in 0..json.getJSONArray("music").length() - 1) {
             if (json.getJSONArray("music").get(i) is JSONObject) {
                 val jsonSource = json.getJSONArray("music").get(i) as JSONObject
-                val source: AudioSource?
+                val source: AudioSource
                 try {
                     if (jsonSource.getString("source") == "youtube")
                         source = YouTubeAudio(jsonSource.getString("url"))
                     else if (jsonSource.getString("source") == "soundcloud")
-                        source = null
+                        source = SoundCloudAudio(jsonSource.getString("url"))
                     else
                         source = AudioStream(jsonSource.getString("url"))
-                    if(source != null)
-                        music.add(source)
-                } catch (e: NotStreamableException) {
-                    e.printStackTrace()
-                } catch (e: UnirestException) {
-                    e.printStackTrace()
-                } catch (e: YouTubeAPIException) {
-                    e.printStackTrace()
-                }
-
-            } else {
-                val url = json.getJSONArray("music").get(i) as String
-                val source: AudioSource
-                try {
-                    if (url.contains("youtube"))
-                        source = YouTubeAudio(url)
-                    else if (url.contains("soundcloud"))
-                        source = SoundCloudAudio(url)
-                    else
-                        source = AudioStream(url)
                     music.add(source)
                 } catch (e: NotStreamableException) {
                     e.printStackTrace()
@@ -102,15 +82,14 @@ class LocalPlaylist {
                 } catch (e: YouTubeAPIException) {
                     e.printStackTrace()
                 }
-
             }
         }
     }
 
     fun add(audio: String): AudioSource? {
-        for (i in music.indices)
-            if (music[i].url == audio)
-                return music[i]
+        music.indices
+                .filter { music[it].url == audio }
+                .forEach { return music[it] }
         val source: AudioSource
         try {
             if (audio.contains("youtube"))
@@ -133,16 +112,16 @@ class LocalPlaylist {
     }
 
     fun remove(audio: String) {
-        for (i in music.indices)
-            if (music[i].url == audio)
-                music.removeAt(i)
+        music.indices
+                .filter { music[it].url == audio }
+                .forEach { music.removeAt(it) }
     }
 
-    fun queue(user: IUser, guild: IGuild) {
+    fun queue(user: IUser, guild: GuildSettings) {
         Collections.shuffle(music)
         for (s in music) {
             try {
-                App.playAudioFromAudioSource(s, true, null, user, guild)
+                guild.playAudioFromAudioSource(s, null, user)
             } catch (e: IOException) {
                 e.printStackTrace()
             } catch (e: UnsupportedAudioFileException) {
@@ -161,7 +140,7 @@ class LocalPlaylist {
         return str
     }
 
-    fun getSources(): MutableList<AudioSource> {
+    fun getSources(): MutableList<AudioSource>? {
         return music
     }
 

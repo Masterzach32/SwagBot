@@ -19,7 +19,6 @@
 package net.masterzach32.swagbot.music
 
 import java.io.BufferedWriter
-import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -27,13 +26,12 @@ import java.net.URLEncoder
 import java.util.ArrayList
 
 import org.json.JSONObject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import com.google.gson.GsonBuilder
 import net.masterzach32.swagbot.App
 
-import net.masterzach32.swagbot.utils.Constants
+import net.masterzach32.swagbot.utils.GUILD_SETTINGS
+import org.json.JSONException
 
 class PlaylistManager(private val guildID: String) {
 
@@ -47,7 +45,7 @@ class PlaylistManager(private val guildID: String) {
         for (p in playlists) {
             val fout: BufferedWriter
             try {
-                fout = BufferedWriter(FileWriter(Constants.GUILD_SETTINGS + guildID + "/playlists/" + URLEncoder.encode(p.name!!, "UTF-8") + ".json"))
+                fout = BufferedWriter(FileWriter("$GUILD_SETTINGS$guildID/playlists/" + URLEncoder.encode(p.name, "UTF-8") + ".json"))
                 fout.write(GsonBuilder().setPrettyPrinting().create().toJson(p))
                 fout.close()
             } catch (e: IOException) {
@@ -59,7 +57,7 @@ class PlaylistManager(private val guildID: String) {
 
     fun load() {
         this.playlists.clear()
-        val playlists = App.manager.getFile(Constants.GUILD_SETTINGS + guildID + "/playlists/").listFiles()
+        val playlists = App.manager.getFile("$GUILD_SETTINGS$guildID/playlists/").listFiles()
         for (file in playlists!!) {
             val fin: RandomAccessFile
             var buffer: ByteArray? = null
@@ -74,10 +72,17 @@ class PlaylistManager(private val guildID: String) {
             }
 
             val json = String(buffer!!)
-            val obj = JSONObject(json)
-            val p = LocalPlaylist(obj)
-            this.playlists.add(p)
-            logger.info("loaded:" + file.name)
+            val obj = try { JSONObject(json) }
+            catch (e: JSONException) {
+                file.delete()
+                null
+            }
+
+            if(obj != null) {
+                val p = LocalPlaylist(obj)
+                this.playlists.add(p)
+                App.logger.info("loaded:" + file.name)
+            }
         }
     }
 
@@ -85,17 +90,16 @@ class PlaylistManager(private val guildID: String) {
         playlists.add(p)
     }
 
-    fun remove(name: String) {
-        for (i in playlists.indices)
-            if (playlists[i].name!!.toLowerCase() == name.toLowerCase())
-                playlists.removeAt(i)
+    fun remove(name: String): Boolean {
+        playlists
+                .filter { it.name.toLowerCase() == name.toLowerCase() }
+                .forEach { return playlists.remove(it) }
+        return false
     }
 
     operator fun get(name: String): LocalPlaylist? {
-        for (i in playlists.indices)
-            if (playlists[i].name!!.toLowerCase() == name.toLowerCase())
-                return playlists[i]
-        return null
+        return playlists
+                .firstOrNull { it.name.toLowerCase() == name.toLowerCase() }
     }
 
     override fun toString(): String {
@@ -103,10 +107,5 @@ class PlaylistManager(private val guildID: String) {
         for (p in playlists)
             str += p.name + ":" + p.songs() + " "
         return str
-    }
-
-    companion object {
-
-        val logger = LoggerFactory.getLogger(App::class.java)
     }
 }

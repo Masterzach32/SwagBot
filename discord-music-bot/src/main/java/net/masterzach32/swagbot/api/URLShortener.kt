@@ -40,6 +40,5 @@ class URLShortener(url: String) {
         } catch (e: UnirestException) {
             e.printStackTrace()
         }
-
     }
 }

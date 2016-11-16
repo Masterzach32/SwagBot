@@ -25,8 +25,11 @@ import java.util.function.Consumer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import net.masterzach32.commands4j.Permission;
 import net.masterzach32.swagbot.App;
-import net.masterzach32.swagbot.utils.Constants;
+import net.masterzach32.swagbot.utils.ConstantsKt;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import sx.blah.discord.handle.obj.IGuild;
 
@@ -39,17 +42,17 @@ public class GuildManager {
 	}
 
 	public GuildSettings loadGuild(IGuild guild) {
-		App.manager.mkdir(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
-		File prefs = new File(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON());
+		App.manager.mkdir(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
+		File prefs = new File(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/" + ConstantsKt.getGUILD_JSON());
 		Gson gson = new Gson();
 		GuildSettings temp;
         String json = null;
 		try {
 			if (!prefs.exists()) {
 				prefs.createNewFile();
-				BufferedWriter fout = new BufferedWriter(new FileWriter(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON()));
+				BufferedWriter fout = new BufferedWriter(new FileWriter(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/" + ConstantsKt.getGUILD_JSON()));
 				fout.write(new GsonBuilder().setPrettyPrinting().create().toJson(new GuildSettings(guild,
-                        Constants.INSTANCE.getDEFAULT_COMMAND_PREFIX(),
+						ConstantsKt.getDEFAULT_COMMAND_PREFIX(),
                         3,
                         50,
                         false,
@@ -58,21 +61,36 @@ public class GuildManager {
                         false,
                         null,
                         new ArrayList<>(),
-                        new StatusListener(guild, false))));
+                        new StatusListener(guild, false),
+						new ArrayList<>())));
 				fout.close();
 			}
 
-			RandomAccessFile fin = new RandomAccessFile(Constants.INSTANCE.getGUILD_SETTINGS() + guild.getID() + "/" + Constants.INSTANCE.getGUILD_JSON(), "r"); // "r" = open file for reading only
+			RandomAccessFile fin = new RandomAccessFile(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/" + ConstantsKt.getGUILD_JSON(), "r"); // "r" = open file for reading only
 			byte[] buffer = new byte[(int) fin.length()];
 			fin.readFully(buffer);
 			fin.close();
 
 			json = new String(buffer);
 		} catch (IOException e) {
-
+            e.printStackTrace();
 		}
 
-        JSONObject obj = new JSONObject(json);
+        JSONObject obj;
+		try {
+			obj = new JSONObject(json);
+		} catch (JSONException | NullPointerException e) {
+			obj = new JSONObject();
+			App.logger.info("Could not parse guild settings file for " + guild.getID());
+		}
+
+		List<UserPerms> userPerms = new ArrayList<>();
+		if (obj.has("userPerms")) {
+			JSONArray users = obj.getJSONArray("userPerms");
+			for (int i = 0; i < users.length(); i++) {
+				userPerms.add(gson.fromJson(users.getJSONObject(i).toString(), UserPerms.class));
+			}
+		}
 
         temp = new GuildSettings(
                 guild,
@@ -80,13 +98,17 @@ public class GuildManager {
                 obj.has("maxSkips") ? obj.getInt("maxSkips") : 3,
                 obj.has("volume") ? obj.getInt("volume") : 50,
                 obj.has("botLocked") ? obj.getBoolean("botLocked") : false,
-                obj.has("enableNSFWFilter") ? obj.getBoolean("enableNSFWFilter") : false,
+                obj.has("nsfwFilter") ? obj.getBoolean("nsfwFilter") : false,
                 obj.has("announce") ? obj.getBoolean("announce") : true,
                 obj.has("changeNick") ? obj.getBoolean("changeNick") : false,
                 obj.has("lastChannel") ? obj.getString("lastChannel") : "",
                 obj.has("queue") ? gson.fromJson(obj.get("queue").toString(), ArrayList.class) : new ArrayList<>(),
-                obj.has("listener") ? new StatusListener(guild, obj.getJSONObject("listener").getBoolean("enabled"), gson.fromJson(obj.getJSONObject("listener").get("entries").toString(), HashMap.class)) : new StatusListener(guild, false)
+                obj.has("listener") ? new StatusListener(guild, obj.getJSONObject("listener").getBoolean("enabled"), gson.fromJson(obj.getJSONObject("listener").get("entries").toString(), HashMap.class)) : new StatusListener(guild, false),
+				userPerms
         );
+
+		if(!temp.getUserPerms().stream().filter( u -> u.getId().equals(guild.getOwnerID())).findFirst().isPresent())
+			temp.setUserPerms(guild.getOwner(), Permission.ADMIN);
 
 		guilds.add(temp);
         temp.getPlaylistManager().load();
@@ -105,7 +127,7 @@ public class GuildManager {
 
 	public GuildSettings removeGuild(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
-			if(guilds.get(i) != null && guilds.get(i).getId().equals(guild.getID()))
+			if(guilds.get(i) != null && guilds.get(i).getIGuild().getID().equals(guild.getID()))
                 return guilds.remove(i);
         return null;
 	}
@@ -121,7 +143,7 @@ public class GuildManager {
 
 	public GuildSettings getGuildSettings(IGuild guild) {
 		for(int i = 0; i < guilds.size(); i++)
-			if(guilds.get(i) != null && guilds.get(i).getId().equals(guild.getID()))
+			if(guilds.get(i) != null && guilds.get(i).getIGuild().getID().equals(guild.getID()))
 				return guilds.get(i);
 		return loadGuild(guild);
 	}

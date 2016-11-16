@@ -1,6 +1,6 @@
 /*
-    SwagBot - A Discord Music Bot
-    Copyright (C) 2016  Zachary Kozar
+    SwagBot-java
+    Copyright (C) 2016 Zach Kozar
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,24 +15,26 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-package net.masterzach32.swagbot.api
+*/
+package net.masterzach32.swagbot.guilds
 
-import com.mashape.unirest.http.Unirest
-import com.mashape.unirest.http.exceptions.UnirestException
+import net.masterzach32.commands4j.Permission
+import sx.blah.discord.handle.obj.IUser
 
-class RandomCat {
+data class UserPerms(@Transient val user: IUser) {
 
-    var url: String? = null
-        private set
+    val id: String
+    val name: String
+    var permission: Permission
 
     init {
-        try {
-            val json = Unirest.get("http://random.cat/meow").asJson()
-            url = json.body.array.getJSONObject(0).getString("file")
-        } catch (e: UnirestException) {
-            e.printStackTrace()
-        }
+        id = user.id
+        name = user.name
+        permission = Permission.NORMAL
+    }
 
+    fun setPerms(perm: Permission): UserPerms {
+        permission = perm
+        return this
     }
 }

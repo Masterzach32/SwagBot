@@ -25,17 +25,23 @@ import java.util.ArrayList
 
 import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.exceptions.UnirestException
+import net.masterzach32.commands4j.Permission
+import net.masterzach32.commands4j.editMessage
+import net.masterzach32.commands4j.waitAndDeleteMessage
 import net.masterzach32.swagbot.App
 import net.masterzach32.swagbot.music.PlaylistManager
 import net.masterzach32.swagbot.music.player.*
-import net.masterzach32.swagbot.utils.Constants
+import net.masterzach32.swagbot.utils.GUILD_JSON
+import net.masterzach32.swagbot.utils.GUILD_SETTINGS
 import net.masterzach32.swagbot.utils.exceptions.FFMPEGException
 import net.masterzach32.swagbot.utils.exceptions.NotStreamableException
 import net.masterzach32.swagbot.utils.exceptions.YouTubeAPIException
 import net.masterzach32.swagbot.utils.exceptions.YouTubeDLException
 import sx.blah.discord.handle.impl.events.StatusChangeEvent
 import sx.blah.discord.handle.obj.IGuild
+import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MissingPermissionsException
 import sx.blah.discord.util.RequestBuffer
@@ -43,26 +49,15 @@ import sx.blah.discord.util.audio.AudioPlayer
 
 import javax.sound.sampled.UnsupportedAudioFileException
 
-class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var maxSkips: Int, var volume: Int, botLocked: Boolean, nsfwfilter: Boolean, private var announce: Boolean, private var changeNick: Boolean, var lastChannel: String?, private var queue: MutableList<String>?, val statusListener: StatusListener) {
+data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var maxSkips: Int, var volume: Int, var botLocked: Boolean, var nsfwFilter: Boolean, var announce: Boolean, var changeNick: Boolean, var lastChannel: String?, var queue: MutableList<String>?, val statusListener: StatusListener, val userPerms: MutableList<UserPerms>) {
 
     @Transient val playlistManager: PlaylistManager
     @Transient private val skipIDs: MutableList<String>
-    private val guildName: String
-    var isBotLocked: Boolean = false
-        private set
-    var isNSFWFilterEnabled: Boolean = false
-        private set
 
     init {
         playlistManager = PlaylistManager(iGuild.id)
         skipIDs = ArrayList<String>()
-        this.guildName = iGuild.name
-        this.isBotLocked = botLocked
-        this.isNSFWFilterEnabled = nsfwfilter
     }
-
-    val id: String
-        get() = iGuild.id
 
     fun resetSkipStats() {
         skipIDs.clear()
@@ -80,38 +75,6 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
         return maxSkips - skipIDs.size
     }
 
-    fun toggleBotLocked() {
-        isBotLocked = !isBotLocked
-    }
-
-    fun toggleNSFWFilter() {
-        isNSFWFilterEnabled = !isNSFWFilterEnabled
-    }
-
-    fun shouldAnnounce(): Boolean {
-        return announce
-    }
-
-    fun setShouldAnnounce(announce: Boolean) {
-        this.announce = announce
-    }
-
-    fun shouldChangeNick(): Boolean {
-        return changeNick
-    }
-
-    fun setChangeNick(changeNick: Boolean) {
-        this.changeNick = changeNick
-    }
-
-    fun setQueue(queue: MutableList<String>) {
-        this.queue = queue
-    }
-
-    fun getQueue(): MutableList<String>? {
-        return queue
-    }
-
     fun dispatchStatusChangedEvent(event: StatusChangeEvent): Boolean {
         return statusListener.passEvent(event)
     }
@@ -126,7 +89,7 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
                 queue!!.add((track as AudioTrack).url)
 
         try {
-            val fout = BufferedWriter(FileWriter(Constants.GUILD_SETTINGS + iGuild.id + "/" + Constants.GUILD_JSON))
+            val fout = BufferedWriter(FileWriter("$GUILD_SETTINGS${iGuild.id}/$GUILD_JSON"))
             fout.write(GsonBuilder().setPrettyPrinting().create().toJson(this))
             fout.close()
         } catch (e: IOException) {
@@ -156,14 +119,14 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
             e.printStackTrace()
         }
 
-        if (queue!!.size > 0) {
+        if (queue != null && queue!!.size > 0) {
             var source: AudioSource
             for (url in queue!!) {
                 try {
                     if (url.contains("youtube"))
                         source = YouTubeAudio(url)
                     else if (url.contains("soundcloud"))
-                        continue
+                        continue // TODO fix soundcloud
                     else
                         source = AudioStream(url)
                     audioPlayer.queue(source.getAudioTrack(null, false))
@@ -182,12 +145,89 @@ class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var 
                 } catch (e: UnsupportedAudioFileException) {
                     e.printStackTrace()
                 }
-
             }
         }
         return this
     }
 
+    fun getUserPerms(user: IUser): Permission {
+        userPerms
+                .filter { it.id == user.id }
+                .forEach { return it.permission }
+        return Permission.NORMAL
+    }
+
+    fun setUserPerms(user: IUser, permission: Permission) {
+        val users = userPerms.filter { it.id == user.id }
+        if (users.isNotEmpty())
+            users.forEach { it.permission = permission }
+        else
+            userPerms.add(UserPerms(user).setPerms(permission))
+
+    }
+
     val audioPlayer: AudioPlayer
         get() = AudioPlayer.getAudioPlayerForGuild(iGuild)
+
+    @Throws(IOException::class, UnsupportedAudioFileException::class)
+    fun playAudioFromAudioSource(source: AudioSource?, message: IMessage?, user: IUser) {
+        if (source == null)
+            return
+        val player = AudioPlayer.getAudioPlayerForGuild(iGuild)
+        if (message != null)
+            editMessage(message, "Queuing **" + source.title + "**")
+        try {
+            if (source is YouTubeAudio && source.isLive) {
+                if (message != null)
+                    waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: Live Streams are currently not supported!"), 120)
+                return
+            } else if (source is YouTubeAudio && source.isDurationAnHour) {
+                if (message != null)
+                    waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: Video length must be less than 1 hour!"), 120)
+                return
+            } else if (source is SoundCloudAudio) {
+                if (message != null)
+                    waitAndDeleteMessage(editMessage(message, "$user Soundcloud playback is currently disabled."), 120) // TODO fix soundcloud
+                return
+            }
+            player.queue(source.getAudioTrack(user, announce))
+            joinChannel(user, iGuild)
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Queued **" + source.title + "**"), 30)
+            return
+        } catch (e: YouTubeDLException) {
+            e.printStackTrace()
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: An error occurred while downloading the video."), 120)
+            return
+        } catch (e: FFMPEGException) {
+            e.printStackTrace()
+            if (message != null)
+                waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: An error occurred while converting to audio stream"), 120)
+            return
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: MissingPermissionsException) {
+            e.printStackTrace()
+        }
+
+        if (message != null)
+            waitAndDeleteMessage(editMessage(message, user.mention() + " Could not queue **" + source.title + "**: (unknown reason)"), 120)
+        return
+    }
+
+    @Throws(MissingPermissionsException::class)
+    fun joinChannel(user: IUser, guild: IGuild): IVoiceChannel {
+        //setVolume(guilds.getGuildSettings(guild).getVolume(), guild);
+        val channel = guild.connectedVoiceChannel
+        if (channel != null)
+            return channel
+        for (c in guild.voiceChannels)
+            if (user.connectedVoiceChannels.size > 0 && c.id == user.connectedVoiceChannels[0].id) {
+                c.join()
+                return c
+            }
+        guild.voiceChannels[0].join()
+        return guild.voiceChannels[0]
+    }
 }
