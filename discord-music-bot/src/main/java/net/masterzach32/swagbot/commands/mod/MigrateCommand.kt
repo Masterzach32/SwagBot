@@ -48,7 +48,7 @@ class MigrateCommand: Command("Migrate", "migrate", "populate", "m", permission 
                 return MetadataMessageBuilder(channel).withContent("**Make sure the bot is the channel that you want to migrate from!**")
         } else {
             val channels = Utils.delimitWithoutEmpty(Utils.getContent(args, 0), "\\|")
-            if(channels.size > 2)
+            if(channels.size != 2)
                 return getWrongArgumentsMessage(channel, this, cmdUsed)
 
             from = message.guild.getVoiceChannelsByName(channels[0])[0]
