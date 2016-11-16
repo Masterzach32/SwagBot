@@ -60,7 +60,7 @@ class LocalPlaylist {
 
     constructor(json: JSONObject) {
         this.name = json.getString("name")
-        this.isLocked = json.getBoolean("isLocked")
+        this.isLocked = if (json.has("isLocked")) json.getBoolean("isLocked") else false
         this.requiresPerms = json.getBoolean("requiresPerms")
         this.music = ArrayList<AudioSource>()
         for (i in 0..json.getJSONArray("music").length() - 1) {
