@@ -49,7 +49,7 @@ import sx.blah.discord.util.audio.AudioPlayer
 
 import javax.sound.sampled.UnsupportedAudioFileException
 
-data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var maxSkips: Int, var volume: Int, var botLocked: Boolean, var nsfwFilter: Boolean, var announce: Boolean, var changeNick: Boolean, var lastChannel: String?, var queue: MutableList<String>?, val statusListener: StatusListener, val userPerms: MutableList<UserPerms>) {
+data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char, var maxSkips: Int, var volume: Int, var botLocked: Boolean, var nsfwFilter: Boolean, var announce: Boolean, var changeNick: Boolean, var lastChannel: String?, val queue: MutableList<String>, val statusListener: StatusListener, val userPerms: MutableList<UserPerms>) {
 
     @Transient val playlistManager: PlaylistManager
     @Transient private val skipIDs: MutableList<String>
@@ -83,10 +83,10 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
         playlistManager.save()
 
         val tracks = audioPlayer.playlist
-        queue = ArrayList<String>()
-        for (track in tracks)
-            if (track != null)
-                queue!!.add((track as AudioTrack).url)
+        queue.clear()
+        tracks
+                .filterNotNull()
+                .forEach { queue.add((it as AudioTrack).url) }
 
         try {
             val fout = BufferedWriter(FileWriter("$GUILD_SETTINGS${iGuild.id}/$GUILD_JSON"))
@@ -110,7 +110,7 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
                 e.printStackTrace()
             }
         }
-        App.setVolume(App.guilds.getGuildSettings(iGuild).volume.toFloat(), iGuild)
+        audioPlayer.volume = volume.toFloat()
 
         try {
             if (App.client.getVoiceChannelByID(lastChannel) != null && lastChannel != "")
@@ -119,9 +119,9 @@ data class GuildSettings(@Transient val iGuild: IGuild, var commandPrefix: Char,
             e.printStackTrace()
         }
 
-        if (queue != null && queue!!.size > 0) {
+        if (queue.size > 0) {
             var source: AudioSource
-            for (url in queue!!) {
+            for (url in queue) {
                 try {
                     if (url.contains("youtube"))
                         source = YouTubeAudio(url)

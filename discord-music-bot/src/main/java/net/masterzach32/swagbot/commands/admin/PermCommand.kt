@@ -38,17 +38,24 @@ class PermCommand: Command("Change Permissions", "permission", "perm", permissio
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val guild = guilds.getGuildSettings(message.guild)
-        if (args.size < 2 || message.mentions.isEmpty())
-            return getWrongArgumentsMessage(channel, this, cmdUsed)
+        val builder = MetadataMessageBuilder(channel)
         val users = message.mentions
+        message.roleMentions
+                .forEach { message.guild.getUsersByRole(it)
+                        .forEach { users.add(it) }
+                }
+        if (args.size < 2 || users.isEmpty())
+            return getWrongArgumentsMessage(channel, this, cmdUsed)
         val perm = perms.filter { it.name == args[0] }
+        if (users.contains(message.guild.owner) && perm[0].ordinal < Permission.ADMIN.ordinal)
+            return builder.withContent("You can't change the owner's permission level below `ADMIN`").setAutoDelete(30)
         if (perm.isNotEmpty())
             users.forEach { guild.setUserPerms(it, perm[0]) }
         else if (permission == Permission.DEVELOPER && args[0] == Permission.DEVELOPER.name)
             users.forEach { guild.setUserPerms(it, Permission.DEVELOPER) }
         else
             return getWrongArgumentsMessage(channel, this, cmdUsed)
-        return MetadataMessageBuilder(channel).withContent("Set $users permission(s) to ${perm[0]}")
+        return builder.withContent("Set $users permission(s) to `${perm[0]}`")
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {

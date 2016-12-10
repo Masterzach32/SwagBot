@@ -16,30 +16,39 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-package net.masterzach32.swagbot.commands.mod
+package net.masterzach32.swagbot.commands.`fun`
 
-import net.masterzach32.commands4j.*
+import net.masterzach32.commands4j.Command
+import net.masterzach32.commands4j.MetadataMessageBuilder
+import net.masterzach32.commands4j.Permission
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
-import sx.blah.discord.handle.obj.Permissions
-import sx.blah.discord.util.RequestBuffer
 
-class BringCommand: Command("Bring Users", "bring", "here", permission = Permission.MOD) {
+class RockPaperScissorsCommand : Command("Rock Paper Scissors", "rock", "paper", "scissors") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if (!userHasPermission(user, message.guild, Permissions.VOICE_MOVE_MEMBERS))
-            return insufficientPermission(channel, Permissions.VOICE_MOVE_MEMBERS)
-        if(message.author.connectedVoiceChannels.size == 0)
-            return MetadataMessageBuilder(channel).withContent("**You need to be in a voice channel to summon users.**")
-        val vc = message.author.connectedVoiceChannels[0]
-        message.guild.users
-                .filter { it.connectedVoiceChannels.size == 1 }
-                .forEach { RequestBuffer.request { it.moveToVoiceChannel(vc) } }
-        return null
+        val rand: String
+        when ((Math.random() * 3).toInt()) {
+            0 -> rand = "rock"
+            1 -> rand = "paper"
+            else -> rand = "scissors"
+        }
+        val builder = MetadataMessageBuilder(channel)
+        if (rand == cmdUsed)
+            builder.withContent("I choose $rand, its a tie!")
+        else if ((rand == "scissors" && cmdUsed == "paper") || (rand == "paper" && cmdUsed == "rock") || (rand == "rock" && cmdUsed == "scissors"))
+            builder.withContent("I choose $rand, I win!")
+        else
+            builder.withContent("I choose $rand, I loose!")
+        return builder
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Brings all users currently connected to a voice channel to you.")
+        usage.put("", "Play rock paper scissors!")
+        usage.put("rock", "Choose rock.")
+        usage.put("paper", "Choose paper.")
+        usage.put("scissors", "Choose scissors.")
+
     }
 }

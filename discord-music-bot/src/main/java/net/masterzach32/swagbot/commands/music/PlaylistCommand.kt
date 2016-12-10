@@ -50,7 +50,7 @@ class PlaylistCommand: Command("Playlist", "playlist", "plist") {
         if (action == "load" && perms) {
             val msg = MetadataMessageBuilder(channel).withContent("Loading playlists from save...").build()
             manager.load()
-            msg.edit("${user.mention()} Finished loading all playlists.")
+            msg?.edit("${user.mention()} Finished loading all playlists.")
             return null
         } else if (action == "save" && perms) {
             manager.save()

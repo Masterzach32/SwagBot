@@ -18,17 +18,17 @@
 */
 package net.masterzach32.swagbot.commands.mod
 
-import net.masterzach32.commands4j.Command
-import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.getWrongArgumentsMessage
-import net.masterzach32.commands4j.MetadataMessageBuilder
+import net.masterzach32.commands4j.*
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.Permissions
 
 class DisconnectCommand: Command("Disconnect User", "disconnect", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
+        if (!userHasPermission(user, message.guild, Permissions.VOICE_MOVE_MEMBERS))
+            return insufficientPermission(channel, Permissions.VOICE_MOVE_MEMBERS)
         if(message.mentions.size == 0)
             return getWrongArgumentsMessage(channel, this, cmdUsed)
         for(u in message.mentions.filter { it.connectedVoiceChannels.size == 1 })

@@ -71,7 +71,7 @@ class FightCommand(val prefs: BotConfig): Command("Fight", "fight") {
                 var result = prefs.fightSituations[Random().nextInt(prefs.fightSituations.size)]
                 result = result.replace("{killed}", "**${dead.getDisplayName(message.guild)}**")
                 result = result.replace("{killer}", "**${killer.getDisplayName(message.guild)}**")
-                msg.edit(result)
+                msg?.edit(result)
             }
         }
         return MetadataMessageBuilder(channel).withContent("${users[0]} **won the brawl!**")

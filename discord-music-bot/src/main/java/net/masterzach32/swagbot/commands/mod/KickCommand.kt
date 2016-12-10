@@ -18,21 +18,20 @@
 */
 package net.masterzach32.swagbot.commands.mod
 
-import net.masterzach32.commands4j.Command
-import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.MetadataMessageBuilder
+import net.masterzach32.commands4j.*
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.Permissions
+import sx.blah.discord.util.RequestBuffer
 
 class KickCommand: Command("Kick User", "kick", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        for(user in message.mentions) {
-            message.guild.kickUser(user)
-            MetadataMessageBuilder(channel).withContent("Kicked **${user.name}** from this server.").build()
-        }
-        return null
+        if (!userHasPermission(user, message.guild, Permissions.KICK))
+            return insufficientPermission(channel, Permissions.KICK)
+        message.mentions.forEach { RequestBuffer.request { message.guild.kickUser(user) } }
+        return MetadataMessageBuilder(channel).withContent("Kicked ${message.mentions} from **${message.guild}**")
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {

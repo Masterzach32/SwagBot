@@ -24,9 +24,11 @@ import net.masterzach32.commands4j.getBotLockedMessage
 import net.masterzach32.commands4j.getWrongArgumentsMessage
 import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.swagbot.App
+import net.masterzach32.swagbot.music.player.YouTubeAudioProvider
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.util.audio.AudioPlayer
 
 class VolumeCommand: Command("Change Volume", "volume", "v") {
 
@@ -43,7 +45,12 @@ class VolumeCommand: Command("Change Volume", "volume", "v") {
             vol = args[0].toFloat()
             if(vol < 0 || vol > 100)
                 return MetadataMessageBuilder(channel).withContent("Invalid volume level, must be between 0 and 100.")
-            App.setVolume(vol, message.guild)
+            val player = AudioPlayer.getAudioPlayerForGuild(message.guild)
+            guild.volume = vol.toInt()
+            player.volume = vol
+            val provider = player.currentTrack?.provider
+            if (provider is YouTubeAudioProvider)
+                provider.setVolume(vol)
             return MetadataMessageBuilder(channel).withContent("Set volume to **$vol**")
         } catch (e: NumberFormatException) {
             return MetadataMessageBuilder(channel).withContent("Amount must be a number.")

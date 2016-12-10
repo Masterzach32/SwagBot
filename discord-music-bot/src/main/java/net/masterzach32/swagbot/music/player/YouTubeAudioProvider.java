@@ -66,7 +66,7 @@ public class YouTubeAudioProvider implements IAudioProvider, Closeable {
                     e.printStackTrace();
                 }
             }
-        return provider.isReady();
+        return volumeProcessor.isReady();
     }
 
     public byte[] provide() {
@@ -80,7 +80,7 @@ public class YouTubeAudioProvider implements IAudioProvider, Closeable {
                     e.printStackTrace();
                 }
             }
-        return provider.provide();
+        return volumeProcessor.provide();
     }
 
     public int getChannels() {
@@ -92,7 +92,7 @@ public class YouTubeAudioProvider implements IAudioProvider, Closeable {
     }
 
     public void setVolume(float vol) {
-        volumeProcessor.setVolume(vol);
+        volumeProcessor.setVolume(vol/100);
     }
 
     public AudioInputStream getStream() throws IOException, UnsupportedAudioFileException {

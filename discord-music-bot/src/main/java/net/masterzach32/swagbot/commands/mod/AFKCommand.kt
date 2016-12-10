@@ -18,22 +18,21 @@
 */
 package net.masterzach32.swagbot.commands.mod
 
-import net.masterzach32.commands4j.Command
-import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.MetadataMessageBuilder
+import net.masterzach32.commands4j.*
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
 
 class AFKCommand: Command("Mass AFK", "mafk", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        RequestBuffer.request {
-            message.guild.users
+        if (!userHasPermission(user, message.guild, Permissions.VOICE_MOVE_MEMBERS))
+            return insufficientPermission(channel, Permissions.VOICE_MOVE_MEMBERS)
+        message.guild.users
                 .filter { it.connectedVoiceChannels.size == 1 && it != message.client.ourUser }
-                .forEach { it.moveToVoiceChannel(message.guild.afkChannel) }
-        }
+                .forEach { RequestBuffer.request { it.moveToVoiceChannel(message.guild.afkChannel) } }
         return null
     }
 

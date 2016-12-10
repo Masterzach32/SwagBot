@@ -29,6 +29,7 @@ import com.google.gson.GsonBuilder;
 
 public class BotConfig {
 
+	private int shardCount;
 	private String statStorage, discordClientId, discordAuthKey, dbAuthKey, googleAuthKey, shoutCastApiKey, osuApiKey, scClientId, mashapApiKey, se_api_user, se_api_secret;
 	private boolean postBotStats;
 	private String[] fightSituations;
@@ -39,6 +40,7 @@ public class BotConfig {
 	 */
 	public BotConfig() throws IOException {
 		// defaults
+		shardCount = 1;
 		statStorage = ConstantsKt.getSTATS_JSON();
 		discordClientId = "";
 		discordAuthKey = "";
@@ -80,6 +82,7 @@ public class BotConfig {
 
 		String json = new String(buffer);
 		BotConfig file = new Gson().fromJson(json, BotConfig.class);
+		shardCount = file.shardCount;
 		statStorage = file.statStorage;
 		discordClientId = file.discordClientId;
 		discordAuthKey = file.getDiscordAuthKey();
@@ -93,6 +96,10 @@ public class BotConfig {
 		se_api_user = file.se_api_user;
 		se_api_secret = file.se_api_secret;
         fightSituations = file.fightSituations;
+	}
+
+	public int getShardCount() {
+		return shardCount;
 	}
 
 	public String getDiscordClientId() {

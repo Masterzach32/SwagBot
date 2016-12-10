@@ -18,7 +18,6 @@
  */
 package net.masterzach32.swagbot;
 
-import java.io.File;
 import java.io.IOException;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -42,11 +41,9 @@ import com.mashape.unirest.http.Unirest;
 
 import net.masterzach32.swagbot.commands.*;
 import net.masterzach32.swagbot.utils.*;
-import sx.blah.discord.Discord4J;
 import sx.blah.discord.api.*;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.*;
-import sx.blah.discord.util.audio.AudioPlayer;
 
 public class App {
 
@@ -55,19 +52,13 @@ public class App {
     public static IDiscordClient client;
     public static BotConfig prefs;
     public static GuildManager guilds;
-    public static FileManager manager;
     public static CommandManager cmds;
     public static StatManager stats;
 
     public static void main(String[] args) throws DiscordException, IOException, UnirestException, RateLimitException {
         // https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8
         // beta https://discordapp.com/oauth2/authorize?client_id=219554475055120384&scope=bot&permissions=8
-        if (Discord4J.LOGGER instanceof Discord4J.Discord4JLogger) {
-            ((Discord4J.Discord4JLogger) Discord4J.LOGGER).setLevel(Discord4J.Discord4JLogger.Level.INFO);
-        }
 
-        // load all files into bot
-        manager = new FileManager();
         // load bot settings
         prefs = new BotConfig();
         prefs.load();
@@ -76,7 +67,7 @@ public class App {
 
         stats = StatManagerKt.load(prefs.getStatsStorage());
 
-        client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).build();
+        client = new ClientBuilder().withToken(prefs.getDiscordAuthKey()).withShards(prefs.getShardCount()).build();
         client.getDispatcher().registerListener(new EventHandler());
 
         HttpClient httpClient = HttpClients.custom()
@@ -135,7 +126,10 @@ public class App {
                 .add(new UrlShortenCommand())
                 .add(new StatsCommand(stats))
                 .add(new PermCommand())
-                .add(new ClearCommand());
+                .add(new ClearCommand())
+                .add(new InviteCommand())
+                .add(new TrumpQuoteCommand())
+                .add(new RockPaperScissorsCommand());
 
         client.login();
     }
@@ -165,13 +159,6 @@ public class App {
         stop(false);
         new ProcessBuilder("java", "-jar", "-Xmx1G", "update.jar").start();
         System.exit(0);
-    }
-
-    // Change AudioPlayer volume for guild
-    public static void setVolume(float vol, IGuild guild) {
-        AudioPlayer player = AudioPlayer.getAudioPlayerForGuild(guild);
-        guilds.getGuildSettings(guild).setVolume((int) vol);
-        player.setVolume(vol);
     }
 
     public static IMessage sendMessage(String message, IUser user, IChannel channel) {

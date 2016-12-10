@@ -18,10 +18,6 @@
  */
 package net.masterzach32.swagbot.music
 
-import java.io.BufferedWriter
-import java.io.FileWriter
-import java.io.IOException
-import java.io.RandomAccessFile
 import java.net.URLEncoder
 import java.util.ArrayList
 
@@ -32,6 +28,7 @@ import net.masterzach32.swagbot.App
 
 import net.masterzach32.swagbot.utils.GUILD_SETTINGS
 import org.json.JSONException
+import java.io.*
 
 class PlaylistManager(private val guildID: String) {
 
@@ -57,7 +54,7 @@ class PlaylistManager(private val guildID: String) {
 
     fun load() {
         this.playlists.clear()
-        val playlists = App.manager.getFile("$GUILD_SETTINGS$guildID/playlists/").listFiles()
+        val playlists = File("$GUILD_SETTINGS$guildID/playlists/").listFiles()
         for (file in playlists!!) {
             val fin: RandomAccessFile
             var buffer: ByteArray? = null
@@ -81,7 +78,7 @@ class PlaylistManager(private val guildID: String) {
             if(obj != null) {
                 val p = LocalPlaylist(obj)
                 this.playlists.add(p)
-                App.logger.info("loaded:" + file.name)
+                App.logger.debug("loaded:" + file.name)
             }
         }
     }

@@ -18,20 +18,23 @@
 */
 package net.masterzach32.swagbot.commands.mod
 
-import net.masterzach32.commands4j.Command
-import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.MetadataMessageBuilder
+import net.masterzach32.commands4j.*
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.Permissions
+import sx.blah.discord.util.RequestBuffer
 
 class SoftBanCommand: Command("Soft Ban User", "softban", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        for(user in message.mentions) {
-            message.guild.banUser(user, 1)
-            message.guild.pardonUser(user.id)
-            MetadataMessageBuilder(channel).withContent("Soft Banned **${user.name}** from this server.").build()
+        if (!userHasPermission(user, message.guild, Permissions.BAN))
+            return insufficientPermission(channel, Permissions.BAN)
+        message.mentions.forEach {
+            RequestBuffer.request {
+                message.guild.banUser(it, 1)
+                message.guild.pardonUser(it.id)
+            }
         }
         return null
     }

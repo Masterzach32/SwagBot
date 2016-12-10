@@ -18,25 +18,24 @@
 */
 package net.masterzach32.swagbot.commands.mod
 
-import net.masterzach32.commands4j.Command
-import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.getWrongArgumentsMessage
-import net.masterzach32.commands4j.MetadataMessageBuilder
+import net.masterzach32.commands4j.*
 import net.masterzach32.swagbot.utils.Utils
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.Permissions
+import sx.blah.discord.util.RequestBuffer
 
 class PardonCommand: Command("Pardon User", "pardon", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
-        if(args.size == 0)
+        if (!userHasPermission(user, message.guild, Permissions.BAN))
+            return insufficientPermission(channel, Permissions.BAN)
+        if(args.isEmpty())
             return getWrongArgumentsMessage(channel, this, cmdUsed)
-        for(user in channel.guild.bannedUsers)
-            if(user.name == Utils.getContent(args, 0)) {
-                channel.guild.pardonUser(user.id)
-                return MetadataMessageBuilder(channel).withContent("Removed **${user.mention()}**'s ban from this server.")
-            }
+        message.guild.bannedUsers
+                .filter { it.name == Utils.getContent(args, 0) }
+                .forEach { RequestBuffer.request { message.guild.pardonUser(it.id) } }
         return null
     }
 

@@ -65,7 +65,7 @@ class PlayCommand : Command("Play Music", "play", "p") {
                             e.printStackTrace()
                         }
                     }
-                    waitAndDeleteMessage(msg.edit("${user.mention()} Queued playlist ${args[0]}"), 30)
+                    waitAndDeleteMessage(msg?.edit("${user.mention()} Queued playlist ${args[0]}"), 30)
                 } else if (args[0].contains("list=")) {
                     val link = args[0]
                     val parts = link.split("&".toRegex()).dropLastWhile(String::isEmpty).toTypedArray()

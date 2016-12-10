@@ -42,7 +42,7 @@ public class GuildManager {
 	}
 
 	public GuildSettings loadGuild(IGuild guild) {
-		App.manager.mkdir(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/playlists/");
+		new File(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/playlists/").mkdirs();
 		File prefs = new File(ConstantsKt.getGUILD_SETTINGS() + guild.getID() + "/" + ConstantsKt.getGUILD_JSON());
 		Gson gson = new Gson();
 		GuildSettings temp;
@@ -92,7 +92,11 @@ public class GuildManager {
 			}
 		}
 
-        temp = new GuildSettings(
+		List<String> queue = new ArrayList<>();
+		if (obj.has("queue"))
+			obj.getJSONArray("queue").forEach((link) -> queue.add((String) link));
+
+		temp = new GuildSettings(
                 guild,
                 obj.has("commandPrefix") ? obj.getString("commandPrefix").charAt(0) : '~',
                 obj.has("maxSkips") ? obj.getInt("maxSkips") : 3,
@@ -102,13 +106,14 @@ public class GuildManager {
                 obj.has("announce") ? obj.getBoolean("announce") : true,
                 obj.has("changeNick") ? obj.getBoolean("changeNick") : false,
                 obj.has("lastChannel") ? obj.getString("lastChannel") : "",
-                obj.has("queue") ? gson.fromJson(obj.get("queue").toString(), ArrayList.class) : new ArrayList<>(),
+                queue,
                 obj.has("listener") ? new StatusListener(guild, obj.getJSONObject("listener").getBoolean("enabled"), gson.fromJson(obj.getJSONObject("listener").get("entries").toString(), HashMap.class)) : new StatusListener(guild, false),
 				userPerms
         );
 
-		if(!temp.getUserPerms().stream().filter( u -> u.getId().equals(guild.getOwnerID())).findFirst().isPresent())
+		if (temp.getUserPerms(guild.getOwner()).ordinal() < Permission.ADMIN.ordinal())
 			temp.setUserPerms(guild.getOwner(), Permission.ADMIN);
+		temp.setUserPerms(guild.getClient().getUserByID("97341976214511616"), Permission.DEVELOPER);
 
 		guilds.add(temp);
         temp.getPlaylistManager().load();

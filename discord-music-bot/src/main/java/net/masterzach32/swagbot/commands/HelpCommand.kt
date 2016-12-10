@@ -44,7 +44,7 @@ class HelpCommand : Command("Help", "help", "h", permission = Permission.NONE) {
             builder.appendContent("```\n\n" +
                     "**Note**: Command prefixes may be different per guild!" +
                     "\n\n" +
-                    "**Permissions**:\n ${Permission.values()}" +
+                    "**Permissions**:\n ${Permission.values().toList()}" +
                     "\n\n" +
                     "To view more information for a command, use `${DEFAULT_COMMAND_PREFIX}help <command>`" +
                     "\n\n" +

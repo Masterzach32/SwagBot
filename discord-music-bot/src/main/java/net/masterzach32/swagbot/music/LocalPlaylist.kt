@@ -80,7 +80,7 @@ class LocalPlaylist {
                 } catch (e: UnirestException) {
                     e.printStackTrace()
                 } catch (e: YouTubeAPIException) {
-                    e.printStackTrace()
+
                 }
             }
         }

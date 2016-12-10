@@ -18,15 +18,12 @@
 */
 package net.masterzach32.swagbot.commands.mod
 
-import net.masterzach32.commands4j.Command
-import net.masterzach32.commands4j.Permission
-import net.masterzach32.commands4j.getWrongArgumentsMessage
-import net.masterzach32.commands4j.MetadataMessageBuilder
-import net.masterzach32.commands4j.withAutoDeleteMessage
+import net.masterzach32.commands4j.*
 import net.masterzach32.swagbot.App
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.DiscordException
 import sx.blah.discord.util.MissingPermissionsException
 import sx.blah.discord.util.RequestBuffer
@@ -34,6 +31,8 @@ import sx.blah.discord.util.RequestBuffer
 class PruneCommand : Command("Prune", "prune", "purge", permission = Permission.MOD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
+        if (!userHasPermission(user, message.guild, Permissions.MANAGE_MESSAGES))
+            return insufficientPermission(channel, Permissions.MANAGE_MESSAGES)
         if (args.size != 1)
             return getWrongArgumentsMessage(channel, this, cmdUsed)
         val x: Int
@@ -45,7 +44,6 @@ class PruneCommand : Command("Prune", "prune", "purge", permission = Permission.
         if (x < 2 || x > 100)
             return MetadataMessageBuilder(channel).withContent("Invalid amount specified. Must prune between 2-100 messages.")
         val builder = withAutoDeleteMessage(MetadataMessageBuilder(channel).withContent("**Fetching the last $x message(s)...**"), 5)
-        App.logger.info("$builder")
         RequestBuffer.request {
             try {
                 message.delete()
@@ -54,7 +52,7 @@ class PruneCommand : Command("Prune", "prune", "purge", permission = Permission.
                 val deleted = list.deleteFromRange(1, x+1)
                 for (msg in deleted)
                     App.logger.info("deleted: $msg")
-                response.edit("${user.mention()} Removed the last **$x** messages.")
+                response?.edit("${user.mention()} Removed the last **$x** messages.")
             } catch (e: DiscordException) {
                 e.printStackTrace()
             } catch (e: MissingPermissionsException) {

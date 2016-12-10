@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory
 
 import com.mashape.unirest.http.*
 import com.mashape.unirest.http.exceptions.UnirestException
+import net.masterzach32.commands4j.MetadataMessageBuilder
 import net.masterzach32.commands4j.Permission
 import net.masterzach32.commands4j.waitAndDeleteMessage
 import net.masterzach32.swagbot.App.sendMessage
@@ -38,6 +39,7 @@ import sx.blah.discord.handle.impl.events.*
 import sx.blah.discord.handle.obj.*
 import sx.blah.discord.util.*
 import sx.blah.discord.util.audio.events.*
+import java.util.*
 
 import javax.sound.sampled.UnsupportedAudioFileException
 
@@ -49,8 +51,12 @@ class EventHandler {
         App.guilds.loadGuild(event.guild)
         //App.stats.put("Guilds", (App.stats["Guilds"] as Int) + 1)
         RequestBuffer.request {
-            if (event.client.isReady && event.client.isLoggedIn)
-                event.client.changeStatus(Status.game("" + event.client.guilds.size + " servers | ~help"))
+            if (event.client.isReady &&
+                    event.client.isLoggedIn &&
+                    event.client.ourUser.getRolesForGuild(event.guild)
+                            .filter { it.permissions.contains(Permissions.CHANGE_NICKNAME) }
+                            .isNotEmpty())
+            event.client.changeStatus(Status.game("" + event.client.guilds.size + " servers | ~help"))
         }
     }
 
@@ -63,7 +69,7 @@ class EventHandler {
 
     @EventSubscriber
     fun onDiscordDisconnectEvent(event: DisconnectedEvent) {
-        logger.warn("DISCONNECTED FROM DISCORD - ${event.reason}")
+        App.logger.warn("DISCONNECTED FROM DISCORD - ${event.reason}")
         App.guilds.saveGuildSettings()
     }
 
@@ -92,7 +98,7 @@ class EventHandler {
         }
         if (App.prefs.shouldPostBotStats()) {
             val json = Unirest.post("https://bots.discord.pw/api/bots/" + App.prefs.discordClientId + "/stats").header("User-Agent", "SwagBot/1.0 (UltimateDoge)").header("Content-Type", "application/json").header("Authorization", App.prefs.dbAuthKey).body(JSONObject().put("server_count", event.client.guilds.size)).asJson()
-            logger.info(json.body.array.getJSONObject(0).toString())
+            App.logger.info(json.body.array.getJSONObject(0).toString())
         }
     }
 
@@ -101,7 +107,7 @@ class EventHandler {
     fun onMessageEvent(event: MessageReceivedEvent) {
         var message = event.message.content
 
-        if (message.isEmpty() || event.message.author != null && event.message.author.isBot)
+        if (event.message.guild == null || !event.message.shard.isLoggedIn || !event.message.shard.isReady)
             return
 
         if(event.message.channel.isPrivate)
@@ -110,27 +116,43 @@ class EventHandler {
         val g = App.guilds.getGuildSettings(event.message.guild)
 
         if (g.nsfwFilter) {
-            for (a in event.message.attachments)
-                logger.info("attachment: " + a.url + " " + a.filename)
-            for (image in event.message.embedded) {
-                logger.info("embed: " + image.url)
-                if (image.url != null) {
-                    val filter = NSFWFilter(image.url)
-                    if (filter.isNSFW) {
-                        App.client.getOrCreatePMChannel(event.message.author).sendMessage("Your image, `" + filter.url + "` which you posted in **" + event.message.guild.name + "** **" + event.message.channel + "**, was flagged as containing NSFW content, and has been removed. If you believe this is an error, contact the server owner or one of my developers.")
-                        event.message.delete()
-                        //App.stats.put("Pictures Filtered", (App.stats["Pictures Filtered"] as Int) + 1)
-                    } else if (filter.isPartial) {
-                        App.client.getOrCreatePMChannel(event.message.author).sendMessage("Your image, `" + filter.url + "` which you posted in **" + event.message.guild.name + "** **" + event.message.channel + "**, was flagged as containing some or partial NSFW content. Please be aware that NSFW images will be automatically deleted. If you believe this is an error, contact the server owner or one of my developers.")
+            val filters = ArrayList<NSFWFilter>()
+            event.message.attachments
+                    .filter { it.url != null }
+                    .forEach { filters.add(NSFWFilter(it.url)) }
+            event.message.embedded
+                    .filter { it.image?.url != null }
+                    .forEach { filters.add(NSFWFilter(it.image.url)) }
+            filters
+                    .filter { it.isNSFW }
+                    .forEach {
+                        event.message.author.orCreatePMChannel
+                                .sendMessage("Your image, `" + it.url + "` which you posted in **" +
+                                        "" + event.message.guild.name + "** **" + event.message.channel +
+                                        "**, was flagged as containing NSFW content, and has been removed." +
+                                        " If you believe this is an error, contact the server owner or one of my developers.")
+                        if (!event.message.isDeleted)
+                            event.message.delete()
+                        filters.remove(it)
                     }
-                    logger.info("result: nsfw:" + filter.getRaw() + "% partial:" + filter.getPartial() + "% safe:" + filter.getSafe() + "%")
-                }
-            }
+            filters
+                    .filter { it.isPartial }
+                    .forEach {
+                        event.message.author.orCreatePMChannel
+                                .sendMessage("Your image, `" + it.url + "` which you posted in **" +
+                                        "" + event.message.guild.name + "** **" + event.message.channel +
+                                        "**, was flagged as containing some or partial NSFW content. " +
+                                        "Please be aware that NSFW images will be automatically deleted. " +
+                                        "If you believe this is an error, contact the server owner or one of my developers.")
+                    }
         }
 
-        if (event.message.channel.id == "97342233241464832") {
+            if (event.message.channel.id == "97342233241464832") {
             if (!event.message.embedded.isEmpty() || !event.message.attachments.isEmpty() || message.contains("http://") || message.contains("https://")) {
-                waitAndDeleteMessage(sendMessage("please don't post links or attachments in " + event.message.channel.mention(), event.message.author, event.message.channel), 30)
+                MetadataMessageBuilder(event.message.channel)
+                        .withContent("${event.message.author} please don't post links or attachments in ${event.message.channel}")
+                        .setAutoDelete(30)
+                        .build()
                 event.message.delete()
                 return
             }
@@ -148,9 +170,17 @@ class EventHandler {
             val cmd = App.cmds.getCommand(identifier)
             if (cmd != null) {
                 val userPerms = App.guilds.getGuildSettings(event.message.guild).getUserPerms(event.message.author)
-                App.logger.info("Guild: ${event.message.guild.id} Channel: ${event.message.channel.id} User: ${event.message.author.id}:$userPerms Command:{$message}");
-                if (userPerms.ordinal >= cmd.permission.ordinal)
-                    cmd.execute(identifier, params, event.message.author, event.message, event.message.channel, userPerms)?.build()
+                App.logger.info("Shard: ${event.message.shard.info[0]} Guild: ${event.message.guild.id} Channel: ${event.message.channel.id} User: ${event.message.author.id}:$userPerms Command:{$message}")
+                if (userPerms.ordinal >= cmd.permission.ordinal) {
+                    val response = try {
+                        cmd.execute(identifier, params, event.message.author, event.message, event.message.channel, userPerms)
+                    } catch (e: MissingPermissionsException) {
+                        MetadataMessageBuilder(event.message.channel).withContent("I don't have permission to do that: ${e.message}")
+                    } catch (e: Exception) {
+                        MetadataMessageBuilder(event.message.channel).withContent("An error occurred: ${e.cause}")
+                    }
+                    RequestBuffer.request { response?.build() }
+                }
                 //App.stats.put("Commands Received", (App.stats["Commands Received"] as Int) + 1)
             }
         }
@@ -161,16 +191,19 @@ class EventHandler {
     fun onTrackStartEvent(event: TrackStartEvent) {
         try {
             val guild = App.guilds.getGuildSettings(event.player.guild)
-            if ((event.player.currentTrack as AudioTrack).shouldAnnounce() && guild.announce)
-                App.client.getOrCreatePMChannel((event.player.currentTrack as AudioTrack).user).sendMessage("Your song, **" + (event.player.currentTrack as AudioTrack).title + "** is now playing in **" + event.player.guild.name + "!**")
+            val currentTrack = event.player.currentTrack
+            // announce track start
+            if ((currentTrack as AudioTrack).shouldAnnounce() && guild.announce)
+                App.client.getOrCreatePMChannel(currentTrack.user).sendMessage("Your song, **" + currentTrack.title + "** is now playing in **" + event.player.guild.name + "!**")
+            // change nickname
             if (guild.changeNick) {
                 var track: String?
-                if ((event.player.currentTrack as AudioTrack).title.length > 32)
-                    track = (event.player.currentTrack as AudioTrack).title.substring(0, 32)
+                if (currentTrack.title.length > 32)
+                    track = currentTrack.title.substring(0, 32)
                 else
-                    track = (event.player.currentTrack as AudioTrack).title
+                    track = currentTrack.title
                 if (track == null) {
-                    logger.warn("An audio track returned a null value for getTitle() " + event.player.currentTrack.toString())
+                    App.logger.warn("An audio track returned a null value for getTitle() " + currentTrack.toString())
                     track = "SwagBot"
                 }
                 try {
@@ -187,10 +220,12 @@ class EventHandler {
                 } catch (e: NullPointerException) {
                     e.printStackTrace()
                 }
-
             }
+            // set volume
+            if (currentTrack.provider is YouTubeAudioProvider)
+                (currentTrack.provider as YouTubeAudioProvider).setVolume(event.player.volume)
         } catch (e: DiscordException) {
-            logger.warn("Could not send message to " + (event.player.currentTrack as AudioTrack).user.name)
+            App.logger.warn("Could not send message to " + (event.player.currentTrack as AudioTrack).user.name)
         }
 
         App.guilds.getGuildSettings(event.player.guild).resetSkipStats()
@@ -221,9 +256,6 @@ class EventHandler {
 
     @EventSubscriber
     fun onPauseStateChangeEvent(event: PauseStateChangeEvent) {
-    }
 
-    companion object {
-        val logger = LoggerFactory.getLogger(EventHandler::class.java)
     }
 }

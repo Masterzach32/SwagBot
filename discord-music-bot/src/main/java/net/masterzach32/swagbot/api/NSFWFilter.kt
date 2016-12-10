@@ -46,7 +46,7 @@ class NSFWFilter(url: String) {
             val response = Unirest.get("https://api.sightengine.com/1.0/nudity.json?api_user=$api_user&api_secret=$api_secret&url=$url").asJson()
             val result = response.body.array.getJSONObject(0)
             if (result.getString("status") == "failure")
-                EventHandler.logger.info(result.toString())
+                App.logger.info(result.toString())
             else {
                 val nudity = result.getJSONObject("nudity")
                 status = result.getString("status")

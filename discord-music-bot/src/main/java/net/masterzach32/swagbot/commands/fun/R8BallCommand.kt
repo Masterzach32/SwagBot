@@ -29,7 +29,7 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 
-class R8BallCommand: Command("8 Ball", "8ball", "8") {
+class R8BallCommand: Command("8 Ball", "8-ball", "8ball", "8") {
 
     override fun execute(cmdUsed: String, args: Array<String>, user: IUser, message: IMessage, channel: IChannel, permission: Permission): MetadataMessageBuilder? {
         val url = "https://apis.rtainc.co/twitchbot/8ball"
