@@ -1,4 +1,4 @@
-package xyz.swagbot.commands.mods
+package xyz.swagbot.commands.mod
 
 import net.masterzach32.commands4k.*
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent

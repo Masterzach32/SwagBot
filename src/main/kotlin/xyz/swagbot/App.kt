@@ -4,11 +4,10 @@ import com.typesafe.config.ConfigFactory
 import net.masterzach32.commands4k.CommandManager
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
-import xyz.swagbot.commands.HelpCommand
-import xyz.swagbot.commands.PingCommand
-import xyz.swagbot.commands.admin.AutoAssignRoleCommand
-import xyz.swagbot.commands.admin.EditPermissionsCommand
-import xyz.swagbot.commands.mods.MigrateCommand
+import xyz.swagbot.commands.*
+import xyz.swagbot.commands.admin.*
+import xyz.swagbot.commands.mod.*
+import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
 import xyz.swagbot.events.GuildCreateHandler
 import xyz.swagbot.events.MessageHandler
@@ -42,6 +41,7 @@ fun main(args: Array<String>) {
     // normal
     cmds.add(HelpCommand)
     cmds.add(PingCommand)
+    cmds.add(VoiceCommand)
     // mod
     cmds.add(MigrateCommand)
     // admin
