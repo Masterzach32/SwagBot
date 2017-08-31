@@ -46,6 +46,7 @@ fun main(args: Array<String>) {
     cmds.add(MigrateCommand)
     // admin
     cmds.add(AutoAssignRoleCommand)
+    cmds.add(ChangePrefixCommand)
     cmds.add(EditPermissionsCommand)
     // dev
 

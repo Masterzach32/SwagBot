@@ -21,6 +21,10 @@ fun IGuild.getCommandPrefix(): String {
     return get_guild_row(stringID)[sb_guilds.command_prefix]
 }
 
+fun IGuild.setCommandPrefix(prefix: String) {
+    set_command_prefix(this, prefix)
+}
+
 fun IGuild.getBotVolume(): Int {
     return get_guild_row(stringID)[sb_guilds.volume]
 }

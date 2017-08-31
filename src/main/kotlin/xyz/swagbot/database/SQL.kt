@@ -24,6 +24,14 @@ internal fun get_guild_row(id: String): ResultRow {
     return sql { return@sql sb_guilds.select { sb_guilds.id eq id }.first() }
 }
 
+internal fun set_command_prefix(guild: IGuild, prefix: String) {
+    sql {
+        sb_guilds.update({ sb_guilds.id eq guild.stringID }) {
+            it[sb_guilds.command_prefix] = prefix
+        }
+    }
+}
+
 internal fun does_user_have_permission_entry(guild: IGuild, user: IUser): Boolean {
     return sql { return@sql sb_permissions.select { (sb_permissions.guild_id eq guild.stringID) and (sb_permissions.user_id eq user.stringID) }.count() == 1 }
 }
