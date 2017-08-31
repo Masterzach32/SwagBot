@@ -15,7 +15,7 @@ import sx.blah.discord.handle.impl.events.ReadyEvent
  * @author zachk
  * @version 8/24/17
  */
-class ReadyHandler : IListener<ReadyEvent> {
+object ReadyHandler : IListener<ReadyEvent> {
 
     override fun handle(event: ReadyEvent) {
 

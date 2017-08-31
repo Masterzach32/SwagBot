@@ -8,6 +8,7 @@ import org.jetbrains.exposed.sql.Table
 import org.slf4j.LoggerFactory
 import xyz.swagbot.config
 import java.sql.Connection
+import java.util.*
 import java.util.concurrent.Executors
 
 /*
@@ -27,8 +28,12 @@ val logger = LoggerFactory.getLogger("${config.getString("bot.name")} Database")
 
 val sqlPool = Executors.newFixedThreadPool(1)
 
+val lock = Object()
+
 fun <T> sql(sqlcode: Transaction.() -> T): T {
-    return transaction(Connection.TRANSACTION_SERIALIZABLE, 1, sqlcode)
+    synchronized(lock) {
+        return transaction(Connection.TRANSACTION_SERIALIZABLE, 1, sqlcode)
+    }
 }
 
 fun Transaction.create(vararg tables: Table) {

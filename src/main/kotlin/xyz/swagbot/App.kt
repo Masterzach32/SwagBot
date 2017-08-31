@@ -1,12 +1,18 @@
 package xyz.swagbot
 
 import com.typesafe.config.ConfigFactory
+import net.masterzach32.commands4k.CommandManager
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
-import xyz.swagbot.database.getDatabaseConnection
-import xyz.swagbot.database.getKey
+import xyz.swagbot.commands.HelpCommand
+import xyz.swagbot.commands.PingCommand
+import xyz.swagbot.commands.admin.AutoAssignRoleCommand
+import xyz.swagbot.commands.admin.EditPermissionsCommand
+import xyz.swagbot.commands.mods.MigrateCommand
+import xyz.swagbot.database.*
 import xyz.swagbot.events.GuildCreateHandler
 import xyz.swagbot.events.MessageHandler
+import xyz.swagbot.events.NewUserHandler
 import xyz.swagbot.events.ReadyHandler
 
 /*
@@ -25,13 +31,28 @@ import xyz.swagbot.events.ReadyHandler
 val config = ConfigFactory.load()
 val logger = LoggerFactory.getLogger(config.getString("bot.name"))
 
+val cmds = CommandManager()
+
 fun main(args: Array<String>) {
     logger.info("Starting ${config.getString("bot.name")} version ${config.getString("bot.build")}.")
     getDatabaseConnection("storage/storage.db")
 
+    sql{ create(sb_defaults, sb_guilds, sb_permissions) }
+
+    // normal
+    cmds.add(HelpCommand)
+    cmds.add(PingCommand)
+    // mod
+    cmds.add(MigrateCommand)
+    // admin
+    cmds.add(AutoAssignRoleCommand)
+    cmds.add(EditPermissionsCommand)
+    // dev
+
     val client = ClientBuilder().withToken(getKey("discord_bot_token")).build()
-    client.dispatcher.registerListener(GuildCreateHandler())
-    client.dispatcher.registerListener(ReadyHandler())
-    client.dispatcher.registerListener(MessageHandler())
+    client.dispatcher.registerListener(GuildCreateHandler)
+    client.dispatcher.registerListener(ReadyHandler)
+    client.dispatcher.registerListener(MessageHandler)
+    client.dispatcher.registerListener(NewUserHandler)
     client.login()
 }

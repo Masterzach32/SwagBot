@@ -1,8 +1,9 @@
 package xyz.swagbot.database
 
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.select
+import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.obj.IGuild
+import sx.blah.discord.handle.obj.IRole
+import sx.blah.discord.handle.obj.IUser
 
 /*
  * SwagBot - Created on 8/24/17
@@ -16,19 +17,42 @@ import sx.blah.discord.handle.obj.IGuild
  * @author zachk
  * @version 8/24/17
  */
-
 fun IGuild.getCommandPrefix(): String {
-    return getGuildRow(stringID)[sb_guilds.command_prefix]
+    return get_guild_row(stringID)[sb_guilds.command_prefix]
 }
 
 fun IGuild.getBotVolume(): Int {
-    return getGuildRow(stringID)[sb_guilds.volume]
+    return get_guild_row(stringID)[sb_guilds.volume]
 }
 
 fun IGuild.isBotLocked(): Boolean {
-    return getGuildRow(stringID)[sb_guilds.locked]
+    return get_guild_row(stringID)[sb_guilds.locked]
 }
 
-private fun getGuildRow(id: String): ResultRow {
-    return sql { return@sql sb_guilds.select { sb_guilds.id eq id }.first() }
+fun IGuild.getUserPermission(user: IUser): Permission {
+    return when (get_permission_entry(this, user)) {
+        0 -> Permission.NONE
+        1 -> Permission.NORMAL
+        2 -> Permission.MOD
+        3 -> Permission.ADMIN
+        4 -> Permission.DEVELOPER
+        else -> Permission.NORMAL
+    }
+}
+
+fun IGuild.setUserPermission(user: IUser, permission: Permission) {
+    if (permission == Permission.NORMAL)
+        remove_permission_entry(this, user)
+    else if (does_user_have_permission_entry(this, user))
+        update_permission_entry(this, user, permission)
+    else
+        create_permission_entry(this, user, permission)
+}
+
+fun IGuild.setAutoAssignRole(role: IRole?) {
+    set_aar(this, role)
+}
+
+fun IGuild.getAutoAssignRole(): IRole? {
+    return get_aar(this)
 }
