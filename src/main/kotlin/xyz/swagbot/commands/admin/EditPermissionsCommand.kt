@@ -25,7 +25,7 @@ import xyz.swagbot.utils.BLUE
  */
 object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm", "changep", permission = Permission.ADMIN) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder {
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder? {
         val builder = AdvancedMessageBuilder(event.channel)
         val embed = EmbedBuilder().withColor(BLUE)
         val users = event.message.getAllUserMentions()
@@ -33,7 +33,9 @@ object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm"
         if (args.size < 2 || users.isEmpty())
             return getWrongArgumentsMessage(event.channel, this, cmdUsed)
 
-        val permToSet = getPerms().first { it.name == args[0] }
+        val permToSet = Permission.values().firstOrNull { it.name == args[0] }
+        if (permToSet == null || (permToSet == Permission.DEVELOPER && event.guild.getUserPermission(event.author) < Permission.DEVELOPER))
+            return null
 
         users.forEach {
             embed.appendField("${it.name}#${it.discriminator}", "${event.guild.getUserPermission(it)} -> $permToSet", true)
@@ -48,7 +50,7 @@ object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm"
                 "Allowed permission values are ${getPerms()}")
     }
 
-    fun getPerms(): List<Permission> {
+    private fun getPerms(): List<Permission> {
         val tmp = Permission.values().toMutableList()
         tmp.remove(Permission.DEVELOPER)
         return tmp

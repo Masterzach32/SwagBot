@@ -9,7 +9,7 @@ import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.database.isBotLocked
 import xyz.swagbot.utils.RED
-import xyz.swagbot.utils.Utils
+import xyz.swagbot.utils.getContent
 
 /*
  * SwagBot - Created on 8/31/2017
@@ -35,7 +35,7 @@ object VoiceCommand : Command("Join/Leave", "summon", "leave") {
         val vc: IVoiceChannel?
         if (cmdUsed == aliases[0]) {
             if(args.isNotEmpty()) {
-                val vcName = Utils.getContent(args, 0)
+                val vcName = getContent(args, 0)
                 vc = event.guild.getVoiceChannelsByName(vcName).firstOrNull()
                 if (vc == null) {
                     embed.withDesc("No voice channel with the name **$vcName** exists.")

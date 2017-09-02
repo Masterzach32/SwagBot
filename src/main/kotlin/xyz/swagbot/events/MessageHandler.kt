@@ -42,7 +42,9 @@ object MessageHandler : IListener<MessageReceivedEvent> {
             }
         }
 
-        if (event.author.isBot || !event.message.content.startsWith(event.guild.getCommandPrefix()))
+        if (event.author.isBot ||
+                event.channel.isPrivate ||
+                !event.message.content.startsWith(event.guild.getCommandPrefix()))
             return
 
         val identifier: String
@@ -53,10 +55,7 @@ object MessageHandler : IListener<MessageReceivedEvent> {
         params = tmp.copyOfRange(1, tmp.size)
         val command = cmds.getCommand(identifier)
         if (command != null) {
-            val userPerms = if (event.author == event.guild.owner)
-                Permission.ADMIN
-            else
-                event.guild.getUserPermission(event.author)
+            val userPerms = event.guild.getUserPermission(event.author)
             if (userPerms >= command.permission) {
                 logger.debug("Shard: ${event.message.shard.info[0]} Guild: ${event.message.guild.stringID} Channel: ${event.channel.stringID} User: ${event.author.stringID} Command: \"${event.message.content}\"")
                 val embed = EmbedBuilder().withColor(RED)

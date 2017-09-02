@@ -10,7 +10,7 @@ import xyz.swagbot.database.getAutoAssignRole
 import xyz.swagbot.database.setAutoAssignRole
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
-import xyz.swagbot.utils.Utils
+import xyz.swagbot.utils.getContent
 
 /*
  * SwagBot - Created on 8/30/2017
@@ -41,7 +41,7 @@ object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "aa
         }
 
         if (args[0] == "set" && args.size >= 2) {
-            val roleString = Utils.getContent(args, 1)
+            val roleString = getContent(args, 1)
             val role = event.guild.getRolesByName(roleString).firstOrNull()
             if (role == null) {
                 embed.withColor(RED)

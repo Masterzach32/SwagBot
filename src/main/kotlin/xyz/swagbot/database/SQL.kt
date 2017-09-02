@@ -93,9 +93,3 @@ internal fun set_aar(guild: IGuild, role: IRole?) {
         }
     }
 }
-
-internal fun get_aar(guild: IGuild): IRole? {
-    return guild.getRolesByName(sql {
-        return@sql sb_guilds.select { sb_guilds.id eq guild.stringID }.first()[sb_guilds.auto_assign_role]
-    }).firstOrNull()
-}

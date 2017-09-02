@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
 import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
+import xyz.swagbot.commands.dev.ShutdownCommand
 import xyz.swagbot.commands.mod.*
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
@@ -36,7 +37,7 @@ fun main(args: Array<String>) {
     logger.info("Starting ${config.getString("bot.name")} version ${config.getString("bot.build")}.")
     getDatabaseConnection("storage/storage.db")
 
-    sql{ create(sb_defaults, sb_guilds, sb_permissions) }
+    sql { create(sb_defaults, sb_guilds, sb_permissions) }
 
     // normal
     cmds.add(HelpCommand)
@@ -49,6 +50,7 @@ fun main(args: Array<String>) {
     cmds.add(ChangePrefixCommand)
     cmds.add(EditPermissionsCommand)
     // dev
+    cmds.add(ShutdownCommand)
 
     val client = ClientBuilder().withToken(getKey("discord_bot_token")).build()
     client.dispatcher.registerListener(GuildCreateHandler)

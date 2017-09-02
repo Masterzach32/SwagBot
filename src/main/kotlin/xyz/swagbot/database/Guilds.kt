@@ -58,5 +58,5 @@ fun IGuild.setAutoAssignRole(role: IRole?) {
 }
 
 fun IGuild.getAutoAssignRole(): IRole? {
-    return get_aar(this)
+    return getRolesByName(get_guild_row(stringID)[sb_guilds.auto_assign_role]).firstOrNull()
 }

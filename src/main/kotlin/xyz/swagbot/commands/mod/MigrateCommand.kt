@@ -5,7 +5,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
-import xyz.swagbot.utils.Utils
+import xyz.swagbot.utils.delimitWithoutEmpty
+import xyz.swagbot.utils.getContent
 
 /*
  * SwagBot - Created on 8/30/2017
@@ -35,7 +36,7 @@ object MigrateCommand : Command("Migrate", "migrate", "populate", "m", "move", p
             if (from == null)
                 return AdvancedMessageBuilder(event.channel).withContent("**Make sure the bot is the channel that you want to migrate from!**")
         } else {
-            val channels = Utils.delimitWithoutEmpty(Utils.getContent(args, 0), "\\|")
+            val channels = delimitWithoutEmpty(getContent(args, 0), "\\|")
             if (channels.size != 2)
                 return getWrongArgumentsMessage(event.channel, this, cmdUsed)
 
