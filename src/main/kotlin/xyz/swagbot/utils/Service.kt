@@ -1,6 +1,8 @@
 package xyz.swagbot.utils
 
+import com.mashape.unirest.http.Unirest
 import sx.blah.discord.api.IDiscordClient
+import java.io.File
 
 /*
  * SwagBot - Created on 9/1/2017
@@ -18,11 +20,13 @@ internal fun isUpdateAvailable(): Boolean {
     return false
 }
 
-internal fun runUpdater() {
-
+internal fun exitAndUpdate(client: IDiscordClient) {
+    ProcessBuilder("java -jar bin${File.separator}patcher.jar").start()
+    stop(client)
 }
 
 internal fun stop(client: IDiscordClient) {
     client.logout()
+    Unirest.shutdown()
     System.exit(0)
 }

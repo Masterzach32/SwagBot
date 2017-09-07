@@ -44,7 +44,9 @@ fun main(args: Array<String>) {
     cmds.add(PingCommand)
     cmds.add(VoiceCommand)
     // mod
+    cmds.add(BringCommand)
     cmds.add(MigrateCommand)
+    cmds.add(PruneCommand)
     // admin
     cmds.add(AutoAssignRoleCommand)
     cmds.add(ChangePrefixCommand)
