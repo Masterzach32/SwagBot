@@ -28,8 +28,8 @@ import xyz.swagbot.events.ReadyHandler
  * @version 8/22/17
  */
 
-val config = ConfigFactory.load()
-val logger = LoggerFactory.getLogger(config.getString("bot.name"))
+val config = ConfigFactory.load()!!
+val logger = LoggerFactory.getLogger(config.getString("bot.name"))!!
 
 val cmds = CommandManager()
 

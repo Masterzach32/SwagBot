@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.*
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IRole
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.IVoiceChannel
 
 /*
  * SwagBot - Created on 8/29/2017
@@ -90,6 +91,14 @@ internal fun set_aar(guild: IGuild, role: IRole?) {
     sql {
         sb_guilds.update({sb_guilds.id eq guild.stringID}) {
             it[sb_guilds.auto_assign_role] = role?.name
+        }
+    }
+}
+
+internal fun set_last_voice_channel(guild: IGuild, channel: IVoiceChannel?) {
+    sql {
+        sb_guilds.update({sb_guilds.id eq guild.stringID}) {
+            it[sb_guilds.last_voice_channel] = channel?.stringID
         }
     }
 }

@@ -4,6 +4,7 @@ import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IRole
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.IVoiceChannel
 
 /*
  * SwagBot - Created on 8/24/17
@@ -59,4 +60,12 @@ fun IGuild.setAutoAssignRole(role: IRole?) {
 
 fun IGuild.getAutoAssignRole(): IRole? {
     return getRolesByName(get_guild_row(stringID)[sb_guilds.auto_assign_role]).firstOrNull()
+}
+
+fun IGuild.setLastVoiceChannel(channel: IVoiceChannel?) {
+    set_last_voice_channel(this, channel)
+}
+
+fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
+    return getVoiceChannelByID(get_guild_row(stringID)[sb_guilds.last_voice_channel]?.toLong() ?: 0)
 }
