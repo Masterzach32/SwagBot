@@ -37,11 +37,10 @@ fun main(args: Array<String>) {
     logger.info("Starting ${config.getString("bot.name")} version ${config.getString("bot.build")}.")
     getDatabaseConnection("storage/storage.db")
 
-    sql { create(sb_defaults, sb_guilds, sb_permissions) }
-
     // normal
     cmds.add(HelpCommand)
     cmds.add(PingCommand)
+    cmds.add(InviteCommand)
     cmds.add(VoiceCommand)
     // mod
     cmds.add(BringCommand)

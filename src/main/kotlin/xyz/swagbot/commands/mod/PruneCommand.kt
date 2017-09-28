@@ -45,11 +45,11 @@ object PruneCommand : Command("Prune", "prune", "purge", permission = Permission
         val tmp: MutableList<IMessage>
         val history = event.channel.getMessageHistory(x+1)
         if (history.contains(event.message)) {
-            logger.info("command was in history")
+            logger.debug("command was in history")
             tmp = history.toMutableList()
             tmp.remove(event.message)
         } else {
-            logger.info("command was not in history")
+            logger.debug("command was not in history")
             tmp = event.channel.getMessageHistory(x)
         }
         val list = MessageHistory(tmp)
