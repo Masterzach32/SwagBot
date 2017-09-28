@@ -39,9 +39,13 @@ fun main(args: Array<String>) {
 
     // normal
     cmds.add(HelpCommand)
-    cmds.add(PingCommand)
     cmds.add(InviteCommand)
+    cmds.add(LmgtfyCommand)
+    cmds.add(PingCommand)
+    cmds.add(R8BallCommand)
+    cmds.add(RockPaperScissorsCommand)
     cmds.add(VoiceCommand)
+    cmds.add(VolumeCommand)
     // mod
     cmds.add(BringCommand)
     cmds.add(MigrateCommand)
