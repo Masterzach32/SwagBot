@@ -44,6 +44,7 @@ fun main(args: Array<String>) {
     cmds.add(PingCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
+    cmds.add(StrawpollCommand)
     cmds.add(VoiceCommand)
     cmds.add(VolumeCommand)
     // mod

@@ -19,19 +19,23 @@ import sx.blah.discord.handle.obj.IVoiceChannel
  * @version 8/24/17
  */
 fun IGuild.getCommandPrefix(): String {
-    return get_guild_row(stringID)[sb_guilds.command_prefix]
+    return get_guild_cell(stringID, sb_guilds.command_prefix)!!
 }
 
 fun IGuild.setCommandPrefix(prefix: String) {
-    set_command_prefix(this, prefix)
+    update_guild_cell(stringID, sb_guilds.command_prefix, prefix)
 }
 
 fun IGuild.getBotVolume(): Int {
-    return get_guild_row(stringID)[sb_guilds.volume]
+    return get_guild_cell(stringID, sb_guilds.volume)!!
+}
+
+fun IGuild.setBotVolume(volume: Int) {
+    update_guild_cell(stringID, sb_guilds.volume, volume)
 }
 
 fun IGuild.isBotLocked(): Boolean {
-    return get_guild_row(stringID)[sb_guilds.locked]
+    return get_guild_cell(stringID, sb_guilds.locked)!!
 }
 
 fun IGuild.getUserPermission(user: IUser): Permission {
@@ -55,17 +59,17 @@ fun IGuild.setUserPermission(user: IUser, permission: Permission) {
 }
 
 fun IGuild.setAutoAssignRole(role: IRole?) {
-    set_aar(this, role)
+    update_guild_cell(stringID, sb_guilds.auto_assign_role, role?.name)
 }
 
 fun IGuild.getAutoAssignRole(): IRole? {
-    return getRolesByName(get_guild_row(stringID)[sb_guilds.auto_assign_role]).firstOrNull()
+    return getRolesByName(get_guild_cell(stringID, sb_guilds.auto_assign_role)).firstOrNull()
 }
 
 fun IGuild.setLastVoiceChannel(channel: IVoiceChannel?) {
-    set_last_voice_channel(this, channel)
+    update_guild_cell(stringID, sb_guilds.last_voice_channel, channel?.stringID)
 }
 
 fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
-    return getVoiceChannelByID(get_guild_row(stringID)[sb_guilds.last_voice_channel]?.toLong() ?: 0)
+    return getVoiceChannelByID(get_guild_cell(stringID, sb_guilds.last_voice_channel)?.toLong() ?: 0)
 }
