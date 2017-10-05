@@ -41,6 +41,7 @@ fun main(args: Array<String>) {
     cmds.add(HelpCommand)
     cmds.add(InviteCommand)
     cmds.add(LmgtfyCommand)
+    cmds.add(MassAfkCommand)
     cmds.add(PingCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)

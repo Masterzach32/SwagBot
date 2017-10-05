@@ -38,7 +38,6 @@ object HelpCommand : Command("Help", "help", "h") {
             builder = AdvancedMessageBuilder(event.client.getOrCreatePMChannel(event.author))
             embed.withTitle("Help and Info:")
             embed.withDesc("")
-            println(permission)
             var i = 0
             while (i <= permission.ordinal) {
                 var str = ""
