@@ -10,10 +10,7 @@ import xyz.swagbot.commands.dev.ShutdownCommand
 import xyz.swagbot.commands.mod.*
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
-import xyz.swagbot.events.GuildCreateHandler
-import xyz.swagbot.events.MessageHandler
-import xyz.swagbot.events.NewUserHandler
-import xyz.swagbot.events.ReadyHandler
+import xyz.swagbot.events.*
 
 /*
  * SwagBot - Created on 8/22/17
@@ -65,5 +62,8 @@ fun main(args: Array<String>) {
     client.dispatcher.registerListener(ReadyHandler)
     client.dispatcher.registerListener(MessageHandler)
     client.dispatcher.registerListener(NewUserHandler)
+    client.dispatcher.registerListener(UserJoinEvent)
+    client.dispatcher.registerListener(UserLeaveEvent)
+    client.dispatcher.registerListener(UserMovedEvent)
     client.login()
 }

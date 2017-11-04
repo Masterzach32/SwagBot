@@ -49,7 +49,6 @@ object VoiceCommand : Command("Join/Leave", "summon", "leave") {
                     return builder.withEmbed(embed)
                 }
             }
-            event.guild.setLastVoiceChannel(vc)
             vc.join()
         } else {
             vc = event.guild.connectedVoiceChannel
@@ -57,7 +56,6 @@ object VoiceCommand : Command("Join/Leave", "summon", "leave") {
                 embed.withDesc("The bot is not currently in a voice channel.")
                 return builder.withEmbed(embed)
             }
-            event.guild.setLastVoiceChannel(null)
             vc.leave()
         }
         return null

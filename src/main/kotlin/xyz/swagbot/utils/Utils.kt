@@ -54,7 +54,7 @@ fun getContent(args: Array<String>, start: Int): String {
  * @return
  */
 fun delimitWithoutEmpty(content: String, regex: String): Array<String> {
-    var list: List<String> = ArrayList(Arrays.asList(*content.split(regex.toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()))
+    var list: List<String> = content.split(regex.toRegex()).dropLastWhile { it.isEmpty() }
     list = list.map { it.trim({ it <= ' ' }) }.filter { it.isNotEmpty() }
 
     return list.toTypedArray()
