@@ -1,7 +1,9 @@
 package xyz.swagbot
 
 import com.typesafe.config.ConfigFactory
+import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.CommandManager
+import net.masterzach32.commands4k.Permission
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
 import xyz.swagbot.commands.*
@@ -28,14 +30,13 @@ import xyz.swagbot.events.*
 val config = ConfigFactory.load()!!
 val logger = LoggerFactory.getLogger(config.getString("bot.name"))!!
 
-val cmds = CommandManager()
+val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefix") }, { it?.getUserPermission(this) ?: Permission.NORMAL })
 
 fun main(args: Array<String>) {
     logger.info("Starting ${config.getString("bot.name")} version ${config.getString("bot.build")}.")
     getDatabaseConnection("storage/storage.db")
 
     // normal
-    cmds.add(HelpCommand)
     cmds.add(InviteCommand)
     cmds.add(LmgtfyCommand)
     cmds.add(MassAfkCommand)
@@ -58,6 +59,7 @@ fun main(args: Array<String>) {
     cmds.add(ShutdownCommand)
 
     val client = ClientBuilder().withToken(getKey("discord_bot_token")).build()
+    client.dispatcher.registerListener(cmds)
     client.dispatcher.registerListener(GuildCreateHandler)
     client.dispatcher.registerListener(ReadyHandler)
     client.dispatcher.registerListener(MessageHandler)

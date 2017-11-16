@@ -7,10 +7,11 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.utils.BLUE
 
-object InviteCommand : Command("Invite SwagBot", "invite", permission = Permission.NONE) {
+object InviteCommand : Command("Invite SwagBot", "invite", usedInPrivate = true, botPerm = Permission.NONE) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder {
-        val builder = AdvancedMessageBuilder(event.channel)
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
+
         val embed = EmbedBuilder()
                 .withColor(BLUE)
                 .withTitle("Click this link to add SwagBot to your server!")

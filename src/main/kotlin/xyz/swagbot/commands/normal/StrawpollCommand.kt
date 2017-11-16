@@ -6,17 +6,22 @@ import org.json.JSONArray
 import org.json.JSONObject
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.commands.Type
+import xyz.swagbot.commands.getApiErrorMessage
+import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.delimitWithoutEmpty
 import xyz.swagbot.utils.getContent
 import java.util.*
 
-object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll") {
+object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll", usedInPrivate = true) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder {
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
+
         val choices = delimitWithoutEmpty(getContent(args, 0), "\\|")
         if (choices.size < 3 || choices.size > 31)
-            return getWrongArgumentsMessage(event.channel, this, cmdUsed)
+            return getWrongArgumentsMessage(builder, this, cmdUsed)
         choices.forEach { it.trim().replace("\n", "") }
 
         val body = JSONObject()
@@ -32,7 +37,8 @@ object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll") {
                 .asJson()
 
         if (response.status != 200)
-            return getApiErrorMessage(event.channel, Type.POST, pollUrl, body.toString(2), response.status, response.statusText)
+            return getApiErrorMessage(builder, Type.POST, pollUrl, body.toString(2), response.status,
+                    response.statusText)
 
         val json = response.body.`object`
         val id = json.getInt("id")
@@ -43,7 +49,7 @@ object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll") {
                 .withFooterText("Strawpoll by ${event.author.getDisplayName(event.guild)}")
                 .withFooterIcon(event.author.avatarURL)
         choices.drop(1).forEach { embed.appendDesc(":ballot_box_with_check: $it\n") }
-        return AdvancedMessageBuilder(event.channel).withEmbed(embed)
+        return builder.withEmbed(embed)
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {

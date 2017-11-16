@@ -3,9 +3,10 @@ package xyz.swagbot.commands.admin
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.Permission
-import net.masterzach32.commands4k.getWrongArgumentsMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAutoAssignRole
 import xyz.swagbot.database.setAutoAssignRole
 import xyz.swagbot.utils.BLUE
@@ -24,10 +25,11 @@ import xyz.swagbot.utils.getContent
  * @author Zach Kozar
  * @version 8/30/2017
  */
-object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "aar", permission = Permission.ADMIN) {
+object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "aar", botPerm = Permission.ADMIN,
+        discordPerms = listOf(Permissions.MANAGE_ROLES)) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder {
-        val builder = AdvancedMessageBuilder(event.channel)
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         val embed = EmbedBuilder().withColor(BLUE)
 
         if (args.isEmpty()) {
@@ -54,7 +56,7 @@ object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "aa
             event.guild.setAutoAssignRole(null)
             embed.withDesc("New users will no longer be automatically assigned a role.")
         } else
-            return getWrongArgumentsMessage(event.channel, this, cmdUsed)
+            return getWrongArgumentsMessage(builder, this, cmdUsed)
 
         return builder.withEmbed(embed)
     }

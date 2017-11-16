@@ -5,6 +5,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.utils.delimitWithoutEmpty
 import xyz.swagbot.utils.getContent
 
@@ -20,31 +21,31 @@ import xyz.swagbot.utils.getContent
  * @author Zach Kozar
  * @version 8/30/2017
  */
-object MigrateCommand : Command("Migrate", "migrate", "populate", "m", "move", permission = Permission.MOD) {
+object MigrateCommand : Command("Migrate", "migrate", "populate", "m", "move", botPerm = Permission.MOD,
+        discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder? {
-        if (!userHasPermission(event.author, event.guild, Permissions.VOICE_MOVE_MEMBERS))
-            return insufficientPermission(event.channel, Permissions.VOICE_MOVE_MEMBERS)
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         val from: IVoiceChannel?
         val to: IVoiceChannel?
         if (args.isEmpty()) {
             to = event.author.getVoiceStateForGuild(event.guild).channel
             if (to == null)
-                return AdvancedMessageBuilder(event.channel).withContent("**Make sure you are in the channel you want to populate!**")
+                return builder.withContent("**Make sure you are in the channel you want to populate!**")
 
             from = event.client.ourUser.getVoiceStateForGuild(event.guild).channel
             if (from == null)
-                return AdvancedMessageBuilder(event.channel).withContent("**Make sure the bot is the channel that you want to migrate from!**")
+                return builder.withContent("**Make sure the bot is the channel that you want to migrate from!**")
         } else {
             val channels = delimitWithoutEmpty(getContent(args, 0), "\\|")
             if (channels.size != 2)
-                return getWrongArgumentsMessage(event.channel, this, cmdUsed)
+                return getWrongArgumentsMessage(builder, this, cmdUsed)
 
-            from = event.guild.getVoiceChannelsByName(channels[0])[0]
-            to = event.guild.getVoiceChannelsByName(channels[1])[0]
+            from = event.guild.getVoiceChannelsByName(channels[0]).firstOrNull()
+            to = event.guild.getVoiceChannelsByName(channels[1]).firstOrNull()
 
             if (from == null || to == null)
-                return getWrongArgumentsMessage(event.channel, this, cmdUsed)
+                return getWrongArgumentsMessage(builder, this, cmdUsed)
         }
         from.connectedUsers.forEach { RequestBuffer.request { it.moveToVoiceChannel(to) } }
         return null

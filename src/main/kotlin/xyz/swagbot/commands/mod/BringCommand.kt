@@ -17,13 +17,13 @@ import sx.blah.discord.util.RequestBuffer
  * @author Zach Kozar
  * @version 9/2/2017
  */
-object BringCommand: Command("Bring Users", "bring", "here", permission = Permission.MOD) {
+object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permission.MOD,
+        discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder? {
-        if (!userHasPermission(event.author, event.guild, Permissions.VOICE_MOVE_MEMBERS))
-            return insufficientPermission(event.channel, Permissions.VOICE_MOVE_MEMBERS)
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if(event.author.getVoiceStateForGuild(event.guild).channel == null)
-            return AdvancedMessageBuilder(event.channel).withContent("**You need to be in a voice channel to summon users.**")
+            return builder.withContent("**You need to be in a voice channel to summon users.**")
         val vc = event.author.getVoiceStateForGuild(event.guild).channel
         event.guild.users
                 .filter { it.getVoiceStateForGuild(event.guild).channel != null }

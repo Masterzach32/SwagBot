@@ -5,15 +5,19 @@ import net.masterzach32.commands4k.*
 import org.json.JSONObject
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.commands.Type
+import xyz.swagbot.commands.getApiErrorMessage
+import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getKey
 import xyz.swagbot.utils.BLUE
 
-object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl") {
+object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl", usedInPrivate = true) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder? {
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (args.isEmpty())
-            return getWrongArgumentsMessage(event.channel, this, cmdUsed)
-        val builder = AdvancedMessageBuilder(event.channel)
+            return getWrongArgumentsMessage(builder, this, cmdUsed)
+
         val embed = EmbedBuilder().withColor(BLUE)
         val url = args[0]
 
@@ -26,14 +30,14 @@ object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl") {
                 val response = Unirest.post(post).header("Content-Type", "application/json").body(obj.toString()).asJson()
 
                 if (response.status != 200)
-                    return getApiErrorMessage(event.channel, Type.POST, post, obj.toString(2), response.status, response.statusText)
+                    return getApiErrorMessage(builder, Type.POST, post, obj.toString(2), response.status, response.statusText)
                 return builder.withEmbed(embed.withDesc(response.body.`object`.getString("id")))
             }
             "tinyurl" -> {
                 val post = "http://tinyurl.com/api-create.php?url=$url"
                 val response = Unirest.get(post).asString()
                 if (response.status != 200)
-                    return getApiErrorMessage(event.channel, Type.GET, post, response.body, response.status, response.statusText)
+                    return getApiErrorMessage(builder, Type.GET, post, response.body, response.status, response.statusText)
                 return builder.withEmbed(embed.withDesc(response.body))
             }
             else -> {

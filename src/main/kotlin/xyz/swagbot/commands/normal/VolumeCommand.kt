@@ -4,6 +4,8 @@ import net.masterzach32.commands4k.*
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageBuilder
+import xyz.swagbot.commands.getBotLockedMessage
+import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getBotVolume
 import xyz.swagbot.database.isBotLocked
 import xyz.swagbot.database.setBotVolume
@@ -12,13 +14,13 @@ import xyz.swagbot.utils.RED
 
 object VolumeCommand : Command("Change Volume", "volume", "v") {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): MessageBuilder? {
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
-            return getBotLockedMessage(event.channel)
+            return getBotLockedMessage(builder)
         if(args.size > 1)
-            return getWrongArgumentsMessage(event.channel, this, cmdUsed)
+            return getWrongArgumentsMessage(builder, this, cmdUsed)
 
-        val builder = AdvancedMessageBuilder(event.channel)
         val embed = EmbedBuilder().withColor(BLUE)
         val volume: Int
         if (args.isEmpty())

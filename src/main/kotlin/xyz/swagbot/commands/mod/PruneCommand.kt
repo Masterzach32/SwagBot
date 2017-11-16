@@ -7,6 +7,7 @@ import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageHistory
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -23,15 +24,14 @@ import xyz.swagbot.utils.RED
  * @author Zach Kozar
  * @version 9/2/2017
  */
-object PruneCommand : Command("Prune", "prune", "purge", permission = Permission.MOD) {
+object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MOD,
+        discordPerms = listOf(Permissions.MANAGE_MESSAGES)) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder? {
-        if (!userHasPermission(event.author, event.guild, Permissions.MANAGE_MESSAGES))
-            return insufficientPermission(event.channel, Permissions.MANAGE_MESSAGES)
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (args.size != 1)
-            return getWrongArgumentsMessage(event.channel, this, cmdUsed)
+            return getWrongArgumentsMessage(builder, this, cmdUsed)
 
-        val builder = AdvancedMessageBuilder(event.channel)
         val embed = EmbedBuilder().withColor(RED).withDesc("Invalid amount specified. Must prune between 2-100 messages.")
         val x: Int
         try {

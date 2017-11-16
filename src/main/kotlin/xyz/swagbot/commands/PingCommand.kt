@@ -2,7 +2,6 @@ package xyz.swagbot.commands
 
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
-import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
 /*
@@ -17,10 +16,11 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
  * @author Zach Kozar
  * @version 8/26/2017
  */
-object PingCommand : Command("Ping", "ping") {
+object PingCommand : Command("Ping", "ping", usedInPrivate = true) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder {
-        return AdvancedMessageBuilder(event.channel).withContent("Pong!")
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
+        return builder.withContent("Pong!")
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {

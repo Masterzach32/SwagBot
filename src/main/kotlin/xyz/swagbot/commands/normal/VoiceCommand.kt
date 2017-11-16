@@ -2,13 +2,11 @@ package xyz.swagbot.commands.normal
 
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
-import net.masterzach32.commands4k.Permission
-import net.masterzach32.commands4k.getBotLockedMessage
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.database.isBotLocked
-import xyz.swagbot.database.setLastVoiceChannel
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
 
@@ -26,11 +24,11 @@ import xyz.swagbot.utils.getContent
  */
 object VoiceCommand : Command("Join/Leave", "summon", "leave") {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder? {
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (event.guild.isBotLocked())
-            return getBotLockedMessage(event.channel)
+            return getBotLockedMessage(builder)
 
-        val builder = AdvancedMessageBuilder(event.channel)
         val embed = EmbedBuilder().withColor(RED)
 
         val vc: IVoiceChannel?

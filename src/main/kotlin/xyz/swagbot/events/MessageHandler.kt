@@ -41,47 +41,5 @@ object MessageHandler : IListener<MessageReceivedEvent> {
                 return
             }
         }
-
-        if (event.author.isBot ||
-                event.channel.isPrivate ||
-                !event.message.content.startsWith(event.guild.getCommandPrefix()))
-            return
-
-        val identifier: String
-        val params: Array<String>
-
-        val tmp = event.message.content.substring(1).split(" ").toTypedArray()
-        identifier = tmp[0]
-        params = tmp.copyOfRange(1, tmp.size)
-        val command = cmds.getCommand(identifier)
-        if (command != null) {
-            val userPerms = event.guild.getUserPermission(event.author)
-            if (userPerms >= command.permission) {
-                logger.debug("Shard: ${event.message.shard.info[0]} Guild: ${event.message.guild.stringID} Channel: ${event.channel.stringID} User: ${event.author.stringID} Command: \"${event.message.content}\"")
-                val embed = EmbedBuilder().withColor(RED)
-                val response = try {
-                    command.execute(identifier, params, event, userPerms)
-                } catch (e: MissingPermissionsException) {
-                    embed.withTitle("Missing Permissions!")
-                    embed.withDesc("I need the Discord permission ${e.message} to use that command!")
-                    AdvancedMessageBuilder(event.message.channel).withEmbed(embed)
-                } catch (t: Throwable) {
-                    t.printStackTrace()
-                    embed.withTitle("An error occurred while executing that command!")
-                    var str = "${t.javaClass.name}: ${t.message}\n"
-                    var i = 0
-                    while (i < t.stackTrace.size && i < 6) {
-                        str += "\tat ${t.stackTrace[i]}\n"
-                        i++
-                    }
-                    if (t.stackTrace.size > 6)
-                        str += "\t+ ${t.stackTrace.size-6} more"
-                    embed.withDesc(str)
-                    AdvancedMessageBuilder(event.message.channel).withEmbed(embed)
-                }
-                RequestBuffer.request { response?.build() }
-            }
-        }
-
     }
 }

@@ -19,9 +19,11 @@ import xyz.swagbot.utils.stop
  * @author Zach Kozar
  * @version 9/1/2017
  */
-object ShutdownCommand : Command("Shutdown", "shutdown", "stop", hidden = true, permission = Permission.DEVELOPER) {
+object ShutdownCommand : Command("Shutdown", "shutdown", "stop", hidden = true, usedInPrivate = true,
+        botPerm = Permission.DEVELOPER) {
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, permission: Permission): AdvancedMessageBuilder? {
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         logger.info("Shutting down")
         stop(event.client)
         return null
