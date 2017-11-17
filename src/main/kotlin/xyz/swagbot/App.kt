@@ -30,7 +30,9 @@ import xyz.swagbot.events.*
 val config = ConfigFactory.load()!!
 val logger = LoggerFactory.getLogger(config.getString("bot.name"))!!
 
-val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefix") }, { it?.getUserPermission(this) ?: Permission.NORMAL })
+val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefix") },
+        { it?.getUserPermission(this) ?: Permission.NORMAL },
+        { _, _ -> })
 
 fun main(args: Array<String>) {
     logger.info("Starting ${config.getString("bot.name")} version ${config.getString("bot.build")}.")

@@ -16,7 +16,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
  * @author Zach Kozar
  * @version 8/26/2017
  */
-object PingCommand : Command("Ping", "ping", usedInPrivate = true) {
+object PingCommand : Command("Ping", "ping") {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {

@@ -17,7 +17,7 @@ import sx.blah.discord.util.RequestBuffer
  * @author Zach Kozar
  * @version 9/2/2017
  */
-object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permission.MOD,
+object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permission.MOD, scope = Command.Scope.GUILD,
         discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,

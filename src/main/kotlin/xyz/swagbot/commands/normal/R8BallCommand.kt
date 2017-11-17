@@ -3,7 +3,7 @@ package xyz.swagbot.commands.normal
 import net.masterzach32.commands4k.*
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object R8BallCommand : Command("8 Ball", "8-ball", "8ball", "8", usedInPrivate = true) {
+object R8BallCommand : Command("8 Ball", "8-ball", "8ball", "8") {
 
     private val responses = listOf(
             "It is certain", "It is decidedly so", "Without a doubt", "Yes definitely", "You may rely on it",

@@ -24,7 +24,7 @@ import xyz.swagbot.utils.BLUE
  * @version 8/27/2017
  */
 object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm", "changep",
-        botPerm = Permission.ADMIN) {
+        scope = Command.Scope.GUILD, botPerm = Permission.ADMIN) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {

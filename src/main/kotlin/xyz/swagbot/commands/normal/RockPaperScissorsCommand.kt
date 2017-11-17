@@ -4,7 +4,7 @@ import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 
-object RockPaperScissorsCommand : Command("Rock Paper Scissors", "rock", "paper", "scissors", usedInPrivate = true) {
+object RockPaperScissorsCommand : Command("Rock Paper Scissors", "rock", "paper", "scissors") {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {

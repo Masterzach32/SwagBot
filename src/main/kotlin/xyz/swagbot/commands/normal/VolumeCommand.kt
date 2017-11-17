@@ -3,7 +3,6 @@ package xyz.swagbot.commands.normal
 import net.masterzach32.commands4k.*
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
-import sx.blah.discord.util.MessageBuilder
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getBotVolume
@@ -12,7 +11,7 @@ import xyz.swagbot.database.setBotVolume
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
-object VolumeCommand : Command("Change Volume", "volume", "v") {
+object VolumeCommand : Command("Change Volume", "volume", "v", scope = Command.Scope.GUILD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {

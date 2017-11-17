@@ -19,7 +19,7 @@ import xyz.swagbot.utils.stop
  * @author Zach Kozar
  * @version 9/1/2017
  */
-object ShutdownCommand : Command("Shutdown", "shutdown", "stop", hidden = true, usedInPrivate = true,
+object ShutdownCommand : Command("Shutdown", "shutdown", "stop", hidden = true, scope = Command.Scope.ALL,
         botPerm = Permission.DEVELOPER) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,

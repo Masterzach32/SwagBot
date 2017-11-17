@@ -7,7 +7,7 @@ import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.utils.getContent
 import java.net.URLEncoder
 
-object LmgtfyCommand : Command("Let Me Google that for You", "lmgtfy", "google", usedInPrivate = true) {
+object LmgtfyCommand : Command("Let Me Google that for You", "lmgtfy", "google") {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {

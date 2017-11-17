@@ -22,7 +22,7 @@ import xyz.swagbot.utils.getContent
  * @version 8/30/2017
  */
 object MigrateCommand : Command("Migrate", "migrate", "populate", "m", "move", botPerm = Permission.MOD,
-        discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
+        scope = Command.Scope.GUILD, discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {

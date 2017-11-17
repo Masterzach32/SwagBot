@@ -7,7 +7,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.utils.BLUE
 
-object InviteCommand : Command("Invite SwagBot", "invite", usedInPrivate = true, botPerm = Permission.NONE) {
+object InviteCommand : Command("Invite SwagBot", "invite", botPerm = Permission.NONE) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {

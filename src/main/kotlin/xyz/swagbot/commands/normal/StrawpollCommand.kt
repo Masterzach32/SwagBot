@@ -14,7 +14,7 @@ import xyz.swagbot.utils.delimitWithoutEmpty
 import xyz.swagbot.utils.getContent
 import java.util.*
 
-object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll", usedInPrivate = true) {
+object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll") {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {

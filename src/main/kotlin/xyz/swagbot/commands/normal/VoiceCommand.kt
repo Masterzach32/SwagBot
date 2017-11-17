@@ -22,7 +22,7 @@ import xyz.swagbot.utils.getContent
  * @author Zach Kozar
  * @version 8/31/2017
  */
-object VoiceCommand : Command("Join/Leave", "summon", "leave") {
+object VoiceCommand : Command("Join/Leave", "summon", "leave", scope = Command.Scope.GUILD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {

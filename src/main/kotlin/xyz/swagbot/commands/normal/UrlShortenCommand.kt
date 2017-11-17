@@ -11,7 +11,7 @@ import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getKey
 import xyz.swagbot.utils.BLUE
 
-object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl", usedInPrivate = true) {
+object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl") {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {

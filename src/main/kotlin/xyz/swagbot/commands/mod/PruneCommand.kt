@@ -24,7 +24,7 @@ import xyz.swagbot.utils.RED
  * @author Zach Kozar
  * @version 9/2/2017
  */
-object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MOD,
+object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MOD, scope = Command.Scope.GUILD,
         discordPerms = listOf(Permissions.MANAGE_MESSAGES)) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
