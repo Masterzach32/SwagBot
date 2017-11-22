@@ -40,3 +40,9 @@ object sb_permissions : Table() {
     val user_id = text("user_id")
     val permission = integer("permission")
 }
+
+
+object sb_game_brawl : Table() {
+    val id = integer("id")
+    val death_message = text("response")
+}

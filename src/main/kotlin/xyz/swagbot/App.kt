@@ -39,6 +39,9 @@ fun main(args: Array<String>) {
     getDatabaseConnection("storage/storage.db")
 
     // normal
+    cmds.add(CatCommand)
+    cmds.add(GameCommand)
+    cmds.add(JoinCommand)
     cmds.add(InviteCommand)
     cmds.add(LmgtfyCommand)
     cmds.add(MassAfkCommand)

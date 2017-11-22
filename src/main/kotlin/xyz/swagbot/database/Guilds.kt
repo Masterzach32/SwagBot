@@ -10,7 +10,7 @@ import sx.blah.discord.handle.obj.IVoiceChannel
  * SwagBot - Created on 8/24/17
  * Author: zachk
  * 
- * This code is licensed under the GNU GPL v3
+ * stringID code is licensed under the GNU GPL v3
  * You can find more info in the LICENSE file at the project root.
  */
 
@@ -39,7 +39,7 @@ fun IGuild.isBotLocked(): Boolean {
 }
 
 fun IGuild.getUserPermission(user: IUser): Permission {
-    return when (get_permission_entry(this, user)) {
+    return when (get_permission_entry(stringID, user.stringID)) {
         0 -> Permission.NONE
         1 -> Permission.NORMAL
         2 -> Permission.MOD
@@ -51,11 +51,11 @@ fun IGuild.getUserPermission(user: IUser): Permission {
 
 fun IGuild.setUserPermission(user: IUser, permission: Permission) {
     if (permission == Permission.NORMAL)
-        remove_permission_entry(this, user)
-    else if (does_user_have_permission_entry(this, user))
-        update_permission_entry(this, user, permission)
+        remove_permission_entry(stringID, user.stringID)
+    else if (does_user_have_permission_entry(stringID, user.stringID))
+        update_permission_entry(stringID, user.stringID, permission.ordinal)
     else
-        create_permission_entry(this, user, permission)
+        create_permission_entry(stringID, user.stringID, permission.ordinal)
 }
 
 fun IGuild.setAutoAssignRole(role: IRole?) {
