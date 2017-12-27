@@ -18,6 +18,7 @@ object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl") {
         if (args.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
 
+        event.channel.toggleTypingStatus()
         val embed = EmbedBuilder().withColor(BLUE)
         val url = args[0]
 
@@ -28,7 +29,6 @@ object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl") {
                 obj.put("longUrl", url)
 
                 val response = Unirest.post(post).header("Content-Type", "application/json").body(obj.toString()).asJson()
-
                 if (response.status != 200)
                     return getApiErrorMessage(builder, Type.POST, post, obj.toString(2), response.status, response.statusText)
                 return builder.withEmbed(embed.withDesc(response.body.`object`.getString("id")))

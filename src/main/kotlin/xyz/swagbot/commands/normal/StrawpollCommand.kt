@@ -19,6 +19,7 @@ object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll") {
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
 
+        event.channel.toggleTypingStatus()
         val choices = delimitWithoutEmpty(getContent(args, 0), "\\|")
         if (choices.size < 3 || choices.size > 31)
             return getWrongArgumentsMessage(builder, this, cmdUsed)

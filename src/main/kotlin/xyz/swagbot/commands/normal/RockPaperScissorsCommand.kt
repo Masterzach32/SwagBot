@@ -8,7 +8,8 @@ object RockPaperScissorsCommand : Command("Rock Paper Scissors", "rock", "paper"
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-
+        event.channel.toggleTypingStatus()
+        Thread.sleep(1000)
         val rand = when ((Math.random() * 3).toInt()) {
             0 -> "rock"
             1 -> "paper"

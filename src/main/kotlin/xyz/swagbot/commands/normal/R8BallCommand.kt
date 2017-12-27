@@ -14,9 +14,12 @@ object R8BallCommand : Command("8 Ball", "8-ball", "8ball", "8") {
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (args.isEmpty())
-            builder.withContent("Ask the 8-ball a question!")
-        else
-            builder.withContent(responses[(Math.random()*responses.size).toInt()] + ".")
+            builder.withContent("You forgot to ask the 8-ball a question!")
+        else {
+            event.channel.toggleTypingStatus()
+            Thread.sleep(1000)
+            builder.withContent(responses[(Math.random() * responses.size).toInt()] + ".")
+        }
         return builder
     }
 

@@ -6,6 +6,7 @@ import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import xyz.swagbot.commands.Type
 import xyz.swagbot.commands.getApiErrorMessage
+import java.net.URL
 
 /*
  * SwagBot - Created on 11/17/2017
@@ -23,12 +24,13 @@ object CatCommand : Command("Random Cat Picture", "cat") {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-
+        event.channel.toggleTypingStatus()
         val url = "http://random.cat/meow"
         val response = Unirest.get(url).asJson()
         if (response.status != 200)
             return getApiErrorMessage(builder, Type.GET, url, "none", response.status, response.statusText)
-        return builder.withContent(response.body.`object`.getString("file"))
+        return builder.withFile(URL(response.body.`object`.getString("file")).openStream(),
+                response.body.`object`.getString("file")) as AdvancedMessageBuilder
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
