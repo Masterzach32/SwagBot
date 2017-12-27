@@ -17,6 +17,13 @@ import sx.blah.discord.handle.obj.IGuild
  * @author Zach Kozar
  * @version 8/29/2017
  */
+internal fun create_table(table: Table) {
+    sql {
+        create(table)
+        commit()
+    }
+}
+
 internal fun create_guild_entry(guild: IGuild) {
     sql {
         sb_guilds.insert {
@@ -47,6 +54,7 @@ internal fun <T> update_guild_cell(id: String, column: Column<T>, value: T?) {
         sb_guilds.update({sb_guilds.id eq id}) {
             it[column] = value
         }
+        commit()
     }
 }
 

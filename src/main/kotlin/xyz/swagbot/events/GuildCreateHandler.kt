@@ -19,7 +19,7 @@ import xyz.swagbot.database.*
 object GuildCreateHandler : IListener<GuildCreateEvent> {
 
     override fun handle(event: GuildCreateEvent) {
-        if (does_guild_entry_exist(event.guild.stringID)) {
+        if (!does_guild_entry_exist(event.guild.stringID)) {
             xyz.swagbot.database.logger.info("Adding new guild to database: ${event.guild.stringID}")
             create_guild_entry(event.guild)
         }

@@ -17,8 +17,13 @@ import org.jetbrains.exposed.sql.select
 
 fun getKey(api_name: String): String {
     return sql {
-        return@sql sb_api_keys
-            .select { sb_api_keys.api_name eq api_name }
-            .first()[sb_api_keys.api_key]
+        val key = sb_api_keys.select { sb_api_keys.api_name eq api_name }.firstOrNull()
+        if (key != null)
+            return@sql key[sb_api_keys.api_key]
+        else
+            throw MissingApiKeyException(api_name)
     }
 }
+
+class MissingApiKeyException(api: String) :
+        Throwable("Missing api key from database: $api. Have you set up the bot's api token in the sql database?")

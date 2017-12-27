@@ -41,6 +41,16 @@ object sb_permissions : Table() {
     val permission = integer("permission")
 }
 
+object sb_stats : Table() {
+    val key = text("key")
+    val value = text("value")
+}
+
+object sb_chat_channels : Table() {
+    val guild_id = text("guild_id")
+    val channel_id = text("channel_id")
+    val user_id = text("user_id")
+}
 
 object sb_game_brawl : Table() {
     val id = integer("id")

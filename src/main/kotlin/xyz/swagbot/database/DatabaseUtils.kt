@@ -45,6 +45,10 @@ fun getDatabaseConnection(url: String) {
     for (i in 2 downTo 0) {
         try {
             Database.connect("jdbc:sqlite:$url", "org.sqlite.JDBC")
+
+            // make sure tables are initialized
+            sql { create(sb_api_keys, sb_defaults, sb_guilds, sb_permissions, sb_chat_channels, sb_stats, sb_game_brawl) }
+
             return
         } catch (t: Throwable) {
             t.printStackTrace()

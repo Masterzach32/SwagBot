@@ -1,10 +1,7 @@
 package xyz.swagbot.database
 
 import net.masterzach32.commands4k.Permission
-import sx.blah.discord.handle.obj.IGuild
-import sx.blah.discord.handle.obj.IRole
-import sx.blah.discord.handle.obj.IUser
-import sx.blah.discord.handle.obj.IVoiceChannel
+import sx.blah.discord.handle.obj.*
 
 /*
  * SwagBot - Created on 8/24/17
@@ -73,3 +70,4 @@ fun IGuild.setLastVoiceChannel(channel: IVoiceChannel?) {
 fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
     return getVoiceChannelByID(get_guild_cell(stringID, sb_guilds.last_voice_channel)?.toLong() ?: 0)
 }
+

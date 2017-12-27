@@ -2,7 +2,6 @@ package xyz.swagbot
 
 import com.typesafe.config.ConfigFactory
 import net.masterzach32.commands4k.CommandListener
-import net.masterzach32.commands4k.CommandManager
 import net.masterzach32.commands4k.Permission
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
@@ -31,7 +30,17 @@ val config = ConfigFactory.load()!!
 val logger = LoggerFactory.getLogger(config.getString("bot.name"))!!
 
 val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefix") },
-        { it?.getUserPermission(this) ?: Permission.NORMAL },
+        {
+            if (it == null)
+                Permission.NORMAL
+            else {
+                val perm = it.getUserPermission(this)
+                if (it.owner == this && perm != Permission.DEVELOPER)
+                    Permission.ADMIN
+                else
+                    perm
+            }
+        },
         { _, _ -> })
 
 fun main(args: Array<String>) {
