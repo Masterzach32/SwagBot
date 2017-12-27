@@ -29,9 +29,7 @@ object MessageHandler : IListener<MessageReceivedEvent> {
 
     override fun handle(event: MessageReceivedEvent) {
         if (event.message.channel.stringID == "97342233241464832") {
-            if (!event.message.embeds.isEmpty() || !event.message.attachments.isEmpty() ||
-                    event.message.content.contains("http://") || event.message.content.contains("https://")) {
-
+            if (!event.message.embeds.isEmpty() || !event.message.attachments.isEmpty()) {
                 AdvancedMessageBuilder(event.message.channel)
                         .withContent("${event.message.author} please don't post links or attachments in " +
                                 "${event.message.channel}")

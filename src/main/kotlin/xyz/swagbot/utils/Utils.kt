@@ -1,6 +1,8 @@
 package xyz.swagbot.utils
 
-import java.util.*
+import net.masterzach32.commands4k.AdvancedMessageBuilder
+import sx.blah.discord.handle.obj.IGuild
+import java.net.URL
 
 /*
  * SwagBot - Created on 9/1/2017
@@ -58,4 +60,18 @@ fun delimitWithoutEmpty(content: String, regex: String): Array<String> {
     list = list.map { it.trim({ it <= ' ' }) }.filter { it.isNotEmpty() }
 
     return list.toTypedArray()
+}
+
+fun AdvancedMessageBuilder.withImage(url: String): AdvancedMessageBuilder {
+    return withFile(URL(url).openStream(), url) as AdvancedMessageBuilder
+}
+
+fun Thread(name: String, func: () -> Unit): Thread {
+    return Thread(func, name)
+}
+
+fun getTotalUserCount(guilds: List<IGuild>): Int {
+    var count = 0
+    guilds.forEach { count += it.users.size }
+    return count
 }
