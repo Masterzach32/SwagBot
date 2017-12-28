@@ -20,6 +20,10 @@ import xyz.swagbot.audioPlayerManager
  */
 private val audioHandlers = mutableMapOf<String, TrackScheduler>()
 
+fun getAllAudioHandlers(): Map<String, TrackScheduler> {
+    return audioHandlers
+}
+
 fun IGuild.initializeAutioPlayer() {
     if (!audioHandlers.contains(stringID)) {
         val player = audioPlayerManager.createPlayer()
