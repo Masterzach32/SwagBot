@@ -2,6 +2,7 @@ package xyz.swagbot.utils
 
 import com.mashape.unirest.http.Unirest
 import sx.blah.discord.api.IDiscordClient
+import xyz.swagbot.audioPlayerManager
 import java.io.File
 
 /*
@@ -28,5 +29,6 @@ internal fun exitAndUpdate(client: IDiscordClient) {
 internal fun stop(client: IDiscordClient) {
     client.logout()
     Unirest.shutdown()
+    audioPlayerManager.shutdown()
     System.exit(0)
 }

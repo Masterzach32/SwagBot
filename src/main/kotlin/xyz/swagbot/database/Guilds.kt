@@ -1,7 +1,10 @@
 package xyz.swagbot.database
 
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.obj.*
+import xyz.swagbot.api.music.TrackScheduler
+import xyz.swagbot.audioPlayerManager
 
 /*
  * SwagBot - Created on 8/24/17
@@ -15,6 +18,27 @@ import sx.blah.discord.handle.obj.*
  * @author zachk
  * @version 8/24/17
  */
+private val audioHandlers = mutableMapOf<String, TrackScheduler>()
+
+fun IGuild.initializeAutioPlayer() {
+    if (!audioHandlers.contains(stringID)) {
+        val player = audioPlayerManager.createPlayer()
+        val listener = TrackScheduler(player)
+        player.addListener(listener)
+
+        audioHandlers.put(stringID, listener)
+        player.volume = getBotVolume()
+    }
+}
+
+fun IGuild.getAudioPlayer(): AudioPlayer? {
+    return audioHandlers[stringID]?.player
+}
+
+fun IGuild.getAudioHandler(): TrackScheduler? {
+    return audioHandlers[stringID]
+}
+
 fun IGuild.getCommandPrefix(): String {
     return get_guild_cell(stringID, sb_guilds.command_prefix)!!
 }
@@ -29,6 +53,7 @@ fun IGuild.getBotVolume(): Int {
 
 fun IGuild.setBotVolume(volume: Int) {
     update_guild_cell(stringID, sb_guilds.volume, volume)
+    getAudioPlayer()?.volume = volume
 }
 
 fun IGuild.isBotLocked(): Boolean {

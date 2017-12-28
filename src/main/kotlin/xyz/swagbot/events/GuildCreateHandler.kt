@@ -23,5 +23,7 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
             xyz.swagbot.database.logger.info("Adding new guild to database: ${event.guild.stringID}")
             create_guild_entry(event.guild)
         }
+        event.guild.initializeAutioPlayer()
+        event.guild.audioManager.audioProvider = event.guild.getAudioHandler()!!.audioProvider
     }
 }

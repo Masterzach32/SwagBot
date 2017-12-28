@@ -2,6 +2,8 @@ package xyz.swagbot
 
 import com.google.gson.JsonObject
 import com.mashape.unirest.http.Unirest
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.typesafe.config.ConfigFactory
 import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
@@ -11,6 +13,8 @@ import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
 import xyz.swagbot.commands.dev.ShutdownCommand
 import xyz.swagbot.commands.mod.*
+import xyz.swagbot.commands.music.PlayCommand
+import xyz.swagbot.commands.music.SkipCommand
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
 import xyz.swagbot.events.*
@@ -33,6 +37,8 @@ import xyz.swagbot.utils.getTotalUserCount
 val config = ConfigFactory.load()!!
 val logger = LoggerFactory.getLogger(config.getString("bot.name"))!!
 
+val audioPlayerManager = DefaultAudioPlayerManager();
+
 val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefix") },
         {
             if (it == null)
@@ -51,6 +57,8 @@ fun main(args: Array<String>) {
     logger.info("Starting ${config.getString("bot.name")} version ${config.getString("bot.build")}.")
     getDatabaseConnection("storage/storage.db")
 
+    AudioSourceManagers.registerRemoteSources(audioPlayerManager)
+
     // normal
     cmds.add(CatCommand)
     cmds.add(GameCommand)
@@ -60,8 +68,10 @@ fun main(args: Array<String>) {
     cmds.add(LmgtfyCommand)
     cmds.add(MassAfkCommand)
     cmds.add(PingCommand)
+    cmds.add(PlayCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
+    cmds.add(SkipCommand)
     cmds.add(StrawpollCommand)
     cmds.add(UrlShortenCommand)
     cmds.add(VoiceCommand)
