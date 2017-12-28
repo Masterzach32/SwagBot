@@ -40,11 +40,13 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         embed.appendField("Currently Playing: ", "**${audioHandler.player.playingTrack.info.title}** by " +
                 "**${audioHandler.player.playingTrack.info.author}** " +
                 "(**${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)}**)", true)
+        embed.appendField("Playing:", if (!audioHandler.player.isPaused) ":white_check_mark:" else ":x:", true)
+        embed.appendField("Duration:",
+                getFormattedTime(audioHandler.player.playingTrack.position.toInt()/1000) + ":" +
+                        getFormattedTime(audioHandler.player.playingTrack.duration.toInt()/1000), true)
+        embed.appendField("Volume:", "${(audioHandler.player.volume)}.0", true)
         embed.appendField("Songs in Queue: ", "${audioHandler.getQueue().size}", true)
         embed.appendField("Page:", "${(pageNumber + 1)} / ${(audioHandler.getQueue().size / 15) + 1}", true)
-        embed.appendField("Volume:", "${(audioHandler.player.volume)}.0", true)
-        //embed.appendField("Repeat:", if (audioHandler.isLooping) ":white_check_mark:" else ":x:", true)
-        embed.appendField("Paused:", if (audioHandler.player.isPaused) ":white_check_mark:" else ":x:", true)
 
         var i = pageNumber * 15
         var str = ""
