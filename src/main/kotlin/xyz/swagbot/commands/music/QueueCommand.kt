@@ -49,9 +49,9 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         var i = pageNumber * 15
         var str = ""
         while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15) {
-            str += "${i+1}. **${audioHandler.getQueue()[i].info.title}** by **${audioHandler.getQueue()[i].info.author}** - " +
+            str += "${i+1}. ${audioHandler.getQueue()[i].info.title} by ${audioHandler.getQueue()[i].info.author} - " +
                     "**${getFormattedTime(audioHandler.getQueue()[i].info.length.toInt()/1000)}** " +
-                    "(**${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)}**)\n"
+                    "(**${(audioHandler.getQueue()[i].userData as IUser).getDisplayName(event.guild)}**)\n"
             i++
         }
         if (str.isEmpty())

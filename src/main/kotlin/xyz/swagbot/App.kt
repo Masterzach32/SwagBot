@@ -105,17 +105,24 @@ fun main(args: Array<String>) {
 
     Thread("Status Message Handler") {
         val api = DiscordBotsAPI(getKey("discord_bots_org"))
-        val messages = mutableListOf("swagbot.xyz", "", "", "", "~h for help")
-        val delay = 15
+        val messages = mutableListOf("", "swagbot.xyz", "", "", "", "~h for help")
+        val delay = 240
         while (!client.isReady) {}
         Thread.sleep(30*1000)
         logger.info("Starting status message thread.")
 
         var i = 0
         while (true) {
-            if (i == 1)
-                messages[1] = "${client.guilds.size} servers"
-            if (i == 2) {
+            if (i == 0) {
+                val motd = getKey("motd")
+                if (motd == "x")
+                    i++
+                else
+                    messages[0] = motd
+            }
+            if (i == 2)
+                messages[2] = "${client.guilds.size} servers"
+            if (i == 3) {
                 val list = mutableMapOf<String, String>()
                 getAllAudioHandlers().forEach { k, v ->
                     if (v.player.playingTrack != null)
@@ -123,11 +130,14 @@ fun main(args: Array<String>) {
                 }
                 val rand = mutableListOf<String>()
                 list.forEach { k, _ -> rand.add(k) }
-                val guild = client.getGuildByID(rand[(Math.random()*rand.size).toInt()].toLong())
-                messages[2] = "${list[guild.stringID]} in ${guild.name}"
+                if (rand.size > 0) {
+                    val guild = client.getGuildByID(rand[(Math.random() * rand.size).toInt()].toLong())
+                    messages[3] = "${list[guild.stringID]} in ${guild.name}"
+                } else
+                    i++
             }
-            if (i == 3) {
-                messages[3] = "${getTotalUserCount(client.guilds)} users"
+            if (i == 4) {
+                messages[4] = "${getTotalUserCount(client.guilds)} users"
             }
 
             val payload = "{ \"server_count\": ${client.guilds.size} }"
