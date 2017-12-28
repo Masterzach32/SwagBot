@@ -15,7 +15,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-        val audioHandler = event.guild.getAudioHandler()!!
+        val audioHandler = event.guild.getAudioHandler()
         val embed = EmbedBuilder().withColor(BLUE)
         var pageNumber: Int
         if (audioHandler.getQueue().isEmpty() && audioHandler.player.playingTrack == null)
@@ -48,7 +48,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
 
         var i = pageNumber * 15
         var str = ""
-        while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15 + 1) {
+        while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15) {
             str += "${i+1}. **${audioHandler.getQueue()[i].info.title}** by **${audioHandler.getQueue()[i].info.author}** - " +
                     "**${getFormattedTime(audioHandler.getQueue()[i].info.length.toInt()/1000)}** " +
                     "(**${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)}**)\n"

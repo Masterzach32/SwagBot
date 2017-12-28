@@ -31,12 +31,12 @@ fun IGuild.initializeAutioPlayer() {
     }
 }
 
-fun IGuild.getAudioPlayer(): AudioPlayer? {
-    return audioHandlers[stringID]?.player
+fun IGuild.getAudioPlayer(): AudioPlayer {
+    return audioHandlers[stringID]!!.player
 }
 
-fun IGuild.getAudioHandler(): TrackScheduler? {
-    return audioHandlers[stringID]
+fun IGuild.getAudioHandler(): TrackScheduler {
+    return audioHandlers[stringID]!!
 }
 
 fun IGuild.getCommandPrefix(): String {

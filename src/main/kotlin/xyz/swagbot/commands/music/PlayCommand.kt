@@ -13,9 +13,11 @@ import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.api.music.TrackScheduler
 import xyz.swagbot.audioPlayerManager
+import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getKey
+import xyz.swagbot.database.isBotLocked
 import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -28,9 +30,11 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if(args.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
+        if (event.guild.isBotLocked())
+            return getBotLockedMessage(builder)
         event.channel.toggleTypingStatus()
 
-        val handler = event.guild.getAudioHandler()!!
+        val handler = event.guild.getAudioHandler()
 
         val identifier = if (args[0].contains("http://") || args[0].contains("https://")) args[0] else getVideoFromSearch(getContent(args, 0))
 
@@ -86,8 +90,12 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
         }
 
         override fun playlistLoaded(playlist: AudioPlaylist) {
-            embed.withColor(RED)
-            embed.withDesc("Playlists are not supported at the moment.")
+            for (track in playlist.tracks) {
+                track.userData = event.author
+                player.queue(track)
+            }
+            embed.withColor(BLUE)
+            embed.withDesc("${event.author.mention()} queued playlist: ${playlist.name}")
             RequestBuffer.request { builder.withEmbed(embed).build() }
         }
     }

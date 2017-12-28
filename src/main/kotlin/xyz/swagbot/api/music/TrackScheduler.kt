@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
+import java.util.*
 
 class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
 
@@ -40,5 +41,9 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
 
     fun getQueue(): List<AudioTrack> {
         return queue
+    }
+
+    fun shuffleQueue() {
+        Collections.shuffle(queue)
     }
 }

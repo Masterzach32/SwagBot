@@ -16,6 +16,7 @@ import xyz.swagbot.commands.dev.ShutdownCommand
 import xyz.swagbot.commands.mod.*
 import xyz.swagbot.commands.music.PlayCommand
 import xyz.swagbot.commands.music.QueueCommand
+import xyz.swagbot.commands.music.ShuffleCommand
 import xyz.swagbot.commands.music.SkipCommand
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
@@ -74,6 +75,7 @@ fun main(args: Array<String>) {
     cmds.add(QueueCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
+    cmds.add(ShuffleCommand)
     cmds.add(SkipCommand)
     cmds.add(StrawpollCommand)
     cmds.add(UrlShortenCommand)
