@@ -39,10 +39,10 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         embed.withTitle("SwagBot Track Queue")
         embed.appendField("Currently Playing: ", "**${audioHandler.player.playingTrack.info.title}** by " +
                 "**${audioHandler.player.playingTrack.info.author}** " +
-                "(**${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)}**)", true)
+                "(${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)})", true)
         embed.appendField("Playing:", if (!audioHandler.player.isPaused) ":white_check_mark:" else ":x:", true)
         embed.appendField("Duration:",
-                getFormattedTime(audioHandler.player.playingTrack.position.toInt()/1000) + ":" +
+                getFormattedTime(audioHandler.player.playingTrack.position.toInt()/1000) + "/" +
                         getFormattedTime(audioHandler.player.playingTrack.duration.toInt()/1000), true)
         embed.appendField("Volume:", "${(audioHandler.player.volume)}.0", true)
         embed.appendField("Songs in Queue: ", "${audioHandler.getQueue().size}", true)
@@ -53,7 +53,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15) {
             str += "${i+1}. ${audioHandler.getQueue()[i].info.title} by ${audioHandler.getQueue()[i].info.author} - " +
                     "**${getFormattedTime(audioHandler.getQueue()[i].info.length.toInt()/1000)}** " +
-                    "(**${(audioHandler.getQueue()[i].userData as IUser).getDisplayName(event.guild)}**)\n"
+                    "(${(audioHandler.getQueue()[i].userData as IUser).getDisplayName(event.guild)})\n"
             i++
         }
         if (str.isEmpty())

@@ -81,7 +81,7 @@ fun getFormattedTime(time: Int): String {
     val hours = time / 3600
     var remainder = time % 3600
     val minutes = remainder / 60
-    remainder = remainder % 60
+    remainder %= 60
     val seconds = remainder
 
     if (hours > 0)
