@@ -70,9 +70,10 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
         }
 
         override fun trackLoaded(track: AudioTrack) {
+            track.userData = event.author
             player.queue(track)
             embed.withColor(BLUE)
-            embed.withDesc("Queued track: **${track.info.title}** by **${track.info.author}**")
+            embed.withDesc("${event.author.mention()} queued track: **${track.info.title}** by **${track.info.author}**")
             RequestBuffer.request { event.message.delete() }
             RequestBuffer.request { builder.withEmbed(embed).build() }
         }

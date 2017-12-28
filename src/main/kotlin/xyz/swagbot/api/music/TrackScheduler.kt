@@ -5,21 +5,20 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
-import java.util.concurrent.LinkedBlockingQueue
 
 class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
 
-    private val queue = LinkedBlockingQueue<AudioTrack>()
+    private val queue = mutableListOf<AudioTrack>()
 
     val audioProvider = AudioProvider(player)
 
     fun queue(track: AudioTrack) {
         if (!player.startTrack(track, true))
-            queue.offer(track)
+            queue.add(track)
     }
 
     fun playNext() {
-        player.startTrack(queue.poll(), false)
+        player.startTrack(queue.removeAt(0), false)
     }
 
     override fun onTrackStart(player: AudioPlayer, track: AudioTrack) {
@@ -37,5 +36,9 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
 
     override fun onTrackStuck(player: AudioPlayer, track: AudioTrack?, thresholdMs: Long) {
 
+    }
+
+    fun getQueue(): List<AudioTrack> {
+        return queue
     }
 }

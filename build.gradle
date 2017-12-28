@@ -34,6 +34,7 @@ dependencies {
     compile 'joda-time:joda-time:2.9.9'
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.sedmelluq:lavaplayer:1.2.45'
+    compile 'com.github.natanbc:discordbots-api:1.4'
     compile fileTree(dir: 'lib', include: '**/*.jar')
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"

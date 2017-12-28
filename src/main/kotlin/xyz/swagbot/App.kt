@@ -1,5 +1,6 @@
 package xyz.swagbot
 
+import com.github.natanbc.discordbotsapi.DiscordBotsAPI
 import com.google.gson.JsonObject
 import com.mashape.unirest.http.Unirest
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
@@ -14,6 +15,7 @@ import xyz.swagbot.commands.admin.*
 import xyz.swagbot.commands.dev.ShutdownCommand
 import xyz.swagbot.commands.mod.*
 import xyz.swagbot.commands.music.PlayCommand
+import xyz.swagbot.commands.music.QueueCommand
 import xyz.swagbot.commands.music.SkipCommand
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
@@ -69,6 +71,7 @@ fun main(args: Array<String>) {
     cmds.add(MassAfkCommand)
     cmds.add(PingCommand)
     cmds.add(PlayCommand)
+    cmds.add(QueueCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
     cmds.add(SkipCommand)
@@ -99,6 +102,7 @@ fun main(args: Array<String>) {
     client.login()
 
     Thread("Status Message Handler") {
+        val api = DiscordBotsAPI(getKey("discord_bots_org"))
         val messages = mutableListOf("", "", "swagbot.xyz", "~h for help")
         val delay = 240
         while (!client.isReady) {}
@@ -110,23 +114,22 @@ fun main(args: Array<String>) {
             messages[0] = "${client.guilds.size} servers"
             messages[1] = "${getTotalUserCount(client.guilds)} users"
 
-            val json = JsonObject()
-            json.addProperty("server_count", client.guilds.size)
+            val payload = "{ \"server_count\": ${client.guilds.size} }"
             try {
                 Unirest.post("https://bots.discord.pw/api/bots/${getKey("discord_client_id")}/stats")
                         .header("Content-Type", "application/json")
                         .header("Authorization", getKey("discord_bots_pw"))
-                        .body(json)
+                        .body(payload)
             } catch (t: Throwable) {
                 logger.warn("Could not post bot statistics: ${t.message}")
+                t.printStackTrace()
             }
+
             try {
-                Unirest.post("https://discordbots.org/api/bots/${getKey("discord_client_id")}/stats")
-                        .header("Content-Type", "application/json")
-                        .header("Authorization", getKey("discord_bots_org"))
-                        .body(json)
+                api.postStats(0, 1, client.guilds.size)
             } catch (t: Throwable) {
                 logger.warn("Could not post bot statistics: ${t.message}")
+                t.printStackTrace()
             }
 
             client.changePlayingText(messages[i])

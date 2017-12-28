@@ -27,7 +27,7 @@ object VolumeCommand : Command("Change Volume", "volume", "v", scope = Command.S
         try {
             volume = args[0].toInt()
         } catch (e: NumberFormatException) {
-            return builder.withEmbed(embed.withColor(RED).withDesc("Volume must be a number between 0 - 100"))
+            return builder.withEmbed(embed.withColor(RED).withDesc("Volume must be an integer between 0 - 100"))
         }
         if (volume < 0 || volume > 100)
             return builder.withEmbed(embed.withColor(RED).withDesc("Volume must be set between 0 - 100"))
