@@ -3,6 +3,7 @@ package xyz.swagbot.utils
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import sx.blah.discord.handle.obj.IGuild
 import java.net.URL
+import java.text.SimpleDateFormat
 
 /*
  * SwagBot - Created on 9/1/2017
@@ -74,4 +75,16 @@ fun getTotalUserCount(guilds: List<IGuild>): Int {
     var count = 0
     guilds.forEach { count += it.users.size }
     return count
+}
+
+fun getFormattedTime(time: Int): String {
+    val hours = time / 3600
+    var remainder = time % 3600
+    val minutes = remainder / 60
+    remainder = minutes % 60
+    val seconds = remainder
+
+    if (hours > 0)
+        return String.format("%d:%02d:%02d", hours, minutes, seconds)
+    return String.format("%d:%02d", minutes, seconds)
 }

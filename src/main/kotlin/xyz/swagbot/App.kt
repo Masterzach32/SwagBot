@@ -63,9 +63,9 @@ fun main(args: Array<String>) {
 
     // normal
     cmds.add(CatCommand)
+    cmds.add(DogCommand)
     cmds.add(GameCommand)
     cmds.add(JoinCommand)
-
     cmds.add(InviteCommand)
     cmds.add(LmgtfyCommand)
     cmds.add(MassAfkCommand)
@@ -103,7 +103,7 @@ fun main(args: Array<String>) {
 
     Thread("Status Message Handler") {
         val api = DiscordBotsAPI(getKey("discord_bots_org"))
-        val messages = mutableListOf("", "", "swagbot.xyz", "~h for help")
+        val messages = mutableListOf("swagbot.xyz", "", "", "~h for help")
         val delay = 240
         while (!client.isReady) {}
         Thread.sleep(30*1000)
@@ -111,8 +111,8 @@ fun main(args: Array<String>) {
 
         var i = 0
         while (true) {
-            messages[0] = "${client.guilds.size} servers"
-            messages[1] = "${getTotalUserCount(client.guilds)} users"
+            messages[1] = "${client.guilds.size} servers"
+            messages[2] = "${getTotalUserCount(client.guilds)} users"
 
             val payload = "{ \"server_count\": ${client.guilds.size} }"
             try {

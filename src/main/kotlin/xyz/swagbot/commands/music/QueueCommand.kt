@@ -9,6 +9,7 @@ import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
+import xyz.swagbot.utils.getFormattedTime
 
 object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope.GUILD) {
 
@@ -17,7 +18,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         val audioHandler = event.guild.getAudioHandler()!!
         val embed = EmbedBuilder().withColor(BLUE)
         var pageNumber: Int
-        if (audioHandler.getQueue().isEmpty())
+        if (audioHandler.getQueue().isEmpty() && audioHandler.player.playingTrack == null)
             return builder.withEmbed(embed.withDesc("The queue is empty! Go add some tracks " +
                     "with the ${event.guild.getCommandPrefix()}play command!"))
         else if (args.isEmpty())
@@ -49,7 +50,8 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         var str = ""
         while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15 + 1) {
             str += "${i+1}. **${audioHandler.getQueue()[i].info.title}** by **${audioHandler.getQueue()[i].info.author}** - " +
-                    "**${audioHandler.getQueue()[i].info.length}** (**${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)}**)\n"
+                    "**${getFormattedTime(audioHandler.getQueue()[i].info.length.toInt()/1000)}** " +
+                    "(**${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)}**)\n"
             i++
         }
         if (str.isEmpty())

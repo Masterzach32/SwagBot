@@ -16,6 +16,7 @@ import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getKey
+import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
