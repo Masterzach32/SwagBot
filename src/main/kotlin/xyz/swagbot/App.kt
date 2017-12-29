@@ -72,6 +72,7 @@ fun main(args: Array<String>) {
     cmds.add(CatCommand)
     cmds.add(DogCommand)
     cmds.add(GameCommand)
+    cmds.add(InfoCommand)
     cmds.add(JoinCommand)
     cmds.add(InviteCommand)
     cmds.add(LmgtfyCommand)
@@ -157,12 +158,12 @@ fun main(args: Array<String>) {
                 t.printStackTrace()
             }
 
-            /*try {
+            try {
                 api.postStats(0, 1, client.guilds.size)
             } catch (t: Throwable) {
                 logger.warn("Could not post bot statistics: ${t.message}")
                 t.printStackTrace()
-            }*/
+            }
 
             client.changePlayingText(messages[i])
             i++
