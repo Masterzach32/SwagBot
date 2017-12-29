@@ -53,11 +53,13 @@ val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefi
         { _, _ -> })
 
 fun main(args: Array<String>) {
-    logger.info("Starting ${config.getString("bot.name")} version ${config.getString("bot.build")}.")
+    logger.info("Starting SwagBot version ${config.getString("bot.build")}.")
     getDatabaseConnection("storage/storage.db")
 
+    logger.info("Starting Lavaplayer audio engine.")
     AudioSourceManagers.registerRemoteSources(audioPlayerManager)
 
+    logger.info("Initializing commands.")
     // music
     cmds.add(ClearCommand)
     cmds.add(LeaverClearCommand)
@@ -92,7 +94,9 @@ fun main(args: Array<String>) {
     // dev
     cmds.add(ShutdownCommand)
 
+    logger.info("Creating discord client object.")
     val client = ClientBuilder().withToken(getKey("discord_bot_token")).build()
+    logger.info("Registering event listeners.")
     client.dispatcher.registerListener(cmds)
     client.dispatcher.registerListener(GuildCreateHandler)
     client.dispatcher.registerListener(ReadyHandler)
@@ -102,6 +106,8 @@ fun main(args: Array<String>) {
     client.dispatcher.registerListener(UserLeaveEvent)
     client.dispatcher.registerListener(UserMovedEvent)
     client.login()
+
+    logger.info("Waiting to receive guilds...")
 
     Thread("Status Message Handler") {
         val api = DiscordBotsAPI(getKey("discord_bots_org"))

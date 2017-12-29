@@ -24,6 +24,7 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
             create_guild_entry(event.guild)
         }
         event.guild.initializeAutioPlayer()
-        event.guild.audioManager.audioProvider = event.guild.getAudioHandler()!!.audioProvider
+        event.guild.audioManager.audioProvider = event.guild.getAudioHandler().audioProvider
+        logger.info("Guild ${event.guild.name} (${event.guild.stringID}) is ready to start receiving commands.")
     }
 }
