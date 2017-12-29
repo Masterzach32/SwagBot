@@ -1,6 +1,5 @@
 package xyz.swagbot.database
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.obj.*
 import xyz.swagbot.api.music.TrackScheduler
@@ -35,10 +34,6 @@ fun IGuild.initializeAutioPlayer() {
     }
 }
 
-fun IGuild.getAudioPlayer(): AudioPlayer {
-    return audioHandlers[stringID]!!.player
-}
-
 fun IGuild.getAudioHandler(): TrackScheduler {
     return audioHandlers[stringID]!!
 }
@@ -57,7 +52,7 @@ fun IGuild.getBotVolume(): Int {
 
 fun IGuild.setBotVolume(volume: Int) {
     update_guild_cell(stringID, sb_guilds.volume, volume)
-    getAudioPlayer()?.volume = volume
+    getAudioHandler().player.volume = volume
 }
 
 fun IGuild.isBotLocked(): Boolean {

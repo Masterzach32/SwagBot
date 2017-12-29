@@ -29,6 +29,7 @@ object DogCommand : Command("Dog Pictures", "dog", "randomdog") {
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-
+        usage.put("", "Finds a picture of a random dog.")
+        usage.put("<breed>", "Finds a picture of a dog of the breed specified.")
     }
 }

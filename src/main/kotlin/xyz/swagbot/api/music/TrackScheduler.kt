@@ -53,4 +53,8 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
     fun shuffleQueue() {
         Collections.shuffle(queue)
     }
+
+    fun clearQueue() {
+        queue.removeAll { true }
+    }
 }

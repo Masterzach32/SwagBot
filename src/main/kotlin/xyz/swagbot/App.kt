@@ -14,10 +14,7 @@ import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
 import xyz.swagbot.commands.dev.ShutdownCommand
 import xyz.swagbot.commands.mod.*
-import xyz.swagbot.commands.music.PlayCommand
-import xyz.swagbot.commands.music.QueueCommand
-import xyz.swagbot.commands.music.ShuffleCommand
-import xyz.swagbot.commands.music.SkipCommand
+import xyz.swagbot.commands.music.*
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
 import xyz.swagbot.events.*
@@ -64,6 +61,7 @@ fun main(args: Array<String>) {
 
     // normal
     cmds.add(CatCommand)
+    cmds.add(ClearCommand)
     cmds.add(DogCommand)
     cmds.add(GameCommand)
     cmds.add(JoinCommand)

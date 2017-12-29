@@ -1,8 +1,10 @@
 package xyz.swagbot.dsl
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.handle.obj.StatusType
+import xyz.swagbot.utils.getFormattedTime
 
 /*
  * SwagBot - Created on 8/30/2017
@@ -25,4 +27,12 @@ fun IMessage.getAllUserMentions(): List<IUser> {
     roleMentions.forEach { guild.getUsersByRole(it).filter { !users.contains(it) }.forEach { users.add(it) } }
     mentions.filter { !users.contains(it) }.forEach { users.add(it) }
     return users
+}
+
+fun AudioTrack.getFormattedPosition(): String {
+    return getFormattedTime(position.toInt()/1000)
+}
+
+fun AudioTrack.getFormattedLength(): String {
+    return getFormattedTime(duration.toInt()/1000)
 }

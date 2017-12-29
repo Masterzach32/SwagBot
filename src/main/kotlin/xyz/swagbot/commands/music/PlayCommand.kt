@@ -9,6 +9,7 @@ import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
 import org.json.JSONObject
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.api.music.TrackScheduler
@@ -96,6 +97,7 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
             }
             embed.withColor(BLUE)
             embed.withDesc("${event.author.mention()} queued playlist: ${playlist.name}")
+            RequestBuffer.request { event.message.delete() }
             RequestBuffer.request { builder.withEmbed(embed).build() }
         }
     }
