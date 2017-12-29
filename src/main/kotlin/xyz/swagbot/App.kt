@@ -1,7 +1,6 @@
 package xyz.swagbot
 
 import com.github.natanbc.discordbotsapi.DiscordBotsAPI
-import com.google.gson.JsonObject
 import com.mashape.unirest.http.Unirest
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
@@ -59,9 +58,16 @@ fun main(args: Array<String>) {
 
     AudioSourceManagers.registerRemoteSources(audioPlayerManager)
 
+    // music
+    cmds.add(ClearCommand)
+    cmds.add(LeaverClearCommand)
+    cmds.add(PlayCommand)
+    cmds.add(QueueCommand)
+    cmds.add(ShuffleCommand)
+    cmds.add(SkipCommand)
+    cmds.add(SkipToCommand)
     // normal
     cmds.add(CatCommand)
-    cmds.add(ClearCommand)
     cmds.add(DogCommand)
     cmds.add(GameCommand)
     cmds.add(JoinCommand)
@@ -69,12 +75,8 @@ fun main(args: Array<String>) {
     cmds.add(LmgtfyCommand)
     cmds.add(MassAfkCommand)
     cmds.add(PingCommand)
-    cmds.add(PlayCommand)
-    cmds.add(QueueCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
-    cmds.add(ShuffleCommand)
-    cmds.add(SkipCommand)
     cmds.add(StrawpollCommand)
     cmds.add(UrlShortenCommand)
     cmds.add(VoiceCommand)
@@ -103,7 +105,7 @@ fun main(args: Array<String>) {
 
     Thread("Status Message Handler") {
         val api = DiscordBotsAPI(getKey("discord_bots_org"))
-        val messages = mutableListOf("", "swagbot.xyz", "", "", "", "~h for help")
+        val messages = mutableListOf("", "~h for help", "", "", "", "swagbot.xyz")
         val delay = 240
         while (!client.isReady) {}
         Thread.sleep(30*1000)

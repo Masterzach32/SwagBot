@@ -13,12 +13,13 @@ object SkipCommand : Command("Skip", "skip", "s", scope = Scope.GUILD) {
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (event.guild.isBotLocked())
             return getBotLockedMessage(builder)
-        event.guild.getAudioHandler()!!.playNext()
+        event.guild.getAudioHandler().playNext()
 
         return null
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Skips the currently playing song.")
+        usage.put("", "Vote to skip the current song in the queue.")
+        usage.put("<enable/disable>", "Enable or disable the voting system. NOTE: ANYONE can skip songs with this disabled!")
     }
 }
