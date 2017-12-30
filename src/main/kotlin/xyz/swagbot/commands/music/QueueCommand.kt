@@ -5,6 +5,7 @@ import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.dsl.getFormattedLength
@@ -32,8 +33,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
                 else
                     pageNumber--
             } catch (e: NumberFormatException) {
-                return builder
-                        .withEmbed(embed.withDesc("You didn't provide a number!").withColor(RED))
+                return getWrongArgumentsMessage(builder, this, cmdUsed)
             }
         }
 

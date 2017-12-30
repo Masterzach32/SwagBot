@@ -10,6 +10,7 @@ import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.get_cell
 import xyz.swagbot.database.get_row_count
 import xyz.swagbot.database.sb_game_brawl
+import xyz.swagbot.logger
 import java.util.*
 
 /*

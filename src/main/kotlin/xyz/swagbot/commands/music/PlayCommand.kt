@@ -38,6 +38,10 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
         val identifier = if (args[0].contains("http://") || args[0].contains("https://")) args[0] else getVideoFromSearch(getContent(args, 0))
 
+        if (identifier == null)
+            return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc("Sorry, I could not find a video that" +
+                    " matched that description. Try refining your search."))
+
         audioPlayerManager.loadItem(identifier, AudioTrackLoadHandler(handler, event, builder))
 
         return null

@@ -31,14 +31,14 @@ object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl") {
                 val response = Unirest.post(post).header("Content-Type", "application/json").body(obj.toString()).asJson()
                 if (response.status != 200)
                     return getApiErrorMessage(builder, Type.POST, post, obj.toString(2), response.status, response.statusText)
-                return builder.withEmbed(embed.withDesc(response.body.`object`.getString("id")))
+                return builder.withEmbed( embed.withDesc("Shortened link: " + response.body.`object`.getString("id")))
             }
             "tinyurl" -> {
                 val post = "http://tinyurl.com/api-create.php?url=$url"
                 val response = Unirest.get(post).asString()
                 if (response.status != 200)
                     return getApiErrorMessage(builder, Type.GET, post, response.body, response.status, response.statusText)
-                return builder.withEmbed(embed.withDesc(response.body))
+                return builder.withEmbed(embed.withDesc("Shortened link: " + response.body))
             }
             else -> {
                 return null

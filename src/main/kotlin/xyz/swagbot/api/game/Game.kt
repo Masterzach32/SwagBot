@@ -19,7 +19,6 @@ import sx.blah.discord.handle.obj.IUser
  */
 abstract class Game(name: String, val channel: IChannel, val users: MutableList<IUser>) : Thread("$name:${channel.guild.stringID}") {
 
-    val logger = LoggerFactory.getLogger(super.getName())
     val guild = channel.guild!!
     protected var inProgress = false
 
