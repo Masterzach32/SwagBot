@@ -40,7 +40,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         embed.withTitle("SwagBot Track Queue")
         embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.info.title} by " +
                 "${audioHandler.player.playingTrack.info.author} - **" + audioHandler.player.playingTrack.getFormattedLength() +
-                "** (${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)})", true)
+                "** (${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)})", false)
         var count = 0L
         audioHandler.getQueue().forEach { count += it.info.length }
         embed.appendField("Songs in Queue: ", "${audioHandler.getQueue().size}", true)

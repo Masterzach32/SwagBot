@@ -25,6 +25,28 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
             player.startTrack(queue.removeAt(0), false)
     }
 
+    fun removeTrack(index: Int): AudioTrack? {
+        if (queue.size < index)
+            return null
+        return queue.removeAt(index)
+    }
+
+    fun removeDuplicates(): Int {
+        val list = mutableListOf<AudioTrack>()
+        val toRemove = mutableListOf<AudioTrack>()
+
+        queue.forEach { track ->
+            if (list.any { track.identifier == it.identifier })
+                toRemove.add(track)
+            else
+                list.add(track)
+        }
+
+        toRemove.forEach { queue.remove(it) }
+
+        return toRemove.size
+    }
+
     fun getQueue(): List<AudioTrack> {
         return queue
     }

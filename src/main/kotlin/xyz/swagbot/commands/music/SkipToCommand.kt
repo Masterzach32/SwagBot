@@ -11,7 +11,7 @@ import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
 import xyz.swagbot.utils.BLUE
 
-object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD, botPerm = Permission.MOD) {
+object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
