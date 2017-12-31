@@ -23,6 +23,9 @@ repositories {
     maven {
         url  'https://jitpack.io'
     }
+
+    mavenLocal()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencies {
@@ -35,6 +38,9 @@ dependencies {
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.sedmelluq:lavaplayer:1.2.45'
     compile 'com.github.natanbc:discordbots-api:1.4'
+    compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
+    compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
+
     compile fileTree(dir: 'lib', include: '**/*.jar')
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"

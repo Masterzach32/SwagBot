@@ -22,8 +22,8 @@ import xyz.swagbot.utils.BLUE
  * @author Zach Kozar
  * @version 8/31/2017
  */
-object ChangePrefixCommand : Command("Change Prefix", "changeprefix", "cp", scope = Command.Scope.GUILD,
-        botPerm = Permission.ADMIN) {
+object ChangePrefixCommand : Command("Change Prefix", "changeprefix", "cp", "prefix",
+        scope = Command.Scope.GUILD, botPerm = Permission.ADMIN) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {

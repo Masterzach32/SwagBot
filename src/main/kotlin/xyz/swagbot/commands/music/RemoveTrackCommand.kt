@@ -28,7 +28,7 @@ object RemoveTrackCommand : Command("Remove Track", "removetrack", "remove", "rm
         }
         val embed = EmbedBuilder()
 
-        val removed = event.guild.getAudioHandler().removeTrack(index)
+        val removed = event.guild.getAudioHandler().removeTrack(index-1)
         if (removed != null)
             embed.withColor(BLUE).withDesc("Removed **${removed.info.title}** from the queue.")
         else

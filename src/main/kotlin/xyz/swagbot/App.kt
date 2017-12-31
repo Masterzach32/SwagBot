@@ -18,7 +18,6 @@ import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
 import xyz.swagbot.events.*
 import xyz.swagbot.utils.Thread
-import xyz.swagbot.utils.getTotalUserCount
 
 /*
  * SwagBot - Created on 8/22/17
@@ -63,11 +62,18 @@ fun main(args: Array<String>) {
     // music
     cmds.add(ClearCommand)
     cmds.add(LeaverClearCommand)
+    cmds.add(MoveTrackCommand)
     cmds.add(PlayCommand)
     cmds.add(QueueCommand)
+    cmds.add(RemoveDuplicatesCommand)
+    cmds.add(RemoveTrackCommand)
+    cmds.add(ReplayCommand)
+    cmds.add(SearchCommand)
+    cmds.add(SeekCommand)
     cmds.add(ShuffleCommand)
     cmds.add(SkipCommand)
     cmds.add(SkipToCommand)
+    //cmds.add(VoteSkipCommand)
     // normal
     cmds.add(CatCommand)
     cmds.add(DogCommand)
@@ -100,6 +106,7 @@ fun main(args: Array<String>) {
     logger.info("Registering event listeners.")
     client.dispatcher.registerListener(cmds)
     client.dispatcher.registerListener(GuildCreateHandler)
+    client.dispatcher.registerListener(GuildLeaveHandler)
     client.dispatcher.registerListener(ReadyHandler)
     client.dispatcher.registerListener(MessageHandler)
     client.dispatcher.registerListener(NewUserHandler)
@@ -144,7 +151,7 @@ fun main(args: Array<String>) {
                     i++
             }
             if (i == 4) {
-                messages[4] = "${getTotalUserCount(client.guilds)} users"
+                messages[4] = "${client.users.size} users"
             }
 
             val payload = "{ \"server_count\": ${client.guilds.size} }"

@@ -28,7 +28,7 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
     }
 
     fun removeTrack(index: Int): AudioTrack? {
-        if (queue.size < index)
+        if (index >= queue.size)
             return null
         return queue.removeAt(index)
     }
