@@ -73,7 +73,7 @@ fun main(args: Array<String>) {
     cmds.add(ShuffleCommand)
     cmds.add(SkipCommand)
     cmds.add(SkipToCommand)
-    //cmds.add(VoteSkipCommand)
+    cmds.add(VoteSkipCommand)
     // normal
     cmds.add(CatCommand)
     cmds.add(DogCommand)

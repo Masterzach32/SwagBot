@@ -13,6 +13,7 @@ import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.api.getVideoFromSearch
 import xyz.swagbot.api.music.TrackScheduler
+import xyz.swagbot.api.music.TrackUserData
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
@@ -72,7 +73,7 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
         }
 
         override fun trackLoaded(track: AudioTrack) {
-            track.userData = event.author
+            track.userData = TrackUserData(event.author)
             player.queue(track)
             embed.withColor(BLUE)
             embed.withDesc("${event.author.mention()} queued track: **${track.info.title}** by **${track.info.author}**")
@@ -88,7 +89,7 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
         override fun playlistLoaded(playlist: AudioPlaylist) {
             for (track in playlist.tracks) {
-                track.userData = event.author
+                track.userData = TrackUserData(event.author)
                 player.queue(track)
             }
             embed.withColor(BLUE)

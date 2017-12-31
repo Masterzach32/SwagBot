@@ -5,10 +5,12 @@ import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.api.music.TrackUserData
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.dsl.getFormattedLength
+import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getFormattedTime
@@ -40,7 +42,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         embed.withTitle("SwagBot Track Queue")
         embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.info.title} by " +
                 "${audioHandler.player.playingTrack.info.author} - **" + audioHandler.player.playingTrack.getFormattedLength() +
-                "** (${(audioHandler.player.playingTrack.userData as IUser).getDisplayName(event.guild)})", false)
+                "** (${audioHandler.player.playingTrack.getTrackUserData().author.getDisplayName(event.guild)})", false)
         var count = 0L
         audioHandler.getQueue().forEach { count += it.info.length }
         embed.appendField("Songs in Queue: ", "${audioHandler.getQueue().size}", true)
@@ -53,7 +55,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15) {
             str += "${i+1}. ${audioHandler.getQueue()[i].info.title} by ${audioHandler.getQueue()[i].info.author} - " +
                     "**${audioHandler.getQueue()[i].getFormattedLength()}** " +
-                    "(${(audioHandler.getQueue()[i].userData as IUser).getDisplayName(event.guild)})\n"
+                    "(${audioHandler.getQueue()[i].getTrackUserData().author.getDisplayName(event.guild)})\n"
             i++
         }
         if (str.isEmpty())

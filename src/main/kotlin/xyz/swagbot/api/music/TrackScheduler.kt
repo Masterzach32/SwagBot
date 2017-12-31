@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
 import sx.blah.discord.handle.obj.IUser
+import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.logger
 import java.util.*
 
@@ -76,7 +77,7 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
     }
 
     fun pruneTracks(users: List<IUser>): List<AudioTrack> {
-        val removed = queue.filter { !users.contains(it.userData as IUser) }
+        val removed = queue.filter { !users.contains(it.getTrackUserData().author) }
         removed.forEach { queue.remove(it) }
         return removed
     }

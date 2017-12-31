@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.handle.obj.StatusType
+import xyz.swagbot.api.music.TrackUserData
 import xyz.swagbot.utils.getFormattedTime
 
 /*
@@ -35,4 +36,8 @@ fun AudioTrack.getFormattedPosition(): String {
 
 fun AudioTrack.getFormattedLength(): String {
     return getFormattedTime(duration.toInt()/1000)
+}
+
+fun AudioTrack.getTrackUserData(): TrackUserData {
+    return userData as TrackUserData
 }
