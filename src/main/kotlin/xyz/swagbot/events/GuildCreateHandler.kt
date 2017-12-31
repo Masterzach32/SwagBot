@@ -1,7 +1,9 @@
 package xyz.swagbot.events
 
+import net.masterzach32.commands4k.AdvancedMessageBuilder
 import sx.blah.discord.api.events.IListener
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent
+import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.*
 
 /*
@@ -22,6 +24,11 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
         if (!does_guild_entry_exist(event.guild.stringID)) {
             xyz.swagbot.database.logger.info("Adding new guild to database: ${event.guild.stringID}")
             create_guild_entry(event.guild)
+
+            val builder = AdvancedMessageBuilder(event.guild.defaultChannel)
+            builder.withContent("Thanks for adding me to your server! If you need help, check out the getting " +
+                    "started guide on my website: https://swagbot.xyz/gettingstarted.html")
+            RequestBuffer.request { builder.build() }
         }
         event.guild.initializeAutioPlayer()
         event.guild.audioManager.audioProvider = event.guild.getAudioHandler().audioProvider
