@@ -21,11 +21,13 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
             queue.add(track)
     }
 
-    fun playNext() {
+    fun playNext(): AudioTrack? {
+        val oldTrack = player.playingTrack
         if (queue.isNotEmpty())
             player.startTrack(queue.removeAt(0), false)
         else if (player.playingTrack != null)
             player.stopTrack()
+        return oldTrack
     }
 
     fun removeTrack(index: Int): AudioTrack? {
