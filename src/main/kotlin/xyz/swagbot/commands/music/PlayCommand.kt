@@ -11,6 +11,7 @@ import org.json.JSONObject
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.api.getVideoFromSearch
 import xyz.swagbot.api.music.TrackScheduler
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.commands.getBotLockedMessage
@@ -36,7 +37,13 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
         val handler = event.guild.getAudioHandler()
 
-        val identifier = if (args[0].contains("http://") || args[0].contains("https://")) args[0] else getVideoFromSearch(getContent(args, 0))
+        val identifier = if (args[0].contains("http://") || args[0].contains("https://")) args[0]
+        else {
+            var content = getContent(args, 0)
+            if (!content.contains("audio"))
+                content += " audio"
+            getVideoFromSearch(content)
+        }
 
         if (identifier == null)
             return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc("Sorry, I could not find a video that" +
@@ -50,21 +57,6 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
     override fun getCommandHelp(usage: MutableMap<String, String>) {
         usage.put("<search query>", "Searches YouTube for the specified song.")
         usage.put("<url>", "Queues the specified song in the server's audio player.")
-    }
-
-    private fun getVideoFromSearch(search: String): String? {
-        val response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" +
-                URLEncoder.encode(search, "UTF-8") + "&key=" + getKey("google_auth_key")).asJson()
-        if (response.status != 200)
-            return null
-        val json: JSONObject
-        json = response.body.array.getJSONObject(0)
-        if (json.has("items") && json.getJSONArray("items").length() > 0 &&
-                json.getJSONArray("items").getJSONObject(0).has("id") &&
-                json.getJSONArray("items").getJSONObject(0).getJSONObject("id").has("videoId"))
-            return "https://youtube.com/watch?v=" +
-                    json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId")
-        return null
     }
 
     class AudioTrackLoadHandler(val player: TrackScheduler, val event: MessageReceivedEvent,

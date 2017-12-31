@@ -15,11 +15,15 @@ object ReplayCommand : Command("Replay Track", "replay", scope = Scope.GUILD) {
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (event.guild.isBotLocked())
             return getBotLockedMessage(builder)
+        val embed = EmbedBuilder()
 
+        val playingTrack = event.guild.getAudioHandler().player.playingTrack
         try {
-            event.guild.getAudioHandler().player.playingTrack.position = 0
+            if (playingTrack != null && playingTrack.isSeekable)
+                playingTrack.position = 0
+            else return builder.withEmbed(embed.withColor(RED).withDesc("There is no track to replay!"))
         } catch (t: Throwable) {
-            return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc("Could not reset track position: ${t.message}"))
+            return builder.withEmbed(embed.withColor(RED).withDesc("Could not reset track position: ${t.message}"))
         }
         return null
     }

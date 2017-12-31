@@ -7,8 +7,8 @@ import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.utils.RED
 
-object MassAfkCommand : Command("Mass AFK", "mafk", botPerm = Permission.MOD, scope = Command.Scope.GUILD,
-        discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
+object MassAfkCommand : Command("Mass AFK", "massafk", "mafk", botPerm = Permission.MOD,
+        scope = Command.Scope.GUILD, discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {

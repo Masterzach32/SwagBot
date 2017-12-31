@@ -21,7 +21,7 @@ import xyz.swagbot.utils.getContent
  * @author Zach Kozar
  * @version 8/30/2017
  */
-object MigrateCommand : Command("Migrate", "migrate", "populate", "m", "move", botPerm = Permission.MOD,
+object MigrateCommand : Command("Migrate", "migrate", "populate", "m", botPerm = Permission.MOD,
         scope = Command.Scope.GUILD, discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,

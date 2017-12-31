@@ -2,13 +2,14 @@ package xyz.swagbot.commands.normal
 
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
+import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.config
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.utils.BLUE
 
-object InfoCommand : Command("Info", "info") {
+object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         val embed = EmbedBuilder().withColor(BLUE)

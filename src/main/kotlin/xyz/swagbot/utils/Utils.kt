@@ -71,12 +71,6 @@ fun Thread(name: String, func: () -> Unit): Thread {
     return Thread(func, name)
 }
 
-fun getTotalUserCount(guilds: List<IGuild>): Int {
-    var count = 0
-    guilds.forEach { count += it.users.size }
-    return count
-}
-
 fun getFormattedTime(time: Int): String {
     val hours = time / 3600
     var remainder = time % 3600

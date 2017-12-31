@@ -2,26 +2,21 @@ package xyz.swagbot.commands.music
 
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
-import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import xyz.swagbot.commands.getBotLockedMessage
-import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
 
-object ClearCommand : Command("Clear Queue", "clear", scope = Scope.GUILD, botPerm = Permission.MOD) {
+object VoteSkipCommand : Command("Vote Skip", "voteskip", "vskip", scope = Scope.GUILD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (event.guild.isBotLocked())
             return getBotLockedMessage(builder)
 
-        event.guild.getAudioHandler().clearQueue()
-        event.guild.getAudioHandler().player.stopTrack()
-
         return null
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Clear the track queue.")
+        usage.put("", "Vote to skip a song. Requires a simple majority. (greater than 50%)")
     }
 }
