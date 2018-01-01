@@ -11,7 +11,9 @@ import org.json.JSONObject
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.api.getIdFromSearch
 import xyz.swagbot.api.getVideoFromSearch
+import xyz.swagbot.api.music.AudioTrackLoadHandler
 import xyz.swagbot.api.music.TrackScheduler
 import xyz.swagbot.api.music.TrackUserData
 import xyz.swagbot.audioPlayerManager
@@ -43,7 +45,7 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
             var content = getContent(args, 0)
             if (!content.contains("audio"))
                 content += " audio"
-            getVideoFromSearch(content)
+            getVideoFromSearch(content)?.getUrl()
         }
 
         if (identifier == null)
@@ -56,46 +58,7 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<search query>", "Searches YouTube for the specified song.")
-        usage.put("<url>", "Queues the specified song in the server's audio player.")
-    }
-
-    class AudioTrackLoadHandler(val player: TrackScheduler, val event: MessageReceivedEvent,
-                                val builder: AdvancedMessageBuilder) : AudioLoadResultHandler {
-
-        val embed = EmbedBuilder()
-
-        override fun loadFailed(exception: FriendlyException) {
-            logger.warn("Could not load track: ${exception.message}")
-            embed.withColor(RED)
-            embed.withDesc("Could not load track: ${exception.message}")
-            RequestBuffer.request { builder.withEmbed(embed).build() }
-        }
-
-        override fun trackLoaded(track: AudioTrack) {
-            track.userData = TrackUserData(event.author)
-            player.queue(track)
-            embed.withColor(BLUE)
-            embed.withDesc("${event.author.mention()} queued track: **${track.info.title}** by **${track.info.author}**")
-            RequestBuffer.request { event.message.delete() }
-            RequestBuffer.request { builder.withEmbed(embed).build() }
-        }
-
-        override fun noMatches() {
-            embed.withColor(RED)
-            embed.withDesc("Sorry, I could not load your track. Try checking the url.")
-            RequestBuffer.request { builder.withEmbed(embed).build() }
-        }
-
-        override fun playlistLoaded(playlist: AudioPlaylist) {
-            for (track in playlist.tracks) {
-                track.userData = TrackUserData(event.author)
-                player.queue(track)
-            }
-            embed.withColor(BLUE)
-            embed.withDesc("${event.author.mention()} queued playlist: ${playlist.name}")
-            RequestBuffer.request { event.message.delete() }
-            RequestBuffer.request { builder.withEmbed(embed).build() }
-        }
+        usage.put("<search query>", "Searches YouTube for the best matching track and queues it.")
+        usage.put("<url>", "Queues the specified track or stream in the server's audio player.")
     }
 }

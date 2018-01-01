@@ -7,6 +7,7 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.typesafe.config.ConfigFactory
 import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
+import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
 import xyz.swagbot.commands.*
@@ -154,7 +155,8 @@ fun main(args: Array<String>) {
                 messages[4] = "${client.users.size} users"
             }
 
-            val payload = "{ \"server_count\": ${client.guilds.size} }"
+            val payload = JSONObject()
+            payload.put("server_count", client.guilds.size)
             try {
                 Unirest.post("https://bots.discord.pw/api/bots/${getKey("discord_client_id")}/stats")
                         .header("Content-Type", "application/json")
