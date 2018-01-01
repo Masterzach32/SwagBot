@@ -64,6 +64,7 @@ fun main(args: Array<String>) {
     cmds.add(ClearCommand)
     cmds.add(LeaverClearCommand)
     cmds.add(MoveTrackCommand)
+    cmds.add(NowPlayingCommand)
     cmds.add(PlayCommand)
     cmds.add(QueueCommand)
     cmds.add(RemoveDuplicatesCommand)

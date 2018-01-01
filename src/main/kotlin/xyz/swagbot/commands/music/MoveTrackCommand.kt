@@ -29,9 +29,9 @@ object MoveTrackCommand : Command("Move Track", "move", scope = Scope.GUILD, bot
 
         val embed = EmbedBuilder()
 
-        if (index0 < 0 || index0 >= event.guild.getAudioHandler().getQueue().size)
+        if (index0 <= 0 || index0 > event.guild.getAudioHandler().getQueue().size)
             return builder.withEmbed(embed.withColor(RED).withDesc("Initial track index is out of range. " +
-                    "(Your index: **$index0**, Queue size: **${event.guild.getAudioHandler().getQueue().size})"))
+                    "(Your index: **$index0**, Queue size: **${event.guild.getAudioHandler().getQueue().size}**)"))
 
         if (args.size == 1) {
             val track = event.guild.getAudioHandler().moveTrack(index0-1, 0)

@@ -10,6 +10,7 @@ import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.dsl.getFormattedLength
+import xyz.swagbot.dsl.getFormattedPosition
 import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -24,7 +25,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         var pageNumber: Int
         if (audioHandler.getQueue().isEmpty() && audioHandler.player.playingTrack == null)
             return builder.withEmbed(embed.withDesc("The queue is empty! Go add some tracks " +
-                    "with the ${event.guild.getCommandPrefix()}play command!"))
+                    "with the ${event.guild.getCommandPrefix()}play or ${event.guild.getCommandPrefix()}search commands!"))
         else if (args.isEmpty())
             pageNumber = 0
         else {
@@ -41,8 +42,9 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
 
         embed.withTitle("SwagBot Track Queue")
         embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.info.title} by " +
-                "${audioHandler.player.playingTrack.info.author} - **" + audioHandler.player.playingTrack.getFormattedLength() +
-                "** (${audioHandler.player.playingTrack.getTrackUserData().author.getDisplayName(event.guild)})", false)
+                "${audioHandler.player.playingTrack.info.author} - **${audioHandler.player.playingTrack.getFormattedPosition()}**" +
+                " / **${audioHandler.player.playingTrack.getFormattedLength()}** " +
+                "(${audioHandler.player.playingTrack.getTrackUserData().author.getDisplayName(event.guild)})", false)
         var count = 0L
         audioHandler.getQueue().forEach { count += it.info.length }
         embed.appendField("Songs in Queue: ", "${audioHandler.getQueue().size}", true)
