@@ -38,7 +38,7 @@ object SearchCommand : Command("Search YouTube", "search") {
         for (i in 0..(list.size-1)) {
             embed.appendDesc("${i+1}. **${list[i].title}** by **${list[i].channel}**.\n")
         }
-        embed.appendDesc("\n${event.author.mention()}, if you would like to queue one of these videos, enter its " +
+        embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, enter its " +
                 "number below within 60 seconds.")
 
         event.client.dispatcher.registerListener(ResponseListener(event.author, event.channel, list, System.currentTimeMillis()))
@@ -72,7 +72,7 @@ object SearchCommand : Command("Search YouTube", "search") {
         }
 
         fun unregister(dispatcher: EventDispatcher, reason: String) {
-            logger.info("Killing search listener: $reason")
+            logger.debug("Killing search listener: $reason")
             return dispatcher.unregisterListener(this)
         }
     }

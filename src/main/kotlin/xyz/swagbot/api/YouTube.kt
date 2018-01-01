@@ -11,64 +11,47 @@ data class YouTubeVideo(val title: String, val channel: String, val identifier: 
     fun getUrl() = "https://youtube.com/watch?v=$identifier"
 }
 
-fun getIdFromSearch(search: String): String? {
+fun getVideoFromSearch(search: String): YouTubeVideo? {
     val response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" +
             URLEncoder.encode(search, "UTF-8") + "&key=" + getKey("google_auth_key")).asJson()
     if (response.status != 200)
         return null
     val json: JSONObject
-    json = response.body.array.getJSONObject(0)
-    if (json.has("items") && json.getJSONArray("items").length() > 0 &&
-            json.getJSONArray("items").getJSONObject(0).has("id") &&
-            json.getJSONArray("items").getJSONObject(0).getJSONObject("id").has("videoId"))
-        return json.getJSONArray("items").getJSONObject(0).getJSONObject("id").getString("videoId")
+    json = response.body.`object`
+    logger.debug(response.body.`object`.toString(2))
+    if (json.has("items") && json.getJSONArray("items").length() > 0) {
+        val id = json.getJSONArray("items").getJSONObject(0)
+                .getJSONObject("id").getString("videoId")
+        val title = json.getJSONArray("items").getJSONObject(0)
+                .getJSONObject("snippet").getString("title")
+        val channel = json.getJSONArray("items").getJSONObject(0)
+                .getJSONObject("snippet").getString("channelTitle")
+        return YouTubeVideo(title, channel, id)
+    }
     return null
-}
-
-fun getIdSetFromSearch(search: String, size: Int): Set<String> {
-    val response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" +
-            URLEncoder.encode(search, "UTF-8") + "&key=" + getKey("google_auth_key")).asJson()
-    if (response.status != 200)
-        return emptySet()
-    val json = response.body.array.getJSONObject(0)
-    if (json.has("items") && json.getJSONArray("items").length() > 0)
-        return (0..(size-1))
-                .map { json.getJSONArray("items").getJSONObject(it).getJSONObject("id").getString("videoId") }
-                .toSet()
-    return emptySet()
-}
-
-fun getVideoFromSearch(search: String): YouTubeVideo? {
-    val id = getIdFromSearch(search) ?: return null
-    return getVideoFromId(id)
 }
 
 fun getVideoSetFromSearch(search: String, size: Int): List<YouTubeVideo> {
-    val idSet = getIdSetFromSearch(search, size)
     val list = mutableListOf<YouTubeVideo>()
-    idSet.forEach {
-        try {
-            val video = getVideoFromId(it) ?: throw NullPointerException("Could not load video from id: $it")
-            list.add(video)
-        } catch (t: Throwable) {
-            t.printStackTrace()
+    val response = Unirest.get("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" +
+            URLEncoder.encode(search, "UTF-8") + "&key=" + getKey("google_auth_key")).asJson()
+    if (response.status != 200)
+        return emptyList()
+    val json = response.body.`object`
+    logger.debug(response.body.`object`.toString(2))
+    if (json.has("items") && json.getJSONArray("items").length() > 0) {
+        val items = json.getJSONArray("items")
+        var i = 0
+        while (list.size < size && i < items.length()) {
+            if (items.getJSONObject(i).getJSONObject("id").has("videoId")) {
+                val id = json.getJSONArray("items").getJSONObject(i).getJSONObject("id").getString("videoId")
+                val title = json.getJSONArray("items").getJSONObject(i).getJSONObject("snippet").getString("title")
+                val channel = json.getJSONArray("items").getJSONObject(i).getJSONObject("snippet").getString("channelTitle")
+                list.add(YouTubeVideo(title, channel, id))
+                i++
+            }
+            i++
         }
-        Thread.sleep(200)
     }
     return list
-}
-
-fun getVideoFromId(id: String): YouTubeVideo? {
-    try {
-        val apiCall = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=$id"
-        val response = Unirest.get("$apiCall&key=${getKey("google_auth_key")}").asJson()
-        val title = response.body.`object`.getJSONArray("items").getJSONObject(0)
-                .getJSONObject("snippet").getString("title")
-        val channel = response.body.`object`.getJSONArray("items").getJSONObject(0)
-                .getJSONObject("snippet").getString("channelTitle")
-        return YouTubeVideo(title, channel, id)
-    } catch (t: Throwable) {
-        t.printStackTrace()
-    }
-    return null
 }

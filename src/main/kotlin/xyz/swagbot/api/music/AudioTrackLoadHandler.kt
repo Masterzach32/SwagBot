@@ -28,7 +28,7 @@ class AudioTrackLoadHandler(val player: TrackScheduler, val event: MessageReceiv
         track.userData = TrackUserData(event.author)
         player.queue(track)
         embed.withColor(BLUE)
-        embed.withDesc("${event.author.mention()} queued track: **${track.info.title}** by **${track.info.author}**")
+        embed.withDesc("${event.author} queued track: **${track.info.title}** by **${track.info.author}**")
         RequestBuffer.request { event.message.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }
@@ -45,7 +45,7 @@ class AudioTrackLoadHandler(val player: TrackScheduler, val event: MessageReceiv
             player.queue(track)
         }
         embed.withColor(BLUE)
-        embed.withDesc("${event.author.mention()} queued playlist: ${playlist.name}")
+        embed.withDesc("${event.author} queued playlist: ${playlist.name}")
         RequestBuffer.request { event.message.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }

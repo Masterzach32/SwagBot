@@ -32,7 +32,7 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
     }
 
     override fun getJoinMessage(user: IUser): String {
-        return "$user **joined the brawl!**"
+        return "${user.getDisplayName(channel.guild)} **joined the brawl!**"
     }
 
     override fun run() {
@@ -61,22 +61,20 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
                     str += "and **${users[j].getDisplayName(channel.guild)}** are fighting!"
             val msg = RequestBuffer.request<IMessage> { AdvancedMessageBuilder(channel).withContent(str).build() }.get()
             sleep(1500)
-            logger.info("$users")
-            RequestBuffer.request {
-                var dead: IUser
-                do {
-                    dead = users[Random().nextInt(users.size)]
-                } while (dead.stringID == "148604482492563456")
-                users.remove(dead)
-                val killer = users[Random().nextInt(users.size)]
-                var result = get_cell(sb_game_brawl, sb_game_brawl.death_message)
-                    { sb_game_brawl.id eq Random().nextInt(numOfDeathResponses) }!!
-                result = result.replace("{killed}", "**${dead.getDisplayName(channel.guild)}**")
-                result = result.replace("{killer}", "**${killer.getDisplayName(channel.guild)}**")
-                msg?.edit(result)
-            }
+            var dead: IUser
+            do {
+                dead = users[Random().nextInt(users.size)]
+            } while (dead.stringID == "148604482492563456")
+            users.remove(dead)
+            val killer = users[Random().nextInt(users.size)]
+            var result = get_cell(sb_game_brawl, sb_game_brawl.death_message)
+                { sb_game_brawl.id eq Random().nextInt(numOfDeathResponses) }!!
+            result = result.replace("{killed}", "**${dead.getDisplayName(channel.guild)}**")
+            result = result.replace("{killer}", "**${killer.getDisplayName(channel.guild)}**")
+            val resultString = result
+            RequestBuffer.request { msg?.edit(resultString) }
         }
-        AdvancedMessageBuilder(channel).withContent("${users[0]} **won the brawl!**").build()
+        RequestBuffer.request { AdvancedMessageBuilder(channel).withContent("${users[0]} **won the brawl!**").build() }
         finish()
     }
 }
