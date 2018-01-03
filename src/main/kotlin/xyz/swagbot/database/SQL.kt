@@ -94,6 +94,25 @@ internal fun remove_permission_entry(guildId: String, userId: String) {
     sql { sb_permissions.deleteWhere { (sb_permissions.guild_id eq guildId) and (sb_permissions.user_id eq userId) } }
 }
 
+internal fun create_track_entry(guildId: String, userId: String, identifier: String) {
+    sql {
+        sb_track_storage.insert {
+            it[sb_track_storage.guild_id] = guildId
+            it[sb_track_storage.user_id] = userId
+            it[sb_track_storage.identifier] = identifier
+        }
+    }
+}
+
+internal fun remove_track_entries(guildId: String): List<ResultRow> {
+    return sql {
+        val list = mutableListOf<ResultRow>()
+        sb_track_storage.select { sb_track_storage.guild_id eq guildId }.forEach { list.add(it) }
+        sb_track_storage.deleteWhere { sb_track_storage.guild_id eq guildId }
+        return@sql list
+    }
+}
+
 /*
     Generic SQL code
  */

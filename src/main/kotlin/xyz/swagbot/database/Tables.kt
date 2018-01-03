@@ -56,3 +56,9 @@ object sb_game_brawl : Table() {
     val id = integer("id")
     val death_message = text("response")
 }
+
+object sb_track_storage : Table() {
+    val guild_id = text("guild_id")
+    val user_id = text("user_id")
+    val identifier = text("identifier")
+}

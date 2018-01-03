@@ -30,7 +30,7 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
                     "started guide on my website: https://swagbot.xyz/gettingstarted.html")
             RequestBuffer.request { builder.build() }
         }
-        event.guild.initializeAutioPlayer()
+        event.guild.initializeAutioPlayer(event.client)
         event.guild.audioManager.audioProvider = event.guild.getAudioHandler().audioProvider
         logger.info("Guild ${event.guild.name} (${event.guild.stringID}) is ready to start receiving commands.")
     }

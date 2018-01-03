@@ -62,7 +62,8 @@ object SearchCommand : Command("Search YouTube", "search") {
                     if (index < 0 || index >= list.size)
                         return unregister(event.client.dispatcher, "Bad message")
                     event.channel.toggleTypingStatus()
-                    audioPlayerManager.loadItem(list[index].getUrl(), AudioTrackLoadHandler(event.guild.getAudioHandler(),
+                    audioPlayerManager.loadItemOrdered(channel.guild.getAudioHandler(),
+                            list[index].getUrl(), AudioTrackLoadHandler(event.guild.getAudioHandler(),
                             event, AdvancedMessageBuilder(event.channel)))
                     return unregister(event.client.dispatcher, "Successful")
                 } catch (t: Throwable) {

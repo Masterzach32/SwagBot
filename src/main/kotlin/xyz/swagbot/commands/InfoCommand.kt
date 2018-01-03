@@ -1,4 +1,4 @@
-package xyz.swagbot.commands.normal
+package xyz.swagbot.commands
 
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
@@ -22,6 +22,7 @@ object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
         embed.withDesc("SwagBot is a music bot with many additional features. Type **${event.guild.getCommandPrefix()}" +
                 "help** to see more commands!\n\n")
         embed.appendDesc("Learn more about SwagBot at https://swagbot.xyz\n\n" +
+                "Follow SwagBot on Twitter for updates:\nhttps://twitter.com/DiscordSwagBot\n" +
                 "Check out the development for SwagBot at:\nhttps://github.com/Masterzach32/SwagBot\n" +
                 "Help development of SwagBot by donating to my PayPal:\nhttps://paypal.me/ultimatedoge\n" +
                 "Or pledge a small amount on Patreon:\n<https://patreon.com/ultimatedoge>\n" +
@@ -29,7 +30,7 @@ object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
                 "Want to add SwagBot to your server? Click the link below:" +
                 "\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8\n")
 
-        embed.withFooterText("\u00a9 SwagBot 2016-2018. Built off of Discord4J ${Discord4J.VERSION}.")
+        embed.withFooterText("\u00a9 SwagBot 2016-2018. Written in Kotlin. Built off of Discord4J ${Discord4J.VERSION}.")
 
         return builder.withEmbed(embed)
     }

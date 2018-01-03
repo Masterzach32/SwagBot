@@ -1,9 +1,13 @@
 package xyz.swagbot.database
 
 import net.masterzach32.commands4k.Permission
+import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.handle.obj.*
+import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
 import xyz.swagbot.api.music.TrackScheduler
 import xyz.swagbot.audioPlayerManager
+import xyz.swagbot.dsl.getTrackUserData
+import java.lang.Thread.sleep
 
 /*
  * SwagBot - Created on 8/24/17
@@ -23,7 +27,7 @@ fun getAllAudioHandlers(): Map<String, TrackScheduler> {
     return audioHandlers
 }
 
-fun IGuild.initializeAutioPlayer() {
+fun IGuild.initializeAutioPlayer(client: IDiscordClient) {
     if (!audioHandlers.contains(stringID)) {
         val player = audioPlayerManager.createPlayer()
         val listener = TrackScheduler(player)
@@ -31,6 +35,8 @@ fun IGuild.initializeAutioPlayer() {
 
         audioHandlers.put(stringID, listener)
         player.volume = getBotVolume()
+
+        listener.loadTracksFromStorage(client, this)
     }
 }
 
@@ -95,3 +101,19 @@ fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
     return getVoiceChannelByID(get_guild_cell(stringID, sb_guilds.last_voice_channel)?.toLong() ?: 0)
 }
 
+fun TrackScheduler.saveTracksToStorage(guild: IGuild) {
+    if (player.playingTrack != null && player.playingTrack.identifier != null)
+        create_track_entry(guild.stringID, player.playingTrack.getTrackUserData().author.stringID, player.playingTrack.identifier)
+    getQueue().forEach {
+        if (it.identifier != null)
+            create_track_entry(guild.stringID, it.getTrackUserData().author.stringID, it.identifier)
+    }
+    sql { commit() }
+}
+
+fun TrackScheduler.loadTracksFromStorage(client: IDiscordClient, guild: IGuild) {
+    remove_track_entries(guild.stringID).forEach {
+        audioPlayerManager.loadItemOrdered(this, it[sb_track_storage.identifier],
+                SilentAudioTrackLoadHandler(this, guild, client.getUserByID(it[sb_track_storage.user_id].toLong())))
+    }
+}

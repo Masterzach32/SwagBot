@@ -1,32 +1,18 @@
 package xyz.swagbot.commands.music
 
-import com.mashape.unirest.http.Unirest
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
-import org.json.JSONObject
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
-import sx.blah.discord.util.RequestBuffer
-import xyz.swagbot.api.getIdFromSearch
 import xyz.swagbot.api.getVideoFromSearch
 import xyz.swagbot.api.music.AudioTrackLoadHandler
-import xyz.swagbot.api.music.TrackScheduler
-import xyz.swagbot.api.music.TrackUserData
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
-import xyz.swagbot.database.getKey
 import xyz.swagbot.database.isBotLocked
-import xyz.swagbot.logger
-import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
-import java.net.URLEncoder
 
 object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
@@ -52,7 +38,7 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
             return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc("Sorry, I could not find a video that" +
                     " matched that description. Try refining your search."))
 
-        audioPlayerManager.loadItem(identifier, AudioTrackLoadHandler(handler, event, builder))
+        audioPlayerManager.loadItemOrdered(handler, identifier, AudioTrackLoadHandler(handler, event, builder))
 
         return null
     }
