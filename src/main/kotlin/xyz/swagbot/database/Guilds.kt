@@ -40,6 +40,12 @@ fun IGuild.initializeAutioPlayer(client: IDiscordClient) {
     }
 }
 
+fun IGuild.shutdownAudioPlayer() {
+    val toDestroy = audioHandlers.remove(stringID) ?: return
+    toDestroy.saveTracksToStorage(this)
+    toDestroy.player.destroy()
+}
+
 fun IGuild.getAudioHandler(): TrackScheduler {
     return audioHandlers[stringID]!!
 }

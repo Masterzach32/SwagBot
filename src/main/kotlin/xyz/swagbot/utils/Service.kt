@@ -5,6 +5,7 @@ import sx.blah.discord.api.IDiscordClient
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.database.getAllAudioHandlers
 import xyz.swagbot.database.saveTracksToStorage
+import xyz.swagbot.database.shutdownAudioPlayer
 import java.io.File
 
 /*
@@ -29,10 +30,7 @@ internal fun exitAndUpdate(client: IDiscordClient) {
 }
 
 internal fun stop(client: IDiscordClient) {
-    getAllAudioHandlers().forEach { guildId, handler ->
-        handler.saveTracksToStorage(client.getGuildByID(guildId.toLong()))
-        handler.player.destroy()
-    }
+    client.guilds.forEach { it.shutdownAudioPlayer() }
     audioPlayerManager.shutdown()
     client.logout()
     Unirest.shutdown()
