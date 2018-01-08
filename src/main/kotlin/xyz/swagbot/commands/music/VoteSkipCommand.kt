@@ -7,6 +7,7 @@ import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.dsl.getBoldFormattedTitle
 import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -27,11 +28,10 @@ object VoteSkipCommand : Command("Vote Skip", "voteskip", "vskip", scope = Scope
                 playingTrack.getTrackUserData().getSkipVoteCount()
         if (skipThreshold <= 0) {
             event.guild.getAudioHandler().playNext()
-            return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track **${playingTrack.info.title}** by " +
-                    "**${playingTrack.info.author}**"))
+            return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track ${playingTrack.getBoldFormattedTitle()}"))
         }
         return builder.withEmbed(embed.withColor(BLUE).withDesc("**$skipThreshold** more votes needed to skip " +
-                "**${playingTrack.info.title}** by **${playingTrack.info.author}**"))
+                playingTrack.getBoldFormattedTitle()))
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {

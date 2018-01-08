@@ -41,3 +41,16 @@ fun AudioTrack.getFormattedLength(): String {
 fun AudioTrack.getTrackUserData(): TrackUserData {
     return userData as TrackUserData
 }
+
+fun AudioTrack.getBoldFormattedTitle(): String {
+    return "**${info.title}** by **${info.author}**"
+}
+
+fun AudioTrack.getFormattedTitle(): String {
+    return "${info.title} by ${info.author}"
+}
+
+fun AudioTrack.getFormattedTitleWithTime(): String {
+    return "${info.title} by ${info.author} - **${getFormattedLength()}**"
+}
+

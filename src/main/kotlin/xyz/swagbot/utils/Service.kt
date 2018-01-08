@@ -6,6 +6,7 @@ import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.database.getAllAudioHandlers
 import xyz.swagbot.database.saveTracksToStorage
 import xyz.swagbot.database.shutdownAudioPlayer
+import xyz.swagbot.logger
 import java.io.File
 
 /*
@@ -30,7 +31,11 @@ internal fun exitAndUpdate(client: IDiscordClient) {
 }
 
 internal fun stop(client: IDiscordClient) {
-    client.guilds.forEach { it.shutdownAudioPlayer() }
+    try {
+        client.guilds.forEach { it.shutdownAudioPlayer() }
+    } catch (t: Throwable) {
+        logger.error("Could not shut down audio players gracefully: ${t.message}")
+    }
     audioPlayerManager.shutdown()
     client.logout()
     Unirest.shutdown()

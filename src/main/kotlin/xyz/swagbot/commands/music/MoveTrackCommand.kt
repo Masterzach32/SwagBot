@@ -9,6 +9,7 @@ import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.dsl.getBoldFormattedTitle
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
@@ -49,8 +50,8 @@ object MoveTrackCommand : Command("Move Track", "move", scope = Scope.GUILD, bot
                     "(Your index: **$index0**, Queue size: **${event.guild.getAudioHandler().getQueue().size})"))
 
         val track = event.guild.getAudioHandler().moveTrack(index0-1, index1-1)
-        return builder.withEmbed(embed.withColor(BLUE).withDesc("Moved **${track.info.title}** by " +
-                "**${track.info.author}** from position **$index0** to position **$index1**."))
+        return builder.withEmbed(embed.withColor(BLUE).withDesc("Moved ${track.getBoldFormattedTitle()} from " +
+                "position **$index0** to position **$index1**."))
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {

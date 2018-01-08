@@ -9,6 +9,7 @@ import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.dsl.getBoldFormattedTitle
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
@@ -30,7 +31,7 @@ object RemoveTrackCommand : Command("Remove Track", "removetrack", "remove", "rm
 
         val removed = event.guild.getAudioHandler().removeTrack(index-1)
         if (removed != null)
-            embed.withColor(BLUE).withDesc("Removed **${removed.info.title}** from the queue.")
+            embed.withColor(BLUE).withDesc("Removed ${removed.getBoldFormattedTitle()} from the queue.")
         else
             embed.withColor(RED).withDesc("Try re-checking your track index.")
 

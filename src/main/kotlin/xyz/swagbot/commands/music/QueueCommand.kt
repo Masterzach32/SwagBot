@@ -11,6 +11,7 @@ import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.dsl.getFormattedLength
 import xyz.swagbot.dsl.getFormattedPosition
+import xyz.swagbot.dsl.getFormattedTitle
 import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -41,8 +42,8 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         }
 
         embed.withTitle("SwagBot Track Queue")
-        embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.info.title} by " +
-                "${audioHandler.player.playingTrack.info.author} - **${audioHandler.player.playingTrack.getFormattedPosition()}**" +
+        embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.getFormattedTitle()} - " +
+                "**${audioHandler.player.playingTrack.getFormattedPosition()}**" +
                 " / **${audioHandler.player.playingTrack.getFormattedLength()}** " +
                 "(${audioHandler.player.playingTrack.getTrackUserData().author.getDisplayName(event.guild)})", false)
         var count = 0L
@@ -55,13 +56,14 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         var i = pageNumber * 15
         var str = ""
         while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15) {
-            str += "${i+1}. ${audioHandler.getQueue()[i].info.title} by ${audioHandler.getQueue()[i].info.author} - " +
+            str += "${i+1}. ${audioHandler.getQueue()[i].getFormattedTitle()} - " +
                     "**${audioHandler.getQueue()[i].getFormattedLength()}** " +
                     "(${audioHandler.getQueue()[i].getTrackUserData().author.getDisplayName(event.guild)})\n"
             i++
         }
         if (str.isEmpty())
-            str = "No songs in queue!"
+            str = "The queue is empty! Go add some tracks with the ${event.guild.getCommandPrefix()}play " +
+                    "or ${event.guild.getCommandPrefix()}search commands!"
         embed.withDesc(str)
         return builder.withEmbed(embed)
     }

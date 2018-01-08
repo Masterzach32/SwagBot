@@ -6,6 +6,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
+import xyz.swagbot.dsl.getBoldFormattedTitle
 import xyz.swagbot.dsl.getFormattedLength
 import xyz.swagbot.dsl.getFormattedPosition
 import xyz.swagbot.dsl.getTrackUserData
@@ -21,8 +22,8 @@ object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Sc
         if (playingTrack == null)
             return builder.withEmbed(embed.withColor(RED).withDesc("Im not playing anything right now. Go add some" +
                     " tracks with the ${event.guild.getCommandPrefix()}play or ${event.guild.getCommandPrefix()}search commands!"))
-        return builder.withEmbed(embed.withColor(BLUE).withDesc("Currently playing **${playingTrack.info.title}** by " +
-                "**${playingTrack.info.author}** - **${playingTrack.getFormattedPosition()}**" +
+        return builder.withEmbed(embed.withColor(BLUE).withDesc("Currently playing " +
+                "${playingTrack.getBoldFormattedTitle()} - **${playingTrack.getFormattedPosition()}**" +
                 " / **${playingTrack.getFormattedLength()}** " +
                 "(${playingTrack.getTrackUserData().author.getDisplayName(event.guild)})"))
     }

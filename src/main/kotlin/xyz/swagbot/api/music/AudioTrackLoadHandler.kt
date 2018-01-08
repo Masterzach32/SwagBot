@@ -8,6 +8,7 @@ import net.masterzach32.commands4k.AdvancedMessageBuilder
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.dsl.getBoldFormattedTitle
 import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -28,7 +29,7 @@ class AudioTrackLoadHandler(val player: TrackScheduler, val event: MessageReceiv
         track.userData = TrackUserData(event.author)
         player.queue(track)
         embed.withColor(BLUE)
-        embed.withDesc("${event.author} queued track: **${track.info.title}** by **${track.info.author}**")
+        embed.withDesc("${event.author} queued track: ${track.getBoldFormattedTitle()}")
         RequestBuffer.request { event.message.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }
