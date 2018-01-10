@@ -45,6 +45,6 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
         usage.put("<search query>", "Searches YouTube for the best matching track and queues it.")
-        usage.put("<url>", "Queues the specified track or stream in the server's audio player.")
+        usage.put("<url>", "Queues the specified track, playlist or stream in the server's audio player.")
     }
 }

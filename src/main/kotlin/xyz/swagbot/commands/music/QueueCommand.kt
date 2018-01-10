@@ -9,6 +9,7 @@ import xyz.swagbot.api.music.TrackUserData
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
+import xyz.swagbot.database.isQueueLoopEnabled
 import xyz.swagbot.dsl.getFormattedLength
 import xyz.swagbot.dsl.getFormattedPosition
 import xyz.swagbot.dsl.getFormattedTitle
@@ -48,9 +49,11 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
                 "(${audioHandler.player.playingTrack.getTrackUserData().author.getDisplayName(event.guild)})", false)
         var count = 0L
         audioHandler.getQueue().forEach { count += it.info.length }
-        embed.appendField("Songs in Queue: ", "${audioHandler.getQueue().size}", true)
-        embed.appendField("Duration:", getFormattedTime((count/1000).toInt()), true)
         embed.appendField("Volume:", "${(audioHandler.player.volume)}.0", true)
+        embed.appendField("Loop:", if (event.guild.isQueueLoopEnabled()) ":white_check_mark:" else ":x:", true)
+        embed.appendField("Paused:", if (audioHandler.player.isPaused) ":white_check_mark:" else ":x:", true)
+        embed.appendField("Songs in Queue: ", "${audioHandler.getQueue().size}", true)
+        embed.appendField("Length:", getFormattedTime((count/1000).toInt()), true)
         embed.appendField("Page:", "${(pageNumber + 1)} / ${(audioHandler.getQueue().size / 15) + 1}", true)
 
         var i = pageNumber * 15

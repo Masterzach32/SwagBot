@@ -63,6 +63,7 @@ fun main(args: Array<String>) {
     // music
     cmds.add(ClearCommand)
     cmds.add(LeaverClearCommand)
+    cmds.add(LoopCommand)
     cmds.add(MoveTrackCommand)
     cmds.add(NowPlayingCommand)
     cmds.add(PauseResumeCommand)

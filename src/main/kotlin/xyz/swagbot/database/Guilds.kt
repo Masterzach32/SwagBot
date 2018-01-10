@@ -35,6 +35,8 @@ fun IGuild.initializeAutioPlayer(client: IDiscordClient) {
 
         audioHandlers.put(stringID, listener)
         player.volume = getBotVolume()
+        if (isQueueLoopEnabled())
+            listener.toggleShouldLoop()
 
         listener.loadTracksFromStorage(client, this)
     }
@@ -122,4 +124,14 @@ fun TrackScheduler.loadTracksFromStorage(client: IDiscordClient, guild: IGuild) 
         audioPlayerManager.loadItemOrdered(this, it[sb_track_storage.identifier],
                 SilentAudioTrackLoadHandler(this, guild, client.getUserByID(it[sb_track_storage.user_id].toLong())))
     }
+}
+
+fun IGuild.isQueueLoopEnabled(): Boolean {
+    return get_guild_cell(stringID, sb_guilds.loop) ?: false
+}
+
+fun IGuild.toggleQueueLoop(): Boolean {
+    val new = getAudioHandler().toggleShouldLoop()
+    update_guild_cell(stringID, sb_guilds.loop, new)
+    return new
 }

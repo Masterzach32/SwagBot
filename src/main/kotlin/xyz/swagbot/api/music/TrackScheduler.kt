@@ -16,6 +16,8 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
 
     val audioProvider = AudioProvider(player)
 
+    private var shouldLoop = false
+
     fun queue(track: AudioTrack) {
         if (!player.startTrack(track, true))
             queue.add(track)
@@ -27,6 +29,11 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
             player.startTrack(queue.removeAt(0), false)
         else if (player.playingTrack != null)
             player.stopTrack()
+        if (shouldLoop) {
+            val clone = oldTrack.makeClone()
+            clone.userData = oldTrack.userData
+            queue(clone)
+        }
         return oldTrack
     }
 
@@ -84,6 +91,11 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
         return removed
     }
 
+    fun toggleShouldLoop(): Boolean {
+        shouldLoop = !shouldLoop
+        return shouldLoop
+    }
+
     override fun onTrackStart(player: AudioPlayer, track: AudioTrack) {
 
     }
@@ -91,9 +103,6 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
     override fun onTrackEnd(player: AudioPlayer, track: AudioTrack, endReason: AudioTrackEndReason) {
         if (endReason.mayStartNext)
             playNext()
-        else {
-            logger.warn("Audio track ended abnormally: $endReason")
-        }
     }
 
     override fun onTrackException(player: AudioPlayer, track: AudioTrack?, exception: FriendlyException) {

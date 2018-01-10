@@ -33,6 +33,7 @@ object sb_guilds : Table() {
     val locked = bool("locked")
     val auto_assign_role = text("auto_assign_role").nullable()
     val last_voice_channel = text("last_voice_channel").nullable()
+    val loop = bool("loop")
 }
 
 object sb_permissions : Table() {
