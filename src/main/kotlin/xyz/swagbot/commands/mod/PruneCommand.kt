@@ -31,6 +31,7 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (args.size != 1)
             return getWrongArgumentsMessage(builder, this, cmdUsed)
+        event.channel.toggleTypingStatus()
 
         val embed = EmbedBuilder().withColor(RED).withDesc("Invalid amount specified. Must prune between 2-100 messages.")
         val x: Int
@@ -42,23 +43,13 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
         if (x < 2 || x > 100)
             return builder.withEmbed(embed)
 
-        val tmp: MutableList<IMessage>
-        val history = event.channel.getMessageHistory(x+1)
-        if (history.contains(event.message)) {
-            logger.debug("command was in history")
-            tmp = history.toMutableList()
-            tmp.remove(event.message)
-        } else {
-            logger.debug("command was not in history")
-            tmp = event.channel.getMessageHistory(x)
-        }
-        val list = MessageHistory(tmp)
+        val history = event.channel.getMessageHistoryFrom(event.messageID, x+1)
 
-        val deleted = RequestBuffer.request<MutableList<IMessage>> { list.bulkDelete() }.get()
+        val deleted = RequestBuffer.request<MutableList<IMessage>> { MessageHistory(history.subList(1, x+1)).bulkDelete() }.get()
         for (msg in deleted)
             logger.debug("deleted: $msg")
 
-        builder.withEmbed(embed.withColor(BLUE).withDesc("Removed the last **$x** messages"))
+        builder.withEmbed(embed.withColor(BLUE).withDesc("Removed the last **$x** messages."))
         RequestBuffer.request { event.message.delete() }
         val response = RequestBuffer.request<IMessage> { builder.build() }.get()
         Thread.sleep(5000)
@@ -67,6 +58,6 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<int>", "The number of messages to prune, must be between 2 and 100")
+        usage.put("<int>", "Delete between 2 and 100 messages no older than two weeks.")
     }
 }
