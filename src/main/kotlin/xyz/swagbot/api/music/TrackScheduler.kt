@@ -29,7 +29,7 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
             player.startTrack(queue.removeAt(0), false)
         else if (player.playingTrack != null)
             player.stopTrack()
-        if (shouldLoop) {
+        if (shouldLoop && oldTrack != null) {
             val clone = oldTrack.makeClone()
             clone.userData = oldTrack.userData
             queue(clone)
