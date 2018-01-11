@@ -26,6 +26,11 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
         val handler = event.guild.getAudioHandler()
 
+        if (args[0].contains("https://spotify.com") || args[0].contains("https://www.spotify.com") ||
+                args[0].contains("https://open.spotify.com"))
+            return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc("Sorry, I don't support paid " +
+                    "streaming services at the moment."))
+
         val identifier = if (args[0].contains("http://") || args[0].contains("https://")) args[0]
         else {
             var content = getContent(args, 0)

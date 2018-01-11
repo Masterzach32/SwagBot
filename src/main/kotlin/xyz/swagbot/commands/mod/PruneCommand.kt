@@ -45,7 +45,7 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
 
         val history = event.channel.getMessageHistoryFrom(event.messageID, x+1)
 
-        val deleted = RequestBuffer.request<MutableList<IMessage>> { MessageHistory(history.subList(1, x+1)).bulkDelete() }.get()
+        val deleted = RequestBuffer.request<MutableList<IMessage>> { MessageHistory(history.subList(1, Math.min(x+1, history.size-1))).bulkDelete() }.get()
         for (msg in deleted)
             logger.debug("deleted: $msg")
 

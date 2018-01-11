@@ -36,7 +36,7 @@ import xyz.swagbot.utils.Thread
 val config = ConfigFactory.load()!!
 val logger = LoggerFactory.getLogger(config.getString("bot.name"))!!
 
-val audioPlayerManager = DefaultAudioPlayerManager();
+val audioPlayerManager = DefaultAudioPlayerManager()
 
 val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefix") },
         {

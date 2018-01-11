@@ -4,6 +4,7 @@ import sx.blah.discord.api.events.IListener
 import sx.blah.discord.handle.impl.events.ReadyEvent
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.getLastVoiceChannel
+import xyz.swagbot.logger
 
 /*
  * SwagBot - Created on 8/24/17
@@ -22,5 +23,6 @@ object ReadyHandler : IListener<ReadyEvent> {
     override fun handle(event: ReadyEvent) {
         // join all voice channels the bot was in before it was shut down
         event.client.guilds.forEach { RequestBuffer.request { it.getLastVoiceChannel()?.join() } }
+        logger.info("Startup complete.")
     }
 }

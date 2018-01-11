@@ -25,6 +25,6 @@ object LoopCommand : Command("Loop Queue", "loop", scope = Scope.GUILD) {
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Requeue tracks when they end instead of ")
+        usage.put("", "Requeue tracks when they end.")
     }
 }
