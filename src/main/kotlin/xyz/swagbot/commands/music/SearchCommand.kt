@@ -19,7 +19,7 @@ import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
 
-object SearchCommand : Command("Search YouTube", "search") {
+object SearchCommand : Command("Search YouTube", "search", "ytsearch") {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
