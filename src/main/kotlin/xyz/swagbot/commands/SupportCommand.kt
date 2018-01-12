@@ -19,6 +19,6 @@ object SupportCommand : Command("Support", "support", botPerm = Permission.NONE)
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-
+        usage.put("", "Links if you need help with SwagBot.")
     }
 }

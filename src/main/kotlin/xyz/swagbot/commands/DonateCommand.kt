@@ -17,6 +17,6 @@ object DonateCommand : Command("Donate", "donate", botPerm = Permission.NONE) {
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
-
+        usage.put("", "Links to help support SwagBot.")
     }
 }
