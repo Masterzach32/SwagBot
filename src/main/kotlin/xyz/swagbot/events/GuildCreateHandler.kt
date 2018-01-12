@@ -27,7 +27,7 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
 
             val builder = AdvancedMessageBuilder(event.guild.defaultChannel)
             builder.withContent("Thanks for adding me to your server! If you need help, check out the getting " +
-                    "started guide on my website: https://swagbot.xyz/gettingstarted.html")
+                    "started guide on my website: https://swagbot.xyz/gettingstarted")
             RequestBuffer.request { builder.build() }
         }
         event.guild.initializeAutioPlayer(event.client)

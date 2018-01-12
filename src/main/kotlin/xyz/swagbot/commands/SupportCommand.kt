@@ -13,7 +13,7 @@ object SupportCommand : Command("Support", "support", botPerm = Permission.NONE)
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         val embed = EmbedBuilder().withColor(BLUE)
         return builder.withEmbed(embed.withDesc("Need help with SwagBot? Make sure you have read the getting " +
-                "started guide: https://swagbot.xyz/gettingstarted.html\n\n" +
+                "started guide: https://swagbot.xyz/gettingstarted\n\n" +
                 "Still having trouble? Join the SwagBot support server: https://discord.me/swagbothub\n\n" +
                 "If you want to help fix a bug, submit an issue on GitHub: https://github.com/Masterzach32/SwagBot"))
     }
