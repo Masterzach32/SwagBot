@@ -8,7 +8,7 @@ import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IUser
 import xyz.swagbot.logger
 
-class SilentAudioTrackLoadHandler(val player: TrackScheduler, val guild: IGuild, val user: IUser) : AudioLoadResultHandler {
+class SilentAudioTrackLoadHandler(val player: TrackHandler, val guild: IGuild, val user: IUser) : AudioLoadResultHandler {
 
     override fun loadFailed(exception: FriendlyException) {
         logger.warn("Could not load track: ${exception.message}")

@@ -25,7 +25,7 @@ object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
                 "Follow SwagBot on Twitter for updates:\nhttps://twitter.com/DiscordSwagBot\n" +
                 "Check out the development for SwagBot at:\nhttps://github.com/Masterzach32/SwagBot\n" +
                 "Help development of SwagBot by donating to my PayPal:\nhttps://paypal.me/ultimatedoge\n" +
-                "Or pledge a small amount on Patreon:\n<https://patreon.com/ultimatedoge>\n" +
+                "Or pledge a small amount on Patreon:\nhttps://patreon.com/ultimatedoge\n" +
                 "Join the SwagBot support server:\nhttps://discord.me/swagbothub\n" +
                 "Want to add SwagBot to your server? Click the link below:" +
                 "\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8\n")

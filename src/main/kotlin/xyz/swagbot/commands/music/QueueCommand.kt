@@ -3,9 +3,7 @@ package xyz.swagbot.commands.music
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.EmbedBuilder
-import xyz.swagbot.api.music.TrackUserData
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
@@ -15,7 +13,6 @@ import xyz.swagbot.dsl.getFormattedPosition
 import xyz.swagbot.dsl.getFormattedTitle
 import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.utils.BLUE
-import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getFormattedTime
 
 object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope.GUILD) {

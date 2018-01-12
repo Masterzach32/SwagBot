@@ -4,10 +4,9 @@ import net.masterzach32.commands4k.Permission
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.handle.obj.*
 import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
-import xyz.swagbot.api.music.TrackScheduler
+import xyz.swagbot.api.music.TrackHandler
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.dsl.getTrackUserData
-import java.lang.Thread.sleep
 
 /*
  * SwagBot - Created on 8/24/17
@@ -21,16 +20,16 @@ import java.lang.Thread.sleep
  * @author zachk
  * @version 8/24/17
  */
-private val audioHandlers = mutableMapOf<String, TrackScheduler>()
+private val audioHandlers = mutableMapOf<String, TrackHandler>()
 
-fun getAllAudioHandlers(): Map<String, TrackScheduler> {
+fun getAllAudioHandlers(): Map<String, TrackHandler> {
     return audioHandlers
 }
 
 fun IGuild.initializeAutioPlayer(client: IDiscordClient) {
     if (!audioHandlers.contains(stringID)) {
         val player = audioPlayerManager.createPlayer()
-        val listener = TrackScheduler(player)
+        val listener = TrackHandler(player)
         player.addListener(listener)
 
         audioHandlers.put(stringID, listener)
@@ -48,7 +47,7 @@ fun IGuild.shutdownAudioPlayer() {
     toDestroy.player.destroy()
 }
 
-fun IGuild.getAudioHandler(): TrackScheduler {
+fun IGuild.getAudioHandler(): TrackHandler {
     return audioHandlers[stringID]!!
 }
 
@@ -109,7 +108,7 @@ fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
     return getVoiceChannelByID(get_guild_cell(stringID, sb_guilds.last_voice_channel)?.toLong() ?: 0)
 }
 
-fun TrackScheduler.saveTracksToStorage(guild: IGuild) {
+fun TrackHandler.saveTracksToStorage(guild: IGuild) {
     if (player.playingTrack != null && player.playingTrack.identifier != null)
         create_track_entry(guild.stringID, player.playingTrack.getTrackUserData().author.stringID, player.playingTrack.identifier)
     getQueue().forEach {
@@ -119,7 +118,7 @@ fun TrackScheduler.saveTracksToStorage(guild: IGuild) {
     sql { commit() }
 }
 
-fun TrackScheduler.loadTracksFromStorage(client: IDiscordClient, guild: IGuild) {
+fun TrackHandler.loadTracksFromStorage(client: IDiscordClient, guild: IGuild) {
     remove_track_entries(guild.stringID).forEach {
         audioPlayerManager.loadItemOrdered(this, it[sb_track_storage.identifier],
                 SilentAudioTrackLoadHandler(this, guild, client.getUserByID(it[sb_track_storage.user_id].toLong())))

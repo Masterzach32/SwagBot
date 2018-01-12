@@ -81,6 +81,7 @@ fun main(args: Array<String>) {
     // normal
     cmds.add(CatCommand)
     cmds.add(DogCommand)
+    cmds.add(DonateCommand)
     cmds.add(GameCommand)
     cmds.add(InfoCommand)
     cmds.add(JoinCommand)
@@ -91,6 +92,8 @@ fun main(args: Array<String>) {
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
     cmds.add(StrawpollCommand)
+    cmds.add(SupportCommand)
+    cmds.add(UrbanDictionaryCommand)
     cmds.add(UrlShortenCommand)
     cmds.add(VoiceCommand)
     cmds.add(VolumeCommand)

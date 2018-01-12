@@ -13,7 +13,7 @@ import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
-class AudioTrackLoadHandler(val player: TrackScheduler, val event: MessageReceivedEvent,
+class AudioTrackLoadHandler(val player: TrackHandler, val event: MessageReceivedEvent,
                             val builder: AdvancedMessageBuilder) : AudioLoadResultHandler {
 
     val embed = EmbedBuilder()

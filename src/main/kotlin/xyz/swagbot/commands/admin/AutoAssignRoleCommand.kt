@@ -25,8 +25,8 @@ import xyz.swagbot.utils.getContent
  * @author Zach Kozar
  * @version 8/30/2017
  */
-object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "aar", scope = Command.Scope.GUILD,
-        botPerm = Permission.ADMIN, discordPerms = listOf(Permissions.MANAGE_ROLES)) {
+object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "joinrole", "aar",
+        scope = Command.Scope.GUILD, botPerm = Permission.ADMIN, discordPerms = listOf(Permissions.MANAGE_ROLES)) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {

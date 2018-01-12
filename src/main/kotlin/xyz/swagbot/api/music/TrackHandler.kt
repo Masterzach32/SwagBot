@@ -10,7 +10,7 @@ import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.logger
 import java.util.*
 
-class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
+class TrackHandler(val player: AudioPlayer) : AudioEventAdapter() {
 
     private val queue = mutableListOf<AudioTrack>()
 
@@ -25,15 +25,15 @@ class TrackScheduler(val player: AudioPlayer) : AudioEventAdapter() {
 
     fun playNext(): AudioTrack? {
         val oldTrack = player.playingTrack
-        if (queue.isNotEmpty())
-            player.startTrack(queue.removeAt(0), false)
-        else if (player.playingTrack != null)
-            player.stopTrack()
         if (shouldLoop && oldTrack != null) {
             val clone = oldTrack.makeClone()
             clone.userData = oldTrack.userData
             queue(clone)
         }
+        if (queue.isNotEmpty())
+            player.startTrack(queue.removeAt(0), false)
+        else if (player.playingTrack != null)
+            player.stopTrack()
         return oldTrack
     }
 
