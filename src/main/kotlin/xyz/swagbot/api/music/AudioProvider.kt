@@ -27,12 +27,8 @@ class AudioProvider(private val player: AudioPlayer) : IAudioProvider {
         return data
     }
 
-    override fun getChannels(): Int {
-        return 2
-    }
+    override fun getChannels() = 2
 
-    override fun getAudioEncodingType(): AudioEncodingType {
-        return AudioEncodingType.OPUS
-    }
+    override fun getAudioEncodingType() = AudioEncodingType.OPUS
 
 }

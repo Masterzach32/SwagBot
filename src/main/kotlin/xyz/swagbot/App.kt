@@ -105,7 +105,7 @@ fun main(args: Array<String>) {
     cmds.add(AutoAssignRoleCommand)
     cmds.add(ChangePrefixCommand)
     cmds.add(EditPermissionsCommand)
-    // dev
+    // devd
     cmds.add(ShutdownCommand)
 
     logger.info("Creating discord client object.")

@@ -19,7 +19,8 @@ class AudioTrackLoadHandler(val player: TrackHandler, val event: MessageReceived
     val embed = EmbedBuilder()
 
     override fun loadFailed(exception: FriendlyException) {
-        logger.warn("Could not load track: ${exception.message}")
+        if (exception.severity != FriendlyException.Severity.COMMON)
+            exception.printStackTrace()
         embed.withColor(RED)
         embed.withDesc("Could not load track: ${exception.message}")
         RequestBuffer.request { builder.withEmbed(embed).build() }

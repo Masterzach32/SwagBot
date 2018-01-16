@@ -11,6 +11,7 @@ import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
+import java.lang.Thread.sleep
 
 /*
  * SwagBot - Created on 9/2/2017
@@ -45,14 +46,13 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
 
         val history = event.channel.getMessageHistoryFrom(event.messageID, x+1)
 
-        val deleted = RequestBuffer.request<MutableList<IMessage>> { MessageHistory(history.subList(1, Math.min(x+1, history.size-1))).bulkDelete() }.get()
+        val deleted = RequestBuffer.request<MutableList<IMessage>> { history.bulkDelete() }.get()
         for (msg in deleted)
             logger.debug("deleted: $msg")
 
         builder.withEmbed(embed.withColor(BLUE).withDesc("Removed the last **$x** messages."))
-        RequestBuffer.request { event.message.delete() }
         val response = RequestBuffer.request<IMessage> { builder.build() }.get()
-        Thread.sleep(5000)
+        sleep(5000)
         RequestBuffer.request { response.delete() }
         return null
     }
