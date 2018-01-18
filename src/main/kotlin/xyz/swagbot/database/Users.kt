@@ -2,9 +2,30 @@ package xyz.swagbot.database
 
 import net.masterzach32.commands4k.Permission
 import org.jetbrains.exposed.sql.select
+import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IUser
 
-fun IUser.getDMPermission(): Permission {
+fun IUser.getBotPermission(guild: IGuild): Permission {
+    return when (get_permission_entry(guild.stringID, stringID)) {
+        0 -> Permission.NONE
+        1 -> Permission.NORMAL
+        2 -> Permission.MOD
+        3 -> Permission.ADMIN
+        4 -> Permission.DEVELOPER
+        else -> Permission.NORMAL
+    }
+}
+
+fun IUser.setBotPermission(guild: IGuild, permission: Permission) {
+    if (permission == Permission.NORMAL)
+        remove_permission_entry(guild.stringID, stringID)
+    else if (does_user_have_permission_entry(guild.stringID, stringID))
+        update_permission_entry(guild.stringID, stringID, permission.ordinal)
+    else
+        create_permission_entry(guild.stringID, stringID, permission.ordinal)
+}
+
+fun IUser.getBotDMPermission(): Permission {
     return sql {
         val perms = mutableListOf<Permission>()
         sb_permissions
