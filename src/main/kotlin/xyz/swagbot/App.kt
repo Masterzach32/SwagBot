@@ -41,9 +41,9 @@ val audioPlayerManager = DefaultAudioPlayerManager()
 val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefix") },
         {
             if (it == null)
-                this.getDMPermission()
+                this.getBotDMPermission()
             else {
-                val perm = it.getUserPermission(this)
+                val perm = this.getBotPermission(it)
                 if (it.owner == this && perm != Permission.DEVELOPER)
                     Permission.ADMIN
                 else
@@ -83,6 +83,8 @@ fun main(args: Array<String>) {
     cmds.add(DogCommand)
     cmds.add(DonateCommand)
     cmds.add(GameCommand)
+    cmds.add(IAmCommand)
+    cmds.add(IAmNotCommand)
     cmds.add(InfoCommand)
     cmds.add(JoinCommand)
     cmds.add(InviteCommand)
@@ -120,6 +122,7 @@ fun main(args: Array<String>) {
     client.dispatcher.registerListener(UserJoinEvent)
     client.dispatcher.registerListener(UserLeaveEvent)
     client.dispatcher.registerListener(UserMovedEvent)
+    client.dispatcher.registerListener(RoleHandler)
     client.login()
 
     logger.info("Waiting to receive guilds...")

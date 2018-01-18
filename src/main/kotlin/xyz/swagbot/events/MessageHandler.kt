@@ -1,17 +1,9 @@
 package xyz.swagbot.events
 
 import net.masterzach32.commands4k.AdvancedMessageBuilder
-import net.masterzach32.commands4k.Permission
 import sx.blah.discord.api.events.IListener
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
-import sx.blah.discord.util.EmbedBuilder
-import sx.blah.discord.util.MissingPermissionsException
 import sx.blah.discord.util.RequestBuffer
-import xyz.swagbot.cmds
-import xyz.swagbot.database.getCommandPrefix
-import xyz.swagbot.database.getUserPermission
-import xyz.swagbot.logger
-import xyz.swagbot.utils.RED
 
 /*
  * SwagBot - Created on 8/25/17

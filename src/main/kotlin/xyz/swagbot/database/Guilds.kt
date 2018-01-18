@@ -1,7 +1,5 @@
 package xyz.swagbot.database
 
-import net.masterzach32.commands4k.Permission
-import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.handle.obj.*
 import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
 import xyz.swagbot.api.music.TrackHandler
@@ -26,7 +24,7 @@ fun getAllAudioHandlers(): Map<String, TrackHandler> {
     return audioHandlers
 }
 
-fun IGuild.initializeAutioPlayer(client: IDiscordClient) {
+fun IGuild.initializeAutioPlayer() {
     if (!audioHandlers.contains(stringID)) {
         val player = audioPlayerManager.createPlayer()
         val listener = TrackHandler(player)
@@ -37,7 +35,7 @@ fun IGuild.initializeAutioPlayer(client: IDiscordClient) {
         if (isQueueLoopEnabled())
             listener.toggleShouldLoop()
 
-        listener.loadTracksFromStorage(client, this)
+        listener.loadTracksFromStorage(this)
     }
 }
 
@@ -72,26 +70,6 @@ fun IGuild.isBotLocked(): Boolean {
     return get_guild_cell(stringID, sb_guilds.locked)!!
 }
 
-fun IGuild.getUserPermission(user: IUser): Permission {
-    return when (get_permission_entry(stringID, user.stringID)) {
-        0 -> Permission.NONE
-        1 -> Permission.NORMAL
-        2 -> Permission.MOD
-        3 -> Permission.ADMIN
-        4 -> Permission.DEVELOPER
-        else -> Permission.NORMAL
-    }
-}
-
-fun IGuild.setUserPermission(user: IUser, permission: Permission) {
-    if (permission == Permission.NORMAL)
-        remove_permission_entry(stringID, user.stringID)
-    else if (does_user_have_permission_entry(stringID, user.stringID))
-        update_permission_entry(stringID, user.stringID, permission.ordinal)
-    else
-        create_permission_entry(stringID, user.stringID, permission.ordinal)
-}
-
 fun IGuild.setAutoAssignRole(role: IRole?) {
     update_guild_cell(stringID, sb_guilds.auto_assign_role, role?.name)
 }
@@ -118,10 +96,12 @@ fun TrackHandler.saveTracksToStorage(guild: IGuild) {
     sql { commit() }
 }
 
-fun TrackHandler.loadTracksFromStorage(client: IDiscordClient, guild: IGuild) {
+fun TrackHandler.loadTracksFromStorage(guild: IGuild) {
     remove_track_entries(guild.stringID).forEach {
-        audioPlayerManager.loadItemOrdered(this, it[sb_track_storage.identifier],
-                SilentAudioTrackLoadHandler(this, guild, client.getUserByID(it[sb_track_storage.user_id].toLong())))
+        audioPlayerManager.loadItemOrdered(this,
+                it[sb_track_storage.identifier],
+                SilentAudioTrackLoadHandler(this, guild,
+                        guild.client.getUserByID(it[sb_track_storage.user_id].toLong())))
     }
 }
 
@@ -133,4 +113,26 @@ fun IGuild.toggleQueueLoop(): Boolean {
     val new = getAudioHandler().toggleShouldLoop()
     update_guild_cell(stringID, sb_guilds.loop, new)
     return new
+}
+
+fun IGuild.getIAmRoleList(): List<IRole?> {
+    return get_iam_role_list(stringID).map { getRoleByID(it.toLong()) }
+}
+
+fun IGuild.isRoleSelfAssignable(role: IRole): Boolean {
+    return has_iam_role_entry(role.stringID)
+}
+
+fun IGuild.removeIAmRole(role: IRole): Boolean {
+    if (!has_iam_role_entry(role.stringID))
+        return false
+    remove_iam_role_entry(role.stringID)
+    return true
+}
+
+fun IGuild.addIAmRole(role: IRole): Boolean {
+    if (has_iam_role_entry(role.stringID))
+        return false
+    create_iam_role_entry(stringID, role.stringID)
+    return true
 }

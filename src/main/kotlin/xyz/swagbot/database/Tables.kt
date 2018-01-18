@@ -63,3 +63,8 @@ object sb_track_storage : Table() {
     val user_id = text("user_id")
     val identifier = text("identifier")
 }
+
+object sb_iam_roles : Table() {
+    val guild_id = text("guild_id")
+    val role_id = text("role_id")
+}

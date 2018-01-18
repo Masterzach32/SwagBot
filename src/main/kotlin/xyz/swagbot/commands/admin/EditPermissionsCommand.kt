@@ -6,8 +6,7 @@ import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getUserPermission
-import xyz.swagbot.database.setUserPermission
+import xyz.swagbot.database.*
 import xyz.swagbot.dsl.getAllUserMentions
 import xyz.swagbot.utils.BLUE
 
@@ -35,12 +34,15 @@ object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm"
             return getWrongArgumentsMessage(builder, this, cmdUsed)
 
         val permToSet = Permission.values().firstOrNull { it.name == args[0] }
-        if (permToSet == null || (permToSet == Permission.DEVELOPER && event.guild.getUserPermission(event.author) < Permission.DEVELOPER))
+        if (permToSet == null ||
+                (permToSet == Permission.DEVELOPER && event.author.getBotPermission(event.guild) < Permission.DEVELOPER))
             return null
 
         users.forEach {
-            embed.appendField("${it.name}#${it.discriminator}", "${event.guild.getUserPermission(it)} -> $permToSet", true)
-            event.guild.setUserPermission(it, permToSet)
+            embed.appendField("${it.name}#${it.discriminator}",
+                    "${it.getBotPermission(event.guild)} -> $permToSet",
+                    true)
+            it.setBotPermission(event.guild, permToSet)
         }
 
         return builder.withEmbed(embed)

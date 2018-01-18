@@ -47,7 +47,8 @@ fun getDatabaseConnection(url: String) {
             Database.connect("jdbc:sqlite:$url", "org.sqlite.JDBC")
 
             // make sure tables are initialized
-            sql { create(sb_api_keys, sb_defaults, sb_guilds, sb_permissions, sb_chat_channels, sb_stats, sb_game_brawl, sb_track_storage) }
+            sql { create(sb_api_keys, sb_defaults, sb_guilds, sb_permissions, sb_chat_channels, sb_stats, sb_game_brawl,
+                    sb_iam_roles, sb_track_storage) }
 
             return
         } catch (t: Throwable) {

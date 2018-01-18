@@ -113,6 +113,36 @@ internal fun remove_track_entries(guildId: String): List<ResultRow> {
     }
 }
 
+internal fun create_iam_role_entry(guildId: String, roleId: String) {
+    sql {
+        sb_iam_roles.insert {
+            it[sb_iam_roles.guild_id] = guildId
+            it[sb_iam_roles.role_id] = roleId
+        }
+        commit()
+    }
+}
+
+internal fun has_iam_role_entry(roleId: String): Boolean {
+    return sql {
+        return@sql sb_iam_roles.select { sb_iam_roles.role_id eq roleId }.firstOrNull() != null
+    }
+}
+
+internal fun get_iam_role_list(guildId: String): List<String> {
+    val list = mutableListOf<String>()
+    sql {
+        sb_iam_roles
+                .select { sb_iam_roles.guild_id eq guildId }
+                .forEach { list.add(it[sb_iam_roles.role_id]) }
+    }
+    return list
+}
+
+internal fun remove_iam_role_entry(roleId: String) {
+    sql { sb_iam_roles.deleteWhere { sb_iam_roles.role_id eq roleId } }
+}
+
 /*
     Generic SQL code
  */
