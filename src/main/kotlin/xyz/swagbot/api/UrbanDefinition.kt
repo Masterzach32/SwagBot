@@ -36,7 +36,7 @@ class UrbanDefinition(term: String) {
                 def = def.getJSONArray("list").getJSONObject(0)
                 this.defid = def.getInt("defid")
                 this.term = def.getString("word")
-                this.author = def.getString("author")
+                this.author = def.getString("requester")
                 this.definition = def.getString("definition")
                 this.example = def.getString("example")
                 this.link = def.getString("permalink")

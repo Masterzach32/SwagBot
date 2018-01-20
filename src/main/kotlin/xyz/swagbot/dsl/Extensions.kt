@@ -54,3 +54,6 @@ fun AudioTrack.getFormattedTitleWithTime(): String {
     return "${info.title} by ${info.author} - **${getFormattedLength()}**"
 }
 
+fun AudioTrack.getRequester(): IUser {
+    return getTrackUserData().requester
+}

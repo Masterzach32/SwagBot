@@ -8,10 +8,7 @@ import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.database.isQueueLoopEnabled
-import xyz.swagbot.dsl.getFormattedLength
-import xyz.swagbot.dsl.getFormattedPosition
-import xyz.swagbot.dsl.getFormattedTitle
-import xyz.swagbot.dsl.getTrackUserData
+import xyz.swagbot.dsl.*
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.getFormattedTime
 
@@ -43,7 +40,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.getFormattedTitle()} - " +
                 "**${audioHandler.player.playingTrack.getFormattedPosition()}**" +
                 " / **${audioHandler.player.playingTrack.getFormattedLength()}** " +
-                "(${audioHandler.player.playingTrack.getTrackUserData().author.getDisplayName(event.guild)})", false)
+                "(${audioHandler.player.playingTrack.getRequester().getDisplayName(event.guild)})", false)
         var count = 0L
         audioHandler.getQueue().forEach { count += it.info.length }
         embed.appendField("Volume:", "${(audioHandler.player.volume)}.0", true)
@@ -58,7 +55,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15) {
             str += "${i+1}. ${audioHandler.getQueue()[i].getFormattedTitle()} - " +
                     "**${audioHandler.getQueue()[i].getFormattedLength()}** " +
-                    "(${audioHandler.getQueue()[i].getTrackUserData().author.getDisplayName(event.guild)})\n"
+                    "(${audioHandler.getQueue()[i].getRequester().getDisplayName(event.guild)})\n"
             i++
         }
         if (str.isEmpty())

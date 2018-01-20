@@ -88,10 +88,10 @@ fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
 
 fun TrackHandler.saveTracksToStorage(guild: IGuild) {
     if (player.playingTrack != null && player.playingTrack.identifier != null)
-        create_track_entry(guild.stringID, player.playingTrack.getTrackUserData().author.stringID, player.playingTrack.identifier)
+        create_track_entry(guild.stringID, player.playingTrack.getTrackUserData().requester.stringID, player.playingTrack.identifier)
     getQueue().forEach {
         if (it.identifier != null)
-            create_track_entry(guild.stringID, it.getTrackUserData().author.stringID, it.identifier)
+            create_track_entry(guild.stringID, it.getTrackUserData().requester.stringID, it.identifier)
     }
     sql { commit() }
 }

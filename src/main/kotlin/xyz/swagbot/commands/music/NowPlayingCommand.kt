@@ -6,10 +6,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
-import xyz.swagbot.dsl.getBoldFormattedTitle
-import xyz.swagbot.dsl.getFormattedLength
-import xyz.swagbot.dsl.getFormattedPosition
-import xyz.swagbot.dsl.getTrackUserData
+import xyz.swagbot.dsl.*
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
@@ -22,10 +19,13 @@ object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Sc
         if (playingTrack == null)
             return builder.withEmbed(embed.withColor(RED).withDesc("Im not playing anything right now. Go add some" +
                     " tracks with the ${event.guild.getCommandPrefix()}play or ${event.guild.getCommandPrefix()}search commands!"))
-        return builder.withEmbed(embed.withColor(BLUE).withDesc("Currently playing " +
-                "${playingTrack.getBoldFormattedTitle()} - **${playingTrack.getFormattedPosition()}**" +
-                " / **${playingTrack.getFormattedLength()}** " +
-                "(${playingTrack.getTrackUserData().author.getDisplayName(event.guild)})"))
+        embed.withColor(BLUE)
+                .withTitle(":musical_note: ${playingTrack.getFormattedTitle()} " +
+                        "(${playingTrack.getFormattedPosition()} / ${playingTrack.getFormattedLength()})")
+                .withDesc("Requested by: **${playingTrack.getRequester().getDisplayName(event.guild)}**")
+        if (playingTrack.info.uri.contains("youtu"))
+            embed.withThumbnail("https://img.youtube.com/vi/${playingTrack.identifier}/0.jpg")
+        return builder.withEmbed(embed)
     }
 
     override fun getCommandHelp(usage: MutableMap<String, String>) {
