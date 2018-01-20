@@ -2,7 +2,7 @@ package xyz.swagbot.api.music
 
 import sx.blah.discord.handle.obj.IUser
 
-class TrackUserData(val author: IUser) {
+class TrackUserData(val requester: IUser) {
 
     private val skipList = mutableSetOf<IUser>()
 
