@@ -64,7 +64,7 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
             var dead: IUser
             do {
                 dead = users[Random().nextInt(users.size)]
-            } while (dead.stringID == "148604482492563456")
+            } while (dead.longID == 148604482492563456)
             users.remove(dead)
             val killer = users[Random().nextInt(users.size)]
             var result = get_cell(sb_game_brawl, sb_game_brawl.death_message)

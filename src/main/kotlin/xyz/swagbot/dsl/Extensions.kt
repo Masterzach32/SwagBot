@@ -1,6 +1,7 @@
 package xyz.swagbot.dsl
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.handle.obj.StatusType
@@ -56,4 +57,12 @@ fun AudioTrack.getFormattedTitleWithTime(): String {
 
 fun AudioTrack.getRequester(): IUser {
     return getTrackUserData().requester
+}
+
+fun AudioTrackInfo.hasThumbnail(): Boolean {
+    return uri.contains("youtu")
+}
+
+fun AudioTrackInfo.getThumbnailUrl(): String {
+    return "https://img.youtube.com/vi/$identifier/0.jpg"
 }

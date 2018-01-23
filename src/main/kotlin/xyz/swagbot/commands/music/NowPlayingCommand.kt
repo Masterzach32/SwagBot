@@ -30,8 +30,8 @@ object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Sc
 
         logger.info("${playingTrack.getRequester().getDisplayName(event.guild)} " +
                 "${playingTrack.getRequester().getDisplayName(event.guild).toByteArray().toList()} ")
-        if (playingTrack.info.uri.contains("youtu"))
-            embed.withThumbnail("https://img.youtube.com/vi/${playingTrack.identifier}/0.jpg")
+        if (playingTrack.info.hasThumbnail())
+            embed.withThumbnail(playingTrack.info.getThumbnailUrl())
         return builder.withEmbed(embed)
     }
 
