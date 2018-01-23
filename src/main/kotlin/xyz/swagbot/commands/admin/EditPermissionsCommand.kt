@@ -9,6 +9,7 @@ import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.*
 import xyz.swagbot.dsl.getAllUserMentions
 import xyz.swagbot.utils.BLUE
+import xyz.swagbot.utils.RED
 
 /*
  * SwagBot - Created on 8/27/2017
@@ -33,9 +34,11 @@ object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm"
         if (args.size < 2 || users.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
 
-        val permToSet = Permission.values().firstOrNull { it.name == args[0] }
-        if (permToSet == null ||
-                (permToSet == Permission.DEVELOPER && event.author.getBotPermission(event.guild) < Permission.DEVELOPER))
+        val permToSet = Permission.values().firstOrNull { it.name == args[0].capitalize() }
+        if (permToSet == null)
+            return builder.withEmbed(embed.withColor(RED).withDesc("That permission level doesn't exist. " +
+                    "Allowed permission levels are ${getPerms()}"))
+        if ((permToSet == Permission.DEVELOPER && event.author.getBotPermission(event.guild) != Permission.DEVELOPER))
             return null
 
         users.forEach {
