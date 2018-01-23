@@ -41,13 +41,11 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
                 "**${audioHandler.player.playingTrack.getFormattedPosition()}**" +
                 " / **${audioHandler.player.playingTrack.getFormattedLength()}** " +
                 "(${audioHandler.player.playingTrack.getRequester().getDisplayName(event.guild)})", false)
-        var count = 0L
-        audioHandler.getQueue().forEach { count += it.info.length }
         embed.appendField("Volume:", "${(audioHandler.player.volume)}.0", true)
         embed.appendField("Loop:", if (event.guild.isQueueLoopEnabled()) ":white_check_mark:" else ":x:", true)
         embed.appendField("Paused:", if (audioHandler.player.isPaused) ":white_check_mark:" else ":x:", true)
         embed.appendField("Songs in Queue: ", "${audioHandler.getQueue().size}", true)
-        embed.appendField("Length:", getFormattedTime((count/1000).toInt()), true)
+        embed.appendField("Length:", getFormattedTime((audioHandler.getQueueLength()/1000).toInt()), true)
         embed.appendField("Page:", "${(pageNumber + 1)} / ${(audioHandler.getQueue().size / 15) + 1}", true)
 
         var i = pageNumber * 15

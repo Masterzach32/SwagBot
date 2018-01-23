@@ -50,7 +50,6 @@ object sb_stats : Table() {
 object sb_chat_channels : Table() {
     val guild_id = text("guild_id")
     val channel_id = text("channel_id")
-    val user_id = text("user_id")
 }
 
 object sb_game_brawl : Table() {

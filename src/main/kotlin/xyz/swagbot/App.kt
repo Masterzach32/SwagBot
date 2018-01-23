@@ -106,6 +106,7 @@ fun main(args: Array<String>) {
     // admin
     cmds.add(AutoAssignRoleCommand)
     cmds.add(ChangePrefixCommand)
+    //cmds.add(ChatOnlyCommand)
     cmds.add(EditPermissionsCommand)
     // devd
     cmds.add(ShutdownCommand)

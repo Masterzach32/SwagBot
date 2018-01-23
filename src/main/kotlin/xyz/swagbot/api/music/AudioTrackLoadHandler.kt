@@ -9,11 +9,11 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.dsl.getBoldFormattedTitle
-import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
+import xyz.swagbot.utils.getFormattedTime
 
-class AudioTrackLoadHandler(val player: TrackHandler, val event: MessageReceivedEvent,
+class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceivedEvent,
                             val builder: AdvancedMessageBuilder) : AudioLoadResultHandler {
 
     val embed = EmbedBuilder()
@@ -28,9 +28,13 @@ class AudioTrackLoadHandler(val player: TrackHandler, val event: MessageReceived
 
     override fun trackLoaded(track: AudioTrack) {
         track.userData = TrackUserData(event.author)
-        player.queue(track)
+        handler.queue(track)
         embed.withColor(BLUE)
-        embed.withDesc("${event.author} queued track: ${track.getBoldFormattedTitle()}")
+        embed.withDesc("${event.author} queued track: ${track.getBoldFormattedTitle()}. ")
+        if (handler.getQueue().isNotEmpty())
+            embed.appendDesc("Estimated time in queue: **${getFormattedTime((handler.getQueueLength()/1000).toInt())}**")
+        else if (handler.getQueue().isEmpty() && handler.player.playingTrack != null)
+            embed.appendDesc("Playing next!")
         RequestBuffer.request { event.message.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }
@@ -44,7 +48,7 @@ class AudioTrackLoadHandler(val player: TrackHandler, val event: MessageReceived
     override fun playlistLoaded(playlist: AudioPlaylist) {
         for (track in playlist.tracks) {
             track.userData = TrackUserData(event.author)
-            player.queue(track)
+            handler.queue(track)
         }
         embed.withColor(BLUE)
         embed.withDesc("${event.author} queued playlist: ${playlist.name}")

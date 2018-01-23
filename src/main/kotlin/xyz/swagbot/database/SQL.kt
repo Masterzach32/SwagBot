@@ -80,6 +80,7 @@ internal fun update_permission_entry(guildId: String, userId: String, permission
                 .update({(sb_permissions.guild_id eq guildId) and (sb_permissions.user_id eq userId)}) {
                     it[sb_permissions.permission] = permission
                 }
+        commit()
     }
 }
 
@@ -91,7 +92,10 @@ internal fun get_permission_entry(guildId: String, userId: String): Int {
 }
 
 internal fun remove_permission_entry(guildId: String, userId: String) {
-    sql { sb_permissions.deleteWhere { (sb_permissions.guild_id eq guildId) and (sb_permissions.user_id eq userId) } }
+    sql {
+        sb_permissions.deleteWhere { (sb_permissions.guild_id eq guildId) and (sb_permissions.user_id eq userId) }
+        commit()
+    }
 }
 
 internal fun create_track_entry(guildId: String, userId: String, identifier: String) {
@@ -101,6 +105,7 @@ internal fun create_track_entry(guildId: String, userId: String, identifier: Str
             it[sb_track_storage.user_id] = userId
             it[sb_track_storage.identifier] = identifier
         }
+        commit()
     }
 }
 
@@ -111,6 +116,40 @@ internal fun remove_track_entries(guildId: String): List<ResultRow> {
         sb_track_storage.deleteWhere { sb_track_storage.guild_id eq guildId }
         return@sql list
     }
+}
+
+internal fun create_chat_channel_entry(guildId: String, channelId: String): Boolean {
+    if (has_chat_channel_entry(channelId))
+        return false
+    sql {
+        sb_chat_channels.insert {
+            it[sb_chat_channels.guild_id] = guildId
+            it[sb_chat_channels.channel_id] = channelId
+        }
+        commit()
+    }
+    return true
+}
+
+internal fun has_chat_channel_entry(channelId: String): Boolean {
+    return sql { return@sql sb_chat_channels.select { sb_chat_channels.channel_id eq channelId }.firstOrNull() != null }
+}
+
+internal fun remove_chat_channel_entry(channelId: String): Boolean {
+    if (!has_chat_channel_entry(channelId))
+        return false
+    sql { sb_chat_channels.deleteWhere { sb_chat_channels.channel_id eq channelId } }
+    return true
+}
+
+internal fun get_chat_channels_for_guild(guildId: String): Set<String> {
+    val set = mutableSetOf<String>()
+    sql {
+        sb_chat_channels
+                .select { sb_chat_channels.guild_id eq guildId }
+                .forEach { set.add(it[sb_chat_channels.channel_id]) }
+    }
+    return set
 }
 
 internal fun create_iam_role_entry(guildId: String, roleId: String) {

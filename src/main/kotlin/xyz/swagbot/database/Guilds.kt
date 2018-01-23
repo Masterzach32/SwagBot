@@ -1,9 +1,12 @@
 package xyz.swagbot.database
 
+import net.masterzach32.commands4k.Permission
+import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.handle.obj.*
 import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
 import xyz.swagbot.api.music.TrackHandler
 import xyz.swagbot.audioPlayerManager
+import xyz.swagbot.dsl.getRequester
 import xyz.swagbot.dsl.getTrackUserData
 
 /*
@@ -88,10 +91,10 @@ fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
 
 fun TrackHandler.saveTracksToStorage(guild: IGuild) {
     if (player.playingTrack != null && player.playingTrack.identifier != null)
-        create_track_entry(guild.stringID, player.playingTrack.getTrackUserData().requester.stringID, player.playingTrack.identifier)
+        create_track_entry(guild.stringID, player.playingTrack.getRequester().stringID, player.playingTrack.info.uri)
     getQueue().forEach {
         if (it.identifier != null)
-            create_track_entry(guild.stringID, it.getTrackUserData().requester.stringID, it.identifier)
+            create_track_entry(guild.stringID, it.getRequester().stringID, it.info.uri)
     }
     sql { commit() }
 }
@@ -113,6 +116,18 @@ fun IGuild.toggleQueueLoop(): Boolean {
     val new = getAudioHandler().toggleShouldLoop()
     update_guild_cell(stringID, sb_guilds.loop, new)
     return new
+}
+
+fun IGuild.addChatChannel(channel: IChannel): Boolean {
+    return create_chat_channel_entry(stringID, channel.stringID)
+}
+
+fun IGuild.removeChatChannel(channel: IChannel): Boolean {
+    return remove_chat_channel_entry(channel.stringID)
+}
+
+fun IGuild.getChatChannels(): List<IChannel> {
+    return get_chat_channels_for_guild(stringID).map { client.getChannelByID(it.toLong()) }
 }
 
 fun IGuild.getIAmRoleList(): List<IRole?> {

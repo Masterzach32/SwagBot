@@ -97,6 +97,12 @@ class TrackHandler(val player: AudioPlayer) : AudioEventAdapter() {
         return shouldLoop
     }
 
+    fun getQueueLength(): Long {
+        var count = 0L
+        queue.forEach { count += it.info.length }
+        return count
+    }
+
     override fun onTrackStart(player: AudioPlayer, track: AudioTrack) {
 
     }
