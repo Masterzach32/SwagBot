@@ -22,6 +22,10 @@ import xyz.swagbot.utils.withImage
  */
 object CatCommand : Command("Random Cat Picture", "randomcat", "cat") {
 
+    init {
+        help.desc = "Displays a picture of a cat from the internet."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         event.channel.toggleTypingStatus()
@@ -30,9 +34,5 @@ object CatCommand : Command("Random Cat Picture", "randomcat", "cat") {
         if (response.status != 200)
             return getApiErrorMessage(builder, Type.GET, url, "none", response.status, response.statusText)
         return builder.withImage(response.body.`object`.getString("file"))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-
     }
 }

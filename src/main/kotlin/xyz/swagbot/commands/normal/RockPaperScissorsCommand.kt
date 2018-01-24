@@ -6,6 +6,10 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 
 object RockPaperScissorsCommand : Command("Rock Paper Scissors", "rock", "paper", "scissors") {
 
+    init {
+        help.desc = "Play rock paper scissors!"
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         event.channel.toggleTypingStatus()
@@ -23,12 +27,5 @@ object RockPaperScissorsCommand : Command("Rock Paper Scissors", "rock", "paper"
         else
             builder.withContent("I choose $rand, I loose!")
         return builder
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Play rock paper scissors!")
-        usage.put("rock", "Choose rock.")
-        usage.put("paper", "Choose paper.")
-        usage.put("scissors", "Choose scissors.")
     }
 }

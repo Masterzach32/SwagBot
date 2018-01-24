@@ -9,6 +9,10 @@ import xyz.swagbot.utils.BLUE
 
 object InviteCommand : Command("Invite SwagBot", "invite", botPerm = Permission.NONE) {
 
+    init {
+        help.desc = "Post an invite link for SwagBot."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
 
@@ -17,9 +21,5 @@ object InviteCommand : Command("Invite SwagBot", "invite", botPerm = Permission.
                 .withTitle("Click this link to add SwagBot to your server!")
                 .withDesc("https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8")
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Post an invite link for SwagBot.")
     }
 }

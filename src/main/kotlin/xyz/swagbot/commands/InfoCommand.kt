@@ -12,6 +12,10 @@ import xyz.swagbot.utils.BLUE
 
 object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
 
+    init {
+        help.desc = "Get more info on SwagBot"
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         val embed = EmbedBuilder().withColor(BLUE)
 
@@ -33,9 +37,5 @@ object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
         embed.withFooterText("\u00a9 SwagBot 2016-2018. Written in Kotlin. Built off of Discord4J ${Discord4J.VERSION}.")
 
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Get more info on SwagBot")
     }
 }

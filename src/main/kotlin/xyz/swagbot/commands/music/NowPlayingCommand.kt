@@ -14,6 +14,10 @@ import xyz.swagbot.utils.RED
 
 object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Display the currently playing track."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         val playingTrack = event.guild.getAudioHandler().player.playingTrack
@@ -33,9 +37,5 @@ object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Sc
         if (playingTrack.info.hasThumbnail())
             embed.withThumbnail(playingTrack.info.getThumbnailUrl())
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Display the currently playing track.")
     }
 }

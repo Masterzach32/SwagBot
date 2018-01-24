@@ -14,6 +14,12 @@ import java.net.URLEncoder
 
 object DogCommand : Command("Dog Pictures", "dog", "randomdog") {
 
+    init {
+        help.desc = "Finds a picture of a dog from the internet."
+        help.usage[""] = "Finds a picture of a dog from a random breed."
+        help.usage["<breed>"] = "Finds a picture of a dog of the breed specified."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         event.channel.toggleTypingStatus()
@@ -26,10 +32,5 @@ object DogCommand : Command("Dog Pictures", "dog", "randomdog") {
         if (response.status != 200)
             return getApiErrorMessage(builder, Type.GET, url, "none", response.status, response.statusText)
         return builder.withImage(response.body.`object`.getString("message"))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Finds a picture of a random dog.")
-        usage.put("<breed>", "Finds a picture of a dog of the breed specified.")
     }
 }

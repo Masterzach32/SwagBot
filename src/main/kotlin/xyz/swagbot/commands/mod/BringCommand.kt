@@ -17,8 +17,12 @@ import sx.blah.discord.util.RequestBuffer
  * @author Zach Kozar
  * @version 9/2/2017
  */
-object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permission.MOD, scope = Command.Scope.GUILD,
-        discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
+object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permission.MOD,
+        scope = Command.Scope.GUILD, discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
+
+    init {
+        help.usage[""] = "Brings all users currently connected to a voice channel to you."
+    }
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
@@ -29,9 +33,5 @@ object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permissio
                 .filter { it.getVoiceStateForGuild(event.guild).channel != null }
                 .forEach { RequestBuffer.request { it.moveToVoiceChannel(vc) } }
         return null
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Brings all users currently connected to a voice channel to you.")
     }
 }

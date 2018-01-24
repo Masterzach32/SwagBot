@@ -14,6 +14,10 @@ import xyz.swagbot.utils.RED
 
 object VoteSkipCommand : Command("Vote Skip", "voteskip", "vskip", scope = Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Vote to skip a song. Requires a simple majority. (greater than 50%)"
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -32,9 +36,5 @@ object VoteSkipCommand : Command("Vote Skip", "voteskip", "vskip", scope = Scope
         }
         return builder.withEmbed(embed.withColor(BLUE).withDesc("**$skipThreshold** more votes needed to skip " +
                 playingTrack.getBoldFormattedTitle()))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Vote to skip a song. Requires a simple majority. (greater than 50%)")
     }
 }

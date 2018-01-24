@@ -16,6 +16,11 @@ import java.util.*
 
 object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll") {
 
+    init {
+        help.usage["<title> | <option 1> | <option 2> [| [option 3]]"] = "Create a strawpoll with the title and " +
+                "options. You must have at least two options and no more than 30."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
 
@@ -51,10 +56,5 @@ object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll") {
                 .withFooterIcon(event.author.avatarURL)
         choices.drop(1).forEach { embed.appendDesc(":ballot_box_with_check: $it\n") }
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<title> | <option 1> | <option 2> [| [option 3]]", "Create a strawpoll with the title and " +
-                "options. You must have at least two options and no more than 30.")
     }
 }

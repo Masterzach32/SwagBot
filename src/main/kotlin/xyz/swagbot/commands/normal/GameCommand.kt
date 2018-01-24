@@ -27,6 +27,10 @@ import xyz.swagbot.utils.RED
  */
 object GameCommand : Command("Games", "fight", "brawl", "race", scope = Command.Scope.GUILD) {
 
+    init {
+        help.desc = "Play a game with your fellow server members!"
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
 
@@ -59,11 +63,5 @@ object GameCommand : Command("Games", "fight", "brawl", "race", scope = Command.
         } else
             return builder.withEmbed(embed.withColor(RED).withDesc("A game is already in progress!").build()) as AdvancedMessageBuilder
 
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Use @mention to list users, and others can join by typing ~join!")
-        usage.put("~${aliases[0]} or ~${aliases[1]}", "Make multiple users fight!")
-        usage.put("~${aliases[2]}", "Race other users!")
     }
 }

@@ -15,6 +15,11 @@ import xyz.swagbot.utils.BLUE
 
 object SeekCommand : Command("Seek Track", "seek", scope = Scope.GUILD) {
 
+    init {
+        help.usage["<position>"] = "Seek to the designated position in the track. Time formats: (hh:mm:ss), (mm:ss)," +
+                " (ss)"
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -46,9 +51,5 @@ object SeekCommand : Command("Seek Track", "seek", scope = Scope.GUILD) {
 
         playingTrack.position = ms.toLong()
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Track position set to **${args[0]}**"))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<position>", "Seek to the designated position in the track. Time formats: (hh:mm:ss), (mm:ss), (ss)")
     }
 }

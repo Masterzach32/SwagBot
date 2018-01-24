@@ -28,6 +28,13 @@ import xyz.swagbot.utils.getContent
 object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "joinrole", "aar",
         scope = Command.Scope.GUILD, botPerm = Permission.ADMIN, discordPerms = listOf(Permissions.MANAGE_ROLES)) {
 
+    init {
+        help.desc = "Auto-assign new server members a selected role."
+        help.usage[""] = "Displays the current role to be given to new server members, if it has been set."
+        help.usage["set <role>"] = "Set the role to be assigned to new server members."
+        help.usage["remove"] = "Stops the currently set role from being assigned to new server members."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         val embed = EmbedBuilder().withColor(BLUE)
@@ -59,11 +66,5 @@ object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "jo
             return getWrongArgumentsMessage(builder, this, cmdUsed)
 
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Displays the current role to be given to new server members, if it has been set.")
-        usage.put("set <role>", "Automatically assign the named role when a new user joins the server.")
-        usage.put("remove", "Stops the currently set role from being assigned to new server members.")
     }
 }

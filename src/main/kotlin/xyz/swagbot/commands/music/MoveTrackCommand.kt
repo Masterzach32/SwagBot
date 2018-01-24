@@ -15,6 +15,12 @@ import xyz.swagbot.utils.RED
 
 object MoveTrackCommand : Command("Move Track", "move", scope = Scope.GUILD, botPerm = Permission.MOD) {
 
+    init {
+        help.desc = "Move queued tracks to different positions."
+        help.usage["<index>"] = "Move the selected index to the front of the queue."
+        help.usage["<index 1> <index 2>"] = "Move track at index 1 to index 2."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -52,10 +58,5 @@ object MoveTrackCommand : Command("Move Track", "move", scope = Scope.GUILD, bot
         val track = event.guild.getAudioHandler().moveTrack(index0-1, index1-1)
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Moved ${track.getBoldFormattedTitle()} from " +
                 "position **$index0** to position **$index1**."))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<index>", "Move the selected index to the front of the queue.")
-        usage.put("<index 1> <index 2>", "Move track at index 1 to index 2.")
     }
 }

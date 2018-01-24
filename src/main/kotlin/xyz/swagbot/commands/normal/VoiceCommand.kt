@@ -24,6 +24,12 @@ import xyz.swagbot.utils.getContent
  */
 object VoiceCommand : Command("Join/Leave", "summon", "leave", scope = Command.Scope.GUILD) {
 
+    init {
+        help.usage["~summon"] = "Summon the bot to the voice channel you are connected to."
+        help.usage["~summon <voice channel>"] = "Summon the bot to the specified voice channel."
+        help.usage["~leave"] = "Forces the bot to leave a voice channel (if it's connected to one)."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (event.guild.isBotLocked())
@@ -57,11 +63,5 @@ object VoiceCommand : Command("Join/Leave", "summon", "leave", scope = Command.S
             vc.leave()
         }
         return null
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("~summon", "Summon the bot to the voice channel you are connected to.")
-        usage.put("~summon <voice channel>", "Summon the bot to the specified voice channel.")
-        usage.put("~leave", "Forces the bot to leave a voice channel (if it's connected to one).")
     }
 }

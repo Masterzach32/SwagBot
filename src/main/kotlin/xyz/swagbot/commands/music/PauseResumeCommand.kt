@@ -26,7 +26,11 @@ import xyz.swagbot.utils.RED
  * @author Zach Kozar
  * @version 1/8/2018
  */
-object PauseResumeCommand : Command("Pause / Resume", "pause", "resume", scope = Scope.GUILD) {
+object PauseResumeCommand : Command("Pause / Resume", "pause", "unpause", "resume", scope = Scope.GUILD) {
+
+    init {
+        help.desc = "Pause or resume the bot's music."
+    }
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
@@ -52,10 +56,5 @@ object PauseResumeCommand : Command("Pause / Resume", "pause", "resume", scope =
         player.isPaused = false
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Resumed " +
                 player.playingTrack.getBoldFormattedTitle()))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("pause", "Pause the the currently playing track.")
-        usage.put("resume", "Resume the currently playing track if it was paused.")
     }
 }

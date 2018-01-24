@@ -10,6 +10,10 @@ import xyz.swagbot.database.isBotLocked
 
 object ClearCommand : Command("Clear Queue", "clear", scope = Scope.GUILD, botPerm = Permission.MOD) {
 
+    init {
+        help.usage[""] = "Clears the queue of all tracks."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (event.guild.isBotLocked())
@@ -19,9 +23,5 @@ object ClearCommand : Command("Clear Queue", "clear", scope = Scope.GUILD, botPe
         event.guild.getAudioHandler().player.stopTrack()
 
         return null
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Clear the track queue.")
     }
 }

@@ -14,6 +14,11 @@ import xyz.swagbot.utils.getFormattedTime
 
 object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Display the first 15 tracks in queue."
+        help.usage["[page number]"] = "Display the specified queue page."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         val audioHandler = event.guild.getAudioHandler()
@@ -61,10 +66,5 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
                     "or ${event.guild.getCommandPrefix()}search commands!"
         embed.withDesc(str)
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Display the first 15 tracks in queue.")
-        usage.put("[page number]", "Display the specified queue page.")
     }
 }

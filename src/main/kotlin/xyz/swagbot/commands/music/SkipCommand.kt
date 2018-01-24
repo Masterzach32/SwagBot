@@ -14,6 +14,10 @@ import xyz.swagbot.utils.RED
 
 object SkipCommand : Command("Skip", "skip", "s", scope = Scope.GUILD, botPerm = Permission.MOD) {
 
+    init {
+        help.usage[""] = "Skip the current song in the queue."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -23,9 +27,5 @@ object SkipCommand : Command("Skip", "skip", "s", scope = Scope.GUILD, botPerm =
         if (skippedTrack == null)
             return builder.withEmbed(embed.withColor(RED).withDesc("Cannot skip as there is no track playing!"))
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track ${skippedTrack.getBoldFormattedTitle()}"))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Skip the current song in the queue.")
     }
 }

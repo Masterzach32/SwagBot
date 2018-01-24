@@ -25,6 +25,11 @@ import xyz.swagbot.utils.BLUE
 object ChangePrefixCommand : Command("Change Prefix", "changeprefix", "cp", "prefix",
         scope = Command.Scope.GUILD, botPerm = Permission.ADMIN) {
 
+    init {
+        help.desc = "Change the command prefix for SwagBot in this server. (can be a single character or a string)"
+        help.usage["<string>"] = "The new command prefix for this server."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (args.size != 1)
@@ -37,9 +42,5 @@ object ChangePrefixCommand : Command("Change Prefix", "changeprefix", "cp", "pre
         embed.withDesc("Command prefix set to **${event.guild.getCommandPrefix()}**")
 
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<string>", "The new command prefix for this server.")
     }
 }

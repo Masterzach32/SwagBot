@@ -10,6 +10,10 @@ import xyz.swagbot.utils.RED
 object MassAfkCommand : Command("Mass AFK", "massafk", "mafk", botPerm = Permission.MOD,
         scope = Command.Scope.GUILD, discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
 
+    init {
+        help.usage[""] = "Move everyone currently connected to a voice channel to the server's AFK channel."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
 
@@ -23,9 +27,5 @@ object MassAfkCommand : Command("Mass AFK", "massafk", "mafk", botPerm = Permiss
                 .forEach { RequestBuffer.request { it.moveToVoiceChannel(afkChannel) } }
 
         return null
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-
     }
 }

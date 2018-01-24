@@ -16,6 +16,11 @@ import xyz.swagbot.utils.getContent
 
 object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
+    init {
+        help.usage["<search query>"] = "Searches YouTube for the best matching video and queues it."
+        help.usage["<url>"] = "Queues the specified track, playlist or stream in the server's audio player."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if(args.isEmpty())
@@ -46,10 +51,5 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
         audioPlayerManager.loadItemOrdered(handler, identifier, AudioTrackLoadHandler(handler, event, builder))
 
         return null
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<search query>", "Searches YouTube for the best matching track and queues it.")
-        usage.put("<url>", "Queues the specified track, playlist or stream in the server's audio player.")
     }
 }

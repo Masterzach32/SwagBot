@@ -12,6 +12,10 @@ import java.awt.Color
 
 object ShuffleCommand : Command("Shuffle", "shuffle", scope = Command.Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Shuffle the tracks in the queue."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -25,9 +29,5 @@ object ShuffleCommand : Command("Shuffle", "shuffle", scope = Command.Scope.GUIL
             embed.withColor(BLUE).withDesc("Shuffled the queue.")
         }
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Shuffle the songs in the queue.")
     }
 }

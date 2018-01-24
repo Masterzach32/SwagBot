@@ -9,6 +9,10 @@ import xyz.swagbot.utils.BLUE
 
 object SupportCommand : Command("Support", "support", botPerm = Permission.NONE) {
 
+    init {
+        help.desc = "Links if you need help with SwagBot."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         val embed = EmbedBuilder().withColor(BLUE)
@@ -16,9 +20,5 @@ object SupportCommand : Command("Support", "support", botPerm = Permission.NONE)
                 "started guide: https://swagbot.xyz/gettingstarted\n\n" +
                 "Still having trouble? Join the SwagBot support server: https://discord.me/swagbothub\n\n" +
                 "If you want to help fix a bug, submit an issue on GitHub: https://github.com/Masterzach32/SwagBot"))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Links if you need help with SwagBot.")
     }
 }

@@ -11,6 +11,10 @@ import xyz.swagbot.utils.BLUE
 
 object RemoveDuplicatesCommand : Command("Remove Duplicate Tracks", "removedupes", scope = Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Remove duplicate tracks from the queue."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (event.guild.isBotLocked())
@@ -18,9 +22,5 @@ object RemoveDuplicatesCommand : Command("Remove Duplicate Tracks", "removedupes
 
         return builder.withEmbed(EmbedBuilder().withColor(BLUE).withDesc("Removed " +
                 "**${event.guild.getAudioHandler().removeDuplicates()}** duplicate tracks from the queue."))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Remove duplicate tracks from the queue.")
     }
 }

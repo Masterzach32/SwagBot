@@ -9,14 +9,14 @@ import java.net.URLEncoder
 
 object LmgtfyCommand : Command("Let Me Google that for You", "lmgtfy", "google") {
 
+    init {
+        help.usage["<search query>"] = "Google anything."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if(args.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
         return builder.withContent("http://www.lmgtfy.com/?q=${URLEncoder.encode(getContent(args, 0).toLowerCase(), "UTF-8")}")
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<search query>", "Google anything.")
     }
 }

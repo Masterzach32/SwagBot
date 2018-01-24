@@ -16,6 +16,10 @@ import xyz.swagbot.utils.RED
 object RemoveTrackCommand : Command("Remove Track", "removetrack", "remove", "rmtrack",
         scope = Scope.GUILD, botPerm = Permission.MOD) {
 
+    init {
+        help.usage["<index>"] = "Remove the specified track from the queue."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -36,9 +40,5 @@ object RemoveTrackCommand : Command("Remove Track", "removetrack", "remove", "rm
             embed.withColor(RED).withDesc("Try re-checking your track index.")
 
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<index>", "Remove the specified track from the queue.")
     }
 }

@@ -26,6 +26,10 @@ import xyz.swagbot.utils.getContent
  */
 object IAmNotCommand : Command("I Am Not (Remove Role)", "iamnot", scope = Scope.GUILD) {
 
+    init {
+        help.usage["<role>"] = "Remove the specified role, if it was self-assigned."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (args.isEmpty())
@@ -44,9 +48,5 @@ object IAmNotCommand : Command("I Am Not (Remove Role)", "iamnot", scope = Scope
         } else
             embed.withDesc("Sorry, I cannot remove that role.")
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<role>", "Remove the specified role, if it was self-assigned.")
     }
 }

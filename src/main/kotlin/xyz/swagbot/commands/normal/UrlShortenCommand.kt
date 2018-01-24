@@ -13,6 +13,10 @@ import xyz.swagbot.utils.BLUE
 
 object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl") {
 
+    init {
+        help.usage["<link>"] = "Create a goo.gl or tinyurl link based on which alias is used."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (args.isEmpty())
@@ -45,10 +49,4 @@ object UrlShortenCommand : Command("URL Shortener", "goo.gl", "tinyurl") {
             }
         }
     }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("goo.gl <link>", "Create a goo.gl link for the given link.")
-        usage.put("tinyurl <link>", "Create a tinyurl link for the given link.")
-    }
-
 }

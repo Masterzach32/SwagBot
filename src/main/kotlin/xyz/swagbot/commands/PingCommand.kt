@@ -18,12 +18,12 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
  */
 object PingCommand : Command("Ping", "ping") {
 
+    init {
+        help.desc = "Pong!"
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         return builder.withContent("Pong!")
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-
     }
 }

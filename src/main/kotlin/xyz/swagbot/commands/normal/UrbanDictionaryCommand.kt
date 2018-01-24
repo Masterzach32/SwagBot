@@ -11,6 +11,10 @@ import xyz.swagbot.utils.getContent
 
 object UrbanDictionaryCommand : Command("Urban Dictionary", "ud") {
 
+    init {
+        help.usage["<term>"] = "Look up a term on Urban Dictionary."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         val embed = EmbedBuilder().withColor(BLUE)
@@ -21,9 +25,5 @@ object UrbanDictionaryCommand : Command("Urban Dictionary", "ud") {
                     .withDesc(def.definition)
                     .appendField("Example:", def.example, true))
         return builder.withEmbed(embed.withColor(RED).withDesc("Couldn't find a definition for **${def.term}**."))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Look up a term on Urban Dictionary.")
     }
 }

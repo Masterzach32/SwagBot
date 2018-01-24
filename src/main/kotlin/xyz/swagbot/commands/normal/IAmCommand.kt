@@ -27,6 +27,13 @@ import xyz.swagbot.utils.getContent
  */
 object IAmCommand : Command("I Am (Request Role)", "iam", scope = Scope.GUILD) {
 
+    init {
+        help.usage["<role>"] = "Assign yourself a role."
+        help.usage["list"] = "List all roles that can be self-assigned."
+        help.usage["add <role>"] = "Add a role to the self-assign list. Type the role name or @mention it."
+        help.usage["remove <role>"] = "Remove a role from the self-assign list. Type the role name or @mention it."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (args.isEmpty())
@@ -77,12 +84,5 @@ object IAmCommand : Command("I Am (Request Role)", "iam", scope = Scope.GUILD) {
                 embed.withColor(RED).withDesc("That role cannot be self-assigned.")
         }
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<role>", "Assign yourself a role.")
-        usage.put("list", "List all roles that can be self-assigned.")
-        usage.put("add <role>", "Add a role to the self-assign list. Type the role name or @mention it.")
-        usage.put("remove <role>", "Remove a role from the self-assign list. Type the role name or @mention it.")
     }
 }

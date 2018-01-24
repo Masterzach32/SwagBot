@@ -23,6 +23,10 @@ import xyz.swagbot.utils.RED
  */
 object JoinCommand : Command("Join Game", "join", scope = Command.Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Join the current game, if there is one."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         val embed = EmbedBuilder()
@@ -35,9 +39,4 @@ object JoinCommand : Command("Join Game", "join", scope = Command.Scope.GUILD) {
             return builder.withEmbed(embed.withColor(BLUE).withDesc(GameManager.getGame(event.channel).getJoinMessage(event.author)).build()) as AdvancedMessageBuilder
         return builder.withEmbed(embed.withColor(RED).withDesc("You have already joined the game! It should be starting shortly.").build()) as AdvancedMessageBuilder
     }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Join the current game, if there is one.")
-    }
-
 }

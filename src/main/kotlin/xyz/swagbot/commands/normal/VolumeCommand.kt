@@ -13,6 +13,11 @@ import xyz.swagbot.utils.RED
 
 object VolumeCommand : Command("Change Volume", "volume", "v", scope = Command.Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Print the current volume."
+        help.usage["<int>"] = "Change the volume of the bot's audio, must be between 0 and 100."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -34,10 +39,5 @@ object VolumeCommand : Command("Change Volume", "volume", "v", scope = Command.S
 
         event.guild.setBotVolume(volume)
         return builder.withEmbed(embed.withDesc("Volume set to **$volume**"))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Print the current volume.")
-        usage.put("<int>", "Change the volume of the bots audio, must be between 0 and 100.")
     }
 }

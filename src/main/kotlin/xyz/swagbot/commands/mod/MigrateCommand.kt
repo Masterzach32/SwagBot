@@ -24,6 +24,12 @@ import xyz.swagbot.utils.getContent
 object MigrateCommand : Command("Migrate", "migrate", "populate", "m", botPerm = Permission.MOD,
         scope = Command.Scope.GUILD, discordPerms = listOf(Permissions.VOICE_MOVE_MEMBERS)) {
 
+    init {
+        help.desc = "Move multiple users between voice channels with a single command."
+        help.usage[""] = "Move everyone from the bot's voice channel to your voice channel."
+        help.usage["<from> | <to>"] = "Move everyone from one voice channel to another, case-sensitive."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         val from: IVoiceChannel?
@@ -49,10 +55,5 @@ object MigrateCommand : Command("Migrate", "migrate", "populate", "m", botPerm =
         }
         from.connectedUsers.forEach { RequestBuffer.request { it.moveToVoiceChannel(to) } }
         return null
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Move everyone from the bot's voice channel to your voice channel.")
-        usage.put("<from> | <to>", "Move everyone from one voice channel to another, case-sensitive.")
     }
 }

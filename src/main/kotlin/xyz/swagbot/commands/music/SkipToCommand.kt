@@ -11,7 +11,13 @@ import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
 import xyz.swagbot.utils.BLUE
 
-object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD, botPerm = Permission.MOD) {
+object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD,
+        botPerm = Permission.MOD) {
+
+    init {
+        help.usage["<int>"] = "Skip to the specified track in the queue. If the integer specified is larger than the " +
+                "number of queued tracks, then skip to the last track in the queue."
+    }
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
@@ -24,10 +30,5 @@ object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD, b
             return builder.withEmbed(embed.withColor(RED).withDesc("You must specify a track to skip to!"))
         val skipped = event.guild.getAudioHandler().skipTo(args[0].toInt())
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped **${skipped.size}** tracks."))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<int>", "Skip to the specified track in the queue. If the integer specified is larger than the" +
-                " number of queued tracks, then skip to the last track in the queue.")
     }
 }

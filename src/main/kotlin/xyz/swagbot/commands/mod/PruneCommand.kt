@@ -28,6 +28,10 @@ import java.lang.Thread.sleep
 object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MOD, scope = Command.Scope.GUILD,
         discordPerms = listOf(Permissions.MANAGE_MESSAGES)) {
 
+    init {
+        help.usage["<int>"] = "Delete the previous 2-100 messages no older than two weeks."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (args.size != 1)
@@ -55,9 +59,5 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
         sleep(5000)
         RequestBuffer.request { response.delete() }
         return null
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<int>", "Delete between 2 and 100 messages no older than two weeks.")
     }
 }

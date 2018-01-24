@@ -26,6 +26,13 @@ import xyz.swagbot.utils.RED
 object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm", "changep",
         scope = Command.Scope.GUILD, botPerm = Permission.ADMIN) {
 
+    init {
+        help.desc = "Change users' permission level within SwagBot. More detailed information is available at " +
+                "https://swagbot.xyz/permissions"
+        help.usage["<permission> <list of mentioned users>"] = "Set a list of user's to have the specified " +
+                "permission level."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         val embed = EmbedBuilder().withColor(BLUE)
@@ -49,11 +56,6 @@ object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm"
         }
 
         return builder.withEmbed(embed)
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<permission> <list of mentioned users>", "Set a list of user's to have the specified permissions. " +
-                "Allowed permission values are ${getPerms()}")
     }
 
     private fun getPerms(): List<Permission> {

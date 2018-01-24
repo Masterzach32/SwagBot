@@ -11,6 +11,10 @@ import xyz.swagbot.utils.BLUE
 
 object LeaverClearCommand : Command("Leaver Cleanup", "leavercleanup", scope = Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Prune tracks from the queue added by users that are no longer listening."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -23,7 +27,4 @@ object LeaverClearCommand : Command("Leaver Cleanup", "leavercleanup", scope = S
         return builder.withEmbed(embed.withDesc("Removed **${removed.size}** tracks from the queue."))
     }
 
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Prune tracks from the queue added by users no longer listening.")
-    }
 }

@@ -11,6 +11,10 @@ import xyz.swagbot.database.isBotLocked
 
 object ReplayCommand : Command("Replay Track", "replay", scope = Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Reset the progress of the current track."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (event.guild.isBotLocked())
@@ -26,9 +30,5 @@ object ReplayCommand : Command("Replay Track", "replay", scope = Scope.GUILD) {
             return builder.withEmbed(embed.withColor(RED).withDesc("Could not reset track position: ${t.message}"))
         }
         return null
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Reset the progress of the current track.")
     }
 }

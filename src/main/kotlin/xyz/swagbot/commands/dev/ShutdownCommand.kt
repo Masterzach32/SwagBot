@@ -28,8 +28,4 @@ object ShutdownCommand : Command("Shutdown", "shutdown", "stop", hidden = true, 
         stop(event.client)
         return null
     }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-
-    }
 }

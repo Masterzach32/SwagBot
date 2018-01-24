@@ -11,6 +11,10 @@ import xyz.swagbot.utils.BLUE
 
 object LoopCommand : Command("Loop Queue", "loop", scope = Scope.GUILD) {
 
+    init {
+        help.usage[""] = "Requeue tracks when they end."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
@@ -22,9 +26,5 @@ object LoopCommand : Command("Loop Queue", "loop", scope = Scope.GUILD) {
         if (shouldLoop)
             return builder.withEmbed(embed.withDesc("Queue loop **enabled**."))
         return builder.withEmbed(embed.withDesc("Queue loop **disabled**."))
-    }
-
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("", "Requeue tracks when they end.")
     }
 }

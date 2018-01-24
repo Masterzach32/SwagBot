@@ -21,6 +21,10 @@ import xyz.swagbot.utils.getContent
 
 object SearchCommand : Command("Search YouTube", "search", "ytsearch") {
 
+    init {
+        help.usage["<search query>"] = "Searches YouTube for the 5 best matching videos."
+    }
+
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if (args.isEmpty())
@@ -46,10 +50,6 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch") {
         return builder.withEmbed(embed)
     }
 
-    override fun getCommandHelp(usage: MutableMap<String, String>) {
-        usage.put("<search query>", "Searches YouTube for the 5 best matching tracks.")
-    }
-
     class ResponseListener(private val user: IUser, private val channel: IChannel, private val list: List<YouTubeVideo>,
                            private val timestamp: Long) : IListener<MessageReceivedEvent> {
 
@@ -72,7 +72,7 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch") {
             }
         }
 
-        fun unregister(dispatcher: EventDispatcher, reason: String) {
+        private fun unregister(dispatcher: EventDispatcher, reason: String) {
             logger.debug("Killing search listener: $reason")
             return dispatcher.unregisterListener(this)
         }
