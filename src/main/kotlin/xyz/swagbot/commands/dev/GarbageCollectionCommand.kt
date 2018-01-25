@@ -26,6 +26,6 @@ object GarbageCollectionCommand : Command("Garbage Collection", "gc", botPerm = 
         System.gc()
         val newMemoryUsed = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
         return builder.withContent("Ran garbage collection and freed " +
-                "**${(newMemoryUsed - memoryUsed)/1_000_000} MB** of RAM.")
+                "**${((newMemoryUsed - memoryUsed)/Math.pow(2.0, 20.0)).toInt()} MB** of RAM.")
     }
 }
