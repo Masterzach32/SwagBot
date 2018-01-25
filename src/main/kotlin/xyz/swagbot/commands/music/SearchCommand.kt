@@ -45,7 +45,8 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch") {
         embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, enter its " +
                 "number below within 60 seconds.")
 
-        event.client.dispatcher.registerListener(ResponseListener(event.author, event.channel, list, System.currentTimeMillis()))
+        event.client.dispatcher.registerListener(ResponseListener(event.author, event.channel, list,
+                System.currentTimeMillis()))
 
         return builder.withEmbed(embed)
     }

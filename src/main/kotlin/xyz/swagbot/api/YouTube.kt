@@ -16,19 +16,24 @@ fun getVideoFromSearch(search: String): YouTubeVideo? {
             URLEncoder.encode(search, "UTF-8") + "&key=" + getKey("google_auth_key")).asJson()
     if (response.status != 200)
         return null
-    val json: JSONObject
-    json = response.body.`object`
-    logger.debug(response.body.`object`.toString(2))
+    val json = response.body.`object`
+    var video: YouTubeVideo? = null
+
     if (json.has("items") && json.getJSONArray("items").length() > 0) {
-        val id = json.getJSONArray("items").getJSONObject(0)
-                .getJSONObject("id").getString("videoId")
-        val title = json.getJSONArray("items").getJSONObject(0)
-                .getJSONObject("snippet").getString("title")
-        val channel = json.getJSONArray("items").getJSONObject(0)
-                .getJSONObject("snippet").getString("channelTitle")
-        return YouTubeVideo(title, channel, id)
+        val items = json.getJSONArray("items")
+        var i = 0
+        while (video == null && i < items.length()) {
+            if (items.getJSONObject(i).getJSONObject("id").has("videoId")) {
+                val id = json.getJSONArray("items").getJSONObject(i).getJSONObject("id").getString("videoId")
+                val title = json.getJSONArray("items").getJSONObject(i).getJSONObject("snippet").getString("title")
+                val channel = json.getJSONArray("items").getJSONObject(i).getJSONObject("snippet").getString("channelTitle")
+                video = YouTubeVideo(title, channel, id)
+            }
+            i++
+        }
     }
-    return null
+
+    return video
 }
 
 fun getVideoSetFromSearch(search: String, size: Int): List<YouTubeVideo> {
@@ -38,7 +43,6 @@ fun getVideoSetFromSearch(search: String, size: Int): List<YouTubeVideo> {
     if (response.status != 200)
         return emptyList()
     val json = response.body.`object`
-    logger.debug(response.body.`object`.toString(2))
     if (json.has("items") && json.getJSONArray("items").length() > 0) {
         val items = json.getJSONArray("items")
         var i = 0
@@ -48,7 +52,6 @@ fun getVideoSetFromSearch(search: String, size: Int): List<YouTubeVideo> {
                 val title = json.getJSONArray("items").getJSONObject(i).getJSONObject("snippet").getString("title")
                 val channel = json.getJSONArray("items").getJSONObject(i).getJSONObject("snippet").getString("channelTitle")
                 list.add(YouTubeVideo(title, channel, id))
-                i++
             }
             i++
         }
