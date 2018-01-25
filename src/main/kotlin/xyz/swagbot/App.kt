@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
 import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
+import xyz.swagbot.commands.dev.GarbageCollectionCommand
 import xyz.swagbot.commands.dev.ShutdownCommand
 import xyz.swagbot.commands.mod.*
 import xyz.swagbot.commands.music.*
@@ -109,7 +110,10 @@ fun main(args: Array<String>) {
     //cmds.add(ChatOnlyCommand)
     cmds.add(EditPermissionsCommand)
     // devd
+    cmds.add(GarbageCollectionCommand)
     cmds.add(ShutdownCommand)
+
+    cmds.sortCommands()
 
     logger.info("Creating discord client object.")
     val client = ClientBuilder().withToken(getKey("discord_bot_token")).build()
