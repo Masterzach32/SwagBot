@@ -128,6 +128,7 @@ fun main(args: Array<String>) {
     client.dispatcher.registerListener(UserLeaveEvent)
     client.dispatcher.registerListener(UserMovedEvent)
     client.dispatcher.registerListener(RoleHandler)
+    client.dispatcher.registerListener(ShardDisconnectHandler)
     client.login()
 
     logger.info("Waiting to receive guilds...")

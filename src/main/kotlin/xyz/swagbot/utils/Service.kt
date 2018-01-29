@@ -7,7 +7,6 @@ import xyz.swagbot.database.getAllAudioHandlers
 import xyz.swagbot.database.saveTracksToStorage
 import xyz.swagbot.database.shutdownAudioPlayer
 import xyz.swagbot.logger
-import java.io.File
 
 /*
  * SwagBot - Created on 9/1/2017
@@ -21,16 +20,18 @@ import java.io.File
  * @author Zach Kozar
  * @version 9/1/2017
  */
-internal fun isUpdateAvailable(): Boolean {
-    return false
-}
 
-internal fun exitAndUpdate(client: IDiscordClient) {
-    ProcessBuilder("java -jar bin${File.separator}patcher.jar").start()
+internal fun shutdown(client: IDiscordClient) {
     stop(client)
+    exit(ExitCode.EXITED)
 }
 
-internal fun stop(client: IDiscordClient) {
+internal fun shutdown(client: IDiscordClient, ec: ExitCode) {
+    stop(client)
+    exit(ec)
+}
+
+private fun stop(client: IDiscordClient) {
     try {
         client.guilds.forEach { it.shutdownAudioPlayer() }
     } catch (t: Throwable) {
@@ -39,5 +40,8 @@ internal fun stop(client: IDiscordClient) {
     audioPlayerManager.shutdown()
     client.logout()
     Unirest.shutdown()
-    System.exit(0)
+}
+
+private fun exit(ec: ExitCode) {
+    System.exit(ec.code)
 }

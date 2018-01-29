@@ -32,8 +32,6 @@ object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Sc
                 .withDesc("Requested by: ${playingTrack.getRequester().getDisplayName(event.guild)}")
                 .appendDesc("\nVolume: **${event.guild.getBotVolume()}**")
 
-        logger.info("${playingTrack.getRequester().getDisplayName(event.guild)} " +
-                "${playingTrack.getRequester().getDisplayName(event.guild).toByteArray().toList()} ")
         if (playingTrack.info.hasThumbnail())
             embed.withThumbnail(playingTrack.info.getThumbnailUrl())
         return builder.withEmbed(embed)
