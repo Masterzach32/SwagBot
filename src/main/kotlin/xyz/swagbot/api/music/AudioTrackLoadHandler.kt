@@ -32,7 +32,7 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
     override fun trackLoaded(track: AudioTrack) {
         track.userData = TrackUserData(event.author)
         embed.withColor(BLUE)
-        embed.withTitle(":musical_note: Track requested by ${event.author.getDisplayName(event.guild)}")
+        embed.withTitle(":musical_note: | Track requested by ${event.author.getDisplayName(event.guild)}")
         embed.withDesc("Title: **${track.info.title}**\n")
         embed.appendDesc("Author/Channel: **${track.info.author}**\n")
 

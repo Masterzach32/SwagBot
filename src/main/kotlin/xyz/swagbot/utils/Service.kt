@@ -3,8 +3,6 @@ package xyz.swagbot.utils
 import com.mashape.unirest.http.Unirest
 import sx.blah.discord.api.IDiscordClient
 import xyz.swagbot.audioPlayerManager
-import xyz.swagbot.database.getAllAudioHandlers
-import xyz.swagbot.database.saveTracksToStorage
 import xyz.swagbot.database.shutdownAudioPlayer
 import xyz.swagbot.logger
 

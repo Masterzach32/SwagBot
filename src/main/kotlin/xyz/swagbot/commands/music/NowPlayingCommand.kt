@@ -27,7 +27,7 @@ object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Sc
             return builder.withEmbed(embed.withColor(RED).withDesc("Im not playing anything right now. Go add some" +
                     " tracks with the ${event.guild.getCommandPrefix()}play or ${event.guild.getCommandPrefix()}search commands!"))
         embed.withColor(BLUE)
-                .withTitle(":musical_note: ${playingTrack.getFormattedTitle()} " +
+                .withTitle(":musical_note: | ${playingTrack.getFormattedTitle()} " +
                         "(${playingTrack.getFormattedPosition()} / ${playingTrack.getFormattedLength()})")
                 .withDesc("Requested by: ${playingTrack.getRequester().getDisplayName(event.guild)}")
                 .appendDesc("\nVolume: **${event.guild.getBotVolume()}**")

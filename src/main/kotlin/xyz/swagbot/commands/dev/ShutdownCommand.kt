@@ -20,17 +20,27 @@ import xyz.swagbot.utils.shutdown
  * @author Zach Kozar
  * @version 9/1/2017
  */
-object ShutdownCommand : Command("Shutdown / Restart", "shutdown", "stop", "restart", hidden = true, scope = Command.Scope.ALL,
+object ShutdownCommand : Command("BootManager Interface", "shutdown", "stop", "restart", "update", hidden = true, scope = Command.Scope.ALL,
         botPerm = Permission.DEVELOPER) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
-        if (cmdUsed == "restart") {
-            logger.info("Restarting")
-            shutdown(event.client, ExitCode.RESTART_REQUESTED)
-        } else {
-            logger.info("Shutting down")
-            shutdown(event.client)
+        when (cmdUsed) {
+            "shutdown", "stop" -> {
+                logger.info("Shutting down.")
+                shutdown(event.client)
+            }
+            "restart" -> {
+                logger.info("Restarting...")
+                shutdown(event.client, ExitCode.RESTART_REQUESTED)
+            }
+            "update" -> {
+                logger.info("Requesting update and restarting...")
+                shutdown(event.client, ExitCode.UPDATE_REQUESTED)
+            }
+            else -> {
+                return builder.withContent("Unknown command.")
+            }
         }
         return null
     }
