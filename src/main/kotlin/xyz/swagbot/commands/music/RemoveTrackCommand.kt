@@ -24,7 +24,7 @@ object RemoveTrackCommand : Command("Remove Track", "removetrack", "remove", "rm
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         if (event.guild.isBotLocked())
             return getBotLockedMessage(builder)
-        if (args[0].isEmpty())
+        if (args.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
         val index = try {
             args[0].toInt()
