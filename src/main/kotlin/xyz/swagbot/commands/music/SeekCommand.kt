@@ -10,7 +10,7 @@ import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
 import xyz.swagbot.database.logger
-import xyz.swagbot.dsl.getFormattedLength
+import xyz.swagbot.dsl.*
 import xyz.swagbot.utils.BLUE
 
 object SeekCommand : Command("Seek Track", "seek", scope = Scope.GUILD) {
@@ -49,7 +49,19 @@ object SeekCommand : Command("Seek Track", "seek", scope = Scope.GUILD) {
             return builder.withEmbed(embed.withColor(RED).withDesc("Specified position is out of range. " +
                     "(Track length is **${playingTrack.getFormattedLength()}**)"))
 
+        val oldPos = playingTrack.getFormattedPosition()
         playingTrack.position = ms.toLong()
-        return builder.withEmbed(embed.withColor(BLUE).withDesc("Track position set to **${args[0]}**"))
+
+        embed.withColor(BLUE)
+                .withTitle(":musical_note: | Seek track")
+                .withDesc("**${playingTrack.info.title}**")
+                .appendDesc("\nAuthor/Channel: **${playingTrack.info.author}**")
+                .appendDesc("\nSeek: (**$oldPos** / **${playingTrack.getFormattedLength()}**) -> " +
+                        "(**${playingTrack.getFormattedPosition()}** / **${playingTrack.getFormattedLength()}**)")
+
+        if (playingTrack.info.hasThumbnail())
+            embed.withThumbnail(playingTrack.info.getThumbnailUrl())
+
+        return builder.withEmbed(embed)
     }
 }

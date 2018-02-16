@@ -36,7 +36,7 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.2.3'
     compile 'joda-time:joda-time:2.9.9'
     compile 'com.mashape.unirest:unirest-java:1.4.9'
-    compile 'com.sedmelluq:lavaplayer:1.2.45'
+    compile 'com.sedmelluq:lavaplayer:1.2.47'
     compile 'com.github.natanbc:discordbots-api:1.4'
     compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
     compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
