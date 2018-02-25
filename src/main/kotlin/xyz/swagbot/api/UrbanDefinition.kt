@@ -6,6 +6,7 @@ import xyz.swagbot.logger
 import java.net.URLEncoder
 
 class UrbanDefinition(term: String) {
+
     private var defid: Int = 0
     private var hasEntry: Boolean = false
     var term: String? = null

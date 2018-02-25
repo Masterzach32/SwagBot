@@ -43,8 +43,12 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
             embed.appendDesc("Estimated time until track is played: " +
                     "**${getFormattedTime((handler.getQueueLength()/1000).toInt())}**")
 
+        embed.withUrl(track.info.uri)
 
-        //embed.withFooterText(SimpleDateFormat("MM/dd/yy at HH:mm:ss").format(Date()))
+        val date = SimpleDateFormat("MM/dd/yy")
+        val time = SimpleDateFormat("hh:mm:ss a z")
+        val now = Date()
+        embed.withFooterText("${date.format(now)} at ${time.format(now)}")
 
         handler.queue(track)
         RequestBuffer.request { event.message.delete() }

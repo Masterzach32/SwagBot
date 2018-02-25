@@ -24,7 +24,9 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
 
     override fun handle(event: GuildCreateEvent) {
         val now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond()
-        val joined = event.guild.getJoinTimeForUser(event.client.ourUser).atZone(ZoneId.systemDefault()).toEpochSecond()
+        val joined = RequestBuffer.request<Long> {
+            event.guild.getJoinTimeForUser(event.client.ourUser).atZone(ZoneId.systemDefault()).toEpochSecond()
+        }.get()
 
         if (now - joined < 10) {
             val builder = AdvancedMessageBuilder(event.guild.defaultChannel)
