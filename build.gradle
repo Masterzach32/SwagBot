@@ -38,8 +38,8 @@ dependencies {
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.sedmelluq:lavaplayer:1.2.51'
     compile 'com.github.natanbc:discordbots-api:1.4'
-    compile group: 'edu.cmu.sphinx', name: 'sphinx4-core', version:'5prealpha-SNAPSHOT'
-    compile group: 'edu.cmu.sphinx', name: 'sphinx4-data', version:'5prealpha-SNAPSHOT'
+    //compile 'edu.cmu.sphinx:sphinx4-core:5prealpha-SNAPSHOT'
+    //compile 'edu.cmu.sphinx:sphinx4-data:5prealpha-SNAPSHOT'
 
     compile fileTree(dir: 'lib', include: '**/*.jar')
 
