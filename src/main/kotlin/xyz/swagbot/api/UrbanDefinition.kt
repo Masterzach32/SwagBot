@@ -35,7 +35,6 @@ class UrbanDefinition(term: String) {
             } else {
                 hasEntry = true
                 def = def.getJSONArray("list").getJSONObject(0)
-                logger.info(def.toString(2))
                 this.defid = def.getInt("defid")
                 this.term = def.getString("word")
                 this.author = def.getString("author")
