@@ -182,6 +182,36 @@ internal fun remove_iam_role_entry(roleId: String) {
     sql { sb_iam_roles.deleteWhere { sb_iam_roles.role_id eq roleId } }
 }
 
+internal fun create_music_profile_entry(userId: String, trackIdentifier: String) {
+    sql {
+        sb_music_profile.insert {
+            it[sb_music_profile.user_id] = userId
+            it[sb_music_profile.identifier] = trackIdentifier
+            it[sb_music_profile.count] = 1
+        }
+        commit()
+    }
+}
+
+internal fun get_music_profile_count(userId: String, trackIdentifier: String): Int {
+    return sql {
+        val result = sb_music_profile
+                .select { (sb_music_profile.user_id eq userId) and (sb_music_profile.identifier eq trackIdentifier) }
+                .firstOrNull() ?: return@sql 0
+        return@sql result[sb_music_profile.count]
+    }
+}
+
+internal fun change_music_profile_count(userId: String, trackIdentifier: String, count: Int) {
+    sql {
+        sb_music_profile
+                .update({(sb_music_profile.user_id eq userId) and (sb_music_profile.identifier eq trackIdentifier)}) {
+                    it[sb_music_profile.count] = count
+                }
+        commit()
+    }
+}
+
 /*
     Generic SQL code
  */

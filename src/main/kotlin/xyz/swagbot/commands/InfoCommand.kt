@@ -16,7 +16,9 @@ object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
         help.desc = "Get more info on SwagBot"
     }
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent, builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
+    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
+                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
+        event.channel.toggleTypingStatus()
         val embed = EmbedBuilder().withColor(BLUE)
 
         embed.withAuthorName("SwagBot v2 (${config.getString("bot.build")})")

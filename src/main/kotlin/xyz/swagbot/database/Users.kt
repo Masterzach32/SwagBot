@@ -1,5 +1,6 @@
 package xyz.swagbot.database
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import net.masterzach32.commands4k.Permission
 import org.jetbrains.exposed.sql.select
 import sx.blah.discord.handle.obj.IGuild
@@ -45,4 +46,13 @@ fun IUser.getBotDMPermission(): Permission {
             return@sql Permission.DEVELOPER
         return@sql Permission.NORMAL
     }
+}
+
+fun IUser.addTrackToDatabase(track: AudioTrack) {
+    val count = get_music_profile_count(stringID, track.info.uri)
+
+    if (count == 0)
+        create_music_profile_entry(stringID, track.info.uri)
+    else
+        change_music_profile_count(stringID, track.info.uri, count + 1)
 }

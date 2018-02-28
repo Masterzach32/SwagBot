@@ -13,7 +13,7 @@ enum class ExitCode(val code: Int) {
 
     companion object {
         fun forCode(code: Int): ExitCode {
-            return values().filter { it.code == code }.firstOrNull() ?: UNKNOWN
+            return values().firstOrNull { it.code == code } ?: UNKNOWN
         }
     }
 }

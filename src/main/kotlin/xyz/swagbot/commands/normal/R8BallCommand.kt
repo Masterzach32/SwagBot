@@ -22,7 +22,7 @@ object R8BallCommand : Command("8 Ball", "8-ball", "8ball", "8") {
         else {
             event.channel.toggleTypingStatus()
             Thread.sleep(1000)
-            builder.withContent(responses[(Math.random() * responses.size).toInt()] + ".")
+            builder.withContent(":8ball: | " + responses[(Math.random() * responses.size).toInt()] + ".")
         }
         return builder
     }

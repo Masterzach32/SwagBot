@@ -8,6 +8,7 @@ import net.masterzach32.commands4k.AdvancedMessageBuilder
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.database.addTrackToDatabase
 import xyz.swagbot.dsl.getThumbnailUrl
 import xyz.swagbot.dsl.hasThumbnail
 import xyz.swagbot.utils.BLUE
@@ -51,6 +52,8 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
         embed.withFooterText("${date.format(now)} at ${time.format(now)}")
 
         handler.queue(track)
+        if (!track.info.isStream)
+            event.author.addTrackToDatabase(track)
         RequestBuffer.request { event.message.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }
@@ -65,6 +68,8 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
         for (track in playlist.tracks) {
             track.userData = TrackUserData(event.author)
             handler.queue(track)
+            if (!track.info.isStream)
+                event.author.addTrackToDatabase(track)
         }
         embed.withColor(BLUE)
         embed.withDesc("${event.author} queued playlist: ${playlist.name}")

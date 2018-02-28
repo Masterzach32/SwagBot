@@ -67,3 +67,9 @@ object sb_iam_roles : Table() {
     val guild_id = text("guild_id")
     val role_id = text("role_id")
 }
+
+object sb_music_profile : Table() {
+    val user_id = text("user_id")
+    val identifier = text("identifier")
+    val count = integer("count")
+}
