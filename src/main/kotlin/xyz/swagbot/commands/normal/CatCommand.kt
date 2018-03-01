@@ -3,6 +3,7 @@ package xyz.swagbot.commands.normal
 import com.mashape.unirest.http.Unirest
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
+import org.apache.http.conn.ConnectTimeoutException
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import xyz.swagbot.commands.Type
 import xyz.swagbot.commands.getApiErrorMessage
@@ -30,7 +31,11 @@ object CatCommand : Command("Random Cat Picture", "randomcat", "cat") {
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         event.channel.toggleTypingStatus()
         val url = "http://random.cat/meow"
-        val response = Unirest.get(url).asJson()
+        val response = try {
+            Unirest.get(url).asJson()
+        } catch (e: ConnectTimeoutException) {
+            return builder.withContent("Sorry, but i'm having trouble connecting to $url at the moment.")
+        }
         if (response.status != 200)
             return getApiErrorMessage(builder, Type.GET, url, "none", response.status, response.statusText)
         return builder.withImage(response.body.`object`.getString("file"))

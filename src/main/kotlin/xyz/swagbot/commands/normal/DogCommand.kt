@@ -5,6 +5,7 @@ import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
+import org.apache.http.conn.ConnectTimeoutException
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import xyz.swagbot.commands.Type
 import xyz.swagbot.commands.getApiErrorMessage
@@ -25,10 +26,14 @@ object DogCommand : Command("Dog Pictures", "dog", "randomdog") {
         event.channel.toggleTypingStatus()
         val url = "https://dog.ceo/api"
         val response: HttpResponse<JsonNode>
-        response = if (args.isEmpty())
-            Unirest.get("$url/breeds/image/random").asJson()
-        else
-            Unirest.get("$url/breed/${URLEncoder.encode(getContent(args, 0), "UTF-8")}/images/random").asJson()
+        response = try {
+            if (args.isEmpty())
+                Unirest.get("$url/breeds/image/random").asJson()
+            else
+                Unirest.get("$url/breed/${URLEncoder.encode(getContent(args, 0), "UTF-8")}/images/random").asJson()
+        } catch (e: ConnectTimeoutException) {
+            return builder.withContent("Sorry, but i'm having trouble connecting to $url at the moment.")
+        }
         if (response.status != 200)
             return getApiErrorMessage(builder, Type.GET, url, "none", response.status, response.statusText)
         return builder.withImage(response.body.`object`.getString("message"))
