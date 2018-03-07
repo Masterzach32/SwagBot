@@ -34,6 +34,7 @@ object sb_guilds : Table() {
     val loop = bool("loop")
     val auto_assign_role = text("auto_assign_role").nullable()
     val last_voice_channel = text("last_voice_channel").nullable()
+    val timezone = text("timezone")
 }
 
 object sb_permissions : Table() {

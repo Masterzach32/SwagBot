@@ -5,6 +5,8 @@ import com.mashape.unirest.http.Unirest
 import org.json.JSONObject
 import sx.blah.discord.api.events.IListener
 import sx.blah.discord.handle.impl.events.ReadyEvent
+import sx.blah.discord.handle.obj.ActivityType
+import sx.blah.discord.handle.obj.StatusType
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.getAllAudioHandlers
 import xyz.swagbot.database.getKey
@@ -87,7 +89,8 @@ object ReadyHandler : IListener<ReadyEvent> {
                     messages[4] = "${event.client.users.size} users"
                 }
 
-                event.client.changePlayingText(messages[i])
+                event.client.changePresence(StatusType.ONLINE, ActivityType.PLAYING, messages[i])
+
                 i++
                 if (i == messages.size)
                     i = 0

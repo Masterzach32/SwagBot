@@ -8,6 +8,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.config
 import xyz.swagbot.database.getCommandPrefix
+import xyz.swagbot.database.getDefault
 import xyz.swagbot.utils.BLUE
 
 object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
@@ -25,7 +26,8 @@ object InfoCommand : Command("Info", "info", botPerm = Permission.NONE) {
         embed.withAuthorIcon("http://swagbot.xyz/images/banner.png")
         embed.withAuthorUrl("http://swagbot.xyz")
 
-        embed.withDesc("SwagBot is a music bot with many additional features. Type **${event.guild.getCommandPrefix()}" +
+        embed.withDesc("SwagBot is a music bot with many additional features. Type **" +
+                (event.guild?.getCommandPrefix() ?: getDefault("command_prefix")) +
                 "help** to see more commands!\n\n")
         embed.appendDesc("Learn more about SwagBot at https://swagbot.xyz\n\n" +
                 "Follow SwagBot on Twitter for updates:\nhttps://twitter.com/DiscordSwagBot\n" +

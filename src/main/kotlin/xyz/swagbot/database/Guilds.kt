@@ -151,3 +151,11 @@ fun IGuild.addIAmRole(role: IRole): Boolean {
     create_iam_role_entry(stringID, role.stringID)
     return true
 }
+
+fun IGuild.setTimezone(timezone: String) {
+
+}
+
+fun IGuild.getTimezone(): String {
+    return "EST"
+}

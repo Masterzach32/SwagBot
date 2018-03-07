@@ -88,6 +88,7 @@ fun main(args: Array<String>) {
     cmds.add(LmgtfyCommand)
     cmds.add(MassAfkCommand)
     cmds.add(PingCommand)
+    //cmds.add(QuoteCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
     cmds.add(StrawpollCommand)

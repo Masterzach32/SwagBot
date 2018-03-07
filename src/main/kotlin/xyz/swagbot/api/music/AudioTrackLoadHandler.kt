@@ -9,6 +9,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.addTrackToDatabase
+import xyz.swagbot.database.getTimezone
 import xyz.swagbot.dsl.getThumbnailUrl
 import xyz.swagbot.dsl.hasThumbnail
 import xyz.swagbot.utils.BLUE
@@ -47,9 +48,9 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
         embed.withUrl(track.info.uri)
 
         val date = SimpleDateFormat("MM/dd/yy")
-        val time = SimpleDateFormat("hh:mm:ss a z")
+        val time = SimpleDateFormat("hh:mm:ss a")
         val now = Date()
-        embed.withFooterText("${date.format(now)} at ${time.format(now)}")
+        embed.withFooterText("${date.format(now)} at ${time.format(now)} ${event.guild.getTimezone()}")
 
         handler.queue(track)
         if (!track.info.isStream)
