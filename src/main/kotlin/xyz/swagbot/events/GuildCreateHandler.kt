@@ -28,7 +28,7 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
             event.guild.getJoinTimeForUser(event.client.ourUser).atZone(ZoneId.systemDefault()).toEpochSecond()
         }.get()
 
-        if (now - joined < 10) {
+        if (now - joined < 30) {
             val builder = AdvancedMessageBuilder(event.guild.defaultChannel)
             builder.withContent("Thanks for adding me to your server! If you need help, check out the getting " +
                     "started guide on my website: https://swagbot.xyz/gettingstarted")
@@ -41,7 +41,6 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
         }
 
         event.guild.initializeAutioPlayer()
-        event.guild.audioManager.audioProvider = event.guild.getAudioHandler().audioProvider
         logger.info("Guild ${event.guild.name} (${event.guild.stringID}) is ready to start receiving commands.")
     }
 }
