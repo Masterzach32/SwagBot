@@ -10,6 +10,7 @@ import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.addTrackToDatabase
 import xyz.swagbot.database.getTimezone
+import xyz.swagbot.dsl.getFormattedLength
 import xyz.swagbot.dsl.getThumbnailUrl
 import xyz.swagbot.dsl.hasThumbnail
 import xyz.swagbot.utils.BLUE
@@ -37,6 +38,7 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
         embed.withTitle(":musical_note: | Track requested by ${event.author.getDisplayName(event.guild)}")
         embed.withDesc("**${track.info.title}**\n")
         embed.appendDesc("Author/Channel: **${track.info.author}**\n")
+        embed.appendDesc("Length: **${track.getFormattedLength()}**")
 
         if (track.info.hasThumbnail())
             embed.withThumbnail(track.info.getThumbnailUrl())

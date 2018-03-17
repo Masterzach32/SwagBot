@@ -33,9 +33,9 @@ fun IGuild.initializeAutioPlayer() {
         val listener = TrackHandler(player)
         player.addListener(listener)
 
+        audioHandlers[stringID] = listener
         audioManager.audioProvider = getAudioHandler().audioProvider
 
-        audioHandlers.put(stringID, listener)
         player.volume = getBotVolume()
         if (isQueueLoopEnabled())
             listener.toggleShouldLoop()
