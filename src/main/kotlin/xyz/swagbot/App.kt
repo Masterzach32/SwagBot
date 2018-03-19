@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
 import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
-import xyz.swagbot.commands.dev.GarbageCollectionCommand
-import xyz.swagbot.commands.dev.ShutdownCommand
 import xyz.swagbot.commands.mod.*
 import xyz.swagbot.commands.music.*
 import xyz.swagbot.commands.normal.*
@@ -106,9 +104,8 @@ fun main(args: Array<String>) {
     cmds.add(ChangePrefixCommand)
     //cmds.add(ChatOnlyCommand)
     cmds.add(EditPermissionsCommand)
-    // devd
-    cmds.add(GarbageCollectionCommand)
-    cmds.add(ShutdownCommand)
+    // dev
+    cmds.add(ShutdownCommand, GarbageCollectionCommand)
 
     cmds.sortCommands()
 
