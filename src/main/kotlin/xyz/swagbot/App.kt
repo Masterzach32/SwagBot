@@ -55,6 +55,9 @@ fun main(args: Array<String>) {
     AudioSourceManagers.registerRemoteSources(audioPlayerManager)
 
     logger.info("Initializing commands.")
+
+    // basic
+    cmds.add(DonateCommand, InfoCommand, InviteCommand, PingCommand, SupportCommand)
     // music
     cmds.add(ClearCommand)
     cmds.add(LeaverClearCommand)
@@ -76,21 +79,16 @@ fun main(args: Array<String>) {
     // normal
     cmds.add(CatCommand)
     cmds.add(DogCommand)
-    cmds.add(DonateCommand)
     cmds.add(GameCommand)
     cmds.add(IAmCommand)
     cmds.add(IAmNotCommand)
-    cmds.add(InfoCommand)
     cmds.add(JoinCommand)
-    cmds.add(InviteCommand)
     cmds.add(LmgtfyCommand)
     cmds.add(MassAfkCommand)
-    cmds.add(PingCommand)
     //cmds.add(QuoteCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
     cmds.add(StrawpollCommand)
-    cmds.add(SupportCommand)
     cmds.add(UrbanDictionaryCommand)
     cmds.add(UrlShortenCommand)
     cmds.add(VoiceCommand)
