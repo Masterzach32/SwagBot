@@ -30,7 +30,7 @@ object CatCommand : Command("Random Cat Picture", "randomcat", "cat") {
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
         event.channel.toggleTypingStatus()
-        val url = "http://random.cat/meow"
+        val url = "http://aws.random.cat/meow"
         val response = try {
             Unirest.get(url).asJson()
         } catch (e: ConnectTimeoutException) {
