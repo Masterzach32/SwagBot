@@ -33,7 +33,7 @@ val ShutdownCommand = createCommand("Shutdown/Restart/Update") {
                     builder.withContent("Unknown command.")
                 }
             }
-            null
+            return@all null
         }
     }
 }
@@ -55,7 +55,7 @@ val GarbageCollectionCommand = createCommand("Run Garbage Collection") {
             val memoryUsed = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
             System.gc()
             val newMemoryUsed = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-            builder.withContent("Ran garbage collection and freed " +
+            return@all builder.withContent("Ran garbage collection and freed " +
                     "**${((memoryUsed - newMemoryUsed)/Math.pow(2.0, 20.0)).toInt()} MB** of Heap space.")
         }
     }

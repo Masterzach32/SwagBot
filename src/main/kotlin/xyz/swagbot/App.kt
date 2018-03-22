@@ -59,6 +59,7 @@ fun main(args: Array<String>) {
     // basic
     cmds.add(DonateCommand, InfoCommand, InviteCommand, PingCommand, SupportCommand)
     // music
+    cmds.add(AutoPlayCommand)
     cmds.add(ClearCommand)
     cmds.add(LeaverClearCommand)
     cmds.add(LoopCommand)

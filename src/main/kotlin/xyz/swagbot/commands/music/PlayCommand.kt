@@ -50,10 +50,6 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
         audioPlayerManager.loadItemOrdered(handler, identifier, AudioTrackLoadHandler(handler, event, builder))
 
-        if (event.author.getVoiceStateForGuild(event.guild).channel != null &&
-                event.client.ourUser.getVoiceStateForGuild(event.guild).channel == null)
-            event.author.getVoiceStateForGuild(event.guild).channel.join()
-
         return null
     }
 }

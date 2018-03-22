@@ -4,8 +4,11 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.handle.obj.StatusType
 import xyz.swagbot.api.music.TrackUserData
+import xyz.swagbot.database.getTrackPreferences
+import xyz.swagbot.database.sql
 import xyz.swagbot.utils.getFormattedTime
 
 /*
@@ -65,4 +68,16 @@ fun AudioTrackInfo.hasThumbnail(): Boolean {
 
 fun AudioTrackInfo.getThumbnailUrl(): String {
     return "https://img.youtube.com/vi/$identifier/0.jpg"
+}
+
+fun IVoiceChannel.getTrackPreferences(): Map<String, Int> {
+    val preferences = mutableMapOf<String, Int>()
+
+    sql {
+        usersHere
+                .filter { it != client.ourUser }
+                .forEach { preferences.putAll(it.getTrackPreferences()) }
+    }
+
+    return preferences
 }

@@ -11,11 +11,9 @@ import xyz.swagbot.database.getDefault
 import xyz.swagbot.utils.BLUE
 
 val PingCommand = createCommand("Ping") {
-
     aliases("ping")
 
     scope { Command.Scope.ALL }
-
     botPerm { Permission.NONE }
 
     helpText {
@@ -42,8 +40,9 @@ val DonateCommand = createCommand("Donate") {
         val embed = EmbedBuilder().withColor(BLUE)
 
         all {
-            builder.withEmbed(embed.withDesc("Help support the development of SwagBot by pledging money on " +
-                    "Patreon or donating to my PayPal.\n\nhttps://patreon.com/ultimatedoge\n\nhttps://paypal.me/ultimatedoge"))
+            return@all builder.withEmbed(embed.withDesc("Help support the development of SwagBot by pledging " +
+                    "money on Patreon or donating to my PayPal.\n\nhttps://patreon.com/ultimatedoge" +
+                    "\n\nhttps://paypal.me/ultimatedoge"))
         }
     }
 }
@@ -77,9 +76,9 @@ val InfoCommand = createCommand("Info") {
                     "Want to add SwagBot to your server? Click the link below:" +
                     "\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8\n")
 
-            embed.withFooterText("\u00a9 SwagBot 2016-2018. Written in Kotlin. Built off of Discord4J ${Discord4J.VERSION}.")
-
-            builder.withEmbed(embed)
+            embed.withFooterText("\u00a9 SwagBot 2016-2018. Written in Kotlin. Built off of Discord4J " +
+                    "${Discord4J.VERSION}.")
+            return@all builder.withEmbed(embed)
         }
     }
 }
@@ -99,7 +98,7 @@ val InviteCommand = createCommand("Invite") {
                     .withColor(BLUE)
                     .withTitle("Click this link to add SwagBot to your server!")
                     .withDesc("https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8")
-            builder.withEmbed(embed)
+            return@all builder.withEmbed(embed)
         }
     }
 }
@@ -117,8 +116,8 @@ val SupportCommand = createCommand("Support") {
         val embed = EmbedBuilder().withColor(BLUE)
 
         all {
-            builder.withEmbed(embed.withDesc("Need help with SwagBot? Make sure you have read the getting " +
-                    "started guide: https://swagbot.xyz/gettingstarted\n\n" +
+            return@all builder.withEmbed(embed.withDesc("Need help with SwagBot? Make sure you have read the " +
+                    "getting started guide: https://swagbot.xyz/gettingstarted\n\n" +
                     "Still having trouble? Join the SwagBot support server: https://discord.me/swagbothub\n\n" +
                     "If you want to help fix a bug, submit an issue on GitHub: https://github.com/Masterzach32/SwagBot"))
         }

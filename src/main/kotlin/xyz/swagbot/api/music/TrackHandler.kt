@@ -5,19 +5,23 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
+import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IUser
+import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.dsl.getRequester
-import xyz.swagbot.dsl.getTrackUserData
+import xyz.swagbot.dsl.getTrackPreferences
 import xyz.swagbot.logger
-import java.util.*
 
-class TrackHandler(val player: AudioPlayer) : AudioEventAdapter() {
+class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapter() {
 
     private val queue = mutableListOf<AudioTrack>()
 
     val audioProvider = AudioProvider(player)
 
-    private var shouldLoop = false
+    var shouldLoop = false
+        private set
+    var shouldAutoplay = false
+        private set
 
     fun queue(track: AudioTrack) {
         if (!player.startTrack(track, true))
@@ -35,6 +39,9 @@ class TrackHandler(val player: AudioPlayer) : AudioEventAdapter() {
             player.startTrack(queue.removeAt(0), false)
         else if (player.playingTrack != null)
             player.stopTrack()
+
+        if (shouldAutoplay && queue.isEmpty())
+            getAndQueueAutoplayTrack()
         return oldTrack
     }
 
@@ -71,7 +78,7 @@ class TrackHandler(val player: AudioPlayer) : AudioEventAdapter() {
     }
 
     fun shuffleQueue() {
-        Collections.shuffle(queue)
+        queue.shuffle()
     }
 
     fun clearQueue() {
@@ -94,7 +101,23 @@ class TrackHandler(val player: AudioPlayer) : AudioEventAdapter() {
 
     fun toggleShouldLoop(): Boolean {
         shouldLoop = !shouldLoop
+
+        if (shouldAutoplay)
+            shouldLoop = false
+
         return shouldLoop
+    }
+
+    fun toggleShouldAutoplay(): Boolean {
+        shouldAutoplay = !shouldAutoplay
+
+        if (shouldAutoplay)
+            shouldLoop = false
+
+        if (shouldAutoplay && player.playingTrack == null)
+            getAndQueueAutoplayTrack()
+
+        return shouldAutoplay
     }
 
     fun getQueueLength(): Long {
@@ -121,5 +144,15 @@ class TrackHandler(val player: AudioPlayer) : AudioEventAdapter() {
         logger.warn("An audio track is stuck, skipping...")
         logger.warn("Skipped ${track.identifier}")
         playNext()
+    }
+
+    fun getAndQueueAutoplayTrack() {
+        val map = guild.client.ourUser.getVoiceStateForGuild(guild).channel.getTrackPreferences()
+
+        val tracks: List<String> = map.keys.toList()
+        val track = tracks[(Math.random()*map.keys.size).toInt()]
+
+        audioPlayerManager.loadItemOrdered(this, track,
+                SilentAudioTrackLoadHandler(this, guild.client.ourUser))
     }
 }

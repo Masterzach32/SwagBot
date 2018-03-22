@@ -12,7 +12,7 @@ import xyz.swagbot.utils.BLUE
 object LoopCommand : Command("Loop Queue", "loop", scope = Scope.GUILD) {
 
     init {
-        help.usage[""] = "Requeue tracks when they end."
+        help.usage[""] = "Requeue tracks when they end. Cannot be used while autoplay is enabled."
     }
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,

@@ -30,7 +30,7 @@ fun getAllAudioHandlers(): Map<String, TrackHandler> {
 fun IGuild.initializeAutioPlayer() {
     if (!audioHandlers.contains(stringID)) {
         val player = audioPlayerManager.createPlayer()
-        val listener = TrackHandler(player)
+        val listener = TrackHandler(this, player)
         player.addListener(listener)
 
         audioHandlers[stringID] = listener
@@ -103,9 +103,8 @@ fun TrackHandler.saveTracksToStorage(guild: IGuild) {
 
 fun TrackHandler.loadTracksFromStorage(guild: IGuild) {
     remove_track_entries(guild.stringID).forEach {
-        audioPlayerManager.loadItemOrdered(this,
-                it[sb_track_storage.identifier],
-                SilentAudioTrackLoadHandler(this, guild,
+        audioPlayerManager.loadItemOrdered(this, it[sb_track_storage.identifier],
+                SilentAudioTrackLoadHandler(this,
                         guild.client.getUserByID(it[sb_track_storage.user_id].toLong())))
     }
 }
