@@ -44,7 +44,7 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
             embed.withThumbnail(track.info.getThumbnailUrl())
 
         if (handler.getQueue().isNotEmpty())
-            embed.appendDesc("Estimated time until track is played: " +
+            embed.appendDesc("\nEstimated time until track is played: " +
                     "**${getFormattedTime((handler.getQueueLength()/1000).toInt())}**")
 
         embed.withUrl(track.info.uri)
