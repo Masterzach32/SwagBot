@@ -33,7 +33,7 @@ object CatCommand : Command("Random Cat Picture", "randomcat", "cat") {
         val url = "http://aws.random.cat/meow"
         val response = try {
             Unirest.get(url).asJson()
-        } catch (e: ConnectTimeoutException) {
+        } catch (t: Throwable) {
             return builder.withContent("Sorry, but i'm having trouble connecting to $url at the moment.")
         }
         if (response.status != 200)

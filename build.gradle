@@ -2,7 +2,7 @@ group 'xyz.swagbot'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.2.30'
+    ext.kotlin_version = '1.2.31'
 
     repositories {
         mavenCentral()
@@ -36,7 +36,7 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.2.3'
     compile 'joda-time:joda-time:2.9.9'
     compile 'com.mashape.unirest:unirest-java:1.4.9'
-    compile 'com.sedmelluq:lavaplayer:1.2.51'
+    compile 'com.sedmelluq:lavaplayer:1.2.56'
     compile 'com.github.natanbc:discordbots-api:1.4'
     //compile 'edu.cmu.sphinx:sphinx4-core:5prealpha-SNAPSHOT'
     //compile 'edu.cmu.sphinx:sphinx4-data:5prealpha-SNAPSHOT'

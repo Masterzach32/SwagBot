@@ -37,7 +37,7 @@ private fun stop(client: IDiscordClient) {
     }
     audioPlayerManager.shutdown()
     client.logout()
-    Unirest.shutdown()
+    //Unirest.shutdown()
 }
 
 private fun exit(ec: ExitCode) {

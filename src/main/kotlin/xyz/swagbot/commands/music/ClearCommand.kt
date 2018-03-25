@@ -20,7 +20,7 @@ object ClearCommand : Command("Clear Queue", "clear", scope = Scope.GUILD, botPe
             return getBotLockedMessage(builder)
 
         event.guild.getAudioHandler().clearQueue()
-        event.guild.getAudioHandler().player.stopTrack()
+        event.guild.getAudioHandler().playNext()
 
         return null
     }
