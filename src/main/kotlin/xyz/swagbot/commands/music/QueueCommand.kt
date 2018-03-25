@@ -46,7 +46,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
                 "**${audioHandler.player.playingTrack.getFormattedPosition()}**" +
                 " / **${audioHandler.player.playingTrack.getFormattedLength()}** " +
                 "(${audioHandler.player.playingTrack.getRequester().getDisplayName(event.guild)})", false)
-        embed.appendField("AutoPlay:", if (audioHandler.shouldAutoplay) ":white_check_mark:" else ":x:", true)
+        embed.appendField("Autoplay:", if (audioHandler.shouldAutoplay) ":white_check_mark:" else ":x:", true)
         embed.appendField("Loop:", if (event.guild.isQueueLoopEnabled()) ":white_check_mark:" else ":x:", true)
         embed.appendField("Paused:", if (audioHandler.player.isPaused) ":white_check_mark:" else ":x:", true)
         embed.appendField("Tracks in Queue: ", "${audioHandler.getQueue().size}", true)

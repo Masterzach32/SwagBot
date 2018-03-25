@@ -1,6 +1,7 @@
 package xyz.swagbot.commands
 
 import net.masterzach32.commands4k.Command
+import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.database.getAudioHandler
@@ -23,6 +24,7 @@ val AutoPlayCommand = createCommand("Autoplay") {
     aliases("autoplay", "ap")
 
     scope { Command.Scope.GUILD }
+    botPerm { Permission.DEVELOPER }
 
     helpText {
         description { "Autoplay music when no more tracks are queued. Music chosen by SwagBot is based on the " +

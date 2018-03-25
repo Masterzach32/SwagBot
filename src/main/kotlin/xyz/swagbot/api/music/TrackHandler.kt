@@ -149,10 +149,12 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
     fun getAndQueueAutoplayTrack() {
         val map = guild.client.ourUser.getVoiceStateForGuild(guild).channel.getTrackPreferences()
 
-        val tracks: List<String> = map.keys.toList()
-        val track = tracks[(Math.random()*map.keys.size).toInt()]
+        if (map.isNotEmpty()) {
+            val tracks: List<String> = map.keys.toList()
+            val track = tracks[(Math.random() * map.keys.size).toInt()]
 
-        audioPlayerManager.loadItemOrdered(this, track,
-                SilentAudioTrackLoadHandler(this, guild.client.ourUser))
+            audioPlayerManager.loadItemOrdered(this, track,
+                    SilentAudioTrackLoadHandler(this, guild.client.ourUser))
+        }
     }
 }

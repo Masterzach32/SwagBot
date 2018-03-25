@@ -29,7 +29,7 @@ import xyz.swagbot.events.*
  */
 
 val config = ConfigFactory.load()!!
-val logger = LoggerFactory.getLogger(config.getString("bot.name"))!!
+val logger = LoggerFactory.getLogger("SwagBot")!!
 
 val audioPlayerManager = DefaultAudioPlayerManager()
 

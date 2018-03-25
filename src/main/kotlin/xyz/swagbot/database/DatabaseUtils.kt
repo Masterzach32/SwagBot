@@ -24,7 +24,7 @@ import java.util.concurrent.Executors
  * @version 8/22/17
  */
 
-val logger = LoggerFactory.getLogger("${config.getString("bot.name")} Database")
+val logger = LoggerFactory.getLogger("SwagBot Database")
 
 val sqlPool = Executors.newFixedThreadPool(1)
 
