@@ -76,11 +76,16 @@ fun IGuild.isBotLocked(): Boolean {
 }
 
 fun IGuild.setAutoAssignRole(role: IRole?) {
-    update_guild_cell(stringID, sb_guilds.auto_assign_role, role?.name)
+    update_guild_cell(stringID, sb_guilds.auto_assign_role, role?.stringID)
 }
 
 fun IGuild.getAutoAssignRole(): IRole? {
-    return getRolesByName(get_guild_cell(stringID, sb_guilds.auto_assign_role)).firstOrNull()
+    val roleId = get_guild_cell(stringID, sb_guilds.auto_assign_role) ?: return null
+    return try {
+        getRoleByID(roleId.toLong())
+    } catch (t: Throwable) {
+        getRolesByName(roleId).firstOrNull()
+    }
 }
 
 fun IGuild.setLastVoiceChannel(channel: IVoiceChannel?) {
