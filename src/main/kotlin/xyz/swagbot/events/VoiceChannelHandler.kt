@@ -18,7 +18,7 @@ object UserJoinEvent : IListener<UserVoiceChannelJoinEvent> {
                     event.guild.getAudioHandler().shouldAutoplay &&
                     event.guild.getAudioHandler().getQueue().isEmpty() &&
                     event.guild.getAudioHandler().player.playingTrack == null) {
-                event.guild.getAudioHandler().getAndQueueAutoplayTrack()
+                event.guild.getAudioHandler().playNext()
             }
         }
     }

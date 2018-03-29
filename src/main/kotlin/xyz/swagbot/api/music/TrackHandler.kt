@@ -146,7 +146,7 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
         playNext()
     }
 
-    fun getAndQueueAutoplayTrack() {
+    private fun getAndQueueAutoplayTrack() {
         val map = guild.client.ourUser.getVoiceStateForGuild(guild).channel.getTrackPreferences()
 
         if (map.isNotEmpty()) {
