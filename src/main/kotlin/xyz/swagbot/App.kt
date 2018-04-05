@@ -1,12 +1,17 @@
 package xyz.swagbot
 
+import com.github.natanbc.discordbotsapi.DiscordBotsAPI
+import com.mashape.unirest.http.Unirest
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.typesafe.config.ConfigFactory
 import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
+import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
+import sx.blah.discord.handle.obj.ActivityType
+import sx.blah.discord.handle.obj.StatusType
 import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
 import xyz.swagbot.commands.mod.*
@@ -14,6 +19,7 @@ import xyz.swagbot.commands.music.*
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
 import xyz.swagbot.events.*
+import xyz.swagbot.utils.Thread
 
 /*
  * SwagBot - Created on 8/22/17
@@ -126,4 +132,71 @@ fun main(args: Array<String>) {
     client.login()
 
     logger.info("Waiting to receive guilds...")
+
+    Thread("Status Message Handler") {
+        while (!client.isReady) {}
+
+        val api = DiscordBotsAPI(getKey("discord_bots_org"))
+        val messages = mutableListOf("", "~h for help", "", "", "", "swagbot.xyz")
+        val delay = 240
+
+        logger.info("Starting status message thread.")
+
+        var i = 0
+        while (true) {
+            if (i == 0) {
+                val motd = getKey("motd")
+                if (motd == "x")
+                    i++
+                else
+                    messages[0] = motd
+            }
+            if (i == 2) {
+                messages[2] = "${client.guilds.size} servers"
+
+                val payload = JSONObject()
+                payload.put("server_count", client.guilds.size)
+                try {
+                    Unirest.post("https://bots.discord.pw/api/bots/${getKey("discord_client_id")}/stats")
+                            .header("Content-Type", "application/json")
+                            .header("Authorization", getKey("discord_bots_pw"))
+                            .body(payload)
+                } catch (t: Throwable) {
+                    logger.warn("Could not post bot statistics: ${t.message}")
+                    t.printStackTrace()
+                }
+
+                try {
+                    api.postStats(0, 1, client.guilds.size)
+                } catch (t: Throwable) {
+                    logger.warn("Could not post bot statistics: ${t.message}")
+                    t.printStackTrace()
+                }
+            }
+            if (i == 3) {
+                val list = mutableMapOf<String, String>()
+                getAllAudioHandlers().forEach { k, v ->
+                    if (v.player.playingTrack != null)
+                        list.put(k, v.player.playingTrack.info.title)
+                }
+                val rand = mutableListOf<String>()
+                list.forEach { k, _ -> rand.add(k) }
+                if (rand.size > 0) {
+                    val guild = client.getGuildByID(rand[(Math.random() * rand.size).toInt()].toLong())
+                    messages[3] = "${list[guild.stringID]} in ${guild.name}"
+                } else
+                    i++
+            }
+            if (i == 4) {
+                messages[4] = "${client.users.size} users"
+            }
+
+            client.changePresence(StatusType.ONLINE, ActivityType.PLAYING, messages[i])
+
+            i++
+            if (i == messages.size)
+                i = 0
+            Thread.sleep((delay*1000).toLong())
+        }
+    }.start()
 }

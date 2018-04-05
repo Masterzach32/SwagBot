@@ -30,14 +30,16 @@ internal fun shutdown(client: IDiscordClient, ec: ExitCode) {
 }
 
 private fun stop(client: IDiscordClient) {
+    logger.info("Shutting down audio player.")
     try {
         client.guilds.forEach { it.shutdownAudioPlayer() }
     } catch (t: Throwable) {
         logger.error("Could not shut down audio players gracefully: ${t.message}")
     }
     audioPlayerManager.shutdown()
+    logger.info("Logging out of Discord.")
     client.logout()
-    //Unirest.shutdown()
+    Unirest.shutdown()
 }
 
 private fun exit(ec: ExitCode) {

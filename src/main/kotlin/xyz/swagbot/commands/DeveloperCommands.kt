@@ -3,6 +3,7 @@ package xyz.swagbot.commands
 import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
+import sx.blah.discord.api.IDiscordClient
 import xyz.swagbot.logger
 import xyz.swagbot.utils.ExitCode
 import xyz.swagbot.utils.shutdown
