@@ -150,10 +150,24 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
         val map = guild.client.ourUser.getVoiceStateForGuild(guild).channel.getTrackPreferences()
 
         if (map.isNotEmpty()) {
-            val tracks: List<String> = map.keys.toList()
-            val track = tracks[(Math.random() * map.keys.size).toInt()]
+            var totalWeight = 0
+            map.forEach {
+                logger.info("Track: ${it.key} Weight: ${it.value}")
+                totalWeight += it.value
+            }
 
-            audioPlayerManager.loadItemOrdered(this, track,
+            var randomTrack: String? = null
+            var random = Math.random() * map.keys.size
+
+            for (track in map.keys) {
+                random -= map.getOrDefault(track, 1)
+                if (random <= 0) {
+                    randomTrack = track
+                    break
+                }
+            }
+
+            audioPlayerManager.loadItemOrdered(this, randomTrack,
                     SilentAudioTrackLoadHandler(this, guild.client.ourUser))
         }
     }
