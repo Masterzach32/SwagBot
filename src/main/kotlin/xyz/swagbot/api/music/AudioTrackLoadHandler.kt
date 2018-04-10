@@ -36,7 +36,7 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
         track.userData = TrackUserData(event.author)
         embed.withColor(BLUE)
         embed.withTitle(":musical_note: | Track requested by ${event.author.getDisplayName(event.guild)}")
-        embed.withDesc("**${track.info.title}**\n")
+        embed.withDesc("**[${track.info.title}](${track.info.uri})**\n")
         embed.appendDesc("Author/Channel: **${track.info.author}**\n")
         embed.appendDesc("Length: **${track.getFormattedLength()}**")
 
@@ -46,8 +46,6 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
         if (handler.getQueue().isNotEmpty())
             embed.appendDesc("\nEstimated time until track is played: " +
                     "**${getFormattedTime((handler.getQueueLength()/1000).toInt())}**")
-
-        embed.withUrl(track.info.uri)
 
         val date = SimpleDateFormat("MM/dd/yy")
         val time = SimpleDateFormat("hh:mm:ss a")

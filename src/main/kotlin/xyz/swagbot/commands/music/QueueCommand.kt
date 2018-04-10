@@ -42,7 +42,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         }
 
         embed.withTitle("SwagBot Track Queue")
-        embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.getFormattedTitle()} - " +
+        embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.getFormattedTitleAsLink()} - " +
                 "**${audioHandler.player.playingTrack.getFormattedPosition()}**" +
                 " / **${audioHandler.player.playingTrack.getFormattedLength()}** " +
                 "(${audioHandler.player.playingTrack.getRequester().getDisplayName(event.guild)})", false)
@@ -56,7 +56,7 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         var i = pageNumber * 15
         var str = ""
         while (i < audioHandler.getQueue().size && i < (pageNumber + 1) * 15) {
-            str += "${i+1}. ${audioHandler.getQueue()[i].getFormattedTitle()} - " +
+            str += "${i+1}. ${audioHandler.getQueue()[i].getFormattedTitleAsLink()} - " +
                     "**${audioHandler.getQueue()[i].getFormattedLength()}** " +
                     "(${audioHandler.getQueue()[i].getRequester().getDisplayName(event.guild)})\n"
             i++

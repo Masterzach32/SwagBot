@@ -24,12 +24,12 @@ object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Sc
         val embed = EmbedBuilder()
         event.channel.toggleTypingStatus()
         if (playingTrack == null)
-            return builder.withEmbed(embed.withColor(RED).withDesc("Im not playing anything right now. Go add some" +
-                    " tracks with the ${event.guild.getCommandPrefix()}play or ${event.guild.getCommandPrefix()}search commands!"))
+            return builder.withEmbed(embed.withColor(RED).withDesc("Im not playing anything right now. Go add " +
+                    "some tracks with the ${event.guild.getCommandPrefix()}play or ${event.guild.getCommandPrefix()}" +
+                    "search commands!"))
         embed.withColor(BLUE)
                 .withTitle(":musical_note: | Now Playing")
-                .withUrl(playingTrack.info.uri)
-                .withDesc("**${playingTrack.info.title}** - **${playingTrack.getFormattedPosition()}** / " +
+                .withDesc("**[${playingTrack.info.title}](${playingTrack.info.uri})** - **${playingTrack.getFormattedPosition()}** / " +
                         "**${playingTrack.getFormattedLength()}**")
                 .appendDesc("\nAuthor/Channel: **${playingTrack.info.author}**")
                 .appendDesc("\nRequested by: ${playingTrack.getRequester().getDisplayName(event.guild)}")

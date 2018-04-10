@@ -54,7 +54,7 @@ object SeekCommand : Command("Seek Track", "seek", scope = Scope.GUILD) {
 
         embed.withColor(BLUE)
                 .withTitle(":musical_note: | Seek track")
-                .withDesc("**${playingTrack.info.title}**")
+                .withDesc(playingTrack.getFormattedTitleAsLink())
                 .appendDesc("\nAuthor/Channel: **${playingTrack.info.author}**")
                 .appendDesc("\nSeek: (**$oldPos** / **${playingTrack.getFormattedLength()}**) -> " +
                         "(**${playingTrack.getFormattedPosition()}** / **${playingTrack.getFormattedLength()}**)")
