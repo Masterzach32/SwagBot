@@ -20,7 +20,7 @@ import sx.blah.discord.util.RequestBuffer
 object MessageHandler : IListener<MessageReceivedEvent> {
 
     override fun handle(event: MessageReceivedEvent) {
-        if (event.author == event.client.ourUser)
+        if (event.author == event.client.ourUser || event.guild == null)
             return
 
         if (event.guild.stringID == "97342233241464832") {

@@ -19,7 +19,7 @@ import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
 
-object SearchCommand : Command("Search YouTube", "search", "ytsearch") {
+object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = Scope.GUILD) {
 
     init {
         help.usage["<search query>"] = "Searches YouTube for the 5 best matching videos."
@@ -35,12 +35,12 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch") {
         val list = getVideoSetFromSearch(getContent(args, 0), 5)
 
         if (list.isEmpty())
-            return builder.withEmbed(embed.withColor(RED).withDesc("Sorry, I could not find a video that matched " +
-                    "that description. Try refining your search."))
+            return builder.withEmbed(embed.withColor(RED).withDesc("Sorry, I could not find a video that " +
+                    "matched that description. Try refining your search."))
 
         embed.withColor(BLUE).withTitle("YouTube search result:")
         for (i in 0..(list.size-1)) {
-            embed.appendDesc("${i+1}. **${list[i].title}** by **${list[i].channel}**.\n")
+            embed.appendDesc("${i+1}. [**${list[i].title}** by **${list[i].channel}**](${list[i].getUrl()}).\n")
         }
         embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, enter its " +
                 "number below within 60 seconds.")
