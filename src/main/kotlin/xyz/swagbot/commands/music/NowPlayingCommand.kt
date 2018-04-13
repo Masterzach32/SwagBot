@@ -29,7 +29,7 @@ object NowPlayingCommand : Command("Now Playing", "nowplaying", "np", scope = Sc
                     "search commands!"))
         embed.withColor(BLUE)
                 .withTitle(":musical_note: | Now Playing")
-                .withDesc("**[${playingTrack.info.title}](${playingTrack.info.uri})** - **${playingTrack.getFormattedPosition()}** / " +
+                .withDesc("${playingTrack.getFormattedTitleAsLink()} - **${playingTrack.getFormattedPosition()}** / " +
                         "**${playingTrack.getFormattedLength()}**")
                 .appendDesc("\nAuthor/Channel: **${playingTrack.info.author}**")
                 .appendDesc("\nRequested by: ${playingTrack.getRequester().getDisplayName(event.guild)}")
