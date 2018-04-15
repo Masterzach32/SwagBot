@@ -84,6 +84,7 @@ fun main(args: Array<String>) {
     cmds.add(SkipToCommand)
     cmds.add(VoteSkipCommand)
     // normal
+    cmds.add(LookupCRNCommand)
     cmds.add(CatCommand)
     cmds.add(DogCommand)
     cmds.add(GameCommand)
