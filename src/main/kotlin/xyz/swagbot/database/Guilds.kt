@@ -27,7 +27,16 @@ fun getAllAudioHandlers(): Map<String, TrackHandler> {
     return audioHandlers
 }
 
-fun IGuild.initializeAutioPlayer() {
+fun IGuild.hasSQLEntry(): Boolean {
+    return does_guild_entry_exist(stringID)
+}
+
+fun IGuild.initialize() {
+    if (!hasSQLEntry()) {
+        xyz.swagbot.database.logger.info("Adding new guild to database: $stringID")
+        create_guild_entry(this)
+    }
+
     if (!audioHandlers.contains(stringID)) {
         val player = audioPlayerManager.createPlayer()
         val listener = TrackHandler(this, player)

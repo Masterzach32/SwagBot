@@ -30,17 +30,12 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
 
         if (now - joined < 30) {
             val builder = AdvancedMessageBuilder(event.guild.defaultChannel)
-            builder.withContent("Thanks for adding me to your server! If you need help, check out the getting " +
-                    "started guide on my website: https://swagbot.xyz/gettingstarted")
+            builder.withContent("Thanks for adding me to your server! If you need help, check out the" +
+                    " getting started guide on my website: https://swagbot.xyz/gettingstarted")
             RequestBuffer.request { builder.build() }
         }
 
-        if (!does_guild_entry_exist(event.guild.stringID)) {
-            xyz.swagbot.database.logger.info("Adding new guild to database: ${event.guild.stringID}")
-            create_guild_entry(event.guild)
-        }
-
-        event.guild.initializeAutioPlayer()
+        event.guild.initialize()
         logger.info("Guild ${event.guild.name} (${event.guild.stringID}) is ready to start receiving commands.")
     }
 }

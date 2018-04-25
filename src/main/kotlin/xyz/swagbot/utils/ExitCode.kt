@@ -9,7 +9,8 @@ enum class ExitCode(val code: Int) {
     RESTART_REQUESTED(32),
     UPDATE_REQUESTED(33),
     LOGIN_FAILURE(34),
-    CONNECT_FAILURE(35);
+    CONNECT_FAILURE(35),
+    OUT_OF_MEMORY(36);
 
     companion object {
         fun forCode(code: Int): ExitCode {

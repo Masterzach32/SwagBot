@@ -26,7 +26,8 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         var pageNumber: Int
         if (audioHandler.getQueue().isEmpty() && audioHandler.player.playingTrack == null)
             return builder.withEmbed(embed.withDesc("The queue is empty! Go add some tracks " +
-                    "with the ${event.guild.getCommandPrefix()}play or ${event.guild.getCommandPrefix()}search commands!"))
+                    "with the ${event.guild.getCommandPrefix()}play or " +
+                    "${event.guild.getCommandPrefix()}search commands!"))
         else if (args.isEmpty())
             pageNumber = 0
         else {
@@ -42,7 +43,8 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         }
 
         embed.withTitle("SwagBot Track Queue")
-        embed.appendField("Currently Playing: ", "${audioHandler.player.playingTrack.getFormattedTitleAsLink()} - " +
+        embed.appendField("Currently Playing: ",
+                "${audioHandler.player.playingTrack.getFormattedTitleAsLink()} - " +
                 "**${audioHandler.player.playingTrack.getFormattedPosition()}**" +
                 " / **${audioHandler.player.playingTrack.getFormattedLength()}** " +
                 "(${audioHandler.player.playingTrack.getRequester().getDisplayName(event.guild)})", false)

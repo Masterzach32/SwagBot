@@ -34,7 +34,7 @@ object GameCommand : Command("Games", "fight", "brawl", "race", scope = Command.
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
 
-        val users = mutableListOf<IUser>()
+        val users = mutableSetOf<IUser>()
         val embed = EmbedBuilder()
         if (event.message.mentionsEveryone())
             event.message.guild.users
@@ -56,7 +56,7 @@ object GameCommand : Command("Games", "fight", "brawl", "race", scope = Command.
 
         if (!GameManager.isGameInProgress(event.channel)) {
             if (cmdUsed == aliases[0] || cmdUsed == aliases[1])
-                GameManager.addGame(Fight(event.channel, users))
+                GameManager.addGame(Fight(event.channel, users.toMutableList()))
             else if (cmdUsed == aliases[2])
                 return null
             return builder.withEmbed(embed.withColor(BLUE).withDesc("A $cmdUsed will be starting in 20 seconds! Type `${event.guild.getCommandPrefix()}join` to join!").build()) as AdvancedMessageBuilder
