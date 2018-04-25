@@ -29,9 +29,6 @@ internal fun create_guild_entry(guild: IGuild) {
         sb_guilds.insert {
             it[sb_guilds.id] = guild.stringID
             it[sb_guilds.name] = guild.name
-            it[sb_guilds.command_prefix] = "~"
-            it[sb_guilds.volume] = 50
-            it[sb_guilds.locked] = false
         }
         commit()
     }
@@ -49,7 +46,7 @@ internal fun <T> get_guild_cell(id: String, column: Column<T>): T? {
     return get_cell(sb_guilds, column) { sb_guilds.id eq id }
 }
 
-internal fun <T> update_guild_cell(id: String, column: Column<T>, value: T?) {
+internal fun <T> update_guild_cell(id: String, column: Column<T>, value: T) {
     sql {
         sb_guilds.update({sb_guilds.id eq id}) {
             it[column] = value

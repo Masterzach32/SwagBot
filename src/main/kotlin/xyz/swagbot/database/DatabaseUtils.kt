@@ -26,13 +26,13 @@ import java.util.concurrent.Executors
 
 val logger = LoggerFactory.getLogger("SwagBot Database")
 
-val sqlPool = Executors.newFixedThreadPool(1)
-
 val lock = Object()
+
+val database = getDatabaseConnection("storage/storage.db")
 
 fun <T> sql(sqlcode: Transaction.() -> T): T {
     synchronized(lock) {
-        return transaction(Connection.TRANSACTION_SERIALIZABLE, 1, sqlcode)
+        return transaction(Connection.TRANSACTION_SERIALIZABLE, 1, database, sqlcode)
     }
 }
 
@@ -40,22 +40,21 @@ fun Transaction.create(vararg tables: Table) {
     SchemaUtils.create(*tables)
 }
 
-fun getDatabaseConnection(url: String) {
+fun getDatabaseConnection(url: String): Database {
     logger.info("Establishing database connection.")
     for (i in 2 downTo 0) {
         try {
-            Database.connect("jdbc:sqlite:$url", "org.sqlite.JDBC")
+            val database = Database.connect("jdbc:sqlite:$url", "org.sqlite.JDBC")
 
             // make sure tables are initialized
             sql { create(sb_api_keys, sb_defaults, sb_guilds, sb_permissions, sb_chat_channels, sb_stats, sb_game_brawl,
-                    sb_iam_roles, sb_track_storage, sb_music_profile) }
+                    sb_iam_roles, sb_track_storage, sb_music_profile, sb_game_switcher) }
 
-            return
+            return database
         } catch (t: Throwable) {
             t.printStackTrace()
             logger.warn("Could not connect to database... ($i attempts left)")
         }
     }
-    logger.error("Could not connect to the database, exiting...")
-    System.exit(1)
+    throw Exception("Could not connect to the database, exiting...")
 }

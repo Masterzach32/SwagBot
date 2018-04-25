@@ -25,7 +25,7 @@ import xyz.swagbot.utils.RED
  * @author Zach Kozar
  * @version 11/17/2017
  */
-object GameCommand : Command("Games", "fight", "brawl", "race", scope = Command.Scope.GUILD) {
+object BrawlCommand : Command("Games", "fight", "brawl", scope = Command.Scope.GUILD) {
 
     init {
         help.desc = "Play a game with your fellow server members!"

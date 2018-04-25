@@ -28,13 +28,14 @@ object sb_defaults : Table() {
 object sb_guilds : Table() {
     val id = text("id")
     val name = text("name")
-    val command_prefix = text("command_prefix")
-    val locked = bool("locked")
-    val volume = integer("volume")
-    val loop = bool("loop")
+    val command_prefix = text("command_prefix").default(getDefault("command_prefix"))
+    val locked = bool("locked").default(false)
+    val volume = integer("volume").default(50)
+    val loop = bool("loop").default(false)
     val auto_assign_role = text("auto_assign_role").nullable()
     val last_voice_channel = text("last_voice_channel").nullable()
-    val timezone = text("timezone")
+    val timezone = text("timezone").default("EST")
+    val game_switcher = bool("game_switcher").default(false)
 }
 
 object sb_permissions : Table() {
@@ -73,4 +74,10 @@ object sb_music_profile : Table() {
     val user_id = text("user_id")
     val identifier = text("identifier")
     val count = integer("count")
+}
+
+object sb_game_switcher : Table() {
+    val guild_id = text("guild_id")
+    val game = text("game")
+    val channel_id = text("channel_id")
 }

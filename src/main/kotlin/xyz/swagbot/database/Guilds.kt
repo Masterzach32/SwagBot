@@ -1,13 +1,11 @@
 package xyz.swagbot.database
 
-import net.masterzach32.commands4k.Permission
-import sx.blah.discord.api.IDiscordClient
+import org.jetbrains.exposed.sql.*
 import sx.blah.discord.handle.obj.*
 import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
 import xyz.swagbot.api.music.TrackHandler
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.dsl.getRequester
-import xyz.swagbot.dsl.getTrackUserData
 
 /*
  * SwagBot - Created on 8/24/17
@@ -172,5 +170,48 @@ fun IGuild.setTimezone(timezone: String) {
 }
 
 fun IGuild.getTimezone(): String {
-    return "EST"
+    return get_guild_cell(stringID, sb_guilds.timezone)!!
+}
+
+fun IGuild.isGameSwitcherEnabled(): Boolean {
+    return get_guild_cell(stringID, sb_guilds.game_switcher)!!
+}
+
+fun IGuild.setGameSwitcher(enabled: Boolean) {
+    sql { sb_guilds.update({ sb_guilds.id eq stringID }) { it[sb_guilds.game_switcher] = enabled } }
+}
+
+fun IGuild.addGameSwitcherEntry(game: String, voiceChannel: IVoiceChannel) {
+    sql {
+        if (sb_game_switcher.select { (sb_game_switcher.guild_id eq stringID) and (sb_game_switcher.game eq game) }.firstOrNull() == null) {
+            sb_game_switcher.insert {
+                it[sb_game_switcher.guild_id] = stringID
+                it[sb_game_switcher.game] = game
+                it[sb_game_switcher.channel_id] = voiceChannel.stringID
+            }
+        } else {
+            sb_game_switcher.update({ (sb_game_switcher.guild_id eq stringID) and (sb_game_switcher.game eq stringID) }) {
+                it[sb_game_switcher.channel_id] = voiceChannel.stringID
+            }
+        }
+        return@sql
+    }
+}
+
+fun IGuild.removeGameSwitcherEntry(game: String): Map.Entry<String, IVoiceChannel>? {
+    return sql {
+        val map = mutableMapOf<String, IVoiceChannel>()
+        val row = sb_game_switcher.select { (sb_game_switcher.guild_id eq stringID) and (sb_game_switcher.game eq game) }.firstOrNull()
+        if (row != null) {
+            map[game] = getVoiceChannelByID(row[sb_game_switcher.channel_id].toLong())
+            sb_game_switcher.deleteWhere { (sb_game_switcher.guild_id eq stringID) and (sb_game_switcher.game eq game) }
+        }
+
+        return@sql map.entries.firstOrNull()
+    }
+}
+
+fun IGuild.getGameSwitcherEntries(): Map<String, IVoiceChannel> {
+    return sql { sb_game_switcher.select { sb_game_switcher.guild_id eq stringID }
+            .associate { Pair(it[sb_game_switcher.game], getVoiceChannelByID(it[sb_game_switcher.channel_id].toLong())) } }
 }

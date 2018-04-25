@@ -20,16 +20,14 @@ import xyz.swagbot.logger
  */
 
 internal fun shutdown(client: IDiscordClient) {
-    stop(client)
-    exit(ExitCode.EXITED)
+    stop(client, ExitCode.EXITED)
 }
 
 internal fun shutdown(client: IDiscordClient, ec: ExitCode) {
-    stop(client)
-    exit(ec)
+    stop(client, ec)
 }
 
-private fun stop(client: IDiscordClient) {
+private fun stop(client: IDiscordClient, ec: ExitCode) {
     logger.info("Shutting down audio player.")
     try {
         client.guilds.forEach { it.shutdownAudioPlayer() }
@@ -37,9 +35,16 @@ private fun stop(client: IDiscordClient) {
         logger.error("Could not shut down audio players gracefully: ${t.message}")
     }
     audioPlayerManager.shutdown()
-    logger.info("Logging out of Discord.")
-    client.logout()
     Unirest.shutdown()
+    Thread {
+        logger.info("Attempting to log out of Discord.")
+        client.logout()
+        logger.info("Attempt successful, exiting.")
+        exit(ec)
+    }.start()
+    Thread.sleep(60*1000)
+    logger.info("Could not gracefully log out of discord. Exiting.")
+    exit(ec)
 }
 
 private fun exit(ec: ExitCode) {

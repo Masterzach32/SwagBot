@@ -74,7 +74,6 @@ val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefi
 
 fun main(args: Array<String>) {
     logger.info("Starting SwagBot version ${config.getString("bot.build")}.")
-    getDatabaseConnection("storage/storage.db")
 
     logger.info("Starting Lavaplayer audio engine.")
     AudioSourceManagers.registerRemoteSources(audioPlayerManager)
@@ -106,7 +105,7 @@ fun main(args: Array<String>) {
     cmds.add(LookupCRNCommand)
     cmds.add(CatCommand)
     cmds.add(DogCommand)
-    cmds.add(GameCommand)
+    cmds.add(GameSwitchCommand)
     cmds.add(IAmCommand)
     cmds.add(IAmNotCommand)
     cmds.add(JoinCommand)
@@ -149,6 +148,7 @@ fun main(args: Array<String>) {
     client.dispatcher.registerListener(UserMovedEvent)
     client.dispatcher.registerListener(RoleHandler)
     client.dispatcher.registerListener(ShardDisconnectHandler)
+    client.dispatcher.registerListener(UserStatusListener)
     client.login()
 
     logger.info("Waiting to receive guilds...")
