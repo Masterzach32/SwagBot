@@ -129,7 +129,7 @@ fun main(args: Array<String>) {
     //cmds.add(ChatOnlyCommand)
     cmds.add(EditPermissionsCommand)
     // dev
-    cmds.add(ShutdownCommand, GarbageCollectionCommand)
+    cmds.add(ShutdownCommand, GarbageCollectionCommand, SetMotdCommand)
 
     cmds.sortCommands()
 
@@ -160,7 +160,7 @@ fun main(args: Array<String>) {
 
         val api = DiscordBotsAPI(getKey("discord_bots_org"))
         val messages = mutableListOf("", "~h for help", "", "", "", "swagbot.xyz")
-        val delay = 240
+        val delay = 10
 
         logger.info("Starting status message thread.")
 
@@ -192,7 +192,6 @@ fun main(args: Array<String>) {
                     api.postStats(0, 1, client.guilds.size)
                 } catch (t: Throwable) {
                     logger.warn("Could not post bot statistics: ${t.message}")
-                    t.printStackTrace()
                 }
             }
             if (i == 3) {
