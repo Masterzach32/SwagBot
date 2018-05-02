@@ -60,11 +60,11 @@ fun IUser.addTrackToDatabase(track: AudioTrack) {
 fun IUser.getTrackPreferences(): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
 
-    sb_music_profile
-            .select { sb_music_profile.user_id eq stringID }
-            .forEach {
-                map[it[sb_music_profile.identifier]] = it[sb_music_profile.count]
-            }
+    sql {
+        sb_music_profile
+                .select { sb_music_profile.user_id eq stringID }
+                .forEach { map[it[sb_music_profile.identifier]] = it[sb_music_profile.count] }
+    }
 
     return map
 }

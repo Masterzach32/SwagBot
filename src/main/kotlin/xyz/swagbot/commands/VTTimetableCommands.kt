@@ -27,19 +27,19 @@ val LookupCRNCommand = createCommand("Lookup CRN") {
             val embed = EmbedBuilder().withColor(RED)
             event.channel.toggleTypingStatus()
             val section = Timetable.crnLookup(args[0], openOnly = false)
-            val isOpen = Timetable.crnLookup(args[0])
+            val isOpen = Timetable.crnLookup(args[0]) != null
 
             if (section == null)
                 return@all builder.withEmbed(embed.withDesc("That course does not exist for the current semester."))
 
             embed.withColor(Color(255, 102, 0))
             embed.withTitle("${section.subjectCode}-${section.courseNumber} ${section.name}")
-            embed.appendField("Time", "${section.startTime} - ${section.endTime} on ${section.days}", true)
-            embed.appendField("Location", section.location, true)
             embed.appendField("Instructor", section.instructor, true)
-            embed.appendField("Credits", "${section.credits}", true)
+            embed.appendField("Location", section.location, true)
+            embed.appendField("Time", "${section.startTime} - ${section.endTime} on ${section.days}", true)
+            embed.appendField("Credits", section.credits, true)
             embed.appendField("Capacity", "${section.capacity}", true)
-            embed.appendField("Enrollment Status", if (isOpen == null) "Full" else "Open", true)
+            embed.appendField("Enrollment Status", if (isOpen) "Full" else "Open", true)
 
             return@all builder.withEmbed(embed)
         }
