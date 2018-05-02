@@ -2,7 +2,7 @@ group 'xyz.swagbot'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.2.40'
+    ext.kotlin_version = '1.2.41'
 
     repositories {
         mavenCentral()
@@ -48,6 +48,11 @@ dependencies {
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin/'
     test.java.srcDirs += 'src/test/kotlin/'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
 
 compileKotlin {

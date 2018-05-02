@@ -5,9 +5,11 @@ import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import org.jetbrains.exposed.sql.update
 import sx.blah.discord.api.IDiscordClient
+import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.database.sb_api_keys
 import xyz.swagbot.database.sql
 import xyz.swagbot.logger
+import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.ExitCode
 import xyz.swagbot.utils.getContent
 import xyz.swagbot.utils.shutdown
@@ -87,6 +89,31 @@ val SetMotdCommand = createCommand("Set MOTD") {
             }
 
             return@all null
+        }
+    }
+}
+
+val JvmStatsCommand = createCommand("JVM Stats") {
+    aliases("stats")
+
+    scope { Command.Scope.ALL }
+    botPerm { Permission.DEVELOPER }
+
+    helpText {
+        description { "Display memory stats for the JVM." }
+    }
+
+    onEvent {
+        all {
+            val embed = EmbedBuilder().withColor(BLUE)
+
+            val runtime = Runtime.getRuntime()
+
+            embed.withTitle("JVM Stats")
+            embed.appendField("Used Memory", "${((runtime.totalMemory() - runtime.freeMemory())/Math.pow(2.0, 20.0)).toInt()} MB", true)
+            embed.appendField("Max Memory", "${(runtime.totalMemory()/Math.pow(2.0, 20.0)).toInt()} MB", true)
+
+            return@all builder.withEmbed(embed)
         }
     }
 }

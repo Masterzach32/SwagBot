@@ -14,7 +14,8 @@ object UserStatusListener : IListener<PresenceUpdateEvent> {
 
         if (event.user.voiceStates.keySet().isNotEmpty() &&
                 event.newPresence.activity.isPresent &&
-                event.newPresence.activity.get() == ActivityType.PLAYING) {
+                event.newPresence.activity.get() == ActivityType.PLAYING &&
+                event.newPresence.text.isPresent) {
             val guild = event.client.getGuildByID(event.user.voiceStates.keySet().first())
 
             if (guild.isGameSwitcherEnabled()) {

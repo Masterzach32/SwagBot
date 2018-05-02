@@ -21,24 +21,15 @@ import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
 import xyz.swagbot.events.*
 import xyz.swagbot.utils.Thread
-import sun.management.MemoryNotifInfoCompositeData.getUsage
-import sun.management.MemoryUsageCompositeData.getMax
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.utils.ExitCode
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.shutdown
 import java.lang.management.MemoryType
 import java.lang.management.ManagementFactory
-import java.lang.management.MemoryPoolMXBean
 import java.lang.management.MemoryNotificationInfo
 import javax.management.NotificationListener
 import javax.management.NotificationEmitter
-import java.lang.management.MemoryMXBean
-import javax.management.Notification
-import java.util.LinkedList
-
-
-
 
 /*
  * SwagBot - Created on 8/22/17
@@ -105,7 +96,7 @@ fun main(args: Array<String>) {
     cmds.add(LookupCRNCommand)
     cmds.add(CatCommand)
     cmds.add(DogCommand)
-    cmds.add(GameSwitchCommand)
+    cmds.add(BrawlCommand)
     cmds.add(IAmCommand)
     cmds.add(IAmNotCommand)
     cmds.add(JoinCommand)
@@ -128,8 +119,9 @@ fun main(args: Array<String>) {
     cmds.add(ChangePrefixCommand)
     //cmds.add(ChatOnlyCommand)
     cmds.add(EditPermissionsCommand)
+    cmds.add(GameSwitchCommand)
     // dev
-    cmds.add(ShutdownCommand, GarbageCollectionCommand, SetMotdCommand)
+    cmds.add(ShutdownCommand, GarbageCollectionCommand, JvmStatsCommand, SetMotdCommand)
 
     cmds.sortCommands()
 
@@ -160,7 +152,7 @@ fun main(args: Array<String>) {
 
         val api = DiscordBotsAPI(getKey("discord_bots_org"))
         val messages = mutableListOf("", "~h for help", "", "", "", "swagbot.xyz")
-        val delay = 10
+        val delay = 240
 
         logger.info("Starting status message thread.")
 
@@ -225,13 +217,13 @@ fun main(args: Array<String>) {
     val tenuredGenPool = ManagementFactory.getMemoryPoolMXBeans()
             .first { it.type == MemoryType.HEAP && it.isUsageThresholdSupported }
     // we do something when we reached 85% of memory usage
-    tenuredGenPool.usageThreshold = Math.floor(tenuredGenPool.usage.max * 0.80).toLong()
+    tenuredGenPool.collectionUsageThreshold = Math.floor(tenuredGenPool.usage.max * 0.80).toLong()
 
     // set a listener
     val mbean = ManagementFactory.getMemoryMXBean()
     val emitter = mbean as NotificationEmitter
     emitter.addNotificationListener(NotificationListener { n, _ ->
-        if (n.type == MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED) {
+        if (n.type == MemoryNotificationInfo.MEMORY_COLLECTION_THRESHOLD_EXCEEDED) {
             val maxMemory = tenuredGenPool.usage.max.toDouble()
             val usedMemory = tenuredGenPool.usage.used.toDouble()
 
