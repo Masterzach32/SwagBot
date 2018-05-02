@@ -80,11 +80,9 @@ val SetMotdCommand = createCommand("Set MOTD") {
         }
 
         all {
-            val msg = getContent(args, 0, args.size)
-
             sql {
                 sb_api_keys.update({sb_api_keys.api_name eq "motd"}) {
-                    it[sb_api_keys.api_key] = msg
+                    it[sb_api_keys.api_key] = getContent(args, 0, args.size)
                 }
             }
 
