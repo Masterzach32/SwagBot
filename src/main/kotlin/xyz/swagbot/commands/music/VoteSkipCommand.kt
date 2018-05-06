@@ -15,7 +15,7 @@ import xyz.swagbot.utils.RED
 object VoteSkipCommand : Command("Vote Skip", "voteskip", "vskip", scope = Scope.GUILD) {
 
     init {
-        help.usage[""] = "Vote to skip a song. Requires a simple majority. (greater than 50%)"
+        help.desc = "Vote to skip a song. Requires a simple majority. (greater than 50%)"
     }
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
