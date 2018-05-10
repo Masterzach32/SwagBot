@@ -2,10 +2,8 @@ package xyz.swagbot.dsl
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo
-import sx.blah.discord.handle.obj.IMessage
-import sx.blah.discord.handle.obj.IUser
-import sx.blah.discord.handle.obj.IVoiceChannel
-import sx.blah.discord.handle.obj.StatusType
+import sx.blah.discord.handle.obj.*
+import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.api.music.TrackUserData
 import xyz.swagbot.database.getTrackPreferences
 import xyz.swagbot.database.sql
@@ -26,12 +24,12 @@ import xyz.swagbot.utils.getFormattedTime
 fun IMessage.getAllUserMentions(): List<IUser> {
     if (mentionsEveryone())
         return guild.users
-    val users = mutableListOf<IUser>()
+    val users = mutableSetOf<IUser>()
     if (mentionsHere())
-        guild.users.filter { it.presence.status != StatusType.OFFLINE }.forEach { users.add(it) }
-    roleMentions.forEach { guild.getUsersByRole(it).filter { !users.contains(it) }.forEach { users.add(it) } }
-    mentions.filter { !users.contains(it) }.forEach { users.add(it) }
-    return users
+        users.addAll(guild.users.filter { it.presence.status != StatusType.OFFLINE })
+    roleMentions.forEach { users.addAll(guild.getUsersByRole(it)) }
+    users.addAll(mentions)
+    return users.toList()
 }
 
 fun AudioTrack.getFormattedPosition(): String {
@@ -77,11 +75,22 @@ fun AudioTrackInfo.getThumbnailUrl(): String {
 fun IVoiceChannel.getTrackPreferences(): Map<String, Int> {
     val preferences = mutableMapOf<String, Int>()
 
-    sql {
-        usersHere
-                .filter { it != client.ourUser }
-                .forEach { preferences.putAll(it.getTrackPreferences()) }
-    }
+    usersHere
+            .filter { it != client.ourUser }
+            .forEach { preferences.putAll(it.getTrackPreferences()) }
 
     return preferences
 }
+
+fun IUser.isOnVoice(): Boolean {
+    return RequestBuffer.request<Boolean>{
+        return@request voiceStates.values().mapNotNull { it.channel }.isNotEmpty()
+    }.get()
+}
+
+fun IUser.getConnectedVoiceChannel(): IVoiceChannel? {
+    return RequestBuffer.request<IVoiceChannel?>{
+        return@request voiceStates.values().mapNotNull { it.channel }.firstOrNull()
+    }.get()
+}
+

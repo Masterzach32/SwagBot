@@ -5,6 +5,8 @@ import sx.blah.discord.handle.impl.events.user.PresenceUpdateEvent
 import sx.blah.discord.handle.obj.ActivityType
 import xyz.swagbot.database.getGameSwitcherEntries
 import xyz.swagbot.database.isGameSwitcherEnabled
+import xyz.swagbot.dsl.getConnectedVoiceChannel
+import xyz.swagbot.dsl.isOnVoice
 
 object UserStatusListener : IListener<PresenceUpdateEvent> {
 
@@ -12,11 +14,11 @@ object UserStatusListener : IListener<PresenceUpdateEvent> {
         if (event.user.isBot)
             return
 
-        if (event.user.voiceStates.keySet().isNotEmpty() &&
+        if (event.user.isOnVoice() &&
                 event.newPresence.activity.isPresent &&
                 event.newPresence.activity.get() == ActivityType.PLAYING &&
                 event.newPresence.text.isPresent) {
-            val guild = event.client.getGuildByID(event.user.voiceStates.keySet().first())
+            val guild = event.user.getConnectedVoiceChannel()!!.guild
 
             if (guild.isGameSwitcherEnabled()) {
                 val map = guild.getGameSwitcherEntries()

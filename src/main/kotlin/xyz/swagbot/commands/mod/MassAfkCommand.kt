@@ -5,6 +5,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.dsl.isOnVoice
 import xyz.swagbot.utils.RED
 
 object MassAfkCommand : Command("Mass AFK", "massafk", "mafk", botPerm = Permission.MOD,
@@ -23,7 +24,7 @@ object MassAfkCommand : Command("Mass AFK", "massafk", "mafk", botPerm = Permiss
                 return builder.withEmbed(embed.withDesc("This guild does not have an afk channel."))
 
         event.guild.users
-                .filter { it != event.client.ourUser && it.getVoiceStateForGuild(event.guild).channel != null }
+                .filter { it != event.client.ourUser && it.isOnVoice() }
                 .forEach { RequestBuffer.request { it.moveToVoiceChannel(afkChannel) } }
 
         return null

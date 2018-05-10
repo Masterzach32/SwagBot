@@ -14,6 +14,8 @@ import xyz.swagbot.api.music.AudioTrackLoadHandler
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
+import xyz.swagbot.dsl.getConnectedVoiceChannel
+import xyz.swagbot.dsl.isOnVoice
 import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -66,6 +68,11 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
                     audioPlayerManager.loadItemOrdered(channel.guild.getAudioHandler(),
                             list[index].getUrl(), AudioTrackLoadHandler(event.guild.getAudioHandler(),
                             event, AdvancedMessageBuilder(event.channel)))
+
+                    if (event.client.ourUser.getVoiceStateForGuild(event.guild).channel == null &&
+                            event.author.isOnVoice())
+                        event.author.getConnectedVoiceChannel()!!.join()
+
                     return unregister(event.client.dispatcher, "Successful")
                 } catch (t: Throwable) {
                     return unregister(event.client.dispatcher, "Bad message")

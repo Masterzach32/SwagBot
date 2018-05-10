@@ -33,6 +33,6 @@ object SkipCommand : Command("Skip", "skip", "s", scope = Scope.GUILD) {
         val skippedTrack = event.guild.getAudioHandler().playNext()
         if (skippedTrack == null)
             return builder.withEmbed(embed.withColor(RED).withDesc("Cannot skip as there is no track playing!"))
-        return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track ${skippedTrack.getBoldFormattedTitle()}"))
+        return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track: ${skippedTrack.getBoldFormattedTitle()}"))
     }
 }

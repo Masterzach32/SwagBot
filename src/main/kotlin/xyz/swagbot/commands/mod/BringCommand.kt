@@ -4,6 +4,8 @@ import net.masterzach32.commands4k.*
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.dsl.getConnectedVoiceChannel
+import xyz.swagbot.dsl.isOnVoice
 
 /*
  * SwagBot - Created on 9/2/2017
@@ -28,9 +30,9 @@ object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permissio
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
         if(event.author.getVoiceStateForGuild(event.guild).channel == null)
             return builder.withContent("**You need to be in a voice channel to summon users.**")
-        val vc = event.author.getVoiceStateForGuild(event.guild).channel
+        val vc = event.author.getConnectedVoiceChannel()
         event.guild.users
-                .filter { it.getVoiceStateForGuild(event.guild).channel != null }
+                .filter { it.isOnVoice() }
                 .forEach { RequestBuffer.request { it.moveToVoiceChannel(vc) } }
         return null
     }

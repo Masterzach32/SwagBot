@@ -32,7 +32,8 @@ object VoteSkipCommand : Command("Vote Skip", "voteskip", "vskip", scope = Scope
                 playingTrack.getTrackUserData().getSkipVoteCount()
         if (skipThreshold <= 0) {
             event.guild.getAudioHandler().playNext()
-            return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track ${playingTrack.getBoldFormattedTitle()}"))
+            return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track:" +
+                    " ${playingTrack.getBoldFormattedTitle()}"))
         }
         return builder.withEmbed(embed.withColor(BLUE).withDesc("**$skipThreshold** more votes needed to skip " +
                 playingTrack.getBoldFormattedTitle()))

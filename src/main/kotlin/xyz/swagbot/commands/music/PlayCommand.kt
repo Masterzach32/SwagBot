@@ -11,6 +11,8 @@ import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.dsl.getConnectedVoiceChannel
+import xyz.swagbot.dsl.isOnVoice
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
 
@@ -46,6 +48,9 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
                     " that matched that description. Try refining your search."))
 
         audioPlayerManager.loadItemOrdered(handler, identifier, AudioTrackLoadHandler(handler, event, builder))
+
+        if (event.client.ourUser.getVoiceStateForGuild(event.guild).channel == null && event.author.isOnVoice())
+            event.author.getConnectedVoiceChannel()!!.join()
 
         return null
     }

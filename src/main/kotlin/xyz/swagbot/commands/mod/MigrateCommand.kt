@@ -6,6 +6,7 @@ import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.commands.getWrongArgumentsMessage
+import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.utils.delimitWithoutEmpty
 import xyz.swagbot.utils.getContent
 
@@ -35,7 +36,7 @@ object MigrateCommand : Command("Migrate", "migrate", "populate", "m", botPerm =
         val from: IVoiceChannel?
         val to: IVoiceChannel?
         if (args.isEmpty()) {
-            to = event.author.getVoiceStateForGuild(event.guild).channel
+            to = event.author.getConnectedVoiceChannel()
             if (to == null)
                 return builder.withContent("**Make sure you are in the channel you want to populate!**")
 

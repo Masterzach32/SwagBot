@@ -7,6 +7,7 @@ import sx.blah.discord.handle.obj.IVoiceChannel
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
 
@@ -47,7 +48,7 @@ object VoiceCommand : Command("Join/Leave", "summon", "leave", scope = Command.S
                     return builder.withEmbed(embed)
                 }
             } else {
-                vc = event.author.getVoiceStateForGuild(event.guild).channel
+                vc = event.author.getConnectedVoiceChannel()
                 if(vc == null) {
                     embed.withDesc("You need to be in a voice channel to summon the bot.")
                     return builder.withEmbed(embed)
