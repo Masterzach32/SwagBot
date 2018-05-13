@@ -49,4 +49,5 @@ private fun stop(client: IDiscordClient, ec: ExitCode) {
 
 private fun exit(ec: ExitCode) {
     System.exit(ec.code)
+    logger.info("System.exit() is not functioning properly!")
 }
