@@ -17,8 +17,8 @@ import xyz.swagbot.utils.shutdown
 val ShutdownCommand = createCommand("Shutdown/Restart/Update") {
     aliases("shutdown", "stop", "restart", "update")
 
-    scope { Command.Scope.ALL }
-    botPerm { Permission.DEVELOPER }
+    scope(Command.Scope.ALL)
+    botPerm(Permission.DEVELOPER)
 
     onEvent {
         all {
@@ -47,11 +47,11 @@ val ShutdownCommand = createCommand("Shutdown/Restart/Update") {
 val GarbageCollectionCommand = createCommand("Run Garbage Collection") {
     aliases("gc")
 
-    scope { Command.Scope.ALL }
-    botPerm { Permission.DEVELOPER }
+    scope(Command.Scope.ALL)
+    botPerm(Permission.DEVELOPER)
 
     helpText {
-        description { "Run the Java garbage collector." }
+        description = "Run the Java garbage collector."
     }
 
     onEvent {
@@ -69,11 +69,11 @@ val GarbageCollectionCommand = createCommand("Run Garbage Collection") {
 val SetMotdCommand = createCommand("Set MOTD") {
     aliases("motd")
 
-    scope { Command.Scope.ALL }
-    botPerm { Permission.DEVELOPER }
+    scope(Command.Scope.ALL)
+    botPerm(Permission.DEVELOPER)
 
     helpText {
-        description { "Set the MOTD." }
+        description = "Set the MOTD."
     }
 
     onEvent {
@@ -96,11 +96,11 @@ val SetMotdCommand = createCommand("Set MOTD") {
 val JvmStatsCommand = createCommand("JVM Stats") {
     aliases("stats")
 
-    scope { Command.Scope.ALL }
-    botPerm { Permission.DEVELOPER }
+    scope(Command.Scope.ALL)
+    botPerm(Permission.DEVELOPER)
 
     helpText {
-        description { "Display memory stats for the JVM." }
+        description = "Display memory stats for the JVM."
     }
 
     onEvent {

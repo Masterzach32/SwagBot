@@ -52,8 +52,7 @@ val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefi
                 else
                     perm
             }
-        },
-        { _, _ -> })
+        })
 
 fun main(args: Array<String>) {
     logger.info("Starting SwagBot version ${config.getString("bot.build")}.")
@@ -122,6 +121,7 @@ fun main(args: Array<String>) {
 
     logger.info("Registering event listeners.")
     client.dispatcher.registerListener(cmds)
+    client.dispatcher.registerListener(CommandExecutedHandler)
     client.dispatcher.registerListener(GuildCreateHandler)
     client.dispatcher.registerListener(GuildLeaveHandler)
     client.dispatcher.registerListener(ReadyHandler)

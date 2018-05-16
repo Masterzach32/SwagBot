@@ -1,6 +1,5 @@
 package xyz.swagbot.commands
 
-import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.Discord4J
@@ -13,11 +12,10 @@ import xyz.swagbot.utils.BLUE
 val PingCommand = createCommand("Ping") {
     aliases("ping")
 
-    scope { Command.Scope.ALL }
-    botPerm { Permission.NONE }
+    botPerm(Permission.NONE)
 
     helpText {
-        description { "Pong!" }
+        description = "Pong!"
     }
 
     onEvent {
@@ -30,10 +28,10 @@ val PingCommand = createCommand("Ping") {
 val DonateCommand = createCommand("Donate") {
     aliases("donate")
 
-    botPerm { Permission.NONE }
+    botPerm(Permission.NONE)
 
     helpText {
-        description { "Links to help support SwagBot." }
+        description = "Links to help support SwagBot."
     }
 
     onEvent {
@@ -50,10 +48,10 @@ val DonateCommand = createCommand("Donate") {
 val InfoCommand = createCommand("Info") {
     aliases("info")
 
-    botPerm { Permission.NONE }
+    botPerm(Permission.NONE)
 
     helpText {
-        description { "Get more info about SwagBot." }
+        description = "Get more info about SwagBot."
     }
 
     onEvent {
@@ -86,10 +84,10 @@ val InfoCommand = createCommand("Info") {
 val InviteCommand = createCommand("Invite") {
     aliases("invite")
 
-    botPerm { Permission.NONE }
+    botPerm(Permission.NONE)
 
     helpText {
-        description { "Post an invite link for SwagBot." }
+        description = "Post an invite link for SwagBot."
     }
 
     onEvent {
@@ -106,10 +104,10 @@ val InviteCommand = createCommand("Invite") {
 val SupportCommand = createCommand("Support") {
     aliases("support")
 
-    botPerm { Permission.NONE }
+    botPerm(Permission.NONE)
 
     helpText {
-        description { "Links if you need help with SwagBot" }
+        description = "Links if you need help with SwagBot"
     }
 
     onEvent {

@@ -1,6 +1,5 @@
 package xyz.swagbot.commands
 
-import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.builder.createCommand
 import net.masterzach32.timetable.Timetable
 import sx.blah.discord.util.EmbedBuilder
@@ -10,11 +9,9 @@ import java.awt.Color
 val LookupCRNCommand = createCommand("Lookup CRN") {
     aliases("crn")
 
-    scope { Command.Scope.ALL }
-
     helpText {
-        description { "Interface with the Virginia Tech Timetable of Classes. (https://hokiespa.vt.edu/)" }
-        usage("<crn>") { "Look up all information for the specified CRN." }
+        description = "Interface with the Virginia Tech Timetable of Classes. (https://hokiespa.vt.edu/)"
+        usage["<crn>"] = "Look up all information for the specified CRN."
     }
 
     onEvent {

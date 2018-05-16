@@ -23,13 +23,13 @@ import xyz.swagbot.utils.BLUE
 val AutoPlayCommand = createCommand("Autoplay") {
     aliases("autoplay", "ap")
 
-    scope { Command.Scope.GUILD }
-    botPerm { Permission.DEVELOPER }
+    scope(Command.Scope.GUILD)
+    botPerm(Permission.DEVELOPER)
 
     helpText {
-        description { "Autoplay music when no more tracks are queued. Music chosen by SwagBot is based on the " +
-                "previously chosen tracks and genre of the users currently listening." }
-        usage("") { "Enable or disable the autoplay feature." }
+        description = "Autoplay music when no more tracks are queued. Music chosen by SwagBot is based on the " +
+                "previously chosen tracks and genre of the users currently listening."
+        usage[""] = "Enable or disable the autoplay feature."
     }
 
     onEvent {
