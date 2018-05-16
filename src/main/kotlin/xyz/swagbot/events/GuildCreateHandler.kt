@@ -7,6 +7,7 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.*
+import xyz.swagbot.utils.DailyUpdate
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -50,5 +51,7 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
                     " getting started guide on my website: https://swagbot.xyz/gettingstarted")
             RequestBuffer.request { builder.build() }
         }
+
+        DailyUpdate.joinedServer()
     }
 }

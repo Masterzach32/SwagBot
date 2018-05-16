@@ -1,18 +1,13 @@
 package xyz.swagbot
 
-import com.github.natanbc.discordbotsapi.DiscordBotsAPI
-import com.mashape.unirest.http.Unirest
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.typesafe.config.ConfigFactory
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
-import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
-import sx.blah.discord.handle.obj.ActivityType
-import sx.blah.discord.handle.obj.StatusType
 import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
 import xyz.swagbot.commands.mod.*
@@ -20,11 +15,8 @@ import xyz.swagbot.commands.music.*
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
 import xyz.swagbot.events.*
-import xyz.swagbot.utils.Thread
 import sx.blah.discord.util.EmbedBuilder
-import xyz.swagbot.utils.ExitCode
-import xyz.swagbot.utils.RED
-import xyz.swagbot.utils.shutdown
+import xyz.swagbot.utils.*
 import java.lang.management.MemoryType
 import java.lang.management.ManagementFactory
 import java.lang.management.MemoryNotificationInfo
@@ -146,6 +138,7 @@ fun main(args: Array<String>) {
     logger.info("Waiting to receive guilds...")
 
     // SwagBot threads
+    DailyUpdate.init(client)
 
     // heuristic to find the tenured pool (largest heap) as seen on http://www.javaspecialists.eu/archive/Issue092.html
     val tenuredGenPool = ManagementFactory.getMemoryPoolMXBeans()

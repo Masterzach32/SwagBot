@@ -73,7 +73,7 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
                 event.author.addTrackToDatabase(track)
         }
         embed.withColor(BLUE)
-        embed.withDesc("${event.author} queued playlist: ${playlist.name}")
+        embed.withDesc("${event.author} queued playlist: **${playlist.name}** with **${playlist.tracks.size}** tracks.")
         RequestBuffer.request { event.message.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }

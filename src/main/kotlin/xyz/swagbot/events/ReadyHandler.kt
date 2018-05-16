@@ -6,6 +6,10 @@ import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.getLastVoiceChannel
 import xyz.swagbot.logger
 import xyz.swagbot.status.StatusUpdate
+import xyz.swagbot.utils.DailyUpdate
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
@@ -23,14 +27,11 @@ import java.util.concurrent.TimeUnit
  */
 object ReadyHandler : IListener<ReadyEvent> {
 
-    private val executor = ScheduledThreadPoolExecutor(1)
-
     override fun handle(event: ReadyEvent) {
         // join all voice channels the bot was in before it was shut down
         event.client.guilds.forEach { RequestBuffer.request { it.getLastVoiceChannel()?.join() } }
         logger.info("Startup complete.")
 
         StatusUpdate.init(event.client)
-        executor.scheduleAtFixedRate(StatusUpdate, 0, StatusUpdate.delay, TimeUnit.SECONDS)
     }
 }

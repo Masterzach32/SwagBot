@@ -6,21 +6,24 @@ import org.json.JSONObject
 import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.handle.obj.ActivityType
 import sx.blah.discord.handle.obj.StatusType
+import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.getAllAudioHandlers
 import xyz.swagbot.database.getKey
 import xyz.swagbot.logger
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 object StatusUpdate : Runnable {
 
-    val delay = 10L
+    private val delay = 240L
 
-    private val messages = mutableListOf<StatusMessage>()
     private var client: IDiscordClient? = null
+    private val messages = mutableListOf<StatusMessage>()
     private val api = DiscordBotsAPI(getKey("discord_bots_org"))
+    private val executor = Executors.newScheduledThreadPool(1)
 
     fun init(client: IDiscordClient) {
         this.client = client
-
         // message of the day
         messages.add(StatusMessage {
             val motd = getKey("motd")
@@ -83,6 +86,8 @@ object StatusUpdate : Runnable {
         messages.add(StatusMessage {
             return@StatusMessage "swagbot.xyz"
         })
+
+        executor.scheduleAtFixedRate(this, 0, delay, TimeUnit.SECONDS)
     }
 
     override fun run() {
@@ -90,7 +95,7 @@ object StatusUpdate : Runnable {
         val message = nextStatus.getMessage()
         messages.add(nextStatus)
         if (message != null)
-            client!!.changePresence(StatusType.ONLINE, ActivityType.PLAYING, nextStatus.getMessage())
+            RequestBuffer.request { client!!.changePresence(StatusType.ONLINE, ActivityType.PLAYING, nextStatus.getMessage()) }
         else
             run()
     }

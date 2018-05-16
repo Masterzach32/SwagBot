@@ -36,6 +36,7 @@ private fun stop(client: IDiscordClient, ec: ExitCode) {
     }
     audioPlayerManager.shutdown()
     Unirest.shutdown()
+    DailyUpdate.shutdown()
     Thread {
         logger.info("Attempting to log out of Discord.")
         client.logout()
