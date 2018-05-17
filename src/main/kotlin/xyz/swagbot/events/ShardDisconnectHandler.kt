@@ -11,7 +11,7 @@ object ShardDisconnectHandler : IListener<ReconnectFailureEvent> {
 
     override fun handle(event: ReconnectFailureEvent) {
         if (event.isShardAbandoned) {
-            if (!event.client.shards.any { it.isLoggedIn })
+            if (event.client.shards.none { it.isLoggedIn })
                 shutdown(event.client, ExitCode.CONNECT_FAILURE)
             else
                 reconnectAfterTimeout(event.shard)

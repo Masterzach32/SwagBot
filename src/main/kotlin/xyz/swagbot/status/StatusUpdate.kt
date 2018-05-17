@@ -90,6 +90,10 @@ object StatusUpdate : Runnable {
         executor.scheduleAtFixedRate(this, 0, delay, TimeUnit.SECONDS)
     }
 
+    fun shutdown() {
+        executor.shutdown()
+    }
+
     override fun run() {
         val nextStatus = messages.removeAt(0)
         val message = nextStatus.getMessage()

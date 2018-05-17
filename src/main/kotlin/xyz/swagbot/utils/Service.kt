@@ -1,10 +1,14 @@
 package xyz.swagbot.utils
 
 import com.mashape.unirest.http.Unirest
+import org.jetbrains.exposed.sql.deleteAll
 import sx.blah.discord.api.IDiscordClient
 import xyz.swagbot.audioPlayerManager
+import xyz.swagbot.database.sb_track_storage
 import xyz.swagbot.database.shutdownAudioPlayer
+import xyz.swagbot.database.sql
 import xyz.swagbot.logger
+import xyz.swagbot.status.StatusUpdate
 
 /*
  * SwagBot - Created on 9/1/2017
@@ -28,6 +32,8 @@ internal fun shutdown(client: IDiscordClient, ec: ExitCode) {
 }
 
 private fun stop(client: IDiscordClient, ec: ExitCode) {
+    logger.debug("Purging track storage.")
+    sql { sb_track_storage.deleteAll() }
     logger.info("Shutting down audio player.")
     try {
         client.guilds.forEach { it.shutdownAudioPlayer() }
@@ -37,6 +43,7 @@ private fun stop(client: IDiscordClient, ec: ExitCode) {
     audioPlayerManager.shutdown()
     Unirest.shutdown()
     DailyUpdate.shutdown()
+    StatusUpdate.shutdown()
     Thread {
         logger.info("Attempting to log out of Discord.")
         client.logout()
