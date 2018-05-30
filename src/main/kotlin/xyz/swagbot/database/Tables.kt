@@ -46,7 +46,7 @@ object sb_permissions : Table() {
 
 object sb_stats : Table() {
     val key = text("key")
-    val value = text("value")
+    val value = integer("value")
 }
 
 object sb_chat_channels : Table() {

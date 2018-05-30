@@ -38,7 +38,7 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
         embed.withTitle(":musical_note: | Track requested by ${event.author.getDisplayName(event.guild)}")
         embed.withDesc("**[${track.info.title}](${track.info.uri})**\n")
         embed.appendDesc("Author/Channel: **${track.info.author}**\n")
-        embed.appendDesc("Length: **${track.getFormattedLength()}**")
+        embed.appendDesc("Length: **${if (track.info.isStream) "Stream (duration unknown)" else track.getFormattedLength()}**")
 
         if (track.info.hasThumbnail())
             embed.withThumbnail(track.info.getThumbnailUrl())
