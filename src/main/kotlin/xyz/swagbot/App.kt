@@ -57,6 +57,8 @@ val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefi
 fun main(args: Array<String>) {
     logger.info("Starting SwagBot version ${config.getString("bot.build")}.")
 
+    getDatabaseConnection(args)
+
     logger.info("Starting Lavaplayer audio engine.")
     AudioSourceManagers.registerRemoteSources(audioPlayerManager)
 

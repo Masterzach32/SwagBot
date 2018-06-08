@@ -2,6 +2,7 @@ package xyz.swagbot.database
 
 import org.jetbrains.exposed.sql.*
 import sx.blah.discord.handle.obj.IGuild
+import xyz.swagbot.config
 
 /*
  * SwagBot - Created on 8/29/2017
@@ -27,8 +28,10 @@ internal fun create_table(table: Table) {
 internal fun create_guild_entry(guild: IGuild) {
     sql {
         sb_guilds.insert {
+            it[sb_guilds.command_prefix] = config.getString("defaults.command_prefix")
             it[sb_guilds.id] = guild.stringID
             it[sb_guilds.name] = guild.name
+            it[sb_guilds.timezone] = "EST"
         }
         commit()
     }

@@ -23,7 +23,7 @@ object GameSwitchCommand : Command("Game Switcher", "gameswitcher", "gs",
         help.usage["<enable / disable>"] = "Enable or disable this feature."
         help.usage["list"] = "List all registered games and their respective voice channels."
         help.usage["add <game> | <voice channel name / id>"] = "Registers or edits a game / voice channel" +
-                " pair with the bot."
+                " pair with the bot. NOTE: Game name is **case-sensitive**."
         help.usage["remove <game>"] = "Stop automatically moving users who are playing the specified game."
     }
 

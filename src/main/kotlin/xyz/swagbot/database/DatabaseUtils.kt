@@ -6,10 +6,7 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.Table
 import org.slf4j.LoggerFactory
-import xyz.swagbot.config
-import java.sql.Connection
-import java.util.*
-import java.util.concurrent.Executors
+import xyz.swagbot.utils.ExitCode
 
 /*
  * SwagBot - Created on 8/22/17
@@ -24,27 +21,31 @@ import java.util.concurrent.Executors
  * @version 8/22/17
  */
 
-val logger = LoggerFactory.getLogger("SwagBot Database")
-
-val lock = Object()
-
-val database = getDatabaseConnection("storage/storage.db")
+val logger = LoggerFactory.getLogger("SwagBot Database")!!
 
 fun <T> sql(sqlcode: Transaction.() -> T): T {
-    synchronized(lock) {
-        return transaction(Connection.TRANSACTION_SERIALIZABLE, 1, database, sqlcode)
-    }
+    return transaction(statement = sqlcode)
 }
 
 fun Transaction.create(vararg tables: Table) {
     SchemaUtils.create(*tables)
 }
 
-fun getDatabaseConnection(url: String): Database {
+fun getDatabaseConnection(args: Array<String>): Database {
     logger.info("Establishing database connection.")
+    if (args.isEmpty()) {
+        logger.info("You need to pass the database location / driver as arguments!")
+        System.exit(ExitCode.LOGIN_FAILURE.code)
+    }
+    val type = DatabaseType.valueOf(args[0])
+    val loc = args[1]
+    val login = if (args.size > 2) Pair(args[2], args[3]) else null
     for (i in 2 downTo 0) {
         try {
-            val database = Database.connect("jdbc:sqlite:$url", "org.sqlite.JDBC")
+            val database = if (login != null)
+                Database.connect(type.getUrl(loc), type.driver, login.first, login.second)
+            else
+                Database.connect(type.getUrl(loc), type.driver)
 
             // make sure tables are initialized
             sql {
@@ -54,9 +55,15 @@ fun getDatabaseConnection(url: String): Database {
 
             return database
         } catch (t: Throwable) {
-            t.printStackTrace()
-            logger.warn("Could not connect to database... ($i attempts left)")
+            logger.warn("Could not connect to database: ${t.message} ($i attempts left)")
         }
     }
     throw Exception("Could not connect to the database, exiting...")
+}
+
+enum class DatabaseType(private val url: String, val driver: String) {
+    SQLITE("jdbc:sqlite:", "com.mysql.cj.jdbc.Driver"),
+    MYSQL("jdbc:mysql:", "org.sqlite.JDBC");
+
+    fun getUrl(loc: String): String = url + loc
 }

@@ -41,7 +41,7 @@ fun AudioTrack.getFormattedLength(): String {
 }
 
 fun AudioTrack.getTrackUserData(): TrackUserData {
-    return userData as TrackUserData
+    return getUserData(TrackUserData::class.java)
 }
 
 fun AudioTrack.getBoldFormattedTitle(): String {
@@ -93,4 +93,3 @@ fun IUser.getConnectedVoiceChannel(): IVoiceChannel? {
         return@request voiceStates.values().mapNotNull { it.channel }.firstOrNull()
     }.get()
 }
-
