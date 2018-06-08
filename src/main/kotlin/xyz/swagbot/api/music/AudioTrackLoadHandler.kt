@@ -17,6 +17,7 @@ import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getFormattedTime
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.*
 
 class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceivedEvent,
@@ -47,10 +48,7 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
             embed.appendDesc("\nEstimated time until track is played: " +
                     "**${getFormattedTime((handler.getQueueLength()/1000).toInt())}**")
 
-        val date = SimpleDateFormat("MM/dd/yy")
-        val time = SimpleDateFormat("hh:mm:ss a")
-        val now = Date()
-        embed.withFooterText("${date.format(now)} at ${time.format(now)} ${event.guild.getTimezone()}")
+        embed.withTimestamp(Instant.now())
 
         handler.queue(track)
         if (!track.info.isStream)

@@ -58,7 +58,10 @@ fun IGuild.shutdownAudioPlayer() {
 }
 
 fun IGuild.getAudioHandler(): TrackHandler {
-    return audioHandlers[stringID]!!
+    val handler = audioHandlers[stringID]!!
+    if (!handler.player.isPaused && handler.player.playingTrack == null && handler.getQueue().isNotEmpty())
+        handler.playNext()
+    return handler
 }
 
 fun IGuild.getCommandPrefix(): String {

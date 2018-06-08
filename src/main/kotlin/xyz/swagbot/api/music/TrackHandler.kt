@@ -5,11 +5,15 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
+import net.masterzach32.commands4k.AdvancedMessageBuilder
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IUser
+import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.audioPlayerManager
+import xyz.swagbot.dsl.getFormattedTitle
 import xyz.swagbot.dsl.getRequester
 import xyz.swagbot.dsl.getTrackPreferences
+import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.logger
 
 class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapter() {
@@ -138,6 +142,15 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
     override fun onTrackException(player: AudioPlayer, track: AudioTrack?, exception: FriendlyException) {
         logger.warn("An audio track encountered an exception: ${exception.message}")
         exception.printStackTrace()
+        if (track != null) {
+            RequestBuffer.request {
+                AdvancedMessageBuilder(track.getTrackUserData().requester.orCreatePMChannel)
+                        .withContent("A track you queued seems to have thrown an error: ${track.getFormattedTitle()}. " +
+                                "If you continue to encounter this error, consider opening an issue on the Github page.")
+                        .build()
+            }
+        }
+        playNext()
     }
 
     override fun onTrackStuck(player: AudioPlayer, track: AudioTrack, thresholdMs: Long) {
