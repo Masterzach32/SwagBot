@@ -1,6 +1,6 @@
 # SwagBot v2
 
-SwagBot is a multipurpose Discord bot with features like playing music from YouTube and Spotify, user moderation, and 
+SwagBot is a multipurpose Discord bot with features like playing music from YouTube and Soundcloud, user moderation, and 
 utility commands. SwagBot is written 100% in Kotlin, a JVM based language, and uses the Discord4J API.
 
 You can find more detailed information about SwagBot [here](http://swagbot.xyz)
