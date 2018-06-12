@@ -49,9 +49,7 @@ object EditPermissionsCommand : Command("Edit Permissions", "permission", "perm"
             return null
 
         users.forEach {
-            embed.appendField("${it.name}#${it.discriminator}",
-                    "${it.getBotPermission(event.guild)} -> $permToSet",
-                    true)
+            embed.appendField("${it.name}#${it.discriminator}", "${it.getBotPermission(event.guild)} -> $permToSet", true)
             it.setBotPermission(event.guild, permToSet)
         }
 

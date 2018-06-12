@@ -47,27 +47,22 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
 
         embed.withColor(BLUE).withTitle("YouTube Search Result")
         for (i in 0 until list.size) {
-            embed.appendDesc("${i+1}. [**${list[i].title}** by **${list[i].channel}**](${list[i].getUrl()}).\n")
+            embed.appendDesc("${i+1}. [**${list[i].title}** by **${list[i].channel}**](${list[i].getUrl()})\n")
         }
-        if (event.guild.longID == 97342233241464832L) {
-            embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, select it's " +
-                    "corresponding reaction below within 60 seconds.")
-        } else {
-            embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, enter its " +
-                    "number below within 60 seconds.")
-        }
+
+        embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, select it's " +
+                "corresponding reaction below within 60 seconds.")
+        /*embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, enter its " +
+                "number below within 60 seconds.")*/
 
         val message = RequestBuffer.request<IMessage> { builder.withEmbed(embed).build() }.get()
 
-        if (event.guild.longID == 97342233241464832L) {
-            event.client.dispatcher.registerListener(
-                    ReactionResponseListener(message, event.author, event.channel, list, System.currentTimeMillis())
-            )
-        } else {
-            event.client.dispatcher.registerListener(
-                    MessageResponseListener(event.author, event.channel, list, System.currentTimeMillis())
-            )
-        }
+        event.client.dispatcher.registerListener(
+                ReactionResponseListener(message, event.author, event.channel, list, System.currentTimeMillis())
+        )
+        /*event.client.dispatcher.registerListener(
+                MessageResponseListener(event.author, event.channel, list, System.currentTimeMillis())
+        )*/
 
         return null
     }

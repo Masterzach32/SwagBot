@@ -24,14 +24,13 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
         val audioHandler = event.guild.getAudioHandler()
         val embed = EmbedBuilder().withColor(BLUE)
         var pageNumber: Int
+        val cmdPrefix = event.guild.getCommandPrefix()
         if (args.isNotEmpty() && (args[0].contains("youtu") || args[0].contains("soundcloud")))
-            return builder.withEmbed(embed.withDesc("`${event.guild.getCommandPrefix()}queue` is used to " +
-                    "view queued tracks. Use `${event.guild.getCommandPrefix()}play` or " +
-                    "`${event.guild.getCommandPrefix()}search` to add a video or song to the queue."))
+            return builder.withEmbed(embed.withDesc("`${cmdPrefix}queue` is used to view queued tracks. Use " +
+                    "`${cmdPrefix}play` or `${cmdPrefix}search` to add a video or song to the queue."))
         else if (audioHandler.getQueue().isEmpty() && audioHandler.player.playingTrack == null)
             return builder.withEmbed(embed.withDesc("The queue is empty! Go add a video or song " +
-                    "with the ${event.guild.getCommandPrefix()}play or " +
-                    "${event.guild.getCommandPrefix()}search commands!"))
+                    "with the ${cmdPrefix}play or ${cmdPrefix}search commands!"))
         else if (args.isEmpty())
             pageNumber = 0
         else {
@@ -68,8 +67,8 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
             i++
         }
         if (str.isEmpty())
-            str = "The queue is empty! Go add some tracks with the ${event.guild.getCommandPrefix()}play " +
-                    "or ${event.guild.getCommandPrefix()}search commands!"
+            str = "The queue is empty! Go add some tracks with the ${cmdPrefix}play " +
+                    "or ${cmdPrefix}search commands!"
         embed.withDesc(str)
         return builder.withEmbed(embed)
     }

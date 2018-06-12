@@ -48,16 +48,16 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
         if (x < 2 || x > 100)
             return builder.withEmbed(embed)
 
-        val history = event.channel.getMessageHistoryFrom(event.messageID, x+1)
+        val history = RequestBuffer.request<MessageHistory> {
+            event.channel.getMessageHistoryFrom(event.messageID, x+1)
+        }.get()
 
         val deleted = RequestBuffer.request<MutableList<IMessage>> { history.bulkDelete() }.get()
         for (msg in deleted)
             logger.debug("deleted: $msg")
 
         builder.withEmbed(embed.withColor(BLUE).withDesc("Removed the last **$x** messages."))
-        val response = RequestBuffer.request<IMessage> { builder.build() }.get()
-        sleep(5000)
-        RequestBuffer.request { response.delete() }
-        return null
+        builder.withAutoDelete(5)
+        return builder
     }
 }

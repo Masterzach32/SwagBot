@@ -68,6 +68,7 @@ object GameSwitchCommand : Command("Game Switcher", "gameswitcher", "gs",
 
                     event.guild.addGameSwitcherEntry(game, vc)
                     embed.withDesc("Added / Edited game trigger: **$game** assigned to **$vc**.")
+                    break
                 }
             }
         } else if (command == "remove") {

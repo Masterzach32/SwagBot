@@ -24,7 +24,7 @@ object MassAfkCommand : Command("Mass AFK", "massafk", "mafk", botPerm = Permiss
                 return builder.withEmbed(embed.withDesc("This guild does not have an afk channel."))
 
         event.guild.users
-                .filter { it != event.client.ourUser && it.isOnVoice() }
+                .filter { it != event.client.ourUser && it.isOnVoice(event.guild) }
                 .forEach { RequestBuffer.request { it.moveToVoiceChannel(afkChannel) } }
 
         return null

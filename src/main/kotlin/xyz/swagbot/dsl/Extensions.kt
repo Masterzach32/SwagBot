@@ -3,10 +3,13 @@ package xyz.swagbot.dsl
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo
 import sx.blah.discord.handle.obj.*
+import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.api.music.TrackUserData
+import xyz.swagbot.database.getBotVolume
 import xyz.swagbot.database.getTrackPreferences
 import xyz.swagbot.database.sql
+import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.getFormattedTime
 
 /*
@@ -83,19 +86,17 @@ fun IVoiceChannel.getTrackPreferences(): Map<String, Int> {
 }
 
 fun IUser.isOnVoice(): Boolean {
-    return RequestBuffer.request<Boolean>{
-        return@request voiceStates.values().mapNotNull { it.channel }.isNotEmpty()
-    }.get()
+    return RequestBuffer.request<Boolean> { voiceStates.values().mapNotNull { it.channel }.isNotEmpty() }.get()
 }
 
 fun IUser.isOnVoice(guild: IGuild): Boolean {
-    return RequestBuffer.request<Boolean> {
-        return@request getVoiceStateForGuild(guild).channel != null
-    }.get()
+    return RequestBuffer.request<Boolean> { getVoiceStateForGuild(guild).channel != null }.get()
 }
 
 fun IUser.getConnectedVoiceChannel(): IVoiceChannel? {
-    return RequestBuffer.request<IVoiceChannel?>{
-        return@request voiceStates.values().mapNotNull { it.channel }.firstOrNull()
-    }.get()
+    return RequestBuffer.request<IVoiceChannel?> { voiceStates.values().mapNotNull { it.channel }.firstOrNull() }.get()
+}
+
+fun IUser.getConnectedVoiceChannel(guild: IGuild): IVoiceChannel? {
+    return RequestBuffer.request<IVoiceChannel?> { getVoiceStateForGuild(guild).channel }.get()
 }

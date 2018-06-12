@@ -38,7 +38,8 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
             return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc("Sorry, I don't support paid " +
                     "streaming services at the moment."))
 
-        val identifier = if (args[0].contains("http://") || args[0].contains("https://")) args[0]
+        val identifier = if (args[0].contains("http://") || args[0].contains("https://"))
+            args[0]
         else {
             getVideoFromSearch(getContent(args, 0))?.getUrl()
         }

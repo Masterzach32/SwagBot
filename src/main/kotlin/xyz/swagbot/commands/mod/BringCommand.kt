@@ -28,11 +28,11 @@ object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permissio
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
-        if(event.author.getVoiceStateForGuild(event.guild).channel == null)
+        if(event.author.isOnVoice(event.guild))
             return builder.withContent("**You need to be in a voice channel to summon users.**")
         val vc = event.author.getConnectedVoiceChannel()
         event.guild.users
-                .filter { it.isOnVoice() }
+                .filter { it.isOnVoice(event.guild) }
                 .forEach { RequestBuffer.request { it.moveToVoiceChannel(vc) } }
         return null
     }

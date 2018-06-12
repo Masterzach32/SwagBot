@@ -41,7 +41,7 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
         if (users.size <= 1) {
             RequestBuffer.request {
                 AdvancedMessageBuilder(channel).withEmbed(EmbedBuilder().withColor(RED)
-                        .withDesc("The brawl failed to start because not enough users joined!").build()).build()
+                        .withDesc("The brawl failed to start because not enough users joined!")).build()
             }
             finish()
             return

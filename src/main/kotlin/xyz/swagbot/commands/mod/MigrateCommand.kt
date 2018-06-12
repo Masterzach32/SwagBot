@@ -7,6 +7,7 @@ import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.dsl.getConnectedVoiceChannel
+import xyz.swagbot.dsl.isOnVoice
 import xyz.swagbot.utils.delimitWithoutEmpty
 import xyz.swagbot.utils.getContent
 
@@ -36,13 +37,13 @@ object MigrateCommand : Command("Migrate", "migrate", "populate", "m", botPerm =
         val from: IVoiceChannel?
         val to: IVoiceChannel?
         if (args.isEmpty()) {
-            to = event.author.getConnectedVoiceChannel()
-            if (to == null)
+            if (!event.author.isOnVoice(event.guild))
                 return builder.withContent("**Make sure you are in the channel you want to populate!**")
-
-            from = event.client.ourUser.getVoiceStateForGuild(event.guild).channel
-            if (from == null)
+            if (!event.client.ourUser.isOnVoice(event.guild))
                 return builder.withContent("**Make sure the bot is the channel that you want to migrate from!**")
+
+            to = event.author.getConnectedVoiceChannel()
+            from = event.client.ourUser.getConnectedVoiceChannel(event.guild)
         } else {
             val channels = delimitWithoutEmpty(getContent(args, 0), "\\|")
             if (channels.size != 2)
@@ -54,7 +55,7 @@ object MigrateCommand : Command("Migrate", "migrate", "populate", "m", botPerm =
             if (from == null || to == null)
                 return getWrongArgumentsMessage(builder, this, cmdUsed)
         }
-        from.connectedUsers.forEach { RequestBuffer.request { it.moveToVoiceChannel(to) } }
+        from!!.connectedUsers.forEach { RequestBuffer.request { it.moveToVoiceChannel(to) } }
         return null
     }
 }
