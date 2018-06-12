@@ -88,6 +88,12 @@ fun IUser.isOnVoice(): Boolean {
     }.get()
 }
 
+fun IUser.isOnVoice(guild: IGuild): Boolean {
+    return RequestBuffer.request<Boolean> {
+        return@request getVoiceStateForGuild(guild).channel != null
+    }.get()
+}
+
 fun IUser.getConnectedVoiceChannel(): IVoiceChannel? {
     return RequestBuffer.request<IVoiceChannel?>{
         return@request voiceStates.values().mapNotNull { it.channel }.firstOrNull()

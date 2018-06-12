@@ -168,14 +168,6 @@ fun IGuild.addIAmRole(role: IRole): Boolean {
     return true
 }
 
-fun IGuild.setTimezone(timezone: String) {
-
-}
-
-fun IGuild.getTimezone(): String {
-    return get_guild_cell(stringID, sb_guilds.timezone)!!
-}
-
 fun IGuild.isGameSwitcherEnabled(): Boolean {
     return get_guild_cell(stringID, sb_guilds.game_switcher)!!
 }

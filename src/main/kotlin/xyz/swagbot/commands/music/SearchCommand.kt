@@ -7,10 +7,8 @@ import sx.blah.discord.api.events.EventDispatcher
 import sx.blah.discord.api.events.IListener
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionAddEvent
-import sx.blah.discord.handle.impl.obj.EmojiImpl
 import sx.blah.discord.handle.impl.obj.ReactionEmoji
 import sx.blah.discord.handle.obj.IChannel
-import sx.blah.discord.handle.obj.IEmoji
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.EmbedBuilder
@@ -51,13 +49,25 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
         for (i in 0 until list.size) {
             embed.appendDesc("${i+1}. [**${list[i].title}** by **${list[i].channel}**](${list[i].getUrl()}).\n")
         }
-        embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, enter its " +
-                "number below within 60 seconds.")
+        if (event.guild.longID == 97342233241464832L) {
+            embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, select it's " +
+                    "corresponding reaction below within 60 seconds.")
+        } else {
+            embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, enter its " +
+                    "number below within 60 seconds.")
+        }
 
         val message = RequestBuffer.request<IMessage> { builder.withEmbed(embed).build() }.get()
 
-        event.client.dispatcher.registerListener(ReactionResponseListener(message, event.author, event.channel, list,
-                System.currentTimeMillis()))
+        if (event.guild.longID == 97342233241464832L) {
+            event.client.dispatcher.registerListener(
+                    ReactionResponseListener(message, event.author, event.channel, list, System.currentTimeMillis())
+            )
+        } else {
+            event.client.dispatcher.registerListener(
+                    MessageResponseListener(event.author, event.channel, list, System.currentTimeMillis())
+            )
+        }
 
         return null
     }
@@ -70,21 +80,28 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
     ) : ResponseListener<MessageReceivedEvent>(user, channel, list, timestamp) {
 
         override fun handle(event: MessageReceivedEvent) {
-            if (System.currentTimeMillis()/1000 - timestamp/1000 > 60)
+            if (System.currentTimeMillis() / 1000 - timestamp / 1000 > 60)
                 return unregister(event.client.dispatcher, "Timeout")
             if (event.author == user && event.channel == channel) {
                 try {
-                    val index = event.message.content.toInt()-1
+                    val index = event.message.content.toInt() - 1
                     if (index < 0 || index >= list.size)
                         return unregister(event.client.dispatcher, "Bad message")
-                    event.channel.toggleTypingStatus()
-                    audioPlayerManager.loadItemOrdered(channel.guild.getAudioHandler(),
-                            list[index].getUrl(), AudioTrackLoadHandler(event.guild.getAudioHandler(),
-                            event, AdvancedMessageBuilder(event.channel)))
 
-                    if (event.client.ourUser.getVoiceStateForGuild(event.guild).channel == null &&
-                            event.author.isOnVoice())
-                        event.author.getConnectedVoiceChannel()!!.join()
+                    channel.toggleTypingStatus()
+                    audioPlayerManager.loadItemOrdered(
+                            channel.guild.getAudioHandler(),
+                            list[index].getUrl(),
+                            AudioTrackLoadHandler(event.guild.getAudioHandler(),
+                                    user,
+                                    event.guild,
+                                    event.message,
+                                    AdvancedMessageBuilder(event.channel)
+                            )
+                    )
+
+                    if (user.isOnVoice(event.guild) && !event.client.ourUser.isOnVoice(event.guild))
+                        user.getConnectedVoiceChannel()!!.join()
 
                     return unregister(event.client.dispatcher, "Successful")
                 } catch (t: Throwable) {
@@ -103,18 +120,43 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
     ) : ResponseListener<ReactionAddEvent>(user, channel, list, timestamp) {
 
         init {
-            list.mapIndexed { i, _ -> ReactionEmoji.of(":${emojiUnicode[i]}:") }
-                    .forEach { RequestBuffer.request { message.addReaction(it) } }
+            for (i in 0 until list.size)
+                RequestBuffer.request { message.addReaction(ReactionEmoji.of(emojiUnicode[i])) }.get()
         }
 
         override fun handle(event: ReactionAddEvent) {
-            if (event.message == message && event.author == user && event.channel == channel) {
-                logger.info(event.reaction.emoji.name)
+            if (System.currentTimeMillis() / 1000 - timestamp / 1000 > 60)
+                return unregister(event.client.dispatcher, "Timeout")
+            if (event.channel == channel && event.user == user && event.message == message) {
+                val index = emojiUnicode.indexOf(event.reaction.emoji.name)
+
+                event.channel.toggleTypingStatus()
+                audioPlayerManager.loadItemOrdered(
+                        channel.guild.getAudioHandler(),
+                        list[index].getUrl(),
+                        AudioTrackLoadHandler(
+                                event.guild.getAudioHandler(),
+                                user,
+                                event.guild,
+                                null,
+                                AdvancedMessageBuilder(event.channel)
+                        )
+                )
+
+                if (user.isOnVoice(event.guild) && !event.client.ourUser.isOnVoice(event.guild))
+                    user.getConnectedVoiceChannel()!!.join()
+
+                return unregister(event.client.dispatcher, "Successful")
             }
         }
 
+        override fun unregister(dispatcher: EventDispatcher, reason: String) {
+            RequestBuffer.request { message.removeAllReactions() }
+            return super.unregister(dispatcher, reason)
+        }
+
         companion object {
-            val emojiUnicode = listOf("one", "two", "three", "four", "five")
+            private val emojiUnicode = listOf("\u0031\u20e3", "\u0032\u20e3", "\u0033\u20e3", "\u0034\u20e3", "\u0035\u20e3")
         }
     }
 
@@ -125,7 +167,7 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
             val timestamp: Long
     ) : IListener<E> {
 
-        protected fun unregister(dispatcher: EventDispatcher, reason: String) {
+        protected open fun unregister(dispatcher: EventDispatcher, reason: String) {
             logger.debug("Killing search listener: $reason")
             return dispatcher.unregisterListener(this)
         }

@@ -5,23 +5,27 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import net.masterzach32.commands4k.AdvancedMessageBuilder
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import sx.blah.discord.handle.obj.IGuild
+import sx.blah.discord.handle.obj.IMessage
+import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.addTrackToDatabase
-import xyz.swagbot.database.getTimezone
 import xyz.swagbot.dsl.getFormattedLength
 import xyz.swagbot.dsl.getThumbnailUrl
 import xyz.swagbot.dsl.hasThumbnail
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getFormattedTime
-import java.text.SimpleDateFormat
 import java.time.Instant
-import java.util.*
 
-class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceivedEvent,
-                            val builder: AdvancedMessageBuilder) : AudioLoadResultHandler {
+class AudioTrackLoadHandler(
+        val handler: TrackHandler,
+        val requester: IUser,
+        val guild: IGuild,
+        val message: IMessage?,
+        val builder: AdvancedMessageBuilder
+) : AudioLoadResultHandler {
 
     val embed = EmbedBuilder()
 
@@ -34,9 +38,9 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
     }
 
     override fun trackLoaded(track: AudioTrack) {
-        track.userData = TrackUserData(event.author)
+        track.userData = TrackUserData(requester)
         embed.withColor(BLUE)
-        embed.withTitle(":musical_note: | Track requested by ${event.author.getDisplayName(event.guild)}")
+        embed.withTitle(":musical_note: | Track requested by ${requester.getDisplayName(guild)}")
         embed.withDesc("**[${track.info.title}](${track.info.uri})**\n")
         embed.appendDesc("Author/Channel: **${track.info.author}**\n")
         embed.appendDesc("Length: **${if (track.info.isStream) "Stream (duration unknown)" else track.getFormattedLength()}**")
@@ -52,8 +56,8 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
 
         handler.queue(track)
         if (!track.info.isStream)
-            event.author.addTrackToDatabase(track)
-        RequestBuffer.request { event.message.delete() }
+            requester.addTrackToDatabase(track)
+        RequestBuffer.request { message?.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }
 
@@ -65,14 +69,14 @@ class AudioTrackLoadHandler(val handler: TrackHandler, val event: MessageReceive
 
     override fun playlistLoaded(playlist: AudioPlaylist) {
         for (track in playlist.tracks) {
-            track.userData = TrackUserData(event.author)
+            track.userData = TrackUserData(requester)
             handler.queue(track)
             if (!track.info.isStream)
-                event.author.addTrackToDatabase(track)
+                requester.addTrackToDatabase(track)
         }
         embed.withColor(BLUE)
-        embed.withDesc("${event.author} queued playlist: **${playlist.name}** with **${playlist.tracks.size}** tracks.")
-        RequestBuffer.request { event.message.delete() }
+        embed.withDesc("$requester queued playlist: **${playlist.name}** with **${playlist.tracks.size}** tracks.")
+        RequestBuffer.request { message?.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }
 }

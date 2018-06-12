@@ -26,13 +26,18 @@ object MessageHandler : IListener<MessageReceivedEvent> {
         if (event.guild.stringID == "97342233241464832") {
             if (event.message.channel.stringID == "402224449367179264") {
                 if (!event.message.embeds.isEmpty() || !event.message.attachments.isEmpty()) {
-                    RequestBuffer.request {
-                        AdvancedMessageBuilder(event.message.channel)
-                                .withContent("${event.message.author} please don't post links or attachments in " +
-                                        "${event.message.channel}")
-                                .withAutoDelete(30)
-                                .build()
-                    }
+                    val message = AdvancedMessageBuilder(event.message.channel)
+                            .withContent("${event.message.author} please don't post links or attachments in " +
+                                    "${event.message.channel}")
+                            .withAutoDelete(30)
+                    RequestBuffer.request { message.build() }
+                    RequestBuffer.request { event.message.delete() }
+                }
+                if (event.message.author.isBot) {
+                    val message = AdvancedMessageBuilder(event.message.channel)
+                            .withContent("${event.message.author}, bots aren't allowed to use this channel!")
+                            .withAutoDelete(30)
+                    RequestBuffer.request { message.build() }
                     RequestBuffer.request { event.message.delete() }
                 }
             }

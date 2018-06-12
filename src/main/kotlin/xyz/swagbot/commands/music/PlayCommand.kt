@@ -47,7 +47,17 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
             return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc("Sorry, I could not find a video" +
                     " that matched that description. Try refining your search."))
 
-        audioPlayerManager.loadItemOrdered(handler, identifier, AudioTrackLoadHandler(handler, event, builder))
+        audioPlayerManager.loadItemOrdered(
+                handler,
+                identifier,
+                AudioTrackLoadHandler(
+                        handler,
+                        event.author,
+                        event.guild,
+                        event.message,
+                        builder
+                )
+        )
 
         if (event.client.ourUser.getVoiceStateForGuild(event.guild).channel == null && event.author.isOnVoice())
             event.author.getConnectedVoiceChannel()!!.join()
