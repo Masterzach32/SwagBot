@@ -40,14 +40,15 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
             clone.userData = oldTrack.userData
             queue(clone)
         }
-        if (queue.isNotEmpty()) {
+
+        if (queue.isNotEmpty())
             player.startTrack(queue.removeAt(0), false)
-            Stats.TRACKS_PLAYED.addStat()
-        }else if (player.playingTrack != null)
+        else if (player.playingTrack != null)
             player.stopTrack()
 
         if (shouldAutoplay && queue.isEmpty())
             getAndQueueAutoplayTrack()
+
         return oldTrack
     }
 
@@ -133,7 +134,7 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
     }
 
     override fun onTrackStart(player: AudioPlayer, track: AudioTrack) {
-
+        Stats.TRACKS_PLAYED.addStat()
     }
 
     override fun onTrackEnd(player: AudioPlayer, track: AudioTrack, endReason: AudioTrackEndReason) {
@@ -166,10 +167,7 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
 
         if (map.isNotEmpty()) {
             var totalWeight = 0
-            map.forEach {
-                logger.info("Track: ${it.key} Weight: ${it.value}")
-                totalWeight += it.value
-            }
+            map.forEach { totalWeight += it.value }
 
             var randomTrack: String? = null
             var random = Math.random() * map.keys.size
