@@ -5,6 +5,7 @@ import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.Stats
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getBotPermission
@@ -33,6 +34,7 @@ object SkipCommand : Command("Skip", "skip", "s", scope = Scope.GUILD) {
         val skippedTrack = event.guild.getAudioHandler().playNext()
         if (skippedTrack == null)
             return builder.withEmbed(embed.withColor(RED).withDesc("Cannot skip as there is no track playing!"))
+        Stats.TRACKS_SKIPPED.addStat()
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track: ${skippedTrack.getBoldFormattedTitle()}"))
     }
 }

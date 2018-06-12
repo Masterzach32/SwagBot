@@ -3,6 +3,7 @@ package xyz.swagbot.events
 import sx.blah.discord.api.events.IListener
 import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.Stats
 import xyz.swagbot.database.getAutoAssignRole
 
 /*
@@ -22,5 +23,6 @@ object NewUserHandler : IListener<UserJoinEvent> {
     override fun handle(event: UserJoinEvent) {
         val role = event.guild.getAutoAssignRole() ?: return
         RequestBuffer.request { event.user.addRole(role) }
+        Stats.ROLES_ASSIGNED.addStat()
     }
 }

@@ -4,6 +4,7 @@ import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.Stats
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
@@ -32,9 +33,11 @@ object VoteSkipCommand : Command("Vote Skip", "voteskip", "vskip", scope = Scope
                 playingTrack.getTrackUserData().getSkipVoteCount()
         if (skipThreshold <= 0) {
             event.guild.getAudioHandler().playNext()
+            Stats.TRACKS_SKIPPED.addStat()
             return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped track:" +
                     " ${playingTrack.getBoldFormattedTitle()}"))
         }
+        Stats.TRACK_SKIP_VOTES.addStat()
         return builder.withEmbed(embed.withColor(BLUE).withDesc("**$skipThreshold** more votes needed to skip " +
                 playingTrack.getBoldFormattedTitle()))
     }

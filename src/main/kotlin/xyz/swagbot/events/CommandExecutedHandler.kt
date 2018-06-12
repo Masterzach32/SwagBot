@@ -2,6 +2,7 @@ package xyz.swagbot.events
 
 import net.masterzach32.commands4k.events.CommandExecutedEvent
 import sx.blah.discord.api.events.IListener
+import xyz.swagbot.Stats
 
 /*
  * SwagBot - Created on 5/16/2018
@@ -18,6 +19,6 @@ import sx.blah.discord.api.events.IListener
 object CommandExecutedHandler : IListener<CommandExecutedEvent> {
 
     override fun handle(event: CommandExecutedEvent) {
-
+        Stats.COMMANDS_USED.addStat()
     }
 }

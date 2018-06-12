@@ -9,6 +9,7 @@ import net.masterzach32.commands4k.AdvancedMessageBuilder
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.Stats
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.dsl.getFormattedTitle
 import xyz.swagbot.dsl.getRequester
@@ -39,9 +40,10 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
             clone.userData = oldTrack.userData
             queue(clone)
         }
-        if (queue.isNotEmpty())
+        if (queue.isNotEmpty()) {
             player.startTrack(queue.removeAt(0), false)
-        else if (player.playingTrack != null)
+            Stats.TRACKS_PLAYED.addStat()
+        }else if (player.playingTrack != null)
             player.stopTrack()
 
         if (shouldAutoplay && queue.isEmpty())
@@ -182,6 +184,7 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
 
             audioPlayerManager.loadItemOrdered(this, randomTrack,
                     SilentAudioTrackLoadHandler(this, guild.client.ourUser))
+            Stats.TRACKS_AUTOPLAYED.addStat()
         }
     }
 }

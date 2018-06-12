@@ -7,6 +7,7 @@ import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageHistory
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.Stats
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
@@ -53,8 +54,7 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
         }.get()
 
         val deleted = RequestBuffer.request<MutableList<IMessage>> { history.bulkDelete() }.get()
-        for (msg in deleted)
-            logger.debug("deleted: $msg")
+        Stats.MESSAGES_PRUNED.addStat(deleted.size)
 
         builder.withEmbed(embed.withColor(BLUE).withDesc("Removed the last **$x** messages."))
         builder.withAutoDelete(5)

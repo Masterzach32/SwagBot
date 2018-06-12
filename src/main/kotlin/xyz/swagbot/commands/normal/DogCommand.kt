@@ -7,6 +7,7 @@ import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
 import org.apache.http.conn.ConnectTimeoutException
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
+import xyz.swagbot.Stats
 import xyz.swagbot.commands.Type
 import xyz.swagbot.commands.getApiErrorMessage
 import xyz.swagbot.utils.getContent
@@ -36,6 +37,7 @@ object DogCommand : Command("Dog Pictures", "dog", "randomdog") {
         }
         if (response.status != 200)
             return getApiErrorMessage(builder, Type.GET, url, "none", response.status, response.statusText)
+        Stats.DOGS_FETCHED.addStat()
         return builder.withImage(response.body.`object`.getString("message"))
     }
 }

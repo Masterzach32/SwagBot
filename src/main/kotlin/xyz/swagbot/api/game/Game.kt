@@ -2,6 +2,7 @@ package xyz.swagbot.api.game
 
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IUser
+import xyz.swagbot.Stats
 
 /*
  * SwagBot - Created on 11/17/2017
@@ -34,5 +35,6 @@ abstract class Game(name: String, val channel: IChannel, val users: MutableList<
 
     fun finish() {
         GameManager.endGame(this)
+        Stats.GAMES_PLAYED.addStat()
     }
 }

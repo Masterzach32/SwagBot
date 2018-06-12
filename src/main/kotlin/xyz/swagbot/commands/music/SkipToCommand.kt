@@ -6,6 +6,7 @@ import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.RED
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.Stats
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
@@ -29,6 +30,7 @@ object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD,
         if (args.isEmpty())
             return builder.withEmbed(embed.withColor(RED).withDesc("You must specify a track to skip to!"))
         val skipped = event.guild.getAudioHandler().skipTo(args[0].toInt())
+        Stats.TRACKS_SKIPPED.addStat(skipped.size)
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped **${skipped.size}** tracks."))
     }
 }

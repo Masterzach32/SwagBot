@@ -3,6 +3,7 @@ package xyz.swagbot.events
 import sx.blah.discord.api.events.IListener
 import sx.blah.discord.handle.impl.events.user.PresenceUpdateEvent
 import sx.blah.discord.handle.obj.ActivityType
+import xyz.swagbot.Stats
 import xyz.swagbot.database.getGameSwitcherEntries
 import xyz.swagbot.database.isGameSwitcherEnabled
 import xyz.swagbot.dsl.getConnectedVoiceChannel
@@ -25,8 +26,10 @@ object UserStatusListener : IListener<PresenceUpdateEvent> {
 
                 val toMove = map.entries.firstOrNull { it.key == event.newPresence.text.get() }?.value
 
-                if (toMove != null)
+                if (toMove != null) {
                     event.user.moveToVoiceChannel(toMove)
+                    Stats.GAMESWITCHER_USERS_MOVED.addStat()
+                }
             }
         }
     }
