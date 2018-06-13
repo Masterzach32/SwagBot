@@ -117,11 +117,14 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
         init {
             for (i in 0 until list.size)
                 RequestBuffer.request { message.addReaction(ReactionEmoji.of(emojiUnicode[i])) }.get()
+
+            Thread {
+                Thread.sleep(1000*60)
+                unregister(message.client.dispatcher, "Timeout")
+            }.start()
         }
 
         override fun handle(event: ReactionAddEvent) {
-            if (System.currentTimeMillis() / 1000 - timestamp / 1000 > 60)
-                return unregister(event.client.dispatcher, "Timeout")
             if (event.channel == channel && event.user == user && event.message == message) {
                 val index = emojiUnicode.indexOf(event.reaction.emoji.name)
 

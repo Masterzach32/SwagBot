@@ -22,29 +22,33 @@ object Stats {
 
     private val stats = mutableListOf<Stat>()
 
-    val COMMANDS_USED = Stat("cmds_used")
-    val TRACKS_PLAYED = Stat("tracks_played")
-    val TRACKS_SKIPPED = Stat("tracks_skipped")
-    val TRACK_SKIP_VOTES = Stat("track_skip_votes")
-    val TRACKS_AUTOPLAYED = Stat("tracks_auto")
-    val ROLES_ASSIGNED = Stat("roles_assigned")
-    val MESSAGES_PRUNED = Stat("messages_pruned")
-    val GAMES_PLAYED = Stat("bot_games_played")
-    val CATS_FETCHED = Stat("cat_img")
-    val DOGS_FETCHED = Stat("dog_img")
-    val GAMESWITCHER_USERS_MOVED = Stat("gameswitcher_users_moved")
+    val COMMANDS_USED = Stat("Commands Used", "cmds_used")
+    val TRACKS_PLAYED = Stat("Tracks Played", "tracks_played")
+    val TRACKS_SKIPPED = Stat("Tracks Skipped", "tracks_skipped")
+    val TRACK_SKIP_VOTES = Stat("Track Skip Votes", "track_skip_votes")
+    val TRACKS_AUTOPLAYED = Stat("Tracks Auto-played", "tracks_auto")
+    val ROLES_ASSIGNED = Stat("Roles Auto-assigned", "roles_assigned")
+    val MESSAGES_PRUNED = Stat("Messages Pruned", "messages_pruned")
+    val GAMES_PLAYED = Stat("Games Played", "bot_games_played")
+    val CATS_FETCHED = Stat("Cat Images Fetched", "cat_img")
+    val DOGS_FETCHED = Stat("Dog Images Fetched", "dog_img")
+    val GAMESWITCHER_USERS_MOVED = Stat("Users Moved by GameSwitcher", "gameswitcher_users_moved")
+    val LMGTFY_SEARCH = Stat("LMGTFY Uses", "lmgtfy")
+    val STRAWPOLL = Stat("Strawpolls Created", "strawpoll")
 
     init {
         stats.filter { !it.exists() }.forEach { it.create() }
         stats.forEach { it.read() }
     }
 
-    class Stat internal constructor(private val name: String) {
+    fun getStatObjects(): List<Stat> = stats
 
-        private var stat: Int = 0
-            set(value) {
+    class Stat internal constructor(val name: String, private val identifier: String) {
+
+        var stat: Int = 0
+            private set(value) {
                 field = value
-                sql { sb_stats.update({ sb_stats.key eq name }) { it[sb_stats.value] = field } }
+                sql { sb_stats.update({ sb_stats.key eq identifier }) { it[sb_stats.value] = field } }
             }
 
         init {
@@ -57,12 +61,12 @@ object Stats {
             stat += amount
         }
 
-        internal fun exists(): Boolean = sql { sb_stats.select { sb_stats.key eq name }.firstOrNull() != null }
+        internal fun exists(): Boolean = sql { sb_stats.select { sb_stats.key eq identifier }.firstOrNull() != null }
 
-        internal fun create() = sql { sb_stats.insert { it[sb_stats.key] = name } }
+        internal fun create() = sql { sb_stats.insert { it[sb_stats.key] = identifier } }
 
         internal fun read() {
-            stat = sql { sb_stats.select { sb_stats.key eq name }.first()[sb_stats.value] }
+            stat = sql { sb_stats.select { sb_stats.key eq identifier }.first()[sb_stats.value] }
         }
     }
 }

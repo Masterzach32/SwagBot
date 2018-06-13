@@ -114,7 +114,7 @@ fun main(args: Array<String>) {
     cmds.add(EditPermissionsCommand)
     cmds.add(GameSwitchCommand)
     // dev
-    cmds.add(ShutdownCommand, GarbageCollectionCommand, JvmStatsCommand, SetMotdCommand)
+    cmds.add(ShutdownCommand, GarbageCollectionCommand, JvmStatsCommand, SetMotdCommand, StatsCommand)
 
     cmds.sortCommands()
 

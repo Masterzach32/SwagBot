@@ -6,6 +6,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.Stats
 import xyz.swagbot.commands.Type
 import xyz.swagbot.commands.getApiErrorMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
@@ -45,6 +46,8 @@ object StrawpollCommand : Command("Strawpoll", "strawpoll", "spoll") {
         if (response.status != 200)
             return getApiErrorMessage(builder, Type.POST, pollUrl, body.toString(2), response.status,
                     response.statusText)
+
+        Stats.STRAWPOLL.addStat()
 
         val json = response.body.`object`
         val id = json.getInt("id")

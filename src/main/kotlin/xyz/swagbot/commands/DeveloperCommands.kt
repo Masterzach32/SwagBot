@@ -90,8 +90,8 @@ val SetMotdCommand = createCommand("Set MOTD") {
     }
 }
 
-val JvmStatsCommand = createCommand("Stats") {
-    aliases("stats")
+val JvmStatsCommand = createCommand("Jvm Stats") {
+    aliases("jvmstats")
 
     botPerm(Permission.DEVELOPER)
 

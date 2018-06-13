@@ -4,6 +4,7 @@ import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.Discord4J
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.Stats
 import xyz.swagbot.config
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.database.getDefault
@@ -118,6 +119,25 @@ val SupportCommand = createCommand("Support") {
                     "getting started guide: https://swagbot.xyz/gettingstarted\n\n" +
                     "Still having trouble? Join the SwagBot support server: https://discord.me/swagbothub\n\n" +
                     "If you want to help fix a bug, submit an issue on GitHub: https://github.com/Masterzach32/SwagBot"))
+        }
+    }
+}
+
+val StatsCommand = createCommand("Bot Statistics") {
+    aliases("stats")
+
+    botPerm(Permission.DEVELOPER)
+
+    helpText {
+        description = "View stats such as uptime, commands used, etc."
+    }
+
+    onEvent {
+        val embed = EmbedBuilder().withColor(BLUE)
+
+        all {
+            Stats.getStatObjects().forEach { embed.appendField(it.name, "${it.stat}", true) }
+            builder.withEmbed(embed)
         }
     }
 }
