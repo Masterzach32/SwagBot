@@ -39,6 +39,8 @@ object sb_guilds : Table() {
     val game_switcher = bool("game_switcher").default(false)
 }
 
+data class GuildSettingsLoadObj(val id: Long, val volume: Int, val loop: Boolean, val lastVoiceChannel: Long?)
+
 object sb_permissions : Table() {
     val guild_id = text("guild_id")
     val user_id = text("user_id")

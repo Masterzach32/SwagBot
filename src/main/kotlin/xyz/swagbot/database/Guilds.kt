@@ -6,6 +6,7 @@ import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
 import xyz.swagbot.api.music.TrackHandler
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.dsl.getRequester
+import java.util.concurrent.Executors
 
 /*
  * SwagBot - Created on 8/24/17
@@ -21,33 +22,33 @@ import xyz.swagbot.dsl.getRequester
  */
 private val audioHandlers = mutableMapOf<String, TrackHandler>()
 
+private val trackLoader = Executors.newSingleThreadExecutor()
+
 fun getAllAudioHandlers(): Map<String, TrackHandler> {
     return audioHandlers
 }
 
-fun IGuild.hasSQLEntry(): Boolean {
-    return does_guild_entry_exist(stringID)
-}
-
-fun IGuild.initialize() {
-    if (!hasSQLEntry()) {
-        xyz.swagbot.database.logger.info("Adding new guild to database: $stringID")
-        create_guild_entry(this)
-    }
-
+fun IGuild.initialize(settings: GuildSettingsLoadObj?) {
     if (!audioHandlers.contains(stringID)) {
         val player = audioPlayerManager.createPlayer()
         val listener = TrackHandler(this, player)
         player.addListener(listener)
 
         audioHandlers[stringID] = listener
-        audioManager.audioProvider = getAudioHandler().audioProvider
+        audioManager.audioProvider = listener.audioProvider
 
-        player.volume = getBotVolume()
-        if (isQueueLoopEnabled())
-            listener.toggleShouldLoop()
+        if (settings == null) {
+            xyz.swagbot.database.logger.info("Adding new guild to database: $stringID")
+            create_guild_entry(this)
 
-        listener.loadTracksFromStorage(this)
+            player.volume = 50
+        } else {
+            player.volume = settings.volume
+            if (settings.loop)
+                listener.toggleShouldLoop()
+        }
+
+        trackLoader.submit { listener.loadTracksFromStorage(this) }
     }
 }
 

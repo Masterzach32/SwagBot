@@ -121,6 +121,8 @@ fun main(args: Array<String>) {
     logger.info("Creating discord client object.")
     val client = ClientBuilder().withToken(getKey("discord_bot_token")).withRecommendedShardCount().build()
 
+    GuildCreateHandler.pullGuildSettings()
+
     logger.info("Registering event listeners.")
     client.dispatcher.registerListener(cmds)
     client.dispatcher.registerListener(CommandExecutedHandler)
