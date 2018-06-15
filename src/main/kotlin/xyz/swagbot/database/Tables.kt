@@ -27,14 +27,14 @@ object sb_defaults : Table() {
 }
 
 object sb_guilds : Table() {
-    val id = text("id")
+    val id = long("id")
     val name = text("name")
     val command_prefix = text("command_prefix")
     val locked = bool("locked").default(false)
     val volume = integer("volume").default(50)
     val loop = bool("loop").default(false)
-    val auto_assign_role = text("auto_assign_role").nullable()
-    val last_voice_channel = text("last_voice_channel").nullable()
+    val auto_assign_role = long("auto_assign_role").nullable()
+    val last_voice_channel = long("last_voice_channel").nullable()
     val timezone = text("timezone")
     val game_switcher = bool("game_switcher").default(false)
 }
@@ -42,8 +42,8 @@ object sb_guilds : Table() {
 data class GuildSettingsLoadObj(val id: Long, val volume: Int, val loop: Boolean, val lastVoiceChannel: Long?)
 
 object sb_permissions : Table() {
-    val guild_id = text("guild_id")
-    val user_id = text("user_id")
+    val guild_id = long("guild_id")
+    val user_id = long("user_id")
     val permission = integer("permission")
 }
 
@@ -53,8 +53,8 @@ object sb_stats : Table() {
 }
 
 object sb_chat_channels : Table() {
-    val guild_id = text("guild_id")
-    val channel_id = text("channel_id")
+    val guild_id = long("guild_id")
+    val channel_id = long("channel_id")
 }
 
 object sb_game_brawl : Table() {
@@ -63,24 +63,24 @@ object sb_game_brawl : Table() {
 }
 
 object sb_track_storage : Table() {
-    val guild_id = text("guild_id")
-    val user_id = text("user_id")
+    val guild_id = long("guild_id")
+    val user_id = long("user_id")
     val identifier = text("identifier")
 }
 
 object sb_iam_roles : Table() {
-    val guild_id = text("guild_id")
-    val role_id = text("role_id")
+    val guild_id = long("guild_id")
+    val role_id = long("role_id")
 }
 
 object sb_music_profile : Table() {
-    val user_id = text("user_id")
+    val user_id = long("user_id")
     val identifier = text("identifier")
     val count = integer("count")
 }
 
 object sb_game_switcher : Table() {
-    val guild_id = text("guild_id")
+    val guild_id = long("guild_id")
     val game = text("game")
-    val channel_id = text("channel_id")
+    val channel_id = long("channel_id")
 }

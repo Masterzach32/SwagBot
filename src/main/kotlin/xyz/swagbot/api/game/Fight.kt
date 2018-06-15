@@ -2,14 +2,15 @@ package xyz.swagbot.api.game
 
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.RED
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
-import xyz.swagbot.database.get_cell
-import xyz.swagbot.database.get_row_count
 import xyz.swagbot.database.sb_game_brawl
+import xyz.swagbot.database.sql
 import xyz.swagbot.logger
 import java.util.*
 
@@ -51,7 +52,7 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
 
         RequestBuffer.request { AdvancedMessageBuilder(channel).withContent("**Let the brawl begin!**").build() }
         sleep(1000)
-        val numOfDeathResponses = get_row_count(sb_game_brawl)
+        val numOfDeathResponses = sql { sb_game_brawl.selectAll().count() }
         while (users.size > 1) {
             var str = ""
             for (j in users.indices)
@@ -67,8 +68,10 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
             } while (dead.longID == 148604482492563456)
             users.remove(dead)
             val killer = users[Random().nextInt(users.size)]
-            var result = get_cell(sb_game_brawl, sb_game_brawl.death_message)
-                { sb_game_brawl.id eq Random().nextInt(numOfDeathResponses) }!!
+            var result = sql {
+                sb_game_brawl.select { sb_game_brawl.id eq Random().nextInt(numOfDeathResponses) }
+                        .first().get(sb_game_brawl.death_message)
+            }
             result = result.replace("{killed}", "**${dead.getDisplayName(channel.guild)}**")
             result = result.replace("{killer}", "**${killer.getDisplayName(channel.guild)}**")
             val resultString = result

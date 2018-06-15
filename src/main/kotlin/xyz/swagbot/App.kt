@@ -95,7 +95,6 @@ fun main(args: Array<String>) {
     cmds.add(JoinCommand)
     cmds.add(LmgtfyCommand)
     cmds.add(MassAfkCommand)
-    //cmds.add(QuoteCommand)
     cmds.add(R8BallCommand)
     cmds.add(RockPaperScissorsCommand)
     cmds.add(StrawpollCommand)
@@ -120,8 +119,6 @@ fun main(args: Array<String>) {
 
     logger.info("Creating discord client object.")
     val client = ClientBuilder().withToken(getKey("discord_bot_token")).withRecommendedShardCount().build()
-
-    GuildCreateHandler.pullGuildSettings()
 
     logger.info("Registering event listeners.")
     client.dispatcher.registerListener(cmds)

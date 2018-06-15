@@ -7,6 +7,7 @@ import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.database.sb_track_storage
 import xyz.swagbot.database.shutdownAudioPlayer
 import xyz.swagbot.database.sql
+import xyz.swagbot.events.GuildCreateHandler
 import xyz.swagbot.logger
 import xyz.swagbot.status.StatusUpdate
 
@@ -41,10 +42,16 @@ private fun stop(client: IDiscordClient, ec: ExitCode) {
         logger.error("Could not shut down audio players gracefully: ${t.message}")
     }
     audioPlayerManager.shutdown()
+
+    StatusUpdate.shutdown()
+    GuildCreateHandler.initializerExecutor.shutdown()
+
     Unirest.shutdown()
+
     logger.info("Attempting to log out of Discord.")
     client.logout()
     logger.info("Attempt successful, exiting.")
+
     exit(ec)
 }
 
