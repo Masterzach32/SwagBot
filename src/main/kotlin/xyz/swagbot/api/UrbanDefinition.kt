@@ -5,53 +5,47 @@ import xyz.swagbot.database.getKey
 import xyz.swagbot.logger
 import java.net.URLEncoder
 
-class UrbanDefinition(term: String) {
+data class UrbanDefinition(
+        val defID: Int,
+        val word: String,
+        val author: String,
+        val definition: String,
+        val example: String,
+        val permalink: String
+) {
+    companion object {
+        fun getDefinition(search: String): UrbanDefinition? {
+            try {
+                val response = Unirest.get(
+                        "https://mashape-community-urban-dictionary.p.mashape.com/define?term=" +
+                                URLEncoder.encode(search, "UTF-8")
+                ).header("X-Mashape-Key", getKey("mashap_auth_key")).header("Accept", "text/plain").asJson()
 
-    private var defid: Int = 0
-    private var hasEntry: Boolean = false
-    var term: String? = null
-        private set
-    var author: String? = null
-        private set
-    var definition: String? = null
-        private set
-    var example: String? = null
-        private set
-    var link: String? = null
-        private set
+                if (response.status != 200) {
+                    logger.warn("Urban Dictionary responded with status code " + response.status + ": " + response.statusText)
+                    return null
+                }
 
-    init {
-        try {
-            val response = Unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" +
-                    URLEncoder.encode(term, "UTF-8")).header("X-Mashape-Key",
-                    getKey("mashap_auth_key")).header("Accept", "text/plain").asJson()
-            if (response.status != 200) {
-                logger.warn("Urban Dictionary responded with status code " + response.status + ": " + response.statusText)
+                val defObj = response.body.array.getJSONObject(0)
+                println(defObj.toString(2))
+                if (defObj.getJSONArray("list").length() == 0)
+                    return null
+
+                val def = defObj.getJSONArray("list").getJSONObject(0)
+
+                val defid = def.getInt("defid")
+                val word = def.getString("word")
+                val author = def.getString("author")
+                val definition = def.getString("definition")
+                val example = def.getString("example")
+                val permalink = def.getString("permalink")
+
+                return UrbanDefinition(defid, word, author, definition, example, permalink)
+            } catch (t: Throwable) {
+                t.printStackTrace()
             }
-            var def = response.body.array.getJSONObject(0)
-            if (def.getJSONArray("list").length() == 0) {
-                hasEntry = false
-                this.term = term
-            } else {
-                hasEntry = true
-                def = def.getJSONArray("list").getJSONObject(0)
-                this.defid = def.getInt("defid")
-                this.term = def.getString("word")
-                this.author = def.getString("author")
-                this.definition = def.getString("definition")
-                this.example = def.getString("example")
-                this.link = def.getString("permalink")
-            }
-        } catch (t: Throwable) {
-            t.printStackTrace()
+
+            return null
         }
-    }
-
-    fun getdefid(): Int {
-        return defid
-    }
-
-    fun hasEntry(): Boolean {
-        return hasEntry
     }
 }

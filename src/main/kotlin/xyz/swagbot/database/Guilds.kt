@@ -21,21 +21,19 @@ import java.util.concurrent.Executors
  * @author zachk
  * @version 8/24/17
  */
-private val audioHandlers = mutableMapOf<String, TrackHandler>()
+private val audioHandlers = mutableMapOf<Long, TrackHandler>()
 
 val trackLoader = Executors.newSingleThreadExecutor()!!
 
-fun getAllAudioHandlers(): Map<String, TrackHandler> {
-    return audioHandlers
-}
+fun getAllAudioHandlers(): Map<Long, TrackHandler> = audioHandlers
 
 fun IGuild.initialize() {
-    if (!audioHandlers.contains(stringID)) {
+    if (!audioHandlers.contains(longID)) {
         val player = audioPlayerManager.createPlayer()
         val listener = TrackHandler(this, player)
         player.addListener(listener)
 
-        audioHandlers[stringID] = listener
+        audioHandlers[longID] = listener
         audioManager.audioProvider = listener.audioProvider
 
         val settings = sql {
@@ -49,7 +47,7 @@ fun IGuild.initialize() {
             }.firstOrNull()
         }
         if (settings == null) {
-            xyz.swagbot.database.logger.info("Adding new guild to database: $stringID")
+            xyz.swagbot.database.logger.info("Adding new guild to database: $longID")
             sql {
                 sb_guilds.insert {
                     it[sb_guilds.id] = longID
@@ -71,20 +69,20 @@ fun IGuild.initialize() {
 }
 
 fun IGuild.shutdownAudioPlayer() {
-    val toDestroy = audioHandlers.remove(stringID) ?: return
+    val toDestroy = audioHandlers.remove(longID) ?: return
     saveTracksToStorage()
     toDestroy.player.destroy()
 }
 
 fun IGuild.getAudioHandler(): TrackHandler {
-    val handler = audioHandlers[stringID]!!
+    val handler = audioHandlers[longID]!!
     if (!handler.player.isPaused && handler.player.playingTrack == null && handler.getQueue().isNotEmpty())
         handler.playNext()
     return handler
 }
 
 fun IGuild.getCommandPrefix(): String {
-    return sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.command_prefix) ?: getDefault("command_prefix") }
+    return sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.command_prefix) ?: config.getString("defaults.command_prefix") }
 }
 
 fun IGuild.setCommandPrefix(prefix: String) {

@@ -6,7 +6,6 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.Table
 import org.slf4j.LoggerFactory
-import xyz.swagbot.utils.ExitCode
 import java.sql.Connection
 
 /*
@@ -27,12 +26,12 @@ val logger = LoggerFactory.getLogger("SwagBot Database")!!
 lateinit var db: Database
 lateinit var type: DatabaseType
 
-val lock = Object()
+val lock = Any()
 
 fun <T> sql(sqlcode: Transaction.() -> T): T {
     return when (type) {
         DatabaseType.MYSQL -> transaction(statement = sqlcode)
-        DatabaseType.SQLITE -> { synchronized(lock) { transaction(Connection.TRANSACTION_SERIALIZABLE, 1, db, sqlcode) } }
+        DatabaseType.SQLITE -> synchronized(lock) { transaction(Connection.TRANSACTION_SERIALIZABLE, 1, db, sqlcode) }
     }
 }
 
@@ -42,10 +41,15 @@ fun Transaction.create(vararg tables: Table) {
 
 fun getDatabaseConnection(args: Array<String>): Database {
     if (args.isEmpty()) {
-        logger.info("You need to pass the database location / driver as arguments!")
-        System.exit(ExitCode.LOGIN_FAILURE.code)
+        logger.error("You need to pass the database location / driver as arguments!")
+        throw IllegalStateException("No args detected. (<database type> <url> [username] [password])")
     }
-    type = DatabaseType.valueOf(args[0])
+    try {
+        type = DatabaseType.valueOf(args[0])
+    } catch (t: Throwable) {
+        logger.error("You must provide a valid database type!")
+        throw IllegalStateException("Invalid database type. Allowed values: ${DatabaseType.values().toList()}")
+    }
     val loc = args[1]
     val login = if (args.size > 2) Pair(args[2], args[3]) else null
     for (i in 2 downTo 0) {
@@ -62,7 +66,6 @@ fun getDatabaseConnection(args: Array<String>): Database {
             sql {
                 create(
                         sb_api_keys,
-                        sb_defaults,
                         sb_guilds,
                         sb_permissions,
                         sb_chat_channels,

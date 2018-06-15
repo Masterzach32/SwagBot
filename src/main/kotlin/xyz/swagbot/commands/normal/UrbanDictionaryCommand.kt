@@ -15,15 +15,21 @@ object UrbanDictionaryCommand : Command("Urban Dictionary", "ud") {
         help.usage["<term>"] = "Look up a term on Urban Dictionary."
     }
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
-                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
+    override fun execute(
+            cmdUsed: String,
+            args: Array<String>,
+            event: MessageReceivedEvent,
+            builder: AdvancedMessageBuilder
+    ): AdvancedMessageBuilder {
+
         val embed = EmbedBuilder().withColor(BLUE)
         event.channel.toggleTypingStatus()
-        val def = UrbanDefinition(getContent(args, 0))
-        if (def.hasEntry())
-            return builder.withEmbed(embed.withTitle("Urban Dictionary Lookup: ${def.term}").withUrl(def.link)
+        val search = getContent(args, 0)
+        val def = UrbanDefinition.getDefinition(search)
+        if (def != null)
+            return builder.withEmbed(embed.withTitle("Urban Dictionary Lookup: ${def.word}").withUrl(def.permalink)
                     .withDesc(def.definition)
                     .appendField("Example:", def.example, true))
-        return builder.withEmbed(embed.withColor(RED).withDesc("Couldn't find a definition for **${def.term}**."))
+        return builder.withEmbed(embed.withColor(RED).withDesc("Couldn't find a definition for **$search**."))
     }
 }

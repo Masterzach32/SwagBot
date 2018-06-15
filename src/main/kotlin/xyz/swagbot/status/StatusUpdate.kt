@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 object StatusUpdate : Runnable {
 
-    private val delay = 240L
+    private const val delay = 240L
 
     private var client: IDiscordClient? = null
     private val messages = mutableListOf<StatusMessage>()
@@ -63,16 +63,16 @@ object StatusUpdate : Runnable {
 
         // random song
         messages.add(StatusMessage {
-            val list = mutableMapOf<String, String>()
+            val list = mutableMapOf<Long, String>()
             getAllAudioHandlers().forEach { k, v ->
                 if (v.player.playingTrack != null)
                     list[k] = v.player.playingTrack.info.title
             }
-            val rand = mutableListOf<String>()
+            val rand = mutableListOf<Long>()
             list.forEach { k, _ -> rand.add(k) }
             if (rand.size > 0) {
-                val guild = client.getGuildByID(rand[(Math.random() * rand.size).toInt()].toLong())
-                return@StatusMessage "${list[guild.stringID]} in ${guild.name}"
+                val guild = client.getGuildByID(rand[(Math.random() * rand.size).toInt()])
+                return@StatusMessage "${list[guild.longID]} in ${guild.name}"
             } else
                 return@StatusMessage null
         })

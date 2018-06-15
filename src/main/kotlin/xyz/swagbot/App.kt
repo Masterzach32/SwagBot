@@ -41,7 +41,7 @@ val logger = LoggerFactory.getLogger("SwagBot")!!
 
 val audioPlayerManager = DefaultAudioPlayerManager()
 
-val cmds = CommandListener({ it?.getCommandPrefix() ?: getDefault("command_prefix") },
+val cmds = CommandListener({ it?.getCommandPrefix() ?: config.getString("defaults.command_prefix") },
         {
             if (it == null)
                 this.getBotDMPermission()

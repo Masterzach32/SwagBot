@@ -34,8 +34,8 @@ object ReadyHandler : IListener<ReadyEvent> {
         // join all voice channels the bot was in before it was shut down
         sql {
             sb_guilds.selectAll()
-                    .filter { it[sb_guilds.last_voice_channel] != null }
-                    .mapNotNull { event.client.getVoiceChannelByID(it[sb_guilds.last_voice_channel]!!.toLong()) }
+                    .mapNotNull { it[sb_guilds.last_voice_channel] }
+                    .mapNotNull { event.client.getVoiceChannelByID(it) }
                     .forEach { RequestBuffer.request { it.join() } }
         }
 

@@ -21,11 +21,6 @@ object sb_api_keys : Table() {
     val api_key = text("api_key")
 }
 
-object sb_defaults : Table() {
-    val key = text("key")
-    val value = text("value")
-}
-
 object sb_guilds : Table() {
     val id = long("id")
     val name = text("name")

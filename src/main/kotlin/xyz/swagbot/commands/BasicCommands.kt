@@ -7,7 +7,6 @@ import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.Stats
 import xyz.swagbot.config
 import xyz.swagbot.database.getCommandPrefix
-import xyz.swagbot.database.getDefault
 import xyz.swagbot.utils.BLUE
 
 val PingCommand = createCommand("Ping") {
@@ -64,7 +63,7 @@ val InfoCommand = createCommand("Info") {
             embed.withAuthorUrl("http://swagbot.xyz")
 
             embed.withDesc("SwagBot is a music bot with many additional features. Type **" +
-                    (event.guild?.getCommandPrefix() ?: getDefault("command_prefix")) +
+                    (event.guild?.getCommandPrefix() ?: config.getString("defaults.command_prefix")) +
                     "help** to see more commands!\n\n")
             embed.appendDesc("Learn more about SwagBot at https://swagbot.xyz\n\n" +
                     "Follow SwagBot on Twitter for updates:\nhttps://twitter.com/DiscordSwagBot\n" +

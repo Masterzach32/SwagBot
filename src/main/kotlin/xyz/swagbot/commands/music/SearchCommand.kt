@@ -32,8 +32,13 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
         help.usage["<search query>"] = "Searches YouTube for the 5 best matching videos."
     }
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
-                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
+    override fun execute(
+            cmdUsed: String,
+            args: Array<String>,
+            event: MessageReceivedEvent,
+            builder: AdvancedMessageBuilder
+    ): AdvancedMessageBuilder? {
+
         if (args.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
         event.channel.toggleTypingStatus()
@@ -42,16 +47,21 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
         val list = getVideoSetFromSearch(getContent(args, 0), 5)
 
         if (list.isEmpty())
-            return builder.withEmbed(embed.withColor(RED).withDesc("Sorry, I could not find a video that " +
-                    "matched that description. Try refining your search."))
+            return builder.withEmbed(
+                    embed.withColor(RED).withDesc(
+                            "Sorry, I could not find a video that matched that description. Try refining your search."
+                    )
+            )
 
         embed.withColor(BLUE).withTitle("YouTube Search Result")
-        for (i in 0 until list.size) {
+        for (i in 0 until list.size)
             embed.appendDesc("${i+1}. [**${list[i].title}** by **${list[i].channel}**](${list[i].getUrl()})\n")
-        }
 
-        embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, select it's " +
-                "corresponding reaction below within 60 seconds.")
+        embed.appendDesc(
+                "\n${event.author}, if you would like to queue one of these videos, select it's " +
+                "corresponding reaction below within 60 seconds."
+
+        )
         /*embed.appendDesc("\n${event.author}, if you would like to queue one of these videos, enter its " +
                 "number below within 60 seconds.")*/
 
