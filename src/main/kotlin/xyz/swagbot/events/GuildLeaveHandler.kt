@@ -10,7 +10,7 @@ object GuildLeaveHandler : IListener<GuildLeaveEvent> {
 
     override fun handle(event: GuildLeaveEvent) {
         logger.info("SwagBot left guild: ${event.guild.name} (${event.guild.stringID})")
-        event.guild.shutdownAudioPlayer()
+        event.guild.shutdownAudioPlayer(false)
         DailyUpdate.leftServer()
     }
 }

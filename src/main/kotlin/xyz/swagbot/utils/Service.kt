@@ -37,7 +37,7 @@ private fun stop(client: IDiscordClient, ec: ExitCode) {
     sql { sb_track_storage.deleteAll() }
     logger.info("Shutting down audio player.")
     try {
-        client.guilds.forEach { it.shutdownAudioPlayer() }
+        client.guilds.forEach { it.shutdownAudioPlayer(true) }
     } catch (t: Throwable) {
         logger.error("Could not shut down audio players gracefully: ${t.message}")
     }

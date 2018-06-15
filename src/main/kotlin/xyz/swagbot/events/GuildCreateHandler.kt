@@ -34,7 +34,8 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
     override fun handle(event: GuildCreateEvent) {
         event.guild.initialize()
 
-        initializerExecutor.submit { checkIfNew(event.guild) }
+        if (event.client.isReady)
+            initializerExecutor.submit { checkIfNew(event.guild) }
 
         logger.info("Guild ${event.guild.name} (${event.guild.stringID}) is ready to start receiving commands.")
     }

@@ -139,7 +139,7 @@ fun main(args: Array<String>) {
     logger.info("Waiting to receive guilds...")
 
     // SwagBot threads
-    DailyUpdate.init(client)
+    //DailyUpdate.init(client)
 
     // heuristic to find the tenured pool (largest heap) as seen on http://www.javaspecialists.eu/archive/Issue092.html
     val tenuredGenPool = ManagementFactory.getMemoryPoolMXBeans()

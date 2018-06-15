@@ -68,10 +68,10 @@ fun IGuild.initialize() {
     }
 }
 
-fun IGuild.shutdownAudioPlayer() {
-    val toDestroy = audioHandlers.remove(longID) ?: return
-    saveTracksToStorage()
-    toDestroy.player.destroy()
+fun IGuild.shutdownAudioPlayer(saveTracks: Boolean) {
+    if (saveTracks)
+        saveTracksToStorage()
+    audioHandlers.remove(longID)?.player?.destroy()
 }
 
 fun IGuild.getAudioHandler(): TrackHandler {
