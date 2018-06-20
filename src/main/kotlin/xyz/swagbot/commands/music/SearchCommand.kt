@@ -26,10 +26,10 @@ import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
 
-object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = Scope.GUILD) {
+object SearchCommand : Command("Search YouTube", "search", "ytsearch", "search10", scope = Scope.GUILD) {
 
     init {
-        help.usage["<search query>"] = "Searches YouTube for the 5 best matching videos."
+        help.usage["<search query>"] = "Searches YouTube for the 5 best matching videos. Use the search10 alias to find 10 instead."
     }
 
     override fun execute(
@@ -44,7 +44,7 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
         event.channel.toggleTypingStatus()
         val embed = EmbedBuilder()
 
-        val list = getVideoSetFromSearch(getContent(args, 0), 5)
+        val list = getVideoSetFromSearch(getContent(args, 0), if (cmdUsed == aliases.last()) 10 else 5)
 
         if (list.isEmpty())
             return builder.withEmbed(
@@ -67,9 +67,7 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
 
         val message = RequestBuffer.request<IMessage> { builder.withEmbed(embed).build() }.get()
 
-        event.client.dispatcher.registerListener(
-                ReactionResponseListener(message, event.author, event.channel, list, System.currentTimeMillis())
-        )
+        event.client.dispatcher.registerListener(ReactionResponseListener(event.author, event.channel, list, message))
         /*event.client.dispatcher.registerListener(
                 MessageResponseListener(event.author, event.channel, list, System.currentTimeMillis())
         )*/
@@ -81,8 +79,8 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
             user: IUser,
             channel: IChannel,
             list: List<YouTubeVideo>,
-            timestamp: Long
-    ) : ResponseListener<MessageReceivedEvent>(user, channel, list, timestamp) {
+            private val timestamp: Long
+    ) : ResponseListener<MessageReceivedEvent>(user, channel, list) {
 
         override fun handle(event: MessageReceivedEvent) {
             if (System.currentTimeMillis() / 1000 - timestamp / 1000 > 60)
@@ -117,15 +115,14 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
     }
 
     private class ReactionResponseListener(
-            val message: IMessage,
             user: IUser,
             channel: IChannel,
             list: List<YouTubeVideo>,
-            timestamp: Long
-    ) : ResponseListener<ReactionAddEvent>(user, channel, list, timestamp) {
+            val message: IMessage
+    ) : ResponseListener<ReactionAddEvent>(user, channel, list) {
 
         init {
-            for (i in 0 until list.size)
+            for (i in 0 until Math.min(list.size, emojiUnicode.size))
                 RequestBuffer.request { message.addReaction(ReactionEmoji.of(emojiUnicode[i])) }.get()
 
             Thread {
@@ -164,15 +161,15 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", scope = S
         }
 
         companion object {
-            private val emojiUnicode = listOf("\u0031\u20e3", "\u0032\u20e3", "\u0033\u20e3", "\u0034\u20e3", "\u0035\u20e3")
+            private val emojiUnicode = listOf("\u0031\u20e3", "\u0032\u20e3", "\u0033\u20e3", "\u0034\u20e3",
+                    "\u0035\u20e3", "\u0036\u20e3", "\u0037\u20e3", "\u0038\u20e3", "\u0039\u20e3", "\u0030\u20e3")
         }
     }
 
     private abstract class ResponseListener<E : Event>(
             val user: IUser,
             val channel: IChannel,
-            val list: List<YouTubeVideo>,
-            val timestamp: Long
+            val list: List<YouTubeVideo>
     ) : IListener<E> {
 
         protected open fun unregister(dispatcher: EventDispatcher, reason: String) {
