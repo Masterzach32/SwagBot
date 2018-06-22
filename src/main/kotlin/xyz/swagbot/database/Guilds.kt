@@ -6,6 +6,7 @@ import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
 import xyz.swagbot.api.music.TrackHandler
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.config
+import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.dsl.getRequester
 import java.util.concurrent.Executors
 
@@ -29,12 +30,7 @@ fun getAllAudioHandlers(): Map<Long, TrackHandler> = audioHandlers
 
 fun IGuild.initialize() {
     if (!audioHandlers.contains(longID)) {
-        val player = audioPlayerManager.createPlayer()
-        val listener = TrackHandler(this, player)
-        player.addListener(listener)
-
-        audioHandlers[longID] = listener
-        audioManager.audioProvider = listener.audioProvider
+        val listener = createPlayer()
 
         val settings = sql {
             sb_guilds.select { sb_guilds.id eq longID }.mapNotNull {
@@ -57,9 +53,9 @@ fun IGuild.initialize() {
                 }
             }
 
-            player.volume = 50
+            listener.player.volume = 50
         } else {
-            player.volume = settings.volume
+            listener.player.volume = settings.volume
             if (settings.loop)
                 listener.toggleShouldLoop()
         }
@@ -72,6 +68,22 @@ fun IGuild.shutdownAudioPlayer(saveTracks: Boolean) {
     if (saveTracks)
         saveTracksToStorage()
     audioHandlers.remove(longID)?.player?.destroy()
+}
+
+fun IGuild.refreshAudioPlayer() {
+    shutdownAudioPlayer(false)
+    client.ourUser.getConnectedVoiceChannel(this)?.leave()
+    initialize()
+}
+
+private fun IGuild.createPlayer(): TrackHandler {
+    val player = audioPlayerManager.createPlayer()
+    val listener = TrackHandler(this, player)
+    player.addListener(listener)
+
+    audioHandlers[longID] = listener
+    audioManager.audioProvider = listener.audioProvider
+    return listener
 }
 
 fun IGuild.getAudioHandler(): TrackHandler {

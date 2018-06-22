@@ -5,6 +5,7 @@ import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.database.getAudioHandler
+import xyz.swagbot.database.refreshAudioPlayer
 import xyz.swagbot.utils.BLUE
 
 /*
@@ -47,6 +48,26 @@ val AutoPlayCommand = createCommand("Autoplay") {
                 embed.withDesc("Autoplay has now been disabled.")
 
             return@all builder.withEmbed(embed)
+        }
+    }
+}
+
+val RefreshAudioPlayerCommand = createCommand("Refresh Audio Player") {
+    aliases("refresh")
+
+    scope(Command.Scope.GUILD)
+    botPerm(Permission.MOD)
+
+    helpText {
+        description = "Refresh the audio player if it becomes unresponsive. Clears the queue and re-initializes " +
+                "the server's audio player."
+    }
+
+    onEvent {
+        all {
+            event.guild.refreshAudioPlayer()
+
+            return@all null
         }
     }
 }
