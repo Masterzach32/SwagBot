@@ -24,7 +24,7 @@ fun IUser.getBotPermission(guild: IGuild): Permission {
 fun IUser.setBotPermission(guild: IGuild, permission: Permission) {
     sql<Unit> {
         if (permission == Permission.NORMAL)
-            sb_music_profile.deleteWhere { sb_permissions.guild_id eq guild.longID and (sb_permissions.user_id eq longID) }
+            sb_permissions.deleteWhere { sb_permissions.guild_id eq guild.longID and (sb_permissions.user_id eq longID) }
         else if (sb_permissions.select { sb_permissions.guild_id eq guild.longID and (sb_permissions.user_id eq longID) }.firstOrNull() != null)
             sb_permissions.update({ sb_permissions.guild_id eq guild.longID and (sb_permissions.user_id eq longID) }) {
                 it[sb_permissions.permission] = permission.ordinal
