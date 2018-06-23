@@ -34,8 +34,8 @@ val AutoPlayCommand = createCommand("Autoplay") {
     }
 
     onEvent {
-        val embed = EmbedBuilder().withColor(BLUE)
         all {
+            val embed = EmbedBuilder().withColor(BLUE)
             val autoplay = event.guild.getAudioHandler().toggleShouldAutoplay()
 
             if (autoplay) {

@@ -7,7 +7,6 @@ import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getBotVolume
 import xyz.swagbot.database.getCommandPrefix
-import xyz.swagbot.database.logger
 import xyz.swagbot.dsl.*
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED

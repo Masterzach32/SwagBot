@@ -1,7 +1,6 @@
 package xyz.swagbot.events
 
 import net.masterzach32.commands4k.AdvancedMessageBuilder
-import org.jetbrains.exposed.sql.select
 import sx.blah.discord.api.events.IListener
 import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent
 import sx.blah.discord.handle.obj.IChannel
@@ -9,6 +8,7 @@ import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.*
+import xyz.swagbot.logger
 import xyz.swagbot.utils.DailyUpdate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -29,15 +29,14 @@ import java.util.concurrent.Executors
  */
 object GuildCreateHandler : IListener<GuildCreateEvent> {
 
-    val initializerExecutor = Executors.newSingleThreadExecutor()!!
 
     override fun handle(event: GuildCreateEvent) {
         event.guild.initialize()
 
         if (event.client.isReady)
-            initializerExecutor.submit { checkIfNew(event.guild) }
+            checkIfNew(event.guild)
 
-        logger.info("Guild ${event.guild.name} (${event.guild.stringID}) is ready to start receiving commands.")
+        logger.info("Guild ${event.guild.name} (${event.guild.longID}) is ready to start receiving commands.")
     }
 
     private fun checkIfNew(guild: IGuild) {

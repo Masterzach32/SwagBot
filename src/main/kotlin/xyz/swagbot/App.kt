@@ -37,11 +37,12 @@ import javax.management.NotificationEmitter
  */
 
 val config = ConfigFactory.load()!!
-val logger = LoggerFactory.getLogger("SwagBot")!!
+val logger = LoggerFactory.getLogger("SwagBot Manager")!!
 
 val audioPlayerManager = DefaultAudioPlayerManager()
 
-val cmds = CommandListener({ it?.getCommandPrefix() ?: config.getString("defaults.command_prefix") },
+val cmds = CommandListener(
+        { it?.getCommandPrefix() ?: config.getString("defaults.command_prefix") },
         {
             if (it == null)
                 this.getBotDMPermission()
@@ -52,7 +53,8 @@ val cmds = CommandListener({ it?.getCommandPrefix() ?: config.getString("default
                 else
                     perm
             }
-        })
+        }
+)
 
 fun main(args: Array<String>) {
     logger.info("Starting SwagBot version ${config.getString("bot.build")}.")
@@ -113,7 +115,14 @@ fun main(args: Array<String>) {
     cmds.add(EditPermissionsCommand)
     cmds.add(GameSwitchCommand)
     // dev
-    cmds.add(ShutdownCommand, GarbageCollectionCommand, JvmStatsCommand, SetMotdCommand, StatsCommand)
+    cmds.add(
+            ShutdownCommand,
+            GarbageCollectionCommand,
+            JvmStatsCommand,
+            SetMotdCommand,
+            StatsCommand,
+            ShardStatusCommand
+    )
 
     cmds.sortCommands()
 
@@ -145,11 +154,10 @@ fun main(args: Array<String>) {
     val tenuredGenPool = ManagementFactory.getMemoryPoolMXBeans()
             .first { it.type == MemoryType.HEAP && it.isUsageThresholdSupported }
     // we do something when we reached 85% of memory usage
-    tenuredGenPool.collectionUsageThreshold = Math.floor(tenuredGenPool.usage.max * 0.80).toLong()
+    tenuredGenPool.collectionUsageThreshold = Math.floor(tenuredGenPool.usage.max * 0.85).toLong()
 
     // set a listener
-    val mbean = ManagementFactory.getMemoryMXBean()
-    val emitter = mbean as NotificationEmitter
+    val emitter = ManagementFactory.getMemoryMXBean() as NotificationEmitter
     emitter.addNotificationListener(NotificationListener { n, _ ->
         if (n.type == MemoryNotificationInfo.MEMORY_COLLECTION_THRESHOLD_EXCEEDED) {
             val maxMemory = tenuredGenPool.usage.max.toDouble()
@@ -162,7 +170,7 @@ fun main(args: Array<String>) {
                             .appendField("Used Memory", "${usedMemory / Math.pow(2.0, 20.0)} MB", true)
             ).build()
 
-            shutdown(client, ExitCode.OUT_OF_MEMORY)
+            //shutdown(client, ExitCode.OUT_OF_MEMORY)
         }
     }, null, null)
 }

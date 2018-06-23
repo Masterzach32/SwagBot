@@ -113,3 +113,34 @@ val JvmStatsCommand = createCommand("Jvm Stats") {
         }
     }
 }
+
+val ShardStatusCommand = createCommand("Shard Status") {
+    aliases("shards")
+
+    botPerm(Permission.DEVELOPER)
+
+    helpText {
+        description = "Retrieve current shard status."
+    }
+
+    fun getStatusEmoji(check: Boolean): String = if (check) ":white_check_mark:" else ":x:"
+
+    onEvent {
+        all {
+            val embed = EmbedBuilder().withColor(BLUE)
+
+            embed.withTitle("Shard Count: ${event.client.shards.size}")
+            embed.withDesc("First box indicates login status, second box indicates if shard is ready.")
+
+            event.client.shards.forEach {
+                embed.appendField(
+                        "Shard ${it.info[0]}: ${getStatusEmoji(it.isLoggedIn)}${getStatusEmoji(it.isReady)}",
+                        "Servers: ${it.guilds.size}\nUsers: ${it.users.size}\nPing: ${it.responseTime}",
+                        true
+                )
+            }
+
+            return@all builder.withEmbed(embed)
+        }
+    }
+}

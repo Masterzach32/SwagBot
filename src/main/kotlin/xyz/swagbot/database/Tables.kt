@@ -28,7 +28,7 @@ object sb_guilds : Table() {
     val locked = bool("locked").default(false)
     val volume = integer("volume").default(50)
     val loop = bool("loop").default(false)
-    val auto_assign_role = long("auto_assign_role").nullable()
+    val auto_assign_role = text("auto_assign_role").nullable()
     val last_voice_channel = long("last_voice_channel").nullable()
     val timezone = text("timezone")
     val game_switcher = bool("game_switcher").default(false)
@@ -64,7 +64,6 @@ object sb_track_storage : Table() {
 }
 
 object sb_iam_roles : Table() {
-    val guild_id = long("guild_id")
     val role_id = long("role_id")
 }
 

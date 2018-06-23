@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.Table
 import org.slf4j.LoggerFactory
+import xyz.swagbot.logger
 import java.sql.Connection
 
 /*
@@ -20,8 +21,6 @@ import java.sql.Connection
  * @author Zach Kozar
  * @version 8/22/17
  */
-
-val logger = LoggerFactory.getLogger("SwagBot Database")!!
 
 lateinit var db: Database
 lateinit var type: DatabaseType

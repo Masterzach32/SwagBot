@@ -44,7 +44,6 @@ private fun stop(client: IDiscordClient, ec: ExitCode) {
     audioPlayerManager.shutdown()
 
     StatusUpdate.shutdown()
-    GuildCreateHandler.initializerExecutor.shutdown()
 
     Unirest.shutdown()
 

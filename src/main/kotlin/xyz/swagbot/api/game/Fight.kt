@@ -28,17 +28,13 @@ import java.util.*
  */
 class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channel, users) {
 
-    init {
-        start()
-    }
-
     override fun getJoinMessage(user: IUser): String {
         return "${user.getDisplayName(channel.guild)} **joined the brawl!**"
     }
 
     override fun run() {
         logger.debug("Fight in guild ${channel.guild} starting in 20 seconds")
-        sleep(20000)
+        Thread.sleep(20000)
         if (users.size <= 1) {
             RequestBuffer.request {
                 AdvancedMessageBuilder(channel).withEmbed(EmbedBuilder().withColor(RED)
@@ -51,7 +47,7 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
         logger.debug("Fight is starting with ${users.size} users! $users")
 
         RequestBuffer.request { AdvancedMessageBuilder(channel).withContent("**Let the brawl begin!**").build() }
-        sleep(1000)
+        Thread.sleep(1000)
         val numOfDeathResponses = sql { sb_game_brawl.selectAll().count() }
         while (users.size > 1) {
             var str = ""
@@ -61,7 +57,7 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
                 else
                     str += "and **${users[j].getDisplayName(channel.guild)}** are fighting!"
             val msg = RequestBuffer.request<IMessage> { AdvancedMessageBuilder(channel).withContent(str).build() }.get()
-            sleep(1500)
+            Thread.sleep(1500)
             var dead: IUser
             do {
                 dead = users[Random().nextInt(users.size)]

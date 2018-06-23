@@ -132,13 +132,11 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", "search10
         }
 
         override fun handle(event: ReactionAddEvent) {
-            if (event.channel == channel && event.user == user && event.message == message) {
-                val index = emojiUnicode.indexOf(event.reaction.emoji.name)
-
+            if (event.user == user && event.message == message) {
                 event.channel.toggleTypingStatus()
                 audioPlayerManager.loadItemOrdered(
-                        channel.guild.getAudioHandler(),
-                        list[index].getUrl(),
+                        event.guild.getAudioHandler(),
+                        list[emojiUnicode.indexOf(event.reaction.emoji.name)].getUrl(),
                         AudioTrackLoadHandler(
                                 event.guild.getAudioHandler(),
                                 user,

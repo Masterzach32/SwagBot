@@ -8,7 +8,7 @@ import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.config
 import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.dsl.getRequester
-import java.util.concurrent.Executors
+import xyz.swagbot.logger
 
 /*
  * SwagBot - Created on 8/24/17
@@ -23,8 +23,6 @@ import java.util.concurrent.Executors
  * @version 8/24/17
  */
 private val audioHandlers = mutableMapOf<Long, TrackHandler>()
-
-val trackLoader = Executors.newSingleThreadExecutor()!!
 
 fun getAllAudioHandlers(): Map<Long, TrackHandler> = audioHandlers
 
@@ -43,7 +41,7 @@ fun IGuild.initialize() {
             }.firstOrNull()
         }
         if (settings == null) {
-            xyz.swagbot.database.logger.info("Adding new guild to database: $longID")
+            logger.info("Adding new guild to database: $name ($longID)")
             sql {
                 sb_guilds.insert {
                     it[sb_guilds.id] = longID
@@ -60,7 +58,7 @@ fun IGuild.initialize() {
                 listener.toggleShouldLoop()
         }
 
-        trackLoader.submit { loadTracksFromStorage() }
+        loadTracksFromStorage()
     }
 }
 
@@ -87,6 +85,8 @@ private fun IGuild.createPlayer(): TrackHandler {
 }
 
 fun IGuild.getAudioHandler(): TrackHandler {
+    if (audioHandlers[longID] == null)
+        initialize()
     val handler = audioHandlers[longID]!!
     if (!handler.player.isPaused && handler.player.playingTrack == null && handler.getQueue().isNotEmpty())
         handler.playNext()
@@ -115,16 +115,16 @@ fun IGuild.isBotLocked(): Boolean {
 }
 
 fun IGuild.setAutoAssignRole(role: IRole?) {
-    sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.auto_assign_role] = role?.longID } }
+    sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.auto_assign_role] = role?.stringID } }
 }
 
 fun IGuild.getAutoAssignRole(): IRole? {
-    val roleId = sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.auto_assign_role) } ?: 0
+    val roleId = sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.auto_assign_role) } ?: ""
     return try {
-        getRoleByID(roleId)
+        getRoleByID(roleId.toLong())
     } catch (t: Throwable) {
-        sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.auto_assign_role] = null } }
-        null
+        getRolesByName(roleId).firstOrNull()
+        //sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.auto_assign_role] = null } }
     }
 }
 

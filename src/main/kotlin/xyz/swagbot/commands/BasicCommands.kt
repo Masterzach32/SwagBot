@@ -35,9 +35,9 @@ val DonateCommand = createCommand("Donate") {
     }
 
     onEvent {
-        val embed = EmbedBuilder().withColor(BLUE)
-
         all {
+            val embed = EmbedBuilder().withColor(BLUE)
+
             return@all builder.withEmbed(embed.withDesc("Help support the development of SwagBot by pledging " +
                     "money on Patreon or donating to my PayPal.\n\nhttps://patreon.com/ultimatedoge" +
                     "\n\nhttps://paypal.me/ultimatedoge"))
@@ -55,9 +55,9 @@ val InfoCommand = createCommand("Info") {
     }
 
     onEvent {
-        val embed = EmbedBuilder().withColor(BLUE)
-
         all {
+            val embed = EmbedBuilder().withColor(BLUE)
+
             embed.withAuthorName("SwagBot v2 (${config.getString("bot.build")})")
             embed.withAuthorIcon("http://swagbot.xyz/images/banner.png")
             embed.withAuthorUrl("http://swagbot.xyz")
@@ -132,9 +132,9 @@ val StatsCommand = createCommand("Bot Statistics") {
     }
 
     onEvent {
-        val embed = EmbedBuilder().withColor(BLUE)
-
         all {
+            val embed = EmbedBuilder().withColor(BLUE)
+
             Stats.getStatObjects().forEach { embed.appendField(it.name, "${it.stat}", true) }
             builder.withEmbed(embed)
         }

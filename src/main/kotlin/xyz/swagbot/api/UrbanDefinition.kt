@@ -13,6 +13,7 @@ data class UrbanDefinition(
         val example: String,
         val permalink: String
 ) {
+
     companion object {
         fun getDefinition(search: String): UrbanDefinition? {
             try {

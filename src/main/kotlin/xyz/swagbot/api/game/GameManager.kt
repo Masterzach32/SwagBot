@@ -27,6 +27,7 @@ object GameManager {
     }
 
     fun addGame(game: Game) {
+        Thread(game).start()
         synchronized(games) { games.add(game) }
     }
 

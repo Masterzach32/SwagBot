@@ -9,7 +9,6 @@ import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
-import xyz.swagbot.database.logger
 import xyz.swagbot.dsl.*
 import xyz.swagbot.utils.BLUE
 

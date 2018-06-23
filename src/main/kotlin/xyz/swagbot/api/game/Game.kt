@@ -16,7 +16,7 @@ import xyz.swagbot.Stats
  * @author Zach Kozar
  * @version 11/17/2017
  */
-abstract class Game(name: String, val channel: IChannel, val users: MutableList<IUser>) : Thread("$name:${channel.guild.stringID}") {
+abstract class Game(name: String, val channel: IChannel, val users: MutableList<IUser>) : Runnable {
 
     val guild = channel.guild!!
     protected var inProgress = false
