@@ -10,9 +10,9 @@ import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.utils.BLUE
 
 val PingCommand = createCommand("Ping") {
-    aliases("ping")
+    aliases = listOf("ping")
 
-    botPerm(Permission.NONE)
+    botPerm = Permission.NONE
 
     helpText {
         description = "Pong!"
@@ -26,9 +26,9 @@ val PingCommand = createCommand("Ping") {
 }
 
 val DonateCommand = createCommand("Donate") {
-    aliases("donate")
+    aliases = listOf("donate")
 
-    botPerm(Permission.NONE)
+    botPerm = Permission.NONE
 
     helpText {
         description = "Links to help support SwagBot."
@@ -46,9 +46,9 @@ val DonateCommand = createCommand("Donate") {
 }
 
 val InfoCommand = createCommand("Info") {
-    aliases("info")
+    aliases = listOf("info")
 
-    botPerm(Permission.NONE)
+    botPerm = Permission.NONE
 
     helpText {
         description = "Get more info about SwagBot."
@@ -82,9 +82,9 @@ val InfoCommand = createCommand("Info") {
 }
 
 val InviteCommand = createCommand("Invite") {
-    aliases("invite")
+    aliases = listOf("invite")
 
-    botPerm(Permission.NONE)
+    botPerm = Permission.NONE
 
     helpText {
         description = "Post an invite link for SwagBot."
@@ -95,16 +95,16 @@ val InviteCommand = createCommand("Invite") {
             val embed = EmbedBuilder()
                     .withColor(BLUE)
                     .withTitle("Click this link to add SwagBot to your server!")
-                    .withDesc("https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8")
+                    .withDesc("https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=87149640")
             return@all builder.withEmbed(embed)
         }
     }
 }
 
 val SupportCommand = createCommand("Support") {
-    aliases("support")
+    aliases = listOf("support")
 
-    botPerm(Permission.NONE)
+    botPerm = Permission.NONE
 
     helpText {
         description = "Links if you need help with SwagBot"
@@ -123,9 +123,9 @@ val SupportCommand = createCommand("Support") {
 }
 
 val StatsCommand = createCommand("Bot Statistics") {
-    aliases("stats")
+    aliases = listOf("stats")
 
-    botPerm(Permission.DEVELOPER)
+    botPerm = Permission.DEVELOPER
 
     helpText {
         description = "View stats such as uptime, commands used, etc."

@@ -11,11 +11,12 @@ import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.ExitCode
 import xyz.swagbot.utils.getContent
 import xyz.swagbot.utils.shutdown
+import kotlin.math.pow
 
 val ShutdownCommand = createCommand("Shutdown/Restart/Update") {
-    aliases("shutdown", "stop", "restart", "update")
+    aliases = listOf("shutdown", "stop", "restart", "update")
 
-    botPerm(Permission.DEVELOPER)
+    botPerm = Permission.DEVELOPER
 
     onEvent {
         all {
@@ -42,9 +43,9 @@ val ShutdownCommand = createCommand("Shutdown/Restart/Update") {
 }
 
 val GarbageCollectionCommand = createCommand("Run Garbage Collection") {
-    aliases("gc")
+    aliases = listOf("gc")
 
-    botPerm(Permission.DEVELOPER)
+    botPerm = Permission.DEVELOPER
 
     helpText {
         description = "Run the Java garbage collector."
@@ -63,9 +64,9 @@ val GarbageCollectionCommand = createCommand("Run Garbage Collection") {
 }
 
 val SetMotdCommand = createCommand("Set MOTD") {
-    aliases("motd")
+    aliases = listOf("motd")
 
-    botPerm(Permission.DEVELOPER)
+    botPerm = Permission.DEVELOPER
 
     helpText {
         description = "Set the MOTD."
@@ -89,9 +90,9 @@ val SetMotdCommand = createCommand("Set MOTD") {
 }
 
 val JvmStatsCommand = createCommand("Jvm Stats") {
-    aliases("jvmstats")
+    aliases = listOf("jvmstats")
 
-    botPerm(Permission.DEVELOPER)
+    botPerm = Permission.DEVELOPER
 
     helpText {
         description = "Display memory stats for the JVM."
@@ -104,8 +105,8 @@ val JvmStatsCommand = createCommand("Jvm Stats") {
             val runtime = Runtime.getRuntime()
 
             embed.withTitle("JVM Stats")
-            embed.appendField("Used Memory", "${((runtime.totalMemory() - runtime.freeMemory())/Math.pow(2.0, 20.0)).toInt()} MB", true)
-            embed.appendField("Max Memory", "${(runtime.totalMemory()/Math.pow(2.0, 20.0)).toInt()} MB", true)
+            embed.appendField("Used Memory", "${((runtime.totalMemory() - runtime.freeMemory())/2.0.pow(2)).toInt()} MB", true)
+            embed.appendField("Max Memory", "${(runtime.totalMemory()/2.0.pow(2)).toInt()} MB", true)
 
             return@all builder.withEmbed(embed)
         }
@@ -113,9 +114,9 @@ val JvmStatsCommand = createCommand("Jvm Stats") {
 }
 
 val ShardStatusCommand = createCommand("Shard Status") {
-    aliases("shards")
+    aliases = listOf("shards")
 
-    botPerm(Permission.DEVELOPER)
+    botPerm = Permission.DEVELOPER
 
     helpText {
         description = "Retrieve current shard status."

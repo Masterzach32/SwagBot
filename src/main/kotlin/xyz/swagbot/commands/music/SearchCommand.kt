@@ -118,7 +118,7 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", "search10
             user: IUser,
             channel: IChannel,
             list: List<YouTubeVideo>,
-            val message: IMessage
+            private val message: IMessage
     ) : ResponseListener<ReactionAddEvent>(user, channel, list) {
 
         init {

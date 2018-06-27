@@ -6,7 +6,7 @@ import net.masterzach32.commands4k.builder.createCommand
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import sx.blah.discord.api.events.IListener
+import sx.blah.discord.handle.impl.events.guild.channel.ChannelDeleteEvent
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.impl.obj.ReactionEmoji
 import sx.blah.discord.handle.obj.IChannel
@@ -20,16 +20,15 @@ import xyz.swagbot.utils.BLUE
 import java.util.*
 
 val PollCommand = createCommand("Poll") {
-    aliases("polltoggle")
+    aliases = listOf("polltoggle")
 
-    scope(Command.Scope.GUILD)
-    botPerm(Permission.MOD)
-    discordPerm(Permissions.MANAGE_CHANNEL)
+    scope = Command.Scope.GUILD
+    botPerm = Permission.MOD
+    discordPerms = listOf(Permissions.MANAGE_CHANNEL)
 
     helpText {
         description = "Designate a text channel as a poll channel. All messages are appended with the thumbs up, " +
                 "thumbs down, and shrug emoji."
-        usage[""] = "test"
     }
 
     onEvent {
@@ -52,27 +51,27 @@ val PollCommand = createCommand("Poll") {
             }
             return@guild builder.withEmbed(embed)
         }
-    }
-}
 
-object PollMessageListener : IListener<MessageReceivedEvent> {
+        val emojis = listOf(
+                "\uD83D\uDC4D", // thumbs up
+                "\uD83D\uDC4E", // thumbs down
+                "\uD83E\uDD37"  // shrug
+        )
 
-    private val emojis = listOf(
-            "\uD83D\uDC4D", // thumbs up
-            "\uD83D\uDC4E", // thumbs down
-            "\uD83E\uDD37"  // shrug
-    )
+        listen<MessageReceivedEvent> { event ->
+            if (!event.author.isBot && isPollChannel(event.channel) &&
+                    !event.message.content.startsWith(event.guild.getCommandPrefix())) {
+                emojis.forEach { RequestBuffer.request { event.message.addReaction(ReactionEmoji.of(it)) }.get() }
+            }
+        }
 
-    override fun handle(event: MessageReceivedEvent) {
-        if (!event.author.isBot && isPollChannel(event.channel) &&
-                !event.message.content.startsWith(event.guild.getCommandPrefix())) {
-            emojis.forEach { RequestBuffer.request { event.message.addReaction(ReactionEmoji.of(it)) }.get() }
+        listen<ChannelDeleteEvent> { event ->
+            if (isPollChannel(event.channel))
+                sql { PollChannels.deleteWhere { PollChannels.id eq event.channel.longID } }
         }
     }
 }
 
 private fun isPollChannel(channel: IChannel): Boolean = sql {
-    PollChannels.select { PollChannels.id eq channel.longID }
-            .map { channel.client.getChannelByID(it[PollChannels.id]) }
-            .firstOrNull() != null
+    PollChannels.select { PollChannels.id eq channel.longID }.firstOrNull() != null
 }

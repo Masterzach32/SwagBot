@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.typesafe.config.ConfigFactory
 import net.masterzach32.commands4k.AdvancedMessageBuilder
+import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
 import org.slf4j.LoggerFactory
@@ -17,11 +18,13 @@ import xyz.swagbot.database.*
 import xyz.swagbot.events.*
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.utils.*
+import java.io.File
 import java.lang.management.MemoryType
 import java.lang.management.ManagementFactory
 import java.lang.management.MemoryNotificationInfo
 import javax.management.NotificationListener
 import javax.management.NotificationEmitter
+import javax.script.ScriptEngineManager
 
 /*
  * SwagBot - Created on 8/22/17
@@ -41,20 +44,7 @@ val logger = LoggerFactory.getLogger("SwagBot Manager")!!
 
 val audioPlayerManager = DefaultAudioPlayerManager()
 
-val cmds = CommandListener(
-        { it?.getCommandPrefix() ?: config.getString("defaults.command_prefix") },
-        {
-            if (it == null)
-                this.getBotDMPermission()
-            else {
-                val perm = this.getBotPermission(it)
-                if (it.owner == this && perm != Permission.DEVELOPER)
-                    Permission.ADMIN
-                else
-                    perm
-            }
-        }
-)
+lateinit var cmds: CommandListener
 
 fun main(args: Array<String>) {
     logger.info("Starting SwagBot version ${config.getString("bot.build")}.")
@@ -64,7 +54,40 @@ fun main(args: Array<String>) {
     logger.info("Starting Lavaplayer audio engine.")
     AudioSourceManagers.registerRemoteSources(audioPlayerManager)
 
+    logger.info("Creating discord client object.")
+    val client = ClientBuilder().withToken(getKey("discord_bot_token")).withRecommendedShardCount().build()
+
+    logger.info("Registering event listeners.")
+    client.dispatcher.registerListener(CommandExecutedHandler)
+    client.dispatcher.registerListener(GuildCreateHandler)
+    client.dispatcher.registerListener(GuildLeaveHandler)
+    client.dispatcher.registerListener(ReadyHandler)
+    client.dispatcher.registerListener(MessageHandler)
+    client.dispatcher.registerListener(NewUserHandler)
+    client.dispatcher.registerListener(UserJoinEvent)
+    client.dispatcher.registerListener(UserLeaveEvent)
+    client.dispatcher.registerListener(UserMovedEvent)
+    client.dispatcher.registerListener(RoleHandler)
+    client.dispatcher.registerListener(ShardDisconnectHandler)
+    client.dispatcher.registerListener(UserStatusListener)
+
     logger.info("Initializing commands.")
+    cmds = CommandListener(
+            client.dispatcher,
+            { it?.getCommandPrefix() ?: config.getString("defaults.command_prefix") },
+            {
+                if (it == null)
+                    this.getBotDMPermission()
+                else {
+                    val perm = this.getBotPermission(it)
+                    if (it.owner == this && perm != Permission.DEVELOPER)
+                        Permission.ADMIN
+                    else
+                        perm
+                }
+            }
+    )
+    client.dispatcher.registerListener(cmds)
 
     // basic
     cmds.add(DonateCommand, InfoCommand, InviteCommand, PingCommand, SupportCommand)
@@ -126,26 +149,7 @@ fun main(args: Array<String>) {
 
     cmds.sortCommands()
 
-    logger.info("Creating discord client object.")
-    val client = ClientBuilder().withToken(getKey("discord_bot_token")).withRecommendedShardCount().build()
-
-    logger.info("Registering event listeners.")
-    client.dispatcher.registerListener(cmds)
-    client.dispatcher.registerListener(CommandExecutedHandler)
-    client.dispatcher.registerListener(GuildCreateHandler)
-    client.dispatcher.registerListener(GuildLeaveHandler)
-    client.dispatcher.registerListener(ReadyHandler)
-    client.dispatcher.registerListener(MessageHandler)
-    client.dispatcher.registerListener(NewUserHandler)
-    client.dispatcher.registerListener(UserJoinEvent)
-    client.dispatcher.registerListener(UserLeaveEvent)
-    client.dispatcher.registerListener(UserMovedEvent)
-    client.dispatcher.registerListener(RoleHandler)
-    client.dispatcher.registerListener(ShardDisconnectHandler)
-    client.dispatcher.registerListener(UserStatusListener)
-    client.dispatcher.registerListener(PollMessageListener)
     client.login()
-
     logger.info("Waiting to receive guilds...")
 
     // SwagBot threads

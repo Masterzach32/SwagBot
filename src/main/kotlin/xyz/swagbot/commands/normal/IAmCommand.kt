@@ -42,7 +42,7 @@ object IAmCommand : Command("I Am (Request Role)", "iam", scope = Scope.GUILD) {
         if (args[0] == "list") {
             val list = event.guild.getIAmRoleList()
             if (list.isNotEmpty()) {
-                embed.withDesc("These roles may be self-assigned: ${list.map { it?.name }}.")
+                embed.withDesc("These roles may be self-assigned: ${list.map { it.name }}.")
             } else
                 embed.withDesc("There are no roles that can be self-assigned.")
         } else if (args[0] == "add" && event.author.getBotPermission(event.guild) >= Permission.ADMIN) {

@@ -14,7 +14,7 @@ import xyz.swagbot.logger
  * SwagBot - Created on 8/24/17
  * Author: zachk
  * 
- * stringID code is licensed under the GNU GPL v3
+ * This code is licensed under the GNU GPL v3
  * You can find more info in the LICENSE file at the project root.
  */
 

@@ -39,7 +39,7 @@ object VoiceCommand : Command("Join/Leave", "summon", "leave", scope = Command.S
         val embed = EmbedBuilder().withColor(RED)
 
         val vc: IVoiceChannel?
-        if (cmdUsed == aliases[0]) {
+        if (cmdUsed == aliases.first()) {
             if(args.isNotEmpty()) {
                 val vcName = getContent(args, 0)
                 vc = event.guild.getVoiceChannelsByName(vcName).firstOrNull()

@@ -3,11 +3,12 @@ package xyz.swagbot.commands
 import net.masterzach32.commands4k.builder.createCommand
 import net.masterzach32.timetable.Timetable
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.utils.ORANGE
 import xyz.swagbot.utils.RED
 import java.awt.Color
 
 val LookupCRNCommand = createCommand("Lookup CRN") {
-    aliases("crn")
+    aliases = listOf("crn")
 
     helpText {
         description = "Interface with the Virginia Tech Timetable of Classes. (https://hokiespa.vt.edu/)"
@@ -29,7 +30,7 @@ val LookupCRNCommand = createCommand("Lookup CRN") {
             if (section == null)
                 return@all builder.withEmbed(embed.withDesc("That course does not exist for the current semester."))
 
-            embed.withColor(Color(255, 102, 0))
+            embed.withColor(ORANGE)
             embed.withTitle("${section.subjectCode}-${section.courseNumber} ${section.name}")
             embed.appendField("Instructor", section.instructor, true)
             embed.appendField("Location", section.location, true)

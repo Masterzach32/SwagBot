@@ -55,13 +55,9 @@ object BrawlCommand : Command("Games", "fight", "brawl", scope = Command.Scope.G
             users.add(event.author)
 
         if (!GameManager.isGameInProgress(event.channel)) {
-            if (cmdUsed == aliases[0] || cmdUsed == aliases[1])
-                GameManager.addGame(Fight(event.channel, users.toMutableList()))
-            else if (cmdUsed == aliases[2])
-                return null
+            GameManager.addGame(Fight(event.channel, users.toMutableList()))
             return builder.withEmbed(embed.withColor(BLUE).withDesc("A $cmdUsed will be starting in 20 seconds! Type `${event.guild.getCommandPrefix()}join` to join!").build()) as AdvancedMessageBuilder
         } else
             return builder.withEmbed(embed.withColor(RED).withDesc("A game is already in progress!").build()) as AdvancedMessageBuilder
-
     }
 }

@@ -22,10 +22,9 @@ import xyz.swagbot.utils.BLUE
  */
 
 val AutoPlayCommand = createCommand("Autoplay") {
-    aliases("autoplay", "ap")
-
-    scope(Command.Scope.GUILD)
-    botPerm(Permission.DEVELOPER)
+    aliases = listOf("autoplay", "ap")
+    
+    botPerm = Permission.DEVELOPER
 
     helpText {
         description = "Autoplay music when no more tracks are queued. Music chosen by SwagBot is based on the " +
@@ -34,7 +33,7 @@ val AutoPlayCommand = createCommand("Autoplay") {
     }
 
     onEvent {
-        all {
+        guild {
             val embed = EmbedBuilder().withColor(BLUE)
             val autoplay = event.guild.getAudioHandler().toggleShouldAutoplay()
 
@@ -47,16 +46,15 @@ val AutoPlayCommand = createCommand("Autoplay") {
             } else
                 embed.withDesc("Autoplay has now been disabled.")
 
-            return@all builder.withEmbed(embed)
+            return@guild builder.withEmbed(embed)
         }
     }
 }
 
 val RefreshAudioPlayerCommand = createCommand("Refresh Audio Player") {
-    aliases("refresh")
+    aliases = listOf("refresh")
 
-    scope(Command.Scope.GUILD)
-    botPerm(Permission.MOD)
+    botPerm = Permission.MOD
 
     helpText {
         description = "Refresh the audio player if it becomes unresponsive. Clears the queue and re-initializes " +
@@ -64,10 +62,10 @@ val RefreshAudioPlayerCommand = createCommand("Refresh Audio Player") {
     }
 
     onEvent {
-        all {
+        guild {
             event.guild.refreshAudioPlayer()
 
-            return@all null
+            return@guild null
         }
     }
 }
