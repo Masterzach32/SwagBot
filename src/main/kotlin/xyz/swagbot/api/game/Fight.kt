@@ -9,7 +9,7 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
-import xyz.swagbot.database.sb_game_brawl
+import xyz.swagbot.database.BrawlQuotes
 import xyz.swagbot.database.sql
 import xyz.swagbot.logger
 import java.util.*
@@ -48,7 +48,7 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
 
         RequestBuffer.request { AdvancedMessageBuilder(channel).withContent("**Let the brawl begin!**").build() }
         Thread.sleep(1000)
-        val numOfDeathResponses = sql { sb_game_brawl.selectAll().count() }
+        val numOfDeathResponses = sql { BrawlQuotes.selectAll().count() }
         while (users.size > 1) {
             var str = ""
             for (j in users.indices)
@@ -65,8 +65,8 @@ class Fight(channel: IChannel, users: MutableList<IUser>) : Game("Brawl", channe
             users.remove(dead)
             val killer = users[Random().nextInt(users.size)]
             var result = sql {
-                sb_game_brawl.select { sb_game_brawl.id eq Random().nextInt(numOfDeathResponses) }
-                        .first().get(sb_game_brawl.death_message)
+                BrawlQuotes.select { BrawlQuotes.id eq Random().nextInt(numOfDeathResponses) }
+                        .first().get(BrawlQuotes.death_message)
             }
             result = result.replace("{killed}", "**${dead.getDisplayName(channel.guild)}**")
             result = result.replace("{killer}", "**${killer.getDisplayName(channel.guild)}**")

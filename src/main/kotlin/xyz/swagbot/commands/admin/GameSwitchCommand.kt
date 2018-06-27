@@ -5,6 +5,7 @@ import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.Permission
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IVoiceChannel
+import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.database.addGameSwitcherEntry
@@ -15,8 +16,14 @@ import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
 
-object GameSwitchCommand : Command("Game Switcher", "gameswitcher", "gs",
-        botPerm = Permission.ADMIN, scope = Scope.GUILD) {
+object GameSwitchCommand : Command(
+        "Game Switcher",
+        "gameswitcher",
+        "gs",
+        scope = Scope.GUILD,
+        botPerm = Permission.ADMIN,
+        discordPerms = listOf(Permissions.MANAGE_SERVER)
+) {
 
     init {
         help.desc = "Automatically move users to a voice channel based on the current game they are playing!"

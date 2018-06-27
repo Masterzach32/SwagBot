@@ -88,7 +88,7 @@ fun main(args: Array<String>) {
     cmds.add(SkipToCommand)
     cmds.add(VoteSkipCommand)
     // normal
-    cmds.add(LookupCRNCommand)
+    cmds.add(LookupCRNCommand, PollCommand)
     cmds.add(CatCommand)
     cmds.add(DogCommand)
     cmds.add(BrawlCommand)
@@ -143,6 +143,7 @@ fun main(args: Array<String>) {
     client.dispatcher.registerListener(RoleHandler)
     client.dispatcher.registerListener(ShardDisconnectHandler)
     client.dispatcher.registerListener(UserStatusListener)
+    client.dispatcher.registerListener(PollMessageListener)
     client.login()
 
     logger.info("Waiting to receive guilds...")

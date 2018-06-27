@@ -5,7 +5,6 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.Table
-import org.slf4j.LoggerFactory
 import xyz.swagbot.logger
 import java.sql.Connection
 
@@ -64,16 +63,17 @@ fun getDatabaseConnection(args: Array<String>): Database {
             // make sure tables are initialized
             sql {
                 create(
-                        sb_api_keys,
-                        sb_guilds,
-                        sb_permissions,
-                        sb_chat_channels,
-                        sb_stats,
-                        sb_game_brawl,
-                        sb_iam_roles,
-                        sb_track_storage,
-                        sb_music_profile,
-                        sb_game_switcher
+                        ApiKeys,
+                        Guilds,
+                        Permissions,
+                        ChatChannels,
+                        Stats,
+                        BrawlQuotes,
+                        IAmRoles,
+                        TrackStorage,
+                        MusicProfile,
+                        GameSwitcher,
+                        PollChannels
                 )
             }
 

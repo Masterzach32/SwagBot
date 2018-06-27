@@ -3,7 +3,7 @@ package xyz.swagbot
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
-import xyz.swagbot.database.sb_stats
+import xyz.swagbot.database.Stats
 import xyz.swagbot.database.sql
 
 /*
@@ -48,7 +48,7 @@ object Stats {
         var stat: Int = 0
             private set(value) {
                 field = value
-                sql { sb_stats.update({ sb_stats.key eq identifier }) { it[sb_stats.value] = field } }
+                sql { Stats.update({ Stats.key eq identifier }) { it[Stats.value] = field } }
             }
 
         init {
@@ -61,12 +61,12 @@ object Stats {
             stat += amount
         }
 
-        internal fun exists(): Boolean = sql { sb_stats.select { sb_stats.key eq identifier }.firstOrNull() != null }
+        internal fun exists(): Boolean = sql { Stats.select { Stats.key eq identifier }.firstOrNull() != null }
 
-        internal fun create() = sql { sb_stats.insert { it[sb_stats.key] = identifier } }
+        internal fun create() = sql { Stats.insert { it[Stats.key] = identifier } }
 
         internal fun read() {
-            stat = sql { sb_stats.select { sb_stats.key eq identifier }.first()[sb_stats.value] }
+            stat = sql { Stats.select { Stats.key eq identifier }.first()[Stats.value] }
         }
     }
 }

@@ -17,9 +17,9 @@ import org.jetbrains.exposed.sql.select
 
 fun getKey(api_name: String): String {
     return sql {
-        val key = sb_api_keys.select { sb_api_keys.api_name eq api_name }.firstOrNull()
+        val key = ApiKeys.select { ApiKeys.api_name eq api_name }.firstOrNull()
         if (key != null)
-            return@sql key[sb_api_keys.api_key]
+            return@sql key[ApiKeys.api_key]
         else
             throw MissingApiKeyException(api_name)
     }

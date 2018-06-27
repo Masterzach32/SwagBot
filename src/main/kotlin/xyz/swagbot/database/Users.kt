@@ -8,8 +8,8 @@ import sx.blah.discord.handle.obj.IUser
 
 fun IUser.getBotPermission(guild: IGuild): Permission {
     val permId = sql {
-        sb_permissions.select { (sb_permissions.user_id eq longID) and (sb_permissions.guild_id eq guild.longID) }
-                .firstOrNull()?.get(sb_permissions.permission) ?: Permission.NORMAL
+        Permissions.select { (Permissions.user_id eq longID) and (Permissions.guild_id eq guild.longID) }
+                .firstOrNull()?.get(Permissions.permission) ?: Permission.NORMAL
     }
     return when (permId) {
         0 -> Permission.NONE
@@ -24,16 +24,16 @@ fun IUser.getBotPermission(guild: IGuild): Permission {
 fun IUser.setBotPermission(guild: IGuild, permission: Permission) {
     sql<Unit> {
         if (permission == Permission.NORMAL)
-            sb_permissions.deleteWhere { sb_permissions.guild_id eq guild.longID and (sb_permissions.user_id eq longID) }
-        else if (sb_permissions.select { sb_permissions.guild_id eq guild.longID and (sb_permissions.user_id eq longID) }.firstOrNull() != null)
-            sb_permissions.update({ sb_permissions.guild_id eq guild.longID and (sb_permissions.user_id eq longID) }) {
-                it[sb_permissions.permission] = permission.ordinal
+            Permissions.deleteWhere { Permissions.guild_id eq guild.longID and (Permissions.user_id eq longID) }
+        else if (Permissions.select { Permissions.guild_id eq guild.longID and (Permissions.user_id eq longID) }.firstOrNull() != null)
+            Permissions.update({ Permissions.guild_id eq guild.longID and (Permissions.user_id eq longID) }) {
+                it[Permissions.permission] = permission.ordinal
             }
         else
-            sb_permissions.insert {
-                it[sb_permissions.guild_id] = guild.longID
-                it[sb_permissions.user_id] = longID
-                it[sb_permissions.permission] = permission.ordinal
+            Permissions.insert {
+                it[Permissions.guild_id] = guild.longID
+                it[Permissions.user_id] = longID
+                it[Permissions.permission] = permission.ordinal
             }
     }
 }
@@ -41,10 +41,10 @@ fun IUser.setBotPermission(guild: IGuild, permission: Permission) {
 fun IUser.getBotDMPermission(): Permission {
     return sql {
         val perms = mutableListOf<Permission>()
-        sb_permissions
-                .select { sb_permissions.user_id eq longID }
+        Permissions
+                .select { Permissions.user_id eq longID }
                 .forEach {
-                    perms.add(when (it[sb_permissions.permission]) {
+                    perms.add(when (it[Permissions.permission]) {
                         0 -> Permission.NONE
                         1 -> Permission.NORMAL
                         2 -> Permission.MOD
@@ -62,18 +62,18 @@ fun IUser.getBotDMPermission(): Permission {
 
 fun IUser.addTrackToDatabase(track: AudioTrack) {
     sql<Unit> {
-        val count = sb_music_profile.select { sb_music_profile.user_id eq longID and (sb_music_profile.identifier eq track.info.uri) }
-                .firstOrNull()?.get(sb_music_profile.count) ?: 0
+        val count = MusicProfile.select { MusicProfile.user_id eq longID and (MusicProfile.identifier eq track.info.uri) }
+                .firstOrNull()?.get(MusicProfile.count) ?: 0
 
         if (count == 0)
-            sb_music_profile.insert {
-                it[sb_music_profile.user_id] = longID
-                it[sb_music_profile.identifier] = track.info.uri
-                it[sb_music_profile.count] = 1
+            MusicProfile.insert {
+                it[MusicProfile.user_id] = longID
+                it[MusicProfile.identifier] = track.info.uri
+                it[MusicProfile.count] = 1
             }
         else
-            sb_music_profile.update({ sb_music_profile.user_id eq longID and (sb_music_profile.identifier eq track.info.uri) }) {
-                it[sb_music_profile.count] = count + 1
+            MusicProfile.update({ MusicProfile.user_id eq longID and (MusicProfile.identifier eq track.info.uri) }) {
+                it[MusicProfile.count] = count + 1
             }
     }
 }
@@ -82,9 +82,9 @@ fun IUser.getTrackPreferences(): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
 
     sql {
-        sb_music_profile
-                .select { sb_music_profile.user_id eq longID }
-                .forEach { map[it[sb_music_profile.identifier]] = it[sb_music_profile.count] }
+        MusicProfile
+                .select { MusicProfile.user_id eq longID }
+                .forEach { map[it[MusicProfile.identifier]] = it[MusicProfile.count] }
     }
 
     return map

@@ -1,12 +1,10 @@
 package xyz.swagbot.commands
 
-import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import org.jetbrains.exposed.sql.update
-import sx.blah.discord.api.IDiscordClient
 import sx.blah.discord.util.EmbedBuilder
-import xyz.swagbot.database.sb_api_keys
+import xyz.swagbot.database.ApiKeys
 import xyz.swagbot.database.sql
 import xyz.swagbot.logger
 import xyz.swagbot.utils.BLUE
@@ -80,8 +78,8 @@ val SetMotdCommand = createCommand("Set MOTD") {
 
         all {
             sql {
-                sb_api_keys.update({sb_api_keys.api_name eq "motd"}) {
-                    it[sb_api_keys.api_key] = getContent(args, 0, args.size)
+                ApiKeys.update({ApiKeys.api_name eq "motd"}) {
+                    it[ApiKeys.api_key] = getContent(args, 0, args.size)
                 }
             }
 

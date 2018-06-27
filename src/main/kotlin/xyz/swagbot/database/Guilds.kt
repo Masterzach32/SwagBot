@@ -31,23 +31,23 @@ fun IGuild.initialize() {
         val listener = createPlayer()
 
         val settings = sql {
-            sb_guilds.select { sb_guilds.id eq longID }.mapNotNull {
+            Guilds.select { Guilds.id eq longID }.mapNotNull {
                 GuildSettingsLoadObj(
-                        it[sb_guilds.id].toLong(),
-                        it[sb_guilds.volume],
-                        it[sb_guilds.loop],
-                        it[sb_guilds.last_voice_channel]?.toLong()
+                        it[Guilds.id].toLong(),
+                        it[Guilds.volume],
+                        it[Guilds.loop],
+                        it[Guilds.last_voice_channel]?.toLong()
                 )
             }.firstOrNull()
         }
         if (settings == null) {
             logger.info("Adding new guild to database: $name ($longID)")
             sql {
-                sb_guilds.insert {
-                    it[sb_guilds.id] = longID
-                    it[sb_guilds.name] = this@initialize.name
-                    it[sb_guilds.command_prefix] = config.getString("defaults.command_prefix")
-                    it[sb_guilds.timezone] = "EST"
+                Guilds.insert {
+                    it[Guilds.id] = longID
+                    it[Guilds.name] = this@initialize.name
+                    it[Guilds.command_prefix] = config.getString("defaults.command_prefix")
+                    it[Guilds.timezone] = "EST"
                 }
             }
 
@@ -94,47 +94,47 @@ fun IGuild.getAudioHandler(): TrackHandler {
 }
 
 fun IGuild.getCommandPrefix(): String {
-    return sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.command_prefix) ?: config.getString("defaults.command_prefix") }
+    return sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.command_prefix) ?: config.getString("defaults.command_prefix") }
 }
 
 fun IGuild.setCommandPrefix(prefix: String) {
-    sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.command_prefix] = prefix } }
+    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.command_prefix] = prefix } }
 }
 
 fun IGuild.getBotVolume(): Int {
-    return sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.volume) ?: 50 }
+    return sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.volume) ?: 50 }
 }
 
 fun IGuild.setBotVolume(volume: Int) {
-    sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.volume] = volume } }
+    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.volume] = volume } }
     getAudioHandler().player.volume = volume
 }
 
 fun IGuild.isBotLocked(): Boolean {
-    return sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.locked) ?: false }
+    return sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.locked) ?: false }
 }
 
 fun IGuild.setAutoAssignRole(role: IRole?) {
-    sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.auto_assign_role] = role?.stringID } }
+    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.auto_assign_role] = role?.stringID } }
 }
 
 fun IGuild.getAutoAssignRole(): IRole? {
-    val roleId = sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.auto_assign_role) } ?: ""
+    val roleId = sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.auto_assign_role) } ?: ""
     return try {
         getRoleByID(roleId.toLong())
     } catch (t: Throwable) {
         getRolesByName(roleId).firstOrNull()
-        //sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.auto_assign_role] = null } }
+        //sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.auto_assign_role] = null } }
     }
 }
 
 fun IGuild.setLastVoiceChannel(channel: IVoiceChannel?) {
-    sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.last_voice_channel] = channel?.longID } }
+    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.last_voice_channel] = channel?.longID } }
 }
 
 fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
     return getVoiceChannelByID(
-            sql { sb_guilds.select { sb_guilds.id eq longID }.firstOrNull()?.get(sb_guilds.last_voice_channel) } ?: 0
+            sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.last_voice_channel) } ?: 0
     )
 }
 
@@ -142,16 +142,16 @@ fun IGuild.saveTracksToStorage() {
     val audioHandler = getAudioHandler()
     sql {
         if (audioHandler.player.playingTrack?.identifier != null)
-            sb_track_storage.insert {
-                it[sb_track_storage.guild_id] = longID
-                it[sb_track_storage.user_id] = audioHandler.player.playingTrack.getRequester().longID
-                it[sb_track_storage.identifier] = audioHandler.player.playingTrack.info.uri
+            TrackStorage.insert {
+                it[TrackStorage.guild_id] = longID
+                it[TrackStorage.user_id] = audioHandler.player.playingTrack.getRequester().longID
+                it[TrackStorage.identifier] = audioHandler.player.playingTrack.info.uri
             }
-        sb_track_storage.batchInsert(audioHandler.getQueue()) {
+        TrackStorage.batchInsert(audioHandler.getQueue()) {
             if (it.identifier != null) {
-                this[sb_track_storage.guild_id] = longID
-                this[sb_track_storage.user_id] = it.getRequester().longID
-                this[sb_track_storage.identifier] = it.info.uri
+                this[TrackStorage.guild_id] = longID
+                this[TrackStorage.user_id] = it.getRequester().longID
+                this[TrackStorage.identifier] = it.info.uri
             }
         }
     }
@@ -159,8 +159,8 @@ fun IGuild.saveTracksToStorage() {
 
 fun IGuild.loadTracksFromStorage() {
     val list = sql {
-        sb_track_storage.select { sb_track_storage.guild_id eq longID }
-                .map { Pair(it[sb_track_storage.user_id], it[sb_track_storage.identifier]) }
+        TrackStorage.select { TrackStorage.guild_id eq longID }
+                .map { Pair(it[TrackStorage.user_id], it[TrackStorage.identifier]) }
     }
 
     val audioHandler = getAudioHandler()
@@ -179,7 +179,7 @@ fun IGuild.isQueueLoopEnabled(): Boolean {
 
 fun IGuild.toggleQueueLoop(): Boolean {
     val new = getAudioHandler().toggleShouldLoop()
-    sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.loop] = new } }
+    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.loop] = new } }
     return new
 }
 
@@ -196,50 +196,50 @@ fun IGuild.getChatChannels(): List<IChannel> {
 }*/
 
 fun IGuild.getIAmRoleList(): List<IRole> {
-    return sql { sb_iam_roles.selectAll().mapNotNull { getRoleByID(it[sb_iam_roles.role_id]) } }
+    return sql { IAmRoles.selectAll().mapNotNull { getRoleByID(it[IAmRoles.role_id]) } }
 }
 
 fun IGuild.isRoleSelfAssignable(role: IRole): Boolean {
-    return sql { sb_iam_roles.select { sb_iam_roles.role_id eq role.longID }.firstOrNull() != null }
+    return sql { IAmRoles.select { IAmRoles.role_id eq role.longID }.firstOrNull() != null }
 }
 
 fun IGuild.removeIAmRole(role: IRole): Boolean {
     return sql {
-        if (sb_iam_roles.select { sb_iam_roles.role_id eq role.longID }.firstOrNull() == null)
+        if (IAmRoles.select { IAmRoles.role_id eq role.longID }.firstOrNull() == null)
             return@sql false
-        sb_iam_roles.deleteWhere { sb_iam_roles.role_id eq role.longID }
+        IAmRoles.deleteWhere { IAmRoles.role_id eq role.longID }
         return@sql true
     }
 }
 
 fun IGuild.addIAmRole(role: IRole): Boolean {
     return sql {
-        if (sb_iam_roles.select { sb_iam_roles.role_id eq role.longID }.firstOrNull() != null)
+        if (IAmRoles.select { IAmRoles.role_id eq role.longID }.firstOrNull() != null)
             return@sql false
-        sb_iam_roles.insert { it[sb_iam_roles.role_id] = role.longID }
+        IAmRoles.insert { it[IAmRoles.role_id] = role.longID }
         return@sql true
     }
 }
 
 fun IGuild.isGameSwitcherEnabled(): Boolean {
-    return sql { sb_guilds.select { sb_guilds.id eq longID }.first()[sb_guilds.game_switcher] }
+    return sql { Guilds.select { Guilds.id eq longID }.first()[Guilds.game_switcher] }
 }
 
 fun IGuild.setGameSwitcher(enabled: Boolean) {
-    sql { sb_guilds.update({ sb_guilds.id eq longID }) { it[sb_guilds.game_switcher] = enabled } }
+    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.game_switcher] = enabled } }
 }
 
 fun IGuild.addGameSwitcherEntry(game: String, voiceChannel: IVoiceChannel) {
     sql {
-        if (sb_game_switcher.select { (sb_game_switcher.guild_id eq longID) and (sb_game_switcher.game eq game) }.firstOrNull() == null) {
-            sb_game_switcher.insert {
-                it[sb_game_switcher.guild_id] = longID
-                it[sb_game_switcher.game] = game
-                it[sb_game_switcher.channel_id] = voiceChannel.longID
+        if (GameSwitcher.select { (GameSwitcher.guild_id eq longID) and (GameSwitcher.game eq game) }.firstOrNull() == null) {
+            GameSwitcher.insert {
+                it[GameSwitcher.guild_id] = longID
+                it[GameSwitcher.game] = game
+                it[GameSwitcher.channel_id] = voiceChannel.longID
             }
         } else {
-            sb_game_switcher.update({ (sb_game_switcher.guild_id eq longID) and (sb_game_switcher.game eq game) }) {
-                it[sb_game_switcher.channel_id] = voiceChannel.longID
+            GameSwitcher.update({ (GameSwitcher.guild_id eq longID) and (GameSwitcher.game eq game) }) {
+                it[GameSwitcher.channel_id] = voiceChannel.longID
             }
         }
         return@sql
@@ -249,10 +249,10 @@ fun IGuild.addGameSwitcherEntry(game: String, voiceChannel: IVoiceChannel) {
 fun IGuild.removeGameSwitcherEntry(game: String): Map.Entry<String, IVoiceChannel>? {
     return sql {
         val map = mutableMapOf<String, IVoiceChannel>()
-        val row = sb_game_switcher.select { (sb_game_switcher.guild_id eq longID) and (sb_game_switcher.game eq game) }.firstOrNull()
+        val row = GameSwitcher.select { (GameSwitcher.guild_id eq longID) and (GameSwitcher.game eq game) }.firstOrNull()
         if (row != null) {
-            map[game] = getVoiceChannelByID(row[sb_game_switcher.channel_id].toLong())
-            sb_game_switcher.deleteWhere { (sb_game_switcher.guild_id eq longID) and (sb_game_switcher.game eq game) }
+            map[game] = getVoiceChannelByID(row[GameSwitcher.channel_id].toLong())
+            GameSwitcher.deleteWhere { (GameSwitcher.guild_id eq longID) and (GameSwitcher.game eq game) }
         }
 
         return@sql map.entries.firstOrNull()
@@ -260,6 +260,6 @@ fun IGuild.removeGameSwitcherEntry(game: String): Map.Entry<String, IVoiceChanne
 }
 
 fun IGuild.getGameSwitcherEntries(): Map<String, IVoiceChannel> {
-    return sql { sb_game_switcher.select { sb_game_switcher.guild_id eq longID }
-            .associate { Pair(it[sb_game_switcher.game], getVoiceChannelByID(it[sb_game_switcher.channel_id].toLong())) } }
+    return sql { GameSwitcher.select { GameSwitcher.guild_id eq longID }
+            .associate { Pair(it[GameSwitcher.game], getVoiceChannelByID(it[GameSwitcher.channel_id].toLong())) } }
 }

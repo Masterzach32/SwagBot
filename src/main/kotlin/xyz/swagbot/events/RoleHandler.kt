@@ -21,6 +21,6 @@ object RoleHandler : IListener<RoleDeleteEvent> {
 
     override fun handle(event: RoleDeleteEvent) {
         if (event.guild.removeIAmRole(event.role))
-            logger.debug("Removed deleted role from sb_iam_roles.")
+            logger.debug("Removed deleted role from IAmRoles.")
     }
 }

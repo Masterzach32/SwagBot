@@ -25,8 +25,15 @@ import xyz.swagbot.utils.getContent
  * @author Zach Kozar
  * @version 8/30/2017
  */
-object AutoAssignRoleCommand : Command("Auto Assign Role", "autoassignrole", "joinrole", "aar",
-        scope = Command.Scope.GUILD, botPerm = Permission.ADMIN, discordPerms = listOf(Permissions.MANAGE_ROLES)) {
+object AutoAssignRoleCommand : Command(
+        "Auto Assign Role",
+        "autoassignrole",
+        "joinrole",
+        "aar",
+        scope = Command.Scope.GUILD,
+        botPerm = Permission.ADMIN,
+        discordPerms = listOf(Permissions.MANAGE_ROLES)
+) {
 
     init {
         help.desc = "Auto-assign new server members a selected role."
