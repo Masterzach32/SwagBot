@@ -25,6 +25,4 @@ class Plugin {
     override fun toString(): String = "$name $version"
 }
 
-inline fun createPlugin(init: Plugin.() -> Unit): Plugin {
-    return Plugin().apply(init)
-}
+inline fun createPlugin(init: Plugin.() -> Unit) = Plugin().apply(init)

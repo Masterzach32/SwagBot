@@ -72,7 +72,7 @@ val InfoCommand = createCommand("Info") {
                     "Or pledge a small amount on Patreon:\nhttps://patreon.com/ultimatedoge\n" +
                     "Join the SwagBot support server:\nhttps://discord.me/swagbothub\n" +
                     "Want to add SwagBot to your server? Click the link below:" +
-                    "\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=8\n")
+                    "\nhttps://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=87149640\n")
 
             embed.withFooterText("\u00a9 SwagBot 2016-2018. Written in Kotlin. Built off of Discord4J " +
                     "${Discord4J.VERSION}.")

@@ -29,13 +29,13 @@ object PluginStore {
         }
     }
 
-    private fun register(plugin: Plugin, cm: CommandManager) {
+    fun register(plugin: Plugin, cm: CommandManager) {
         plugin.commands.forEach { cm.add(it) }
         plugin.listeners.forEach { cm.dispatcher.registerListener(it) }
         loadedPlugins.add(plugin)
     }
 
-    private fun unregister(plugin: Plugin, cm: CommandManager) {
+    fun unregister(plugin: Plugin, cm: CommandManager) {
         plugin.commands.forEach { cm.remove(it) }
         plugin.listeners.forEach { cm.dispatcher.unregisterListener(it) }
         loadedPlugins.remove(plugin)

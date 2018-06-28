@@ -77,10 +77,9 @@ fun main(args: Array<String>) {
                 }
             }
     )
-    client.dispatcher.registerListener(cmds)
 
     // basic
-    cmds.add(DonateCommand, InfoCommand, InviteCommand, PingCommand, SupportCommand)
+    cmds.add(DonateCommand, InfoCommand, InviteCommand, PingCommand, SupportCommand, StatsCommand)
     // music
     cmds.add(AutoPlayCommand, RefreshAudioPlayerCommand)
     cmds.add(ClearCommand)
@@ -133,7 +132,6 @@ fun main(args: Array<String>) {
             GarbageCollectionCommand,
             JvmStatsCommand,
             SetMotdCommand,
-            StatsCommand,
             ShardStatusCommand
     )
 

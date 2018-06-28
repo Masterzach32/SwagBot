@@ -63,17 +63,11 @@ fun AudioTrack.getFormattedTitleAsLink(): String {
     return "**[${info.title}](${info.uri})**"
 }
 
-fun AudioTrack.getRequester(): IUser {
-    return getTrackUserData().requester
-}
+fun AudioTrack.getRequester(): IUser = getTrackUserData().requester
 
-fun AudioTrackInfo.hasThumbnail(): Boolean {
-    return uri.contains("youtu")
-}
+fun AudioTrackInfo.hasThumbnail(): Boolean = uri.contains("youtu")
 
-fun AudioTrackInfo.getThumbnailUrl(): String {
-    return "https://img.youtube.com/vi/$identifier/0.jpg"
-}
+fun AudioTrackInfo.getThumbnailUrl(): String = "https://img.youtube.com/vi/$identifier/0.jpg"
 
 fun IVoiceChannel.getTrackPreferences(): Map<String, Int> {
     val preferences = mutableMapOf<String, Int>()
@@ -100,3 +94,5 @@ fun IUser.getConnectedVoiceChannel(): IVoiceChannel? {
 fun IUser.getConnectedVoiceChannel(guild: IGuild): IVoiceChannel? {
     return RequestBuffer.request<IVoiceChannel?> { getVoiceStateForGuild(guild).channel }.get()
 }
+
+fun IUser.getDMChannel(): IChannel = orCreatePMChannel
