@@ -13,6 +13,7 @@ import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.Stats
 import xyz.swagbot.database.PollChannels
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.database.sql
@@ -58,16 +59,17 @@ val PollCommand = createCommand("Poll") {
                 "\uD83E\uDD37"  // shrug
         )
 
-        listen<MessageReceivedEvent> { event ->
-            if (!event.author.isBot && isPollChannel(event.channel) &&
-                    !event.message.content.startsWith(event.guild.getCommandPrefix())) {
-                emojis.forEach { RequestBuffer.request { event.message.addReaction(ReactionEmoji.of(it)) }.get() }
+        listen<MessageReceivedEvent> {
+            if (!author.isBot && isPollChannel(channel) &&
+                    !message.content.startsWith(guild.getCommandPrefix())) {
+                emojis.forEach { RequestBuffer.request { message.addReaction(ReactionEmoji.of(it)) }.get() }
+                Stats.POLLS_CREATED.addStat()
             }
         }
 
-        listen<ChannelDeleteEvent> { event ->
-            if (isPollChannel(event.channel))
-                sql { PollChannels.deleteWhere { PollChannels.id eq event.channel.longID } }
+        listen<ChannelDeleteEvent> {
+            if (isPollChannel(channel))
+                sql { PollChannels.deleteWhere { PollChannels.id eq channel.longID } }
         }
     }
 }

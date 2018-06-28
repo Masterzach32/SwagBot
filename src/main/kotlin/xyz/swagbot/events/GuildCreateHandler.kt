@@ -9,11 +9,9 @@ import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.*
 import xyz.swagbot.logger
-import xyz.swagbot.utils.DailyUpdate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
-import java.util.concurrent.Executors
 
 /*
  * SwagBot - Created on 8/24/17
@@ -66,7 +64,6 @@ object GuildCreateHandler : IListener<GuildCreateEvent> {
             builder.withContent("Thanks for adding me to your server! If you need help, check out the" +
                     " getting started guide on my website: https://swagbot.xyz/gettingstarted")
             RequestBuffer.request { builder.build() }
-            DailyUpdate.joinedServer()
         }
     }
 }

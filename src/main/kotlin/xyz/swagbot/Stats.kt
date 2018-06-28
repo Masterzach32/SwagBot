@@ -35,6 +35,7 @@ object Stats {
     val GAMESWITCHER_USERS_MOVED = Stat("Users Moved by GameSwitcher", "gameswitcher_users_moved")
     val LMGTFY_SEARCH = Stat("LMGTFY Uses", "lmgtfy")
     val STRAWPOLL = Stat("Strawpolls Created", "strawpoll")
+    val POLLS_CREATED = Stat("Polls Created", "polls_created")
 
     init {
         stats.filter { !it.exists() }.forEach { it.create() }

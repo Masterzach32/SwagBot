@@ -3,8 +3,6 @@ package xyz.swagbot
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.typesafe.config.ConfigFactory
-import net.masterzach32.commands4k.AdvancedMessageBuilder
-import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
 import org.slf4j.LoggerFactory
@@ -16,15 +14,7 @@ import xyz.swagbot.commands.music.*
 import xyz.swagbot.commands.normal.*
 import xyz.swagbot.database.*
 import xyz.swagbot.events.*
-import sx.blah.discord.util.EmbedBuilder
-import xyz.swagbot.utils.*
-import java.io.File
-import java.lang.management.MemoryType
-import java.lang.management.ManagementFactory
-import java.lang.management.MemoryNotificationInfo
-import javax.management.NotificationListener
-import javax.management.NotificationEmitter
-import javax.script.ScriptEngineManager
+import xyz.swagbot.plugins.PluginStore
 
 /*
  * SwagBot - Created on 8/22/17
@@ -149,33 +139,8 @@ fun main(args: Array<String>) {
 
     cmds.sortCommands()
 
+    PluginStore.loadAllPlugins(cmds)
+
     client.login()
     logger.info("Waiting to receive guilds...")
-
-    // SwagBot threads
-    //DailyUpdate.init(client)
-
-    // heuristic to find the tenured pool (largest heap) as seen on http://www.javaspecialists.eu/archive/Issue092.html
-    val tenuredGenPool = ManagementFactory.getMemoryPoolMXBeans()
-            .first { it.type == MemoryType.HEAP && it.isUsageThresholdSupported }
-    // we do something when we reached 85% of memory usage
-    tenuredGenPool.collectionUsageThreshold = Math.floor(tenuredGenPool.usage.max * 0.85).toLong()
-
-    // set a listener
-    val emitter = ManagementFactory.getMemoryMXBean() as NotificationEmitter
-    emitter.addNotificationListener(NotificationListener { n, _ ->
-        if (n.type == MemoryNotificationInfo.MEMORY_COLLECTION_THRESHOLD_EXCEEDED) {
-            val maxMemory = tenuredGenPool.usage.max.toDouble()
-            val usedMemory = tenuredGenPool.usage.used.toDouble()
-
-            AdvancedMessageBuilder(client.applicationOwner.orCreatePMChannel).withEmbed(
-                    EmbedBuilder().withColor(RED)
-                            .withTitle("Memory usage running high (${(usedMemory/maxMemory*100).toInt()}%), restarting!")
-                            .appendField("Max Memory", "${maxMemory / Math.pow(2.0, 20.0)} MB", true)
-                            .appendField("Used Memory", "${usedMemory / Math.pow(2.0, 20.0)} MB", true)
-            ).build()
-
-            //shutdown(client, ExitCode.OUT_OF_MEMORY)
-        }
-    }, null, null)
 }
