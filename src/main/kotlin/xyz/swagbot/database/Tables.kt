@@ -1,7 +1,6 @@
 package xyz.swagbot.database
 
 import org.jetbrains.exposed.sql.Table
-import xyz.swagbot.config
 
 /*
  * SwagBot - Created on 8/22/17

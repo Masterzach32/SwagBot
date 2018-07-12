@@ -2,7 +2,6 @@ package xyz.swagbot
 
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
-import com.typesafe.config.ConfigFactory
 import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
 import org.slf4j.LoggerFactory
@@ -28,8 +27,9 @@ import xyz.swagbot.plugins.PluginStore
  * @author Zach Kozar
  * @version 8/22/17
  */
+const val VERSION = "2.0.1.107"
+const val DEFAULT_COMMAND_PREFIX = "~"
 
-val config = ConfigFactory.load()!!
 val logger = LoggerFactory.getLogger("SwagBot Manager")!!
 
 val audioPlayerManager = DefaultAudioPlayerManager()
@@ -37,7 +37,7 @@ val audioPlayerManager = DefaultAudioPlayerManager()
 lateinit var cmds: CommandListener
 
 fun main(args: Array<String>) {
-    logger.info("Starting SwagBot version ${config.getString("bot.build")}.")
+    logger.info("Starting SwagBot version $VERSION.")
 
     getDatabaseConnection(args)
 
@@ -64,7 +64,7 @@ fun main(args: Array<String>) {
     logger.info("Initializing commands.")
     cmds = CommandListener(
             client.dispatcher,
-            { it?.getCommandPrefix() ?: config.getString("defaults.command_prefix") },
+            { it?.getCommandPrefix() ?: DEFAULT_COMMAND_PREFIX },
             {
                 if (it == null)
                     this.getBotDMPermission()
@@ -81,7 +81,7 @@ fun main(args: Array<String>) {
     // basic
     cmds.add(DonateCommand, InfoCommand, InviteCommand, PingCommand, SupportCommand, StatsCommand)
     // music
-    cmds.add(AutoPlayCommand, RefreshAudioPlayerCommand)
+    cmds.add(AutoPlayCommand, RefreshAudioPlayerCommand, QueueCommand2, NowPlayingCommand2)
     cmds.add(ClearCommand)
     cmds.add(LeaverClearCommand)
     cmds.add(LoopCommand)

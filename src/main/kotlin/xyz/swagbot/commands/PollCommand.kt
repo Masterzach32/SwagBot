@@ -1,6 +1,5 @@
 package xyz.swagbot.commands
 
-import net.masterzach32.commands4k.Command
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import org.jetbrains.exposed.sql.deleteWhere
@@ -23,7 +22,6 @@ import java.util.*
 val PollCommand = createCommand("Poll") {
     aliases = listOf("polltoggle")
 
-    scope = Command.Scope.GUILD
     botPerm = Permission.MOD
     discordPerms = listOf(Permissions.MANAGE_CHANNEL)
 

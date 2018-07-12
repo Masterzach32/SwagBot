@@ -1,12 +1,16 @@
 package xyz.swagbot.commands
 
-import net.masterzach32.commands4k.Command
+import com.vdurmont.emoji.EmojiParser
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.commands.music.NowPlayingCommand
 import xyz.swagbot.database.getAudioHandler
+import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.database.refreshAudioPlayer
 import xyz.swagbot.utils.BLUE
+import xyz.swagbot.utils.RED
+import xyz.swagbot.utils.listOfEmojis
 
 /*
  * SwagBot - Created on 3/22/2018
@@ -66,6 +70,45 @@ val RefreshAudioPlayerCommand = createCommand("Refresh Audio Player") {
             event.guild.refreshAudioPlayer()
 
             return@guild null
+        }
+    }
+}
+
+val NowPlayingCommand2 = createCommand("Now Playing") {
+    aliases = listOf("np2")
+
+    helpText {
+        description = "Display the currently playing song with some music controls"
+    }
+}
+
+val QueueCommand2 = createCommand("View Track Queue") {
+    aliases = listOf("queue2")
+
+    helpText {
+        description = "View all tracks in the queue."
+    }
+
+    val reactions = listOfEmojis("arrow_backward", "stop_button","arrow_forward")
+
+    onEvent {
+        guild {
+            val embed = EmbedBuilder().withColor(BLUE)
+            if (args.isNotEmpty() && (args[0].contains("youtu") || args[0].contains("soundcloud")))
+                embed.withColor(RED).withDesc(
+                        ("`~$cmdUsed` is used to view queued tracks. Use `~play` or `~search` to add a video or song" +
+                                " to the queue.").replace("~", event.guild.getCommandPrefix())
+                )
+            else {
+                val trackHandler = event.guild.getAudioHandler()
+                val browser = trackHandler.getQueueBrowser()
+
+                if (browser.isEmpty())
+                    embed.withDesc(("The queue is empty! Go add some tracks with the ~play or ~search commands!").replace("~", event.guild.getCommandPrefix()))
+
+            }
+
+            return@guild builder.withEmbed(embed)
         }
     }
 }

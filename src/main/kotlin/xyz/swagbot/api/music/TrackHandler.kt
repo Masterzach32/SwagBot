@@ -84,6 +84,8 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
         return queue
     }
 
+    fun getQueueBrowser() = QueueBrowser(queue)
+
     fun shuffleQueue() {
         queue.shuffle()
     }

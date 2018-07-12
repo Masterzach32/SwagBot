@@ -3,7 +3,7 @@ package xyz.swagbot.commands
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Command
 import sx.blah.discord.util.EmbedBuilder
-import xyz.swagbot.config
+import xyz.swagbot.DEFAULT_COMMAND_PREFIX
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
@@ -11,13 +11,13 @@ import xyz.swagbot.utils.RED
 fun getWrongArgumentsMessage(builder: AdvancedMessageBuilder, cmd: Command, cmdUsed: String): AdvancedMessageBuilder {
     val embed = EmbedBuilder().withColor(RED)
     embed.withTitle("Oops!")
-    embed.withDesc("Incorrect number of arguments. Use `${config.getString("defaults.command_prefix")}help $cmdUsed` for " +
+    embed.withDesc("Incorrect number of arguments. Use `${DEFAULT_COMMAND_PREFIX}help $cmdUsed` for " +
             "more details with this command.\n")
 
     if (cmd.help.hasUsage()) {
         embed.appendDesc("**Usage:**")
         cmd.help.usage.forEach {
-            embed.appendDesc("\n`${config.getString("defaults.command_prefix")}$cmdUsed ${it.key}` ${it.value}")
+            embed.appendDesc("\n`$DEFAULT_COMMAND_PREFIX$cmdUsed ${it.key}` ${it.value}")
         }
     }
     return builder.withEmbed(embed).withAutoDelete(30)

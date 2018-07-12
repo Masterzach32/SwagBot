@@ -4,8 +4,9 @@ import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.Discord4J
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.DEFAULT_COMMAND_PREFIX
 import xyz.swagbot.Stats
-import xyz.swagbot.config
+import xyz.swagbot.VERSION
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.utils.BLUE
 
@@ -58,12 +59,12 @@ val InfoCommand = createCommand("Info") {
         all {
             val embed = EmbedBuilder().withColor(BLUE)
 
-            embed.withAuthorName("SwagBot v2 (${config.getString("bot.build")})")
+            embed.withAuthorName("SwagBot v2 ($VERSION})")
             embed.withAuthorIcon("http://swagbot.xyz/images/banner.png")
             embed.withAuthorUrl("http://swagbot.xyz")
 
             embed.withDesc("SwagBot is a music bot with many additional features. Type **" +
-                    (event.guild?.getCommandPrefix() ?: config.getString("defaults.command_prefix")) +
+                    (event.guild?.getCommandPrefix() ?: DEFAULT_COMMAND_PREFIX) +
                     "help** to see more commands!\n\n")
             embed.appendDesc("Learn more about SwagBot at https://swagbot.xyz\n\n" +
                     "Follow SwagBot on Twitter for updates:\nhttps://twitter.com/DiscordSwagBot\n" +

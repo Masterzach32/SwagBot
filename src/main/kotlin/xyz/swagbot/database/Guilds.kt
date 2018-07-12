@@ -2,10 +2,10 @@ package xyz.swagbot.database
 
 import org.jetbrains.exposed.sql.*
 import sx.blah.discord.handle.obj.*
+import xyz.swagbot.DEFAULT_COMMAND_PREFIX
 import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
 import xyz.swagbot.api.music.TrackHandler
 import xyz.swagbot.audioPlayerManager
-import xyz.swagbot.config
 import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.dsl.getRequester
 import xyz.swagbot.logger
@@ -46,7 +46,7 @@ fun IGuild.initialize() {
                 Guilds.insert {
                     it[Guilds.id] = longID
                     it[Guilds.name] = this@initialize.name
-                    it[Guilds.command_prefix] = config.getString("defaults.command_prefix")
+                    it[Guilds.command_prefix] = DEFAULT_COMMAND_PREFIX
                     it[Guilds.timezone] = "EST"
                 }
             }
@@ -94,7 +94,7 @@ fun IGuild.getAudioHandler(): TrackHandler {
 }
 
 fun IGuild.getCommandPrefix(): String {
-    return sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.command_prefix) ?: config.getString("defaults.command_prefix") }
+    return sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.command_prefix) ?: DEFAULT_COMMAND_PREFIX}
 }
 
 fun IGuild.setCommandPrefix(prefix: String) {

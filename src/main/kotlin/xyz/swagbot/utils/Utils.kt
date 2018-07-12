@@ -1,5 +1,6 @@
 package xyz.swagbot.utils
 
+import com.vdurmont.emoji.EmojiParser
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import sx.blah.discord.handle.obj.IGuild
 import java.net.URL
@@ -57,10 +58,11 @@ fun getContent(args: Array<String>, start: Int): String {
  * @return
  */
 fun delimitWithoutEmpty(content: String, regex: String): Array<String> {
-    var list: List<String> = content.split(regex.toRegex()).dropLastWhile { it.isEmpty() }
-    list = list.map { it.trim({ it <= ' ' }) }.filter { it.isNotEmpty() }
-
-    return list.toTypedArray()
+    return content.split(regex.toRegex())
+            .dropLastWhile { it.isEmpty() }
+            .map { it.trim { it <= ' ' } }
+            .filter { it.isNotEmpty() }
+            .toTypedArray()
 }
 
 fun AdvancedMessageBuilder.withImage(url: String): AdvancedMessageBuilder {
@@ -82,3 +84,5 @@ fun getFormattedTime(time: Int): String {
         return String.format("%d:%02d:%02d", hours, minutes, seconds)
     return String.format("%d:%02d", minutes, seconds)
 }
+
+fun listOfEmojis(vararg emojis: String) = emojis.map { EmojiParser.parseToUnicode(":$it:") }
