@@ -31,11 +31,11 @@ import javax.management.NotificationListener
  * @author Zach Kozar
  * @version 9/1/2017
  */
-internal fun shutdown(client: IDiscordClient) {
+fun shutdown(client: IDiscordClient) {
     stop(client, ExitCode.EXITED)
 }
 
-internal fun shutdown(client: IDiscordClient, ec: ExitCode) {
+fun shutdown(client: IDiscordClient, ec: ExitCode) {
     stop(client, ec)
 }
 

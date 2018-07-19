@@ -7,19 +7,27 @@ import java.io.File
 
 object PluginStore {
 
+    const val PLUGIN_DIR = "plugins"
+
     private val loadedPlugins = mutableListOf<Plugin>()
 
     fun loadAllPlugins(cm: CommandManager) {
-        val pluginDir = File("plugins")
+        val pluginFiles = File(PLUGIN_DIR).walkTopDown().filter { it.isFile }.toList()
+        logger.info("Found ${pluginFiles.size} plugins.")
 
-        pluginDir.walkTopDown().filter { it.isFile }.forEach {
-            logger.info("Attempting to load plugin: ${it.name}")
-
-            val plugin = KotlinScriptLoader.load<Plugin>(it)
-            register(plugin, cm)
-
-            logger.info("Loaded plugin: $plugin")
+        var count = 0
+        pluginFiles.forEachIndexed { i, file ->
+            logger.info("Attempting to load script ${i+1}/${pluginFiles.size}: ${file.name}")
+            try {
+                val plugin = KotlinScriptLoader.load<Plugin>(file)
+                register(plugin, cm)
+                logger.info("Loaded plugin: $plugin")
+                count++
+            } catch (e: IllegalStateException) {
+                logger.info("Could not load script ${file.name}: $e")
+            }
         }
+        logger.info("Loaded $count plugins")
     }
 
     fun unloadAllPlugins(cm: CommandManager) {

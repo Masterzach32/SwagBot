@@ -4,10 +4,12 @@ import com.vdurmont.emoji.EmojiParser
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.util.EmbedBuilder
+import xyz.swagbot.api.music.TrackHandler
 import xyz.swagbot.commands.music.NowPlayingCommand
 import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.getCommandPrefix
 import xyz.swagbot.database.refreshAudioPlayer
+import xyz.swagbot.dsl.getTrackUserData
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.listOfEmojis
@@ -89,15 +91,13 @@ val QueueCommand2 = createCommand("View Track Queue") {
         description = "View all tracks in the queue."
     }
 
-    val reactions = listOfEmojis("arrow_backward", "stop_button","arrow_forward")
+    val reactions = listOfEmojis("arrow_backward", "stop_button", "arrow_forward")
 
     onEvent {
         guild {
             val embed = EmbedBuilder().withColor(BLUE)
             if (args.isNotEmpty() && (args[0].contains("youtu") || args[0].contains("soundcloud")))
-                embed.withColor(RED).withDesc(
-                        ("`~$cmdUsed` is used to view queued tracks. Use `~play` or `~search` to add a video or song" +
-                                " to the queue.").replace("~", event.guild.getCommandPrefix())
+                embed.withColor(RED).withDesc(("`~$cmdUsed` is used to view queued tracks. Use `~play` or `~search` to add a video or song to the queue.").replace("~", event.guild.getCommandPrefix())
                 )
             else {
                 val trackHandler = event.guild.getAudioHandler()

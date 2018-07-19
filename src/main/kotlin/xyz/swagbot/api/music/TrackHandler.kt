@@ -21,6 +21,8 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
 
     private val queue = mutableListOf<AudioTrack>()
 
+    private val queueBrowser = QueueBrowser(queue)
+
     val audioProvider = AudioProvider(player)
 
     var shouldLoop = false
@@ -80,18 +82,16 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
         return toRemove.size
     }
 
-    fun getQueue(): List<AudioTrack> {
-        return queue
-    }
+    fun getQueue(): List<AudioTrack> = queue
 
-    fun getQueueBrowser() = QueueBrowser(queue)
+    fun getQueueBrowser() = queueBrowser
 
     fun shuffleQueue() {
         queue.shuffle()
     }
 
     fun clearQueue() {
-        queue.removeAll { true }
+        queue.clear()
     }
 
     fun skipTo(index: Int): List<AudioTrack> {
@@ -102,11 +102,8 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
         return removed
     }
 
-    fun pruneTracks(users: List<IUser>): List<AudioTrack> {
-        val removed = queue.filter { !users.contains(it.getRequester()) }
-        removed.forEach { queue.remove(it) }
-        return removed
-    }
+    fun pruneTracks(users: List<IUser>) = queue.filter { !users.contains(it.getRequester()) }
+                                                .apply { forEach { queue.remove(it) } }
 
     fun toggleShouldLoop(): Boolean {
         shouldLoop = !shouldLoop
@@ -182,8 +179,11 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
                 }
             }
 
-            audioPlayerManager.loadItemOrdered(this, randomTrack,
-                    SilentAudioTrackLoadHandler(this, guild.client.ourUser))
+            audioPlayerManager.loadItemOrdered(
+                    this,
+                    randomTrack,
+                    SilentAudioTrackLoadHandler(this, guild.client.ourUser)
+            )
             Stats.TRACKS_AUTOPLAYED.addStat()
         }
     }

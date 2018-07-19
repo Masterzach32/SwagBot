@@ -117,6 +117,7 @@ fun main(args: Array<String>) {
     cmds.add(VoiceCommand)
     cmds.add(VolumeCommand)
     // mod
+    cmds.add(UserInfoCommand)
     cmds.add(BringCommand)
     cmds.add(MigrateCommand)
     cmds.add(PruneCommand)
@@ -137,8 +138,8 @@ fun main(args: Array<String>) {
 
     cmds.sortCommands()
 
-    PluginStore.loadAllPlugins(cmds)
-
-    client.login()
     logger.info("Waiting to receive guilds...")
+    client.login()
+
+    PluginStore.loadAllPlugins(cmds)
 }

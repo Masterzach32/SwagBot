@@ -1,43 +1,35 @@
 package xyz.swagbot.api.music
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import kotlin.math.min
 
-class QueueBrowser(tracks: List<AudioTrack>, val tracksPerPage: Int = 15) {
-
-    private val pages: Array<Page>
+open class QueueBrowser(val tracks: List<AudioTrack>, val tracksPerPage: Int = 15) {
 
     private var pageIndex = 0
 
-    init {
-        val tracksIn = tracks.toMutableList()
-        val pageList = mutableListOf<Page>()
-        var pageIndex = 0
-        while (tracksIn.isNotEmpty()) {
-            val pageTracks = mutableListOf<AudioTrack>()
-            when {
-                tracksIn.size >= 15 -> for (i in 0 until 15) pageTracks.add(tracksIn.removeAt(i))
-                tracksIn.size < 15 -> tracksIn.apply { pageTracks.addAll(this) }.clear()
-            }
-            pageList.add(Page(pageIndex++, pageTracks))
-        }
-        pages = pageList.toTypedArray()
+    fun getCurrentPage() = this[pageIndex]
+
+    fun getNextPage() = if (hasNextPage()) this[pageIndex++] else getCurrentPage()
+
+    fun hasNextPage() = pageIndex + 1 < pageCount()
+
+    fun getPreviousPage() = if (hasPreviousPage()) this[pageIndex--] else getCurrentPage()
+
+    fun hasPreviousPage() = pageIndex - 1 >= pageCount()
+
+    fun pageCount() = tracks.size / tracksPerPage + 1
+
+    fun isEmpty() = tracks.isEmpty()
+
+    fun getPage(index: Int): Page {
+        val startIndex = index * tracksPerPage
+        return if (startIndex in tracks.indices)
+            Page(index, tracks.subList(startIndex, min(startIndex + tracksPerPage, tracks.size)))
+        else
+            throw NoSuchElementException("Page $index doesn't exist.")
     }
 
-    fun getCurrentPage() = pages[pageIndex]
-
-    fun getNextPage() = if (hasNextPage()) pages[pageIndex++] else pages.last()
-
-    fun hasNextPage() = pageIndex + 1 < pages.size
-
-    fun getPreviousPage() = if (hasPreviousPage()) pages[pageIndex--] else pages.first()
-
-    fun hasPreviousPage() = pageIndex - 1 >= pages.size
-
-    fun pageCount() = pages.size
-
-    fun isEmpty() = pageCount() == 0
-
-    fun getPage(index: Int): Page? = if (index in pages.indices) pages[index] else null
+    operator fun get(index: Int) = getPage(index)
 
     class Page internal constructor(val index: Int, val tracks: List<AudioTrack>)
 }

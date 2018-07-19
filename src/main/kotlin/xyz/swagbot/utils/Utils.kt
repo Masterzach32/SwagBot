@@ -2,6 +2,7 @@ package xyz.swagbot.utils
 
 import com.vdurmont.emoji.EmojiParser
 import net.masterzach32.commands4k.AdvancedMessageBuilder
+import sx.blah.discord.handle.impl.obj.ReactionEmoji
 import sx.blah.discord.handle.obj.IGuild
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -85,4 +86,15 @@ fun getFormattedTime(time: Int): String {
     return String.format("%d:%02d", minutes, seconds)
 }
 
-fun listOfEmojis(vararg emojis: String) = emojis.map { EmojiParser.parseToUnicode(":$it:") }
+fun listOfEmojis(vararg emojis: String) = emojis.map { ReactionEmoji.of(EmojiParser.parseToUnicode(":$it:")) }
+
+inline fun <reified E> List<E>.split(newSize: Int): List<List<E>> {
+    val lists = arrayOfNulls<MutableList<E>?>(size / newSize + 1)
+    for (i in indices) {
+        when {
+            i % size == 0 -> lists[i / size] = mutableListOf(get(i))
+            i % size > 0 -> lists[i / size]!!.add(get(i))
+        }
+    }
+    return lists.filterNotNull().filter { it.isNotEmpty() }
+}

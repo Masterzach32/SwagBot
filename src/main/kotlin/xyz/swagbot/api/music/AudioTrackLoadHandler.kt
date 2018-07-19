@@ -57,7 +57,6 @@ class AudioTrackLoadHandler(
         handler.queue(track)
         if (!track.info.isStream)
             requester.addTrackToDatabase(track)
-        RequestBuffer.request { message?.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }
 
@@ -76,7 +75,6 @@ class AudioTrackLoadHandler(
         }
         embed.withColor(BLUE)
         embed.withDesc("$requester queued playlist: **${playlist.name}** with **${playlist.tracks.size}** tracks.")
-        RequestBuffer.request { message?.delete() }
         RequestBuffer.request { builder.withEmbed(embed).build() }
     }
 }
