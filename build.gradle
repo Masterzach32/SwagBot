@@ -2,7 +2,7 @@ group 'xyz.swagbot'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.2.41'
+    ext.kotlin_version = '1.2.51'
 
     repositories {
         mavenCentral()
@@ -34,7 +34,7 @@ dependencies {
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.sedmelluq:lavaplayer:1.2.56'
     compile 'com.github.natanbc:discordbots-api:1.4'
-    compile 'com.github.masterzach32:VT-Timetable-Api:0.4'
+    compile 'com.github.masterzach32:VT-Timetable-Api:1.0'
     compile 'com.github.masterzach32:Commands4K:1.2.2'
     compile 'com.github.JetBrains:Exposed:0.10.2'
     compile 'org.jsoup:jsoup:1.11.2'

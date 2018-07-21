@@ -13,6 +13,7 @@ val LookupCRNCommand = createCommand("Lookup CRN") {
     helpText {
         description = "Interface with the Virginia Tech Timetable of Classes. (https://hokiespa.vt.edu/)"
         usage["<crn>"] = "Look up all information for the specified CRN."
+        usage["<crn> <term>"] = "Look up all information for the specified CRN during the specified term."
     }
 
     onEvent {
@@ -24,8 +25,8 @@ val LookupCRNCommand = createCommand("Lookup CRN") {
         all {
             val embed = EmbedBuilder().withColor(RED)
             event.channel.toggleTypingStatus()
-            val section = Timetable.crnLookup(args[0], openOnly = false)
-            val isOpen = Timetable.crnLookup(args[0]) != null
+            val section = Timetable.lookupCrn(args[0], if (args.size == 2) Timetable.Term(args[1]) else Timetable.getCurrentTerm()).block()
+            val isOpen = Timetable.lookupCrn(args[0], if (args.size == 2) Timetable.Term(args[1]) else Timetable.getCurrentTerm(), openOnly = true).block() != null
 
             if (section == null)
                 return@all builder.withEmbed(embed.withDesc("That course does not exist for the current semester."))

@@ -24,15 +24,28 @@ object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permissio
 
     init {
         help.usage[""] = "Brings all users currently connected to a voice channel to you."
+        help.usage["<role mentions>"] = "Brings all users currently connected to a voice channel and in the specified roles to you."
     }
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
-                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
-        if(event.author.isOnVoice(event.guild))
+    override fun execute(
+            cmdUsed: String,
+            args: Array<String>,
+            event: MessageReceivedEvent,
+            builder: AdvancedMessageBuilder
+    ): AdvancedMessageBuilder? {
+        if(!event.author.isOnVoice())
             return builder.withContent("**You need to be in a voice channel to summon users.**")
         val vc = event.author.getConnectedVoiceChannel()
         event.guild.users
                 .filter { it.isOnVoice(event.guild) }
+                .filter {
+                    event.message.roleMentions.let { mentions ->
+                        if (mentions.isNotEmpty())
+                            mentions.any { role -> it.hasRole(role) }
+                        else
+                            true
+                    }
+                }
                 .forEach { RequestBuffer.request { it.moveToVoiceChannel(vc) } }
         return null
     }

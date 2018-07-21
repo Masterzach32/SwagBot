@@ -37,7 +37,7 @@ object MigrateCommand : Command("Migrate", "migrate", "populate", "m", botPerm =
         val from: IVoiceChannel?
         val to: IVoiceChannel?
         if (args.isEmpty()) {
-            if (!event.author.isOnVoice(event.guild))
+            if (!event.author.isOnVoice())
                 return builder.withContent("**Make sure you are in the channel you want to populate!**")
             if (!event.client.ourUser.isOnVoice(event.guild))
                 return builder.withContent("**Make sure the bot is the channel that you want to migrate from!**")
