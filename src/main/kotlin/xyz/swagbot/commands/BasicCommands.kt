@@ -59,7 +59,7 @@ val InfoCommand = createCommand("Info") {
         all {
             val embed = EmbedBuilder().withColor(BLUE)
 
-            embed.withAuthorName("SwagBot v2 ($VERSION})")
+            embed.withAuthorName("SwagBot v2 ($VERSION)")
             embed.withAuthorIcon("http://swagbot.xyz/images/banner.png")
             embed.withAuthorUrl("http://swagbot.xyz")
 

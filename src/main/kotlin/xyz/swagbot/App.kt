@@ -6,6 +6,7 @@ import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
+import xyz.swagbot.api.music.Spotify
 import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
 import xyz.swagbot.commands.mod.*
@@ -27,7 +28,7 @@ import xyz.swagbot.plugins.PluginStore
  * @author Zach Kozar
  * @version 8/22/17
  */
-const val VERSION = "2.0.1.107"
+const val VERSION = "2.0.1.112"
 const val DEFAULT_COMMAND_PREFIX = "~"
 
 val logger = LoggerFactory.getLogger("SwagBot Manager")!!
@@ -142,4 +143,6 @@ fun main(args: Array<String>) {
     client.login()
 
     PluginStore.loadAllPlugins(cmds)
+
+    Spotify.login(getKey("spotify_client"), getKey("spotify_secret"))
 }

@@ -25,22 +25,19 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.discord4j:Discord4J:2.10.1'
     compile 'org.xerial:sqlite-jdbc:3.20.0'
     compile 'mysql:mysql-connector-java:8.0.11'
     compile 'ch.qos.logback:logback-classic:1.2.3'
-    compile 'joda-time:joda-time:2.9.9'
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.sedmelluq:lavaplayer:1.2.56'
     compile 'com.github.natanbc:discordbots-api:1.4'
-    compile 'com.github.masterzach32:VT-Timetable-Api:1.0'
+    compile 'com.github.masterzach32:VT-Timetable-Api:1.0.1'
     compile 'com.github.masterzach32:Commands4K:1.2.2'
     compile 'com.github.JetBrains:Exposed:0.10.2'
     compile 'org.jsoup:jsoup:1.11.2'
     compile 'com.vdurmont:emoji-java:4.0.0'
-    //compile 'edu.cmu.sphinx:sphinx4-core:5prealpha-SNAPSHOT'
-    //compile 'edu.cmu.sphinx:sphinx4-data:5prealpha-SNAPSHOT'
+    compile 'se.michaelthelin.spotify:spotify-web-api-java:2.0.3'
 
     compile fileTree(dir: 'lib', include: '**/*.jar')
 
