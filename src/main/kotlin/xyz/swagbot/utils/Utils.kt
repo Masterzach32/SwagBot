@@ -2,10 +2,12 @@ package xyz.swagbot.utils
 
 import com.vdurmont.emoji.EmojiParser
 import net.masterzach32.commands4k.AdvancedMessageBuilder
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.impl.obj.ReactionEmoji
-import sx.blah.discord.handle.obj.IGuild
 import java.net.URL
-import java.text.SimpleDateFormat
+import kotlin.reflect.KClass
+import kotlin.reflect.full.companionObject
 
 /*
  * SwagBot - Created on 9/1/2017
@@ -88,7 +90,7 @@ fun getFormattedTime(time: Int): String {
 
 fun listOfEmojis(vararg emojis: String) = emojis.map { ReactionEmoji.of(EmojiParser.parseToUnicode(":$it:")) }
 
-inline fun <reified E> List<E>.split(newSize: Int): List<List<E>> {
+fun <E> List<E>.split(newSize: Int): List<List<E>> {
     val lists = arrayOfNulls<MutableList<E>?>(size / newSize + 1)
     for (i in indices) {
         when {

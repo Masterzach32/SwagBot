@@ -1,15 +1,11 @@
 package xyz.swagbot.commands
 
-import com.vdurmont.emoji.EmojiParser
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.util.EmbedBuilder
-import xyz.swagbot.api.music.TrackHandler
-import xyz.swagbot.commands.music.NowPlayingCommand
-import xyz.swagbot.database.getAudioHandler
-import xyz.swagbot.database.getCommandPrefix
+import xyz.swagbot.database.commandPrefix
 import xyz.swagbot.database.refreshAudioPlayer
-import xyz.swagbot.dsl.getTrackUserData
+import xyz.swagbot.database.trackHandler
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.listOfEmojis
@@ -41,7 +37,7 @@ val AutoPlayCommand = createCommand("Autoplay") {
     onEvent {
         guild {
             val embed = EmbedBuilder().withColor(BLUE)
-            val autoplay = event.guild.getAudioHandler().toggleShouldAutoplay()
+            val autoplay = event.guild.trackHandler.toggleShouldAutoplay()
 
             if (autoplay) {
                 embed.withDesc("Autoplay has now been enabled. If there are no tracks in the queue, SwagBot " +
@@ -97,14 +93,15 @@ val QueueCommand2 = createCommand("View Track Queue") {
         guild {
             val embed = EmbedBuilder().withColor(BLUE)
             if (args.isNotEmpty() && (args[0].contains("youtu") || args[0].contains("soundcloud")))
-                embed.withColor(RED).withDesc(("`~$cmdUsed` is used to view queued tracks. Use `~play` or `~search` to add a video or song to the queue.").replace("~", event.guild.getCommandPrefix())
+                embed.withColor(RED).withDesc(("`~$cmdUsed` is used to view queued tracks. Use `~play` or `~search`" +
+                        " to add a video or song to the queue.").replace("~", event.guild.commandPrefix)
                 )
             else {
-                val trackHandler = event.guild.getAudioHandler()
+                val trackHandler = event.guild.trackHandler
                 val browser = trackHandler.getQueueBrowser()
 
                 if (browser.isEmpty())
-                    embed.withDesc(("The queue is empty! Go add some tracks with the ~play or ~search commands!").replace("~", event.guild.getCommandPrefix()))
+                    embed.withDesc(("The queue is empty! Go add some tracks with the ~play or ~search commands!").replace("~", event.guild.commandPrefix))
 
             }
 

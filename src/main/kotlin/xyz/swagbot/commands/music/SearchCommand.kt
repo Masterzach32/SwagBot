@@ -18,7 +18,7 @@ import xyz.swagbot.api.getVideoSetFromSearch
 import xyz.swagbot.api.music.AudioTrackLoadHandler
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getAudioHandler
+import xyz.swagbot.database.trackHandler
 import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.dsl.isOnVoice
 import xyz.swagbot.logger
@@ -93,9 +93,9 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", "search10
 
                     channel.toggleTypingStatus()
                     audioPlayerManager.loadItemOrdered(
-                            channel.guild.getAudioHandler(),
+                            channel.guild.trackHandler,
                             list[index].getUrl(),
-                            AudioTrackLoadHandler(event.guild.getAudioHandler(),
+                            AudioTrackLoadHandler(event.guild.trackHandler,
                                     user,
                                     event.guild,
                                     event.message,
@@ -135,10 +135,10 @@ object SearchCommand : Command("Search YouTube", "search", "ytsearch", "search10
             if (event.user == user && event.message == message) {
                 event.channel.toggleTypingStatus()
                 audioPlayerManager.loadItemOrdered(
-                        event.guild.getAudioHandler(),
+                        event.guild.trackHandler,
                         list[emojiUnicode.indexOf(event.reaction.emoji.name)].getUrl(),
                         AudioTrackLoadHandler(
-                                event.guild.getAudioHandler(),
+                                event.guild.trackHandler,
                                 user,
                                 event.guild,
                                 null,

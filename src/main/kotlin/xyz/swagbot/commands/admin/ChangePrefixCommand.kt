@@ -7,8 +7,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getCommandPrefix
-import xyz.swagbot.database.setCommandPrefix
+import xyz.swagbot.database.commandPrefix
 import xyz.swagbot.utils.BLUE
 
 /*
@@ -45,9 +44,9 @@ object ChangePrefixCommand : Command(
 
         val embed = EmbedBuilder().withColor(BLUE)
 
-        event.guild.setCommandPrefix(args[0])
+        event.guild.commandPrefix = args[0]
 
-        embed.withDesc("Command prefix set to **${event.guild.getCommandPrefix()}**")
+        embed.withDesc("Command prefix set to **${args[0]}**")
 
         return builder.withEmbed(embed)
     }

@@ -8,8 +8,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.Stats
 import xyz.swagbot.commands.getBotLockedMessage
-import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.database.trackHandler
 import xyz.swagbot.utils.BLUE
 
 object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD,
@@ -22,14 +22,14 @@ object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD,
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-        if (event.guild.isBotLocked())
+        if (event.guild.isBotLocked)
             return getBotLockedMessage(builder)
         event.channel.toggleTypingStatus()
         val embed = EmbedBuilder()
 
         if (args.isEmpty())
             return builder.withEmbed(embed.withColor(RED).withDesc("You must specify a track to skip to!"))
-        val skipped = event.guild.getAudioHandler().skipTo(args[0].toInt())
+        val skipped = event.guild.trackHandler.skipTo(args[0].toInt())
         Stats.TRACKS_SKIPPED.addStat(skipped.size)
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Skipped **${skipped.size}** tracks."))
     }

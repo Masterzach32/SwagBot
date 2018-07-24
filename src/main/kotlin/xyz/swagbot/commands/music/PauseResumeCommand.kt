@@ -5,12 +5,10 @@ import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getBotLockedMessage
-import xyz.swagbot.database.getAudioHandler
-import xyz.swagbot.database.getCommandPrefix
+import xyz.swagbot.database.commandPrefix
 import xyz.swagbot.database.isBotLocked
-import xyz.swagbot.dsl.getBoldFormattedTitle
-import xyz.swagbot.dsl.getFormattedLength
-import xyz.swagbot.dsl.getFormattedPosition
+import xyz.swagbot.database.trackHandler
+import xyz.swagbot.dsl.*
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
@@ -34,14 +32,14 @@ object PauseResumeCommand : Command("Pause / Resume", "pause", "unpause", "resum
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-        if (event.guild.isBotLocked())
+        if (event.guild.isBotLocked)
             return getBotLockedMessage(builder)
         val embed = EmbedBuilder().withColor(RED)
-        val player = event.guild.getAudioHandler().player
+        val player = event.guild.trackHandler.player
 
         if (player.playingTrack == null)
             return builder.withEmbed(embed.withDesc("Im not playing anything right now. Go add some tracks with" +
-                    " the ${event.guild.getCommandPrefix()}play or ${event.guild.getCommandPrefix()}search commands!"))
+                    " the ~play or ~search commands!".replace("~", event.guild.commandPrefix)))
 
         if (cmdUsed == "pause") {
             if (player.isPaused)

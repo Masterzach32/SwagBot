@@ -33,7 +33,7 @@ object VoiceCommand : Command("Join/Leave", "summon", "leave", scope = Command.S
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
-        if (event.guild.isBotLocked())
+        if (event.guild.isBotLocked)
             return getBotLockedMessage(builder)
 
         val embed = EmbedBuilder().withColor(RED)

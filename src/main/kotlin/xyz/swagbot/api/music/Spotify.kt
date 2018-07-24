@@ -4,16 +4,20 @@ import com.neovisionaries.i18n.CountryCode
 import com.wrapper.spotify.SpotifyApi
 import com.wrapper.spotify.SpotifyHttpManager
 import com.wrapper.spotify.model_objects.specification.Track
+import xyz.swagbot.database.getKey
 
 object Spotify {
 
     lateinit var api: SpotifyApi
-
     private val redirectUri = SpotifyHttpManager.makeUri("https://swagbot.xyz/spotify-connected")
 
     private val playlistRegex = "^(?:https://open\\.spotify\\.com|spotify)([/:])user\\1([^/]+)\\1playlist\\1([a-zA-Z0-9]+)".toRegex()
 
-    fun login(clientId: String, secret: String) {
+    init {
+        login(getKey("spotify_client"), getKey("spotify_secret"))
+    }
+
+    private fun login(clientId: String, secret: String) {
         api = SpotifyApi.Builder().setClientId(clientId).setClientSecret(secret).setRedirectUri(redirectUri).build()
         api.accessToken = api.clientCredentials().build().execute().accessToken
     }

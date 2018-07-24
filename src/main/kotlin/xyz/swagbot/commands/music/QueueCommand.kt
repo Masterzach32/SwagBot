@@ -5,9 +5,9 @@ import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getAudioHandler
-import xyz.swagbot.database.getCommandPrefix
+import xyz.swagbot.database.commandPrefix
 import xyz.swagbot.database.isQueueLoopEnabled
+import xyz.swagbot.database.trackHandler
 import xyz.swagbot.dsl.*
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.getFormattedTime
@@ -26,10 +26,10 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
             builder: AdvancedMessageBuilder
     ): AdvancedMessageBuilder {
 
-        val audioHandler = event.guild.getAudioHandler()
+        val audioHandler = event.guild.trackHandler
         val embed = EmbedBuilder().withColor(BLUE)
         var pageNumber: Int
-        val cmdPrefix = event.guild.getCommandPrefix()
+        val cmdPrefix = event.guild.commandPrefix
         if (args.isNotEmpty() && (args[0].contains("youtu") || args[0].contains("soundcloud")))
             return builder.withEmbed(
                     embed.withDesc(

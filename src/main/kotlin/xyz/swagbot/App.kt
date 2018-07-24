@@ -28,7 +28,7 @@ import xyz.swagbot.plugins.PluginStore
  * @author Zach Kozar
  * @version 8/22/17
  */
-const val VERSION = "2.0.1.112"
+const val VERSION = "2.0.1.114"
 const val DEFAULT_COMMAND_PREFIX = "~"
 
 val logger = LoggerFactory.getLogger("SwagBot Manager")!!
@@ -65,7 +65,7 @@ fun main(args: Array<String>) {
     logger.info("Initializing commands.")
     cmds = CommandListener(
             client.dispatcher,
-            { it?.getCommandPrefix() ?: DEFAULT_COMMAND_PREFIX },
+            { it?.commandPrefix ?: DEFAULT_COMMAND_PREFIX },
             {
                 if (it == null)
                     this.getBotDMPermission()
@@ -137,12 +137,12 @@ fun main(args: Array<String>) {
             ShardStatusCommand
     )
 
+    cmds.add(ArrestCommand)
+
     cmds.sortCommands()
 
     logger.info("Waiting to receive guilds...")
     client.login()
 
     PluginStore.loadAllPlugins(cmds)
-
-    Spotify.login(getKey("spotify_client"), getKey("spotify_secret"))
 }

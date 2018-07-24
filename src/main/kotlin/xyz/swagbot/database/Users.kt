@@ -9,16 +9,9 @@ import sx.blah.discord.handle.obj.IUser
 fun IUser.getBotPermission(guild: IGuild): Permission {
     val permId = sql {
         Permissions.select { (Permissions.user_id eq longID) and (Permissions.guild_id eq guild.longID) }
-                .firstOrNull()?.get(Permissions.permission) ?: Permission.NORMAL
+                .firstOrNull()?.get(Permissions.permission) ?: Permission.NORMAL.ordinal
     }
-    return when (permId) {
-        0 -> Permission.NONE
-        1 -> Permission.NORMAL
-        2 -> Permission.MOD
-        3 -> Permission.ADMIN
-        4 -> Permission.DEVELOPER
-        else -> Permission.NORMAL
-    }
+    return Permission.values()[permId]
 }
 
 fun IUser.setBotPermission(guild: IGuild, permission: Permission) {
@@ -79,13 +72,9 @@ fun IUser.addTrackToDatabase(track: AudioTrack) {
 }
 
 fun IUser.getTrackPreferences(): Map<String, Int> {
-    val map = mutableMapOf<String, Int>()
-
-    sql {
-        MusicProfile
+    return sql {
+        return@sql MusicProfile
                 .select { MusicProfile.user_id eq longID }
-                .forEach { map[it[MusicProfile.identifier]] = it[MusicProfile.count] }
+                .associate { it[MusicProfile.identifier] to it[MusicProfile.count] }
     }
-
-    return map
 }

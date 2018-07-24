@@ -5,9 +5,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getBotVolume
+import xyz.swagbot.database.botVolume
 import xyz.swagbot.database.isBotLocked
-import xyz.swagbot.database.setBotVolume
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
@@ -20,7 +19,7 @@ object VolumeCommand : Command("Change Volume", "volume", "v", scope = Command.S
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-        if (event.guild.isBotLocked())
+        if (event.guild.isBotLocked)
             return getBotLockedMessage(builder)
         if(args.size > 1)
             return getWrongArgumentsMessage(builder, this, cmdUsed)
@@ -28,7 +27,7 @@ object VolumeCommand : Command("Change Volume", "volume", "v", scope = Command.S
         val embed = EmbedBuilder().withColor(BLUE)
         val volume: Int
         if (args.isEmpty())
-            return builder.withEmbed(embed.withDesc("Volume is currently set to **${event.guild.getBotVolume()}**"))
+            return builder.withEmbed(embed.withDesc("Volume is currently set to **${event.guild.botVolume}**"))
         try {
             volume = args[0].toInt()
         } catch (e: NumberFormatException) {
@@ -37,7 +36,7 @@ object VolumeCommand : Command("Change Volume", "volume", "v", scope = Command.S
         if (volume < 0 || volume > 100)
             return builder.withEmbed(embed.withColor(RED).withDesc("Volume must be set between 0 - 100"))
 
-        event.guild.setBotVolume(volume)
+        event.guild.botVolume = volume
         return builder.withEmbed(embed.withDesc("Volume set to **$volume**"))
     }
 }

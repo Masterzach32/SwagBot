@@ -3,13 +3,9 @@ package xyz.swagbot.dsl
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo
 import sx.blah.discord.handle.obj.*
-import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.api.music.TrackUserData
-import xyz.swagbot.database.getBotVolume
 import xyz.swagbot.database.getTrackPreferences
-import xyz.swagbot.database.sql
-import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.getFormattedTime
 
 /*
@@ -72,7 +68,7 @@ fun AudioTrackInfo.getThumbnailUrl(): String = "https://img.youtube.com/vi/$iden
 fun IVoiceChannel.getTrackPreferences(): Map<String, Int> {
     val preferences = mutableMapOf<String, Int>()
 
-    usersHere
+    usersHere.asSequence()
             .filter { it != client.ourUser }
             .forEach { preferences.putAll(it.getTrackPreferences()) }
 
@@ -95,4 +91,8 @@ fun IUser.getConnectedVoiceChannel(guild: IGuild): IVoiceChannel? {
     return RequestBuffer.request<IVoiceChannel?> { getVoiceStateForGuild(guild).channel }.get()
 }
 
-fun IUser.getDMChannel(): IChannel = orCreatePMChannel
+val IUser.privateChannel: IChannel get() = orCreatePMChannel
+
+fun IUser.addRoles(roles: List<IRole>) = roles.forEach { RequestBuffer.request { addRole(it) } }
+
+fun IUser.removeRoles(roles: List<IRole>) = roles.forEach { RequestBuffer.request { removeRole(it) } }

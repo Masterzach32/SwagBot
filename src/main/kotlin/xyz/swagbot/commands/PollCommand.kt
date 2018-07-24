@@ -14,7 +14,7 @@ import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.Stats
 import xyz.swagbot.database.PollChannels
-import xyz.swagbot.database.getCommandPrefix
+import xyz.swagbot.database.commandPrefix
 import xyz.swagbot.database.sql
 import xyz.swagbot.utils.BLUE
 import java.util.*
@@ -59,7 +59,7 @@ val PollCommand = createCommand("Poll") {
 
         listen<MessageReceivedEvent> {
             if (!author.isBot && isPollChannel(channel) &&
-                    !message.content.startsWith(guild.getCommandPrefix())) {
+                    !message.content.startsWith(guild.commandPrefix)) {
                 emojis.forEach { RequestBuffer.request { message.addReaction(ReactionEmoji.of(it)) }.get() }
                 Stats.POLLS_CREATED.addStat()
             }

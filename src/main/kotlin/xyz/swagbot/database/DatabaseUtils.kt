@@ -49,7 +49,7 @@ fun getDatabaseConnection(args: Array<String>): Database {
         throw IllegalStateException("Invalid database type. Allowed values: ${DatabaseType.values().toList()}")
     }
     val loc = args[1]
-    val login = if (args.size > 2) Pair(args[2], args[3]) else null
+    val login = if (args.size > 2) args[2] to args[3] else null
     for (i in 2 downTo 0) {
         try {
             logger.info("Attempting connection to: \"${type.getUrl(loc)}\" using \"${type.driver}\"")

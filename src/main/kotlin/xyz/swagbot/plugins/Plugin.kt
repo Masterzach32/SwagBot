@@ -11,8 +11,8 @@ class Plugin {
     lateinit var name: String
     lateinit var description: String
     lateinit var version: String
-    val commands = mutableSetOf<Command>()
-    val listeners = mutableSetOf<IListener<Event>>()
+    val commands = mutableListOf<Command>()
+    val listeners = mutableListOf<IListener<Event>>()
 
     fun newCommand(name: String, builder: CommandBuilder.() -> Unit) {
         commands.add(createCommand(name, builder))

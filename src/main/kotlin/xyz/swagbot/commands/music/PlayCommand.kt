@@ -5,6 +5,7 @@ import net.masterzach32.commands4k.Command
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
+import xyz.swagbot.Stats
 import xyz.swagbot.api.getVideoFromSearch
 import xyz.swagbot.api.music.AudioTrackLoadHandler
 import xyz.swagbot.api.music.SilentAudioTrackLoadHandler
@@ -12,8 +13,8 @@ import xyz.swagbot.api.music.Spotify
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.database.trackHandler
 import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.dsl.isOnVoice
 import xyz.swagbot.utils.RED
@@ -36,11 +37,11 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
 
         if(args.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
-        if (event.guild.isBotLocked())
+        if (event.guild.isBotLocked)
             return getBotLockedMessage(builder)
         event.channel.toggleTypingStatus()
 
-        val handler = event.guild.getAudioHandler()
+        val handler = event.guild.trackHandler
 
         if (args[0].contains("https://spotify.com") || args[0].contains("https://www.spotify.com") ||
                 args[0].contains("https://open.spotify.com") || args[0].contains("spotify:")) {
@@ -50,7 +51,10 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
                 embed.withTitle(":musical_note: | Spotify playlist requested by ${event.author.getDisplayName(event.guild)}")
                 embed.withDesc("**[${playlist.name}](${playlist.link})**\n")
                 embed.appendDesc("Created by: **${playlist.owner}**\n")
-                embed.appendDesc(playlist.description)
+                if (playlist.description.isNotEmpty())
+                    embed.appendDesc(playlist.description)
+                else
+                    embed.appendDesc("This playlist has no description.")
                 embed.withThumbnail(playlist.icon)
 
                 RequestBuffer.request { builder.withEmbed(embed).build() }
@@ -65,35 +69,34 @@ object PlayCommand : Command("Play", "play", "p", scope = Command.Scope.GUILD) {
                                         SilentAudioTrackLoadHandler(handler, event.author)
                                 )
                         }
+                Stats.SPOTIFY_PLAYLISTS_QUEUED.addStat()
             } else {
                 return builder.withEmbed(embed.withColor(RED).withDesc("Could not locate a Spotify playlist with that URI."))
             }
+        } else {
+            val identifier = if (args[0].contains("http://") || args[0].contains("https://"))
+                args[0]
+            else {
+                getVideoFromSearch(getContent(args, 0))?.getUrl()
+            }
 
-            return null
+            if (identifier == null)
+                return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc(
+                        "Sorry, I could not find a video that matched that description. Try refining your search."
+                ))
+
+            audioPlayerManager.loadItemOrdered(
+                    handler,
+                    identifier,
+                    AudioTrackLoadHandler(
+                            handler,
+                            event.author,
+                            event.guild,
+                            event.message,
+                            builder
+                    )
+            )
         }
-
-        val identifier = if (args[0].contains("http://") || args[0].contains("https://"))
-            args[0]
-        else {
-            getVideoFromSearch(getContent(args, 0))?.getUrl()
-        }
-
-        if (identifier == null)
-            return builder.withEmbed(EmbedBuilder().withColor(RED).withDesc(
-                    "Sorry, I could not find a video that matched that description. Try refining your search."
-            ))
-
-        audioPlayerManager.loadItemOrdered(
-                handler,
-                identifier,
-                AudioTrackLoadHandler(
-                        handler,
-                        event.author,
-                        event.guild,
-                        event.message,
-                        builder
-                )
-        )
 
         if (event.client.ourUser.getVoiceStateForGuild(event.guild).channel == null && event.author.isOnVoice())
             event.author.getConnectedVoiceChannel()!!.join()

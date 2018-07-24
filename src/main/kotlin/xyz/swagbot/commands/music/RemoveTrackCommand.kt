@@ -7,8 +7,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.database.trackHandler
 import xyz.swagbot.dsl.getBoldFormattedTitle
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -22,7 +22,7 @@ object RemoveTrackCommand : Command("Remove Track", "removetrack", "remove", "rm
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-        if (event.guild.isBotLocked())
+        if (event.guild.isBotLocked)
             return getBotLockedMessage(builder)
         if (args.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
@@ -33,7 +33,7 @@ object RemoveTrackCommand : Command("Remove Track", "removetrack", "remove", "rm
         }
         val embed = EmbedBuilder()
 
-        val removed = event.guild.getAudioHandler().removeTrack(index-1)
+        val removed = event.guild.trackHandler.removeTrack(index-1)
         if (removed != null)
             embed.withColor(BLUE).withDesc("Removed ${removed.getBoldFormattedTitle()} from the queue.")
         else

@@ -7,8 +7,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.database.trackHandler
 import xyz.swagbot.dsl.getBoldFormattedTitle
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
@@ -23,7 +23,7 @@ object MoveTrackCommand : Command("Move Track", "move", scope = Scope.GUILD, bot
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-        if (event.guild.isBotLocked())
+        if (event.guild.isBotLocked)
             return getBotLockedMessage(builder)
         if (args.isEmpty() || args.size > 2)
             return getWrongArgumentsMessage(builder, this, cmdUsed)
@@ -36,12 +36,12 @@ object MoveTrackCommand : Command("Move Track", "move", scope = Scope.GUILD, bot
 
         val embed = EmbedBuilder()
 
-        if (index0 <= 0 || index0 > event.guild.getAudioHandler().getQueue().size)
+        if (index0 <= 0 || index0 > event.guild.trackHandler.getQueue().size)
             return builder.withEmbed(embed.withColor(RED).withDesc("Initial track index is out of range. " +
-                    "(Your index: **$index0**, Queue size: **${event.guild.getAudioHandler().getQueue().size}**)"))
+                    "(Your index: **$index0**, Queue size: **${event.guild.trackHandler.getQueue().size}**)"))
 
         if (args.size == 1) {
-            val track = event.guild.getAudioHandler().moveTrack(index0-1, 0)
+            val track = event.guild.trackHandler.moveTrack(index0-1, 0)
             return builder.withEmbed(embed.withColor(BLUE).withDesc("Moved **${track.info.title}** to position **1**."))
         }
 
@@ -51,11 +51,11 @@ object MoveTrackCommand : Command("Move Track", "move", scope = Scope.GUILD, bot
             return getWrongArgumentsMessage(builder, this, cmdUsed)
         }
 
-        if (index1-1 < 0 || index1-1 >= event.guild.getAudioHandler().getQueue().size)
+        if (index1-1 < 0 || index1-1 >= event.guild.trackHandler.getQueue().size)
             builder.withEmbed(embed.withColor(RED).withDesc("Final track index is out of range. " +
-                    "(Your index: **$index0**, Queue size: **${event.guild.getAudioHandler().getQueue().size})"))
+                    "(Your index: **$index0**, Queue size: **${event.guild.trackHandler.getQueue().size})"))
 
-        val track = event.guild.getAudioHandler().moveTrack(index0-1, index1-1)
+        val track = event.guild.trackHandler.moveTrack(index0-1, index1-1)
         return builder.withEmbed(embed.withColor(BLUE).withDesc("Moved ${track.getBoldFormattedTitle()} from " +
                 "position **$index0** to position **$index1**."))
     }

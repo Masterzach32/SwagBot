@@ -84,62 +84,49 @@ private fun IGuild.createPlayer(): TrackHandler {
     return listener
 }
 
-fun IGuild.getAudioHandler(): TrackHandler {
-    if (audioHandlers[longID] == null)
-        initialize()
-    val handler = audioHandlers[longID]!!
-    if (!handler.player.isPaused && handler.player.playingTrack == null && handler.getQueue().isNotEmpty())
-        handler.playNext()
-    return handler
-}
-
-fun IGuild.getCommandPrefix(): String {
-    return sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.command_prefix) ?: DEFAULT_COMMAND_PREFIX}
-}
-
-fun IGuild.setCommandPrefix(prefix: String) {
-    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.command_prefix] = prefix } }
-}
-
-fun IGuild.getBotVolume(): Int {
-    return sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.volume) ?: 50 }
-}
-
-fun IGuild.setBotVolume(volume: Int) {
-    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.volume] = volume } }
-    getAudioHandler().player.volume = volume
-}
-
-fun IGuild.isBotLocked(): Boolean {
-    return sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.locked) ?: false }
-}
-
-fun IGuild.setAutoAssignRole(role: IRole?) {
-    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.auto_assign_role] = role?.stringID } }
-}
-
-fun IGuild.getAutoAssignRole(): IRole? {
-    val roleId = sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.auto_assign_role) } ?: ""
-    return try {
-        getRoleByID(roleId.toLong())
-    } catch (t: Throwable) {
-        getRolesByName(roleId).firstOrNull()
-        //sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.auto_assign_role] = null } }
+val IGuild.trackHandler: TrackHandler
+    get() {
+        if (audioHandlers[longID] == null)
+            initialize()
+        val handler = audioHandlers[longID]!!
+        if (!handler.player.isPaused && handler.player.playingTrack == null && handler.getQueue().isNotEmpty())
+            handler.playNext()
+        return handler
     }
-}
 
-fun IGuild.setLastVoiceChannel(channel: IVoiceChannel?) {
-    sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.last_voice_channel] = channel?.longID } }
-}
+var IGuild.commandPrefix: String
+    get() = sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.command_prefix) ?: DEFAULT_COMMAND_PREFIX }
+    set(value) = sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.command_prefix] = value } }
 
-fun IGuild.getLastVoiceChannel(): IVoiceChannel? {
-    return getVoiceChannelByID(
-            sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.last_voice_channel) } ?: 0
-    )
-}
+var IGuild.botVolume: Int
+    get() = sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.volume) ?: 50 }
+    set(value) {
+        sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.volume] = value } }
+        trackHandler.player.volume = value
+    }
+
+var IGuild.isBotLocked: Boolean
+    get() = sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.locked) ?: false }
+    set(value) = sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.locked] = value } }
+
+var IGuild.autoAssignRole: IRole?
+    get() {
+        val roleId = sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.auto_assign_role) } ?: ""
+        return try {
+            getRoleByID(roleId.toLong())
+        } catch (t: Throwable) {
+            getRolesByName(roleId).firstOrNull()
+            //sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.auto_assign_role] = null } }
+        }
+    }
+    set(value) = sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.auto_assign_role] = value?.stringID } }
+
+var IGuild.lastVoiceChannel: IVoiceChannel?
+    get() = getVoiceChannelByID(sql { Guilds.select { Guilds.id eq longID }.firstOrNull()?.get(Guilds.last_voice_channel) } ?: 0)
+    set(value) = sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.last_voice_channel] = value?.longID } }
 
 fun IGuild.saveTracksToStorage() {
-    val audioHandler = getAudioHandler()
+    val audioHandler = trackHandler
     sql {
         if (audioHandler.player.playingTrack?.identifier != null)
             TrackStorage.insert {
@@ -160,25 +147,24 @@ fun IGuild.saveTracksToStorage() {
 fun IGuild.loadTracksFromStorage() {
     val list = sql {
         TrackStorage.select { TrackStorage.guild_id eq longID }
-                .map { Pair(it[TrackStorage.user_id], it[TrackStorage.identifier]) }
+                .map { it[TrackStorage.user_id] to it[TrackStorage.identifier] }
     }
 
-    val audioHandler = getAudioHandler()
     list.forEach {
         audioPlayerManager.loadItemOrdered(
-                audioHandler,
+                trackHandler,
                 it.second,
-                SilentAudioTrackLoadHandler(audioHandler, client.getUserByID(it.first))
+                SilentAudioTrackLoadHandler(trackHandler, client.getUserByID(it.first))
         )
     }
 }
 
 fun IGuild.isQueueLoopEnabled(): Boolean {
-    return getAudioHandler().shouldLoop
+    return trackHandler.shouldLoop
 }
 
 fun IGuild.toggleQueueLoop(): Boolean {
-    val new = getAudioHandler().toggleShouldLoop()
+    val new = trackHandler.toggleShouldLoop()
     sql { Guilds.update({ Guilds.id eq longID }) { it[Guilds.loop] = new } }
     return new
 }
@@ -260,6 +246,8 @@ fun IGuild.removeGameSwitcherEntry(game: String): Map.Entry<String, IVoiceChanne
 }
 
 fun IGuild.getGameSwitcherEntries(): Map<String, IVoiceChannel> {
-    return sql { GameSwitcher.select { GameSwitcher.guild_id eq longID }
-            .associate { Pair(it[GameSwitcher.game], getVoiceChannelByID(it[GameSwitcher.channel_id].toLong())) } }
+    return sql {
+        GameSwitcher.select { GameSwitcher.guild_id eq longID }
+            .associate { it[GameSwitcher.game] to getVoiceChannelByID(it[GameSwitcher.channel_id].toLong()) }
+    }
 }

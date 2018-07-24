@@ -7,8 +7,8 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getBotLockedMessage
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getAudioHandler
 import xyz.swagbot.database.isBotLocked
+import xyz.swagbot.database.trackHandler
 import xyz.swagbot.dsl.*
 import xyz.swagbot.utils.BLUE
 
@@ -21,12 +21,12 @@ object SeekCommand : Command("Seek Track", "seek", scope = Scope.GUILD) {
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
                          builder: AdvancedMessageBuilder): AdvancedMessageBuilder {
-        if (event.guild.isBotLocked())
+        if (event.guild.isBotLocked)
             return getBotLockedMessage(builder)
         if (args.isEmpty())
             return getWrongArgumentsMessage(builder, this, cmdUsed)
         val embed = EmbedBuilder()
-        val playingTrack = event.guild.getAudioHandler().player.playingTrack
+        val playingTrack = event.guild.trackHandler.player.playingTrack
 
         if (playingTrack == null)
             return builder.withEmbed(embed.withColor(RED).withDesc("Cannot seek track as there is no track currently playing!"))

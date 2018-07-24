@@ -7,9 +7,8 @@ import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.handle.obj.StatusType
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.api.game.Fight
-import xyz.swagbot.api.game.Game
 import xyz.swagbot.api.game.GameManager
-import xyz.swagbot.database.getCommandPrefix
+import xyz.swagbot.database.commandPrefix
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 
@@ -31,8 +30,12 @@ object BrawlCommand : Command("Games", "fight", "brawl", scope = Command.Scope.G
         help.desc = "Play a game with your fellow server members!"
     }
 
-    override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
-                         builder: AdvancedMessageBuilder): AdvancedMessageBuilder? {
+    override fun execute(
+            cmdUsed: String,
+            args: Array<String>,
+            event: MessageReceivedEvent,
+            builder: AdvancedMessageBuilder
+    ): AdvancedMessageBuilder? {
 
         val users = mutableSetOf<IUser>()
         val embed = EmbedBuilder()
@@ -56,8 +59,9 @@ object BrawlCommand : Command("Games", "fight", "brawl", scope = Command.Scope.G
 
         if (!GameManager.isGameInProgress(event.channel)) {
             GameManager.addGame(Fight(event.channel, users.toMutableList()))
-            return builder.withEmbed(embed.withColor(BLUE).withDesc("A $cmdUsed will be starting in 20 seconds! Type `${event.guild.getCommandPrefix()}join` to join!").build()) as AdvancedMessageBuilder
+            return builder.withEmbed(embed.withColor(BLUE).withDesc("A $cmdUsed will be starting in 20 seconds! " +
+                    "Type `${event.guild.commandPrefix}join` to join!"))
         } else
-            return builder.withEmbed(embed.withColor(RED).withDesc("A game is already in progress!").build()) as AdvancedMessageBuilder
+            return builder.withEmbed(embed.withColor(RED).withDesc("A game is already in progress!"))
     }
 }

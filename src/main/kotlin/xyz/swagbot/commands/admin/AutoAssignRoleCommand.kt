@@ -7,8 +7,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.commands.getWrongArgumentsMessage
-import xyz.swagbot.database.getAutoAssignRole
-import xyz.swagbot.database.setAutoAssignRole
+import xyz.swagbot.database.autoAssignRole
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.getContent
@@ -47,8 +46,8 @@ object AutoAssignRoleCommand : Command(
         val embed = EmbedBuilder().withColor(BLUE)
 
         if (args.isEmpty()) {
-            if (event.guild.getAutoAssignRole() != null) {
-                embed.withDesc("Current auto assigned role is **${event.guild.getAutoAssignRole()!!.name}**")
+            if (event.guild.autoAssignRole != null) {
+                embed.withDesc("Current auto assigned role is **${event.guild.autoAssignRole!!.name}**")
             } else {
                 embed.withColor(RED)
                 embed.withDesc("There currently is no auto assign role set!")
@@ -64,10 +63,10 @@ object AutoAssignRoleCommand : Command(
                 embed.withDesc("No role with the name **$roleString** exists!")
                 return builder.withEmbed(embed)
             }
-            event.guild.setAutoAssignRole(role)
+            event.guild.autoAssignRole = role
             embed.withDesc("New users will be assigned the role **${role.name}** when they join this server.")
         } else if (args[0] == "remove") {
-            event.guild.setAutoAssignRole(null)
+            event.guild.autoAssignRole = null
             embed.withDesc("New users will no longer be automatically assigned a role.")
         } else
             return getWrongArgumentsMessage(builder, this, cmdUsed)

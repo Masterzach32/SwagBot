@@ -36,6 +36,8 @@ object Stats {
     val LMGTFY_SEARCH = Stat("LMGTFY Uses", "lmgtfy")
     val STRAWPOLL = Stat("Strawpolls Created", "strawpoll")
     val POLLS_CREATED = Stat("Polls Created", "polls_created")
+    val SPOTIFY_PLAYLISTS_QUEUED = Stat("Spotify Playlists Queued", "spotify_playlists")
+    val USERS_ARRESTED = Stat("Users_Arrested", "users_arrested")
 
     init {
         stats.filter { !it.exists() }.forEach { it.create() }
