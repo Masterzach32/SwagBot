@@ -11,10 +11,7 @@ import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.Stats
 import xyz.swagbot.audioPlayerManager
-import xyz.swagbot.dsl.getFormattedTitle
-import xyz.swagbot.dsl.getRequester
-import xyz.swagbot.dsl.getTrackPreferences
-import xyz.swagbot.dsl.getTrackUserData
+import xyz.swagbot.dsl.*
 import xyz.swagbot.logger
 
 class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapter() {
@@ -146,7 +143,7 @@ class TrackHandler(val guild: IGuild, val player: AudioPlayer) : AudioEventAdapt
         exception.printStackTrace()
         if (track != null) {
             RequestBuffer.request {
-                AdvancedMessageBuilder(track.getTrackUserData().requester.orCreatePMChannel)
+                AdvancedMessageBuilder(track.getTrackUserData().requester.privateChannel)
                         .withContent("A track you queued seems to have thrown an error: ${track.getFormattedTitle()}. " +
                                 "If you continue to encounter this error, consider opening an issue on the Github page.")
                         .build()

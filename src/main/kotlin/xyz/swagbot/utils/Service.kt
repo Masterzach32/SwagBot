@@ -31,15 +31,15 @@ import javax.management.NotificationListener
  * @author Zach Kozar
  * @version 9/1/2017
  */
-fun shutdown(client: IDiscordClient) {
+fun shutdown(client: IDiscordClient): Nothing {
     stop(client, ExitCode.EXITED)
 }
 
-fun shutdown(client: IDiscordClient, ec: ExitCode) {
+fun shutdown(client: IDiscordClient, ec: ExitCode): Nothing {
     stop(client, ec)
 }
 
-private fun stop(client: IDiscordClient, ec: ExitCode) {
+private fun stop(client: IDiscordClient, ec: ExitCode): Nothing {
     logger.debug("Purging track storage.")
     sql { TrackStorage.deleteAll() }
     logger.info("Shutting down audio player.")
@@ -61,9 +61,9 @@ private fun stop(client: IDiscordClient, ec: ExitCode) {
     exit(ec)
 }
 
-private fun exit(ec: ExitCode) {
+private fun exit(ec: ExitCode): Nothing {
     System.exit(ec.code)
-    logger.info("System.exit() is not functioning properly!")
+    throw IllegalStateException("System.exit() is not functioning properly!")
 }
 
 fun registerMemoryNotifications(client: IDiscordClient) {

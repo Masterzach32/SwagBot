@@ -12,6 +12,7 @@ object Spotify {
     private val redirectUri = SpotifyHttpManager.makeUri("https://swagbot.xyz/spotify-connected")
 
     private val playlistRegex = "^(?:https://open\\.spotify\\.com|spotify)([/:])user\\1([^/]+)\\1playlist\\1([a-zA-Z0-9]+)".toRegex()
+    private val albumRegex = "^(?:https://open\\.spotify\\.com|spotify)([/:])album\\1([a-zA-Z0-9]+)".toRegex()
 
     init {
         login(getKey("spotify_client"), getKey("spotify_secret"))
@@ -45,6 +46,18 @@ object Spotify {
         }
     }
 
+    fun getAlbum(url: String) {
+        try {
+            val result = albumRegex.find(url)!!
+            val album = result.groupValues[0]
+
+            val info = api.getAlbum(album).market(CountryCode.US).build().execute()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return
+        }
+    }
+
     data class Playlist(
             val name: String,
             val link: String,
@@ -53,5 +66,9 @@ object Spotify {
             val owner: String,
             val followerCount: Int,
             val tracks: List<Track>
+    )
+
+    data class Album(
+            val name: String
     )
 }
