@@ -21,7 +21,6 @@ repositories {
     mavenCentral()
     jcenter()
     maven { url  'https://jitpack.io' }
-    //maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencies {
@@ -34,7 +33,7 @@ dependencies {
     compile 'com.github.natanbc:discordbots-api:1.4'
     compile 'com.github.masterzach32:VT-Timetable-Api:1.0.1'
     compile 'com.github.masterzach32:Commands4K:1.2.2'
-    compile 'com.github.JetBrains:Exposed:0.10.2'
+    compile 'com.github.JetBrains:Exposed:0.10.4'
     compile 'org.jsoup:jsoup:1.11.2'
     compile 'com.vdurmont:emoji-java:4.0.0'
     compile 'se.michaelthelin.spotify:spotify-web-api-java:2.0.3'

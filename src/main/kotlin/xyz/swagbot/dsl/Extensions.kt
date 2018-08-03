@@ -66,17 +66,15 @@ fun AudioTrackInfo.hasThumbnail(): Boolean = uri.contains("youtu")
 fun AudioTrackInfo.getThumbnailUrl(): String = "https://img.youtube.com/vi/$identifier/0.jpg"
 
 fun IVoiceChannel.getTrackPreferences(): Map<String, Int> {
-    val preferences = mutableMapOf<String, Int>()
-
-    usersHere.asSequence()
-            .filter { it != client.ourUser }
-            .forEach { preferences.putAll(it.getTrackPreferences()) }
-
-    return preferences
+    return mutableMapOf<String, Int>().apply {
+        usersHere.asSequence()
+                .filter { it != client.ourUser }
+                .forEach { putAll(it.getTrackPreferences()) }
+    }
 }
 
 fun IUser.isOnVoice(): Boolean {
-    return RequestBuffer.request<Boolean> { voiceStates.values().mapNotNull { it.channel }.isNotEmpty() }.get()
+    return RequestBuffer.request<Boolean> { voiceStates.values().any { it.channel != null } }.get()
 }
 
 fun IUser.isOnVoice(guild: IGuild): Boolean {
@@ -84,7 +82,7 @@ fun IUser.isOnVoice(guild: IGuild): Boolean {
 }
 
 fun IUser.getConnectedVoiceChannel(): IVoiceChannel? {
-    return RequestBuffer.request<IVoiceChannel?> { voiceStates.values().mapNotNull { it.channel }.firstOrNull() }.get()
+    return RequestBuffer.request<IVoiceChannel?> { voiceStates.values().firstOrNull { it.channel != null }?.channel }.get()
 }
 
 fun IUser.getConnectedVoiceChannel(guild: IGuild): IVoiceChannel? {
@@ -96,3 +94,7 @@ val IUser.privateChannel: IChannel get() = orCreatePMChannel
 fun IUser.addRoles(roles: List<IRole>) = roles.forEach { RequestBuffer.request { addRole(it) } }
 
 fun IUser.removeRoles(roles: List<IRole>) = roles.forEach { RequestBuffer.request { removeRole(it) } }
+
+fun <T> request(block: () -> T) = RequestBuffer.request(block)!!
+
+fun <T> requestGet(block: () -> T) = request(block).get()

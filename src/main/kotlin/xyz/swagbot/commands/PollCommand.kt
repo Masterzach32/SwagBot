@@ -34,11 +34,11 @@ val PollCommand = createCommand("Poll") {
         guild {
             val embed = EmbedBuilder().withColor(BLUE)
             if (isPollChannel(event.channel)) {
-                sql { PollChannels.deleteWhere { PollChannels.id eq event.channel.longID } }
+                sql { PollChannels.deleteWhere { PollChannels.channel_id eq event.channel.longID } }
                 RequestBuffer.request { event.channel.removePermissionsOverride(event.guild.everyoneRole) }
                 embed.withDesc("This channel has been toggled off for polling.")
             } else {
-                sql { PollChannels.insert { it[PollChannels.id] = event.channel.longID } }
+                sql { PollChannels.insert { it[PollChannels.channel_id] = event.channel.longID } }
                 RequestBuffer.request {
                     event.channel.overrideRolePermissions(
                             event.guild.everyoneRole,
@@ -67,11 +67,11 @@ val PollCommand = createCommand("Poll") {
 
         listen<ChannelDeleteEvent> {
             if (isPollChannel(channel))
-                sql { PollChannels.deleteWhere { PollChannels.id eq channel.longID } }
+                sql { PollChannels.deleteWhere { PollChannels.channel_id eq channel.longID } }
         }
     }
 }
 
 private fun isPollChannel(channel: IChannel): Boolean = sql {
-    PollChannels.select { PollChannels.id eq channel.longID }.firstOrNull() != null
+    PollChannels.select { PollChannels.channel_id eq channel.longID }.firstOrNull() != null
 }

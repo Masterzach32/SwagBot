@@ -33,10 +33,10 @@ object BringCommand: Command("Bring Users", "bring", "here", botPerm = Permissio
             event: MessageReceivedEvent,
             builder: AdvancedMessageBuilder
     ): AdvancedMessageBuilder? {
-        if(!event.author.isOnVoice())
+        if(!event.author.isOnVoice(event.guild))
             return builder.withContent("**You need to be in a voice channel to summon users.**")
         val vc = event.author.getConnectedVoiceChannel()
-        event.guild.users
+        event.guild.users.asSequence()
                 .filter { it.isOnVoice(event.guild) }
                 .filter {
                     event.message.roleMentions.let { mentions ->

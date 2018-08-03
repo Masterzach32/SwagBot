@@ -5,6 +5,7 @@ import net.masterzach32.commands4k.AdvancedMessageBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.impl.obj.ReactionEmoji
+import sx.blah.discord.util.EmbedBuilder
 import java.net.URL
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObject
@@ -100,3 +101,7 @@ fun <E> List<E>.split(newSize: Int): List<List<E>> {
     }
     return lists.filterNotNull().filter { it.isNotEmpty() }
 }
+
+fun embedBlue(content: String? = null) = EmbedBuilder().withColor(BLUE).apply { if (content != null) withDesc(content) }
+
+fun embedRed(content: String? = null) = EmbedBuilder().withColor(RED).apply { if (content != null) withDesc(content) }

@@ -8,6 +8,8 @@ import xyz.swagbot.api.music.TrackHandler
 import xyz.swagbot.audioPlayerManager
 import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.dsl.getRequester
+import xyz.swagbot.dsl.request
+import xyz.swagbot.dsl.requestGet
 import xyz.swagbot.logger
 
 /*
@@ -251,3 +253,36 @@ fun IGuild.getGameSwitcherEntries(): Map<String, IVoiceChannel> {
             .associate { it[GameSwitcher.game] to getVoiceChannelByID(it[GameSwitcher.channel_id].toLong()) }
     }
 }
+
+val IGuild.areTempChannelsEnabled: Boolean
+    get() = tempChannelCategory != null
+
+var IGuild.tempChannelCategory: ICategory?
+    get() = sql { Guilds.select(thisGuild()).first()[Guilds.temp_category]?.let { client.getCategoryByID(it) } }
+    set(value) = sql { Guilds.update(thisGuild()) { it[Guilds.temp_category] = value?.longID } }
+
+fun IGuild.createTempChannel(name: String, owner: IUser): IVoiceChannel {
+    return createVoiceChannel(name).also { channel ->
+        sql {
+            TempChannel.new {
+                guildId = longID
+                channelId = channel.longID
+                ownerId = owner.longID
+            }
+        }
+    }
+}
+
+fun IGuild.getTempChannelForUser(user: IUser) = sql {
+    TempChannel.find { TempChannels.user_id eq user.longID }.firstOrNull()?.let { client.getVoiceChannelByID(it.channelId) }
+}
+
+fun IGuild.getTempChannels() = sql {
+    TempChannel.find { TempChannels.guild_id eq longID }
+            .mapNotNull { requestGet { client.getVoiceChannelByID(it.channelId) } }
+}
+
+
+// make sql easier
+
+private fun IGuild.thisGuild(): SqlExpressionBuilder.() -> Op<Boolean> = { Guilds.id eq longID }

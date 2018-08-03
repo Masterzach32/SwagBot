@@ -73,7 +73,8 @@ fun getDatabaseConnection(args: Array<String>): Database {
                         TrackStorage,
                         MusicProfile,
                         GameSwitcher,
-                        PollChannels
+                        PollChannels,
+                        TempChannels
                 )
             }
 

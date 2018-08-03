@@ -39,6 +39,8 @@ fun shutdown(client: IDiscordClient, ec: ExitCode): Nothing {
     stop(client, ec)
 }
 
+private val shutdownHooks = mutableListOf<() -> Unit>()
+
 private fun stop(client: IDiscordClient, ec: ExitCode): Nothing {
     logger.debug("Purging track storage.")
     sql { TrackStorage.deleteAll() }
@@ -50,7 +52,7 @@ private fun stop(client: IDiscordClient, ec: ExitCode): Nothing {
     }
     audioPlayerManager.shutdown()
 
-    StatusUpdate.shutdown()
+    shutdownHooks.forEach { it.invoke() }
 
     Unirest.shutdown()
 
@@ -65,6 +67,8 @@ private fun exit(ec: ExitCode): Nothing {
     System.exit(ec.code)
     throw IllegalStateException("System.exit() is not functioning properly!")
 }
+
+fun addShutdownHook(runnable: () -> Unit) = shutdownHooks.add(runnable)
 
 fun registerMemoryNotifications(client: IDiscordClient) {
     // heuristic to find the tenured pool (largest heap) as seen on http://www.javaspecialists.eu/archive/Issue092.html

@@ -6,11 +6,7 @@ class TrackUserData(val requester: IUser) {
 
     private val skipList = mutableSetOf<IUser>()
 
-    fun addSkipVote(user: IUser): Boolean {
-        return skipList.add(user)
-    }
+    fun addSkipVote(user: IUser) = skipList.add(user)
 
-    fun getSkipVoteCount(): Int {
-        return skipList.size
-    }
+    fun getSkipVoteCount() = skipList.size
 }

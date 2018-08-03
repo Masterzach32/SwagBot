@@ -1,5 +1,6 @@
 package xyz.swagbot.database
 
+import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.sql.Table
 
 /*
@@ -31,6 +32,7 @@ object Guilds : Table("sb_guilds") {
     val last_voice_channel = long("last_voice_channel").nullable()
     val timezone = text("timezone")
     val game_switcher = bool("game_switcher").default(false)
+    val temp_category = long("temp_channels").nullable()
 }
 
 data class GuildSettingsLoadObj(val id: Long, val volume: Int, val loop: Boolean, val lastVoiceChannel: Long?)
@@ -79,5 +81,21 @@ object GameSwitcher : Table("sb_game_switcher") {
 }
 
 object PollChannels : Table("sb_poll_channels") {
-    val id = long("channel_id").primaryKey()
+    val channel_id = long("channel_id").primaryKey()
+}
+
+object TempChannels : LongIdTable("sb_temp_channels") {
+    val guild_id = long("guild_id")
+    val channel_id = long("channel_id")
+    val user_id = long("user_id")
+    val timer_start = long("timer").nullable()
+}
+
+class TempChannel(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<TempChannel>(TempChannels)
+
+    var guildId by TempChannels.guild_id
+    var channelId by TempChannels.channel_id
+    var ownerId by TempChannels.user_id
+    var timerStart by TempChannels.timer_start
 }

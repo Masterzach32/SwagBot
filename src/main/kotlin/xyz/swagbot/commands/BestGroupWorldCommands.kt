@@ -3,6 +3,7 @@ package xyz.swagbot.commands
 import net.masterzach32.commands4k.AdvancedMessageBuilder
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
+import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.Stats
@@ -56,3 +57,25 @@ val ArrestCommand = createCommand("Arrest User") {
         }
     }
 }
+
+val DeleteLeoCommand = createCommand("Delete Leo") {
+    aliases = listOf("delete")
+
+    botPerm = Permission.ADMIN
+    discordPerms = listOf(Permissions.BAN)
+
+    helpText {
+        description = "Deletes a user. Only works on Leo."
+    }
+
+    onEvent {
+        guild {
+            val embed = EmbedBuilder().withColor(BLUE)
+
+
+
+            return@guild builder.withEmbed(embed)
+        }
+    }
+}
+

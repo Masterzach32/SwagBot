@@ -7,7 +7,7 @@ import java.io.File
 
 object PluginStore {
 
-    const val PLUGIN_DIR = "plugins"
+    private const val PLUGIN_DIR = "plugins"
 
     private val loadedPlugins = mutableListOf<Plugin>()
 

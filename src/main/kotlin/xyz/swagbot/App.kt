@@ -28,10 +28,10 @@ import xyz.swagbot.plugins.PluginStore
  * @author Zach Kozar
  * @version 8/22/17
  */
-const val VERSION = "2.0.1.114"
+const val VERSION = "2.0.2.118"
 const val DEFAULT_COMMAND_PREFIX = "~"
 
-val logger = LoggerFactory.getLogger("SwagBot Manager")!!
+val logger = LoggerFactory.getLogger("SwagBot")!!
 
 val audioPlayerManager = DefaultAudioPlayerManager()
 
@@ -137,12 +137,14 @@ fun main(args: Array<String>) {
             ShardStatusCommand
     )
 
-    cmds.add(ArrestCommand)
+    cmds.add(TempChannelsCommand, TempChannelToggleCommand)
+
+    cmds.add(ArrestCommand, DeleteLeoCommand)
 
     cmds.sortCommands()
 
+    //PluginStore.loadAllPlugins(cmds)
+
     logger.info("Waiting to receive guilds...")
     client.login()
-
-    PluginStore.loadAllPlugins(cmds)
 }

@@ -10,8 +10,7 @@ import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.Stats
 import xyz.swagbot.commands.getWrongArgumentsMessage
 import xyz.swagbot.logger
-import xyz.swagbot.utils.BLUE
-import xyz.swagbot.utils.RED
+import xyz.swagbot.utils.*
 import java.lang.Thread.sleep
 
 /*
@@ -30,7 +29,7 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
         discordPerms = listOf(Permissions.MANAGE_MESSAGES)) {
 
     init {
-        help.usage["<int>"] = "Delete the previous 2-100 messages no older than two weeks."
+        help.usage["<int>"] = "Delete the previous 2-99+ messages no older than two weeks."
     }
 
     override fun execute(cmdUsed: String, args: Array<String>, event: MessageReceivedEvent,
@@ -39,24 +38,26 @@ object PruneCommand : Command("Prune", "prune", "purge", botPerm = Permission.MO
             return getWrongArgumentsMessage(builder, this, cmdUsed)
         event.channel.toggleTypingStatus()
 
-        val embed = EmbedBuilder().withColor(RED).withDesc("Invalid amount specified. Must prune between 2-100 messages.")
+        val embed = embedRed("Invalid amount specified. Must prune between 2-100 messages.")
         val x: Int
         try {
             x = Integer.parseInt(args[0])
         } catch (e: NumberFormatException) {
             return builder.withEmbed(embed)
         }
-        if (x < 2 || x > 100)
+        if (x < 2 || x > 1000)
             return builder.withEmbed(embed)
 
         val history = RequestBuffer.request<MessageHistory> {
             event.channel.getMessageHistoryFrom(event.messageID, x+1)
         }.get()
 
-        val deleted = RequestBuffer.request<MutableList<IMessage>> { history.bulkDelete() }.get()
-        Stats.MESSAGES_PRUNED.addStat(deleted.size)
+        var deleted = 0
+        for (subList in history.split(100).map { MessageHistory(it) })
+            deleted += RequestBuffer.request<Int> { subList.bulkDelete().size }.get()
+        Stats.MESSAGES_PRUNED.addStat(deleted)
 
-        builder.withEmbed(embed.withColor(BLUE).withDesc("Removed the last **$x** messages."))
+        builder.withEmbed(embedBlue("Removed the last **$deleted** messages."))
         builder.withAutoDelete(5)
         return builder
     }

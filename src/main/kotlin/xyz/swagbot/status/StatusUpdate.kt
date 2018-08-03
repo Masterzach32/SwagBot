@@ -10,6 +10,7 @@ import sx.blah.discord.util.RequestBuffer
 import xyz.swagbot.database.getAllAudioHandlers
 import xyz.swagbot.database.getKey
 import xyz.swagbot.logger
+import xyz.swagbot.utils.addShutdownHook
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -88,10 +89,8 @@ object StatusUpdate : Runnable {
         })
 
         executor.scheduleAtFixedRate(this, 0, delay, TimeUnit.SECONDS)
-    }
 
-    fun shutdown() {
-        executor.shutdown()
+       addShutdownHook { executor.shutdown() }
     }
 
     override fun run() {
