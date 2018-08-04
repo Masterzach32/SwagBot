@@ -11,24 +11,35 @@ object PluginStore {
 
     private val loadedPlugins = mutableListOf<Plugin>()
 
-    fun loadAllPlugins(cm: CommandManager) {
+    init {
         System.setProperty("idea.io.use.fallback", "true")
+    }
+
+    fun loadAllPlugins(cm: CommandManager) {
         val pluginFiles = File(PLUGIN_DIR).walkTopDown().filter { it.isFile }.toList()
         logger.info("Found ${pluginFiles.size} plugins.")
 
         var count = 0
         pluginFiles.forEachIndexed { i, file ->
             logger.info("Attempting to load script ${i+1}/${pluginFiles.size}: ${file.name}")
-            try {
-                val plugin = KotlinScriptLoader.load<Plugin>(file)
-                register(plugin, cm)
+            val plugin = loadPlugin(file)
+            if (plugin != null) {
                 logger.info("Loaded plugin: $plugin")
+                register(plugin, cm)
                 count++
-            } catch (e: IllegalStateException) {
-                logger.info("Could not load script ${file.name}: $e")
+            } else {
+                logger.info("Could not load script ${file.name}. Check for compile errors.")
             }
         }
         logger.info("Loaded $count plugins.")
+    }
+
+    fun loadPlugin(file: File): Plugin? {
+        try {
+            return KotlinScriptLoader.load<Plugin>(file)
+        } catch (e: IllegalStateException) {
+            return null
+        }
     }
 
     fun unloadAllPlugins(cm: CommandManager) {
@@ -37,6 +48,8 @@ object PluginStore {
             logger.info("Unloaded plugin: $it")
         }
     }
+
+    fun getPluginByName(name: String): Plugin? = loadedPlugins.firstOrNull { it.name.contains(name) }
 
     fun register(plugin: Plugin, cm: CommandManager) {
         plugin.commands.forEach { cm.add(it) }
