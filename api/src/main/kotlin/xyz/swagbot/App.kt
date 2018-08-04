@@ -129,14 +129,10 @@ fun main(args: Array<String>) {
     cmds.add(EditPermissionsCommand)
     cmds.add(GameSwitchCommand)
 
-    cmds.add(TempChannelsCommand, TempChannelToggleCommand)
-
-    cmds.add(ArrestCommand, DeleteLeoCommand)
-
     cmds.sortCommands()
+
+    PluginStore.loadAllPlugins(cmds)
 
     logger.info("Waiting to receive guilds...")
     client.login()
-
-    PluginStore.loadAllPlugins(cmds)
 }

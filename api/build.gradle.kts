@@ -56,5 +56,5 @@ tasks.withType<JavaExec> {
 }
 
 tasks.getByName("jar").doLast {
-    file("$buildDir/libs").walkTopDown().first { it.isFile }.copyTo(file("$rootDir/run/SwagBot.jar"))
+    file("$buildDir/libs").walkTopDown().first { it.isFile }.copyTo(file("$rootDir/run/SwagBot.jar"), true)
 }

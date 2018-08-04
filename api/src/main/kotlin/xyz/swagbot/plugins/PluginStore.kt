@@ -12,6 +12,7 @@ object PluginStore {
     private val loadedPlugins = mutableListOf<Plugin>()
 
     fun loadAllPlugins(cm: CommandManager) {
+        System.setProperty("idea.io.use.fallback", "true")
         val pluginFiles = File(PLUGIN_DIR).walkTopDown().filter { it.isFile }.toList()
         logger.info("Found ${pluginFiles.size} plugins.")
 
@@ -27,7 +28,7 @@ object PluginStore {
                 logger.info("Could not load script ${file.name}: $e")
             }
         }
-        logger.info("Loaded $count plugins")
+        logger.info("Loaded $count plugins.")
     }
 
     fun unloadAllPlugins(cm: CommandManager) {
