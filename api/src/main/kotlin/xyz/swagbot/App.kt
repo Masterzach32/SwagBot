@@ -6,6 +6,8 @@ import net.masterzach32.commands4k.CommandListener
 import net.masterzach32.commands4k.Permission
 import org.slf4j.LoggerFactory
 import sx.blah.discord.api.ClientBuilder
+import sx.blah.discord.handle.obj.IGuild
+import sx.blah.discord.handle.obj.IUser
 import xyz.swagbot.api.music.Spotify
 import xyz.swagbot.commands.*
 import xyz.swagbot.commands.admin.*
@@ -37,6 +39,20 @@ val audioPlayerManager = DefaultAudioPlayerManager()
 
 lateinit var cmds: CommandListener
 
+fun getCommandPrefix(guild: IGuild?) = guild?.commandPrefix ?: DEFAULT_COMMAND_PREFIX
+
+fun IUser.getUserPermission(guild: IGuild?): Permission {
+    if (guild == null)
+        return this.getBotDMPermission()
+    else {
+        val perm = this.getBotPermission(guild)
+        if (guild.owner == this && perm != Permission.DEVELOPER)
+            return Permission.ADMIN
+        else
+            return perm
+    }
+}
+
 fun main(args: Array<String>) {
     logger.info("Starting SwagBot version $VERSION.")
 
@@ -63,24 +79,8 @@ fun main(args: Array<String>) {
     client.dispatcher.registerListener(UserStatusListener)
 
     logger.info("Initializing commands.")
-    cmds = CommandListener(
-            client.dispatcher,
-            { it?.commandPrefix ?: DEFAULT_COMMAND_PREFIX },
-            {
-                if (it == null)
-                    this.getBotDMPermission()
-                else {
-                    val perm = this.getBotPermission(it)
-                    if (it.owner == this && perm != Permission.DEVELOPER)
-                        Permission.ADMIN
-                    else
-                        perm
-                }
-            }
-    )
+    cmds = CommandListener(client.dispatcher, ::getCommandPrefix, IUser::getUserPermission)
 
-    // basic
-    cmds.add(DonateCommand, InfoCommand, InviteCommand, PingCommand, SupportCommand, StatsCommand)
     // music
     cmds.add(AutoPlayCommand, RefreshAudioPlayerCommand, QueueCommand2, NowPlayingCommand2)
     cmds.add(ClearCommand)
@@ -128,14 +128,6 @@ fun main(args: Array<String>) {
     //cmds.add(ChatOnlyCommand)
     cmds.add(EditPermissionsCommand)
     cmds.add(GameSwitchCommand)
-    // dev
-    cmds.add(
-            ShutdownCommand,
-            GarbageCollectionCommand,
-            JvmStatsCommand,
-            SetMotdCommand,
-            ShardStatusCommand
-    )
 
     cmds.add(TempChannelsCommand, TempChannelToggleCommand)
 
@@ -143,8 +135,8 @@ fun main(args: Array<String>) {
 
     cmds.sortCommands()
 
-    //PluginStore.loadAllPlugins(cmds)
-
     logger.info("Waiting to receive guilds...")
     client.login()
+
+    PluginStore.loadAllPlugins(cmds)
 }

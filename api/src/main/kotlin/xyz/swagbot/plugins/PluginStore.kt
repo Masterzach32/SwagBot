@@ -46,6 +46,7 @@ object PluginStore {
     fun unregister(plugin: Plugin, cm: CommandManager) {
         plugin.commands.forEach { cm.remove(it) }
         plugin.listeners.forEach { cm.dispatcher.unregisterListener(it) }
+        plugin.onUnload?.invoke()
         loadedPlugins.remove(plugin)
     }
 }

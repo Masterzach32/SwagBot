@@ -14,12 +14,18 @@ class Plugin {
     val commands = mutableListOf<Command>()
     val listeners = mutableListOf<IListener<Event>>()
 
+    internal var onUnload: (() -> Unit)? = null
+
     fun newCommand(name: String, builder: CommandBuilder.() -> Unit) {
         commands.add(createCommand(name, builder))
     }
 
     inline fun <reified E : Event> newListener(crossinline event: E.() -> Unit) {
         listeners.add(IListener { (it as? E)?.event() })
+    }
+
+    fun onUnload(block: () -> Unit) {
+        onUnload = block
     }
 
     override fun toString(): String = "$name $version"
