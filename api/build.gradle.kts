@@ -8,9 +8,10 @@ plugins {
 
 group = "xyz.swagbot"
 version = "2.0"
+val mainClass = "xyz.swagbot.AppKt"
 
 application {
-    mainClassName = "xyz.swagbot.AppKt"
+    mainClassName = mainClass
 }
 
 dependencies {
@@ -44,7 +45,7 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Jar> {
     manifest {
-        attributes["Main-Class"] = "xyz.swagbot.AppKt"
+        attributes["Main-Class"] = mainClass
     }
 
     configurations["compileClasspath"].forEach { from(zipTree(it.absoluteFile)) }

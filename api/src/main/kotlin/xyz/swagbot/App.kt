@@ -30,7 +30,7 @@ import xyz.swagbot.plugins.PluginStore
  * @author Zach Kozar
  * @version 8/22/17
  */
-const val VERSION = "2.0.2.118"
+const val VERSION = "2.0.3.130"
 const val DEFAULT_COMMAND_PREFIX = "~"
 
 val logger = LoggerFactory.getLogger("SwagBot")!!
@@ -101,7 +101,6 @@ fun main(args: Array<String>) {
     cmds.add(SkipToCommand)
     cmds.add(VoteSkipCommand)
     // normal
-    cmds.add(LookupCRNCommand, PollCommand)
     cmds.add(CatCommand)
     cmds.add(DogCommand)
     cmds.add(BrawlCommand)
@@ -118,7 +117,6 @@ fun main(args: Array<String>) {
     cmds.add(VoiceCommand)
     cmds.add(VolumeCommand)
     // mod
-    cmds.add(UserInfoCommand)
     cmds.add(BringCommand)
     cmds.add(MigrateCommand)
     cmds.add(PruneCommand)

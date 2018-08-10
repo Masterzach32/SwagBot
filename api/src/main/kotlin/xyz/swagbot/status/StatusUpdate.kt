@@ -95,10 +95,10 @@ object StatusUpdate : Runnable {
 
     override fun run() {
         val nextStatus = messages.removeAt(0)
-        val message = nextStatus.getMessage()
+        val message = nextStatus.message
         messages.add(nextStatus)
         if (message != null)
-            RequestBuffer.request { client!!.changePresence(StatusType.ONLINE, ActivityType.PLAYING, nextStatus.getMessage()) }
+            RequestBuffer.request { client!!.changePresence(StatusType.ONLINE, ActivityType.PLAYING, message) }
         else
             run()
     }

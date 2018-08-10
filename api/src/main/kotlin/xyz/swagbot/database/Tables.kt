@@ -80,10 +80,6 @@ object GameSwitcher : Table("sb_game_switcher") {
     val channel_id = long("channel_id")
 }
 
-object PollChannels : Table("sb_poll_channels") {
-    val channel_id = long("channel_id").primaryKey()
-}
-
 object TempChannels : LongIdTable("sb_temp_channels") {
     val guild_id = long("guild_id")
     val channel_id = long("channel_id")

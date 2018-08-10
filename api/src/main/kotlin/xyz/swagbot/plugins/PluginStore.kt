@@ -20,7 +20,7 @@ object PluginStore {
         logger.info("Found ${pluginFiles.size} plugins.")
 
         var count = 0
-        pluginFiles.forEachIndexed { i, file ->
+        pluginFiles.filterNot { it.name.startsWith("_") }.forEachIndexed { i, file ->
             logger.info("Attempting to load script ${i+1}/${pluginFiles.size}: ${file.name}")
             val plugin = loadPlugin(file)
             if (plugin != null) {

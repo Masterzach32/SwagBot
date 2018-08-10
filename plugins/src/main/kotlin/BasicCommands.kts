@@ -1,12 +1,14 @@
 import net.masterzach32.commands4k.Permission
 import sx.blah.discord.Discord4J
-import sx.blah.discord.util.EmbedBuilder
+import sx.blah.discord.handle.obj.IUser
 import xyz.swagbot.DEFAULT_COMMAND_PREFIX
 import xyz.swagbot.Stats
 import xyz.swagbot.VERSION
 import xyz.swagbot.database.commandPrefix
 import xyz.swagbot.plugins.createPlugin
-import xyz.swagbot.utils.BLUE
+import xyz.swagbot.utils.embedBlue
+import xyz.swagbot.utils.embedRed
+import xyz.swagbot.utils.getContent
 
 createPlugin {
     name = "Basic Bot Commands"
@@ -39,12 +41,11 @@ createPlugin {
         }
 
         onEvent {
-            all {
-                val embed = EmbedBuilder().withColor(BLUE)
+            val embed = embedBlue("Help support the development of SwagBot by pledging money on Patreon or donating " +
+                    "to my PayPal.\n\nhttps://patreon.com/ultimatedoge\n\nhttps://paypal.me/ultimatedoge")
 
-                return@all builder.withEmbed(embed.withDesc("Help support the development of SwagBot by pledging " +
-                        "money on Patreon or donating to my PayPal.\n\nhttps://patreon.com/ultimatedoge" +
-                        "\n\nhttps://paypal.me/ultimatedoge"))
+            all {
+                return@all builder.withEmbed(embed)
             }
         }
     }
@@ -60,7 +61,7 @@ createPlugin {
 
         onEvent {
             all {
-                val embed = EmbedBuilder().withColor(BLUE)
+                val embed = embedBlue()
 
                 embed.withAuthorName("SwagBot v2 ($VERSION)")
                 embed.withAuthorIcon("http://swagbot.xyz/images/banner.png")
@@ -95,11 +96,11 @@ createPlugin {
         }
 
         onEvent {
+            val embed = embedBlue()
+                    .withTitle("Click this link to add SwagBot to your server!")
+                    .withDesc("https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=87149640")
+
             all {
-                val embed = EmbedBuilder()
-                        .withColor(BLUE)
-                        .withTitle("Click this link to add SwagBot to your server!")
-                        .withDesc("https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=87149640")
                 return@all builder.withEmbed(embed)
             }
         }
@@ -115,13 +116,44 @@ createPlugin {
         }
 
         onEvent {
-            val embed = EmbedBuilder().withColor(BLUE)
+            val embed = embedBlue("Need help with SwagBot? Make sure you have read the " +
+                    "getting started guide: https://swagbot.xyz/gettingstarted\n\n" +
+                    "Still having trouble? Join the SwagBot support server: https://discord.me/swagbothub\n\n" +
+                    "If you want to help fix a bug, submit an issue on GitHub: https://github.com/Masterzach32/SwagBot")
 
             all {
-                return@all builder.withEmbed(embed.withDesc("Need help with SwagBot? Make sure you have read the " +
-                        "getting started guide: https://swagbot.xyz/gettingstarted\n\n" +
-                        "Still having trouble? Join the SwagBot support server: https://discord.me/swagbothub\n\n" +
-                        "If you want to help fix a bug, submit an issue on GitHub: https://github.com/Masterzach32/SwagBot"))
+                return@all builder.withEmbed(embed)
+            }
+        }
+    }
+
+    newCommand("User Info") {
+        aliases = listOf("userinfo", "user", "ui")
+
+        botPerm = Permission.DEVELOPER
+
+        helpText {
+            description = "Get information on a specific user. Can lookup by mention, user id, or name."
+        }
+
+        onEvent {
+            guild {
+                val user: IUser = when {
+                    event.message.mentions.isNotEmpty() -> event.message.mentions.first()
+                    args.size == 1 -> event.client.getUserByID(args.first().toLong())
+                    args.size > 1 -> event.client.getUsersByName(getContent(args, 0), true).firstOrNull()
+                    else -> null
+                } ?: return@guild builder.withEmbed(embedRed("Could not find that user!"))
+
+                val embed = embedBlue()
+
+                embed.withAuthorName("${user.name}#${user.discriminator}")
+                embed.withAuthorIcon(user.avatarURL)
+
+                embed.withDesc("Joined discord on ${user.creationDate.epochSecond}")
+
+
+                return@guild builder.withEmbed(embed)
             }
         }
     }
@@ -137,7 +169,7 @@ createPlugin {
 
         onEvent {
             all {
-                val embed = EmbedBuilder().withColor(BLUE)
+                val embed = embedBlue()
 
                 Stats.getStatObjects().forEach { embed.appendField(it.name, "${it.stat}", true) }
                 builder.withEmbed(embed)

@@ -25,7 +25,7 @@ class CheckTempChannelsTask(val client: IDiscordClient) : Runnable {
         try {
             sql {
                 TempChannel.all().asSequence()
-                        .map { it to requestGet { client.getVoiceChannelByID(it.channelId) } }
+                        .map { it to client.getVoiceChannelByID(it.channelId) }
                         .forEach {
                             if (it.second.connectedUsers.isNotEmpty()) {
                                 if (it.first.timerStart != null) {

@@ -1,3 +1,5 @@
+package admin
+
 import net.masterzach32.commands4k.Permission
 import sx.blah.discord.util.EmbedBuilder
 import xyz.swagbot.cmds
