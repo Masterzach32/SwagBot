@@ -12,8 +12,7 @@ import xyz.swagbot.database.isBotLocked
 import xyz.swagbot.database.trackHandler
 import xyz.swagbot.utils.BLUE
 
-object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD,
-        botPerm = Permission.MOD) {
+object SkipToCommand : Command("Skip To Track", "skipto", scope = Scope.GUILD, botPerm = Permission.MOD) {
 
     init {
         help.usage["<int>"] = "Skip to the specified track in the queue. If the integer specified is larger than the " +

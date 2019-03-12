@@ -70,12 +70,6 @@ fun IGuild.shutdownAudioPlayer(saveTracks: Boolean) {
     audioHandlers.remove(longID)?.player?.destroy()
 }
 
-fun IGuild.refreshAudioPlayer() {
-    shutdownAudioPlayer(false)
-    client.ourUser.getConnectedVoiceChannel(this)?.leave()
-    initialize()
-}
-
 private fun IGuild.createPlayer(): TrackHandler {
     val player = audioPlayerManager.createPlayer()
     val listener = TrackHandler(this, player)
@@ -91,8 +85,15 @@ val IGuild.trackHandler: TrackHandler
         if (audioHandlers[longID] == null)
             initialize()
         val handler = audioHandlers[longID]!!
-        if (!handler.player.isPaused && handler.player.playingTrack == null && handler.getQueue().isNotEmpty())
-            handler.playNext()
+        if (handler.player.playingTrack == null && handler.getQueue().isNotEmpty()) {
+            if (handler.player.isPaused) {
+                handler.player.isPaused = false
+                handler.playNext()
+                handler.player.isPaused = true
+            } else {
+                handler.playNext()
+            }
+        }
         return handler
     }
 

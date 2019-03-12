@@ -3,6 +3,7 @@ package xyz.swagbot.plugins
 import net.masterzach32.commands4k.CommandManager
 import xyz.swagbot.logger
 import xyz.swagbot.utils.KotlinScriptLoader
+import xyz.swagbot.utils.addShutdownHook
 import java.io.File
 
 object PluginStore {
@@ -13,6 +14,8 @@ object PluginStore {
 
     init {
         System.setProperty("idea.io.use.fallback", "true")
+
+        addShutdownHook { loadedPlugins.toTypedArray().forEach { it.onUnload?.invoke() } }
     }
 
     fun loadAllPlugins(cm: CommandManager) {
@@ -43,7 +46,7 @@ object PluginStore {
     }
 
     fun unloadAllPlugins(cm: CommandManager) {
-        loadedPlugins.forEach {
+        loadedPlugins.toTypedArray().forEach {
             unregister(it, cm)
             logger.info("Unloaded plugin: $it")
         }

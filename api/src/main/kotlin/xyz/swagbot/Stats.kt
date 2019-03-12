@@ -37,7 +37,8 @@ object Stats {
     val STRAWPOLL = Stat("Strawpolls Created", "strawpoll")
     val POLLS_CREATED = Stat("Polls Created", "polls_created")
     val SPOTIFY_PLAYLISTS_QUEUED = Stat("Spotify Playlists Queued", "spotify_playlists")
-    val USERS_ARRESTED = Stat("Users_Arrested", "users_arrested")
+    val USERS_ARRESTED = Stat("Users Arrested", "users_arrested")
+    val USERS_CONVICTED = Stat("Users Convicted", "users_convicted")
 
     init {
         stats.filter { !it.exists() }.forEach { it.create() }

@@ -30,7 +30,7 @@ import xyz.swagbot.plugins.PluginStore
  * @author Zach Kozar
  * @version 8/22/17
  */
-const val VERSION = "2.0.3.130"
+const val VERSION = "2.0.3.135"
 const val DEFAULT_COMMAND_PREFIX = "~"
 
 val logger = LoggerFactory.getLogger("SwagBot")!!
@@ -40,18 +40,6 @@ val audioPlayerManager = DefaultAudioPlayerManager()
 lateinit var cmds: CommandListener
 
 fun getCommandPrefix(guild: IGuild?) = guild?.commandPrefix ?: DEFAULT_COMMAND_PREFIX
-
-fun IUser.getUserPermission(guild: IGuild?): Permission {
-    if (guild == null)
-        return this.getBotDMPermission()
-    else {
-        val perm = this.getBotPermission(guild)
-        if (guild.owner == this && perm != Permission.DEVELOPER)
-            return Permission.ADMIN
-        else
-            return perm
-    }
-}
 
 fun main(args: Array<String>) {
     logger.info("Starting SwagBot version $VERSION.")
@@ -79,7 +67,7 @@ fun main(args: Array<String>) {
     client.dispatcher.registerListener(UserStatusListener)
 
     logger.info("Initializing commands.")
-    cmds = CommandListener(client.dispatcher, ::getCommandPrefix, IUser::getUserPermission)
+    cmds = CommandListener(client.dispatcher, ::getCommandPrefix, IUser::getBotPermission)
 
     // music
     cmds.add(AutoPlayCommand, RefreshAudioPlayerCommand, QueueCommand2, NowPlayingCommand2)
@@ -126,6 +114,8 @@ fun main(args: Array<String>) {
     //cmds.add(ChatOnlyCommand)
     cmds.add(EditPermissionsCommand)
     cmds.add(GameSwitchCommand)
+
+    cmds.add(ArrestCommand, PardonCommand, DeleteUserCommand)
 
     cmds.sortCommands()
 

@@ -10,6 +10,7 @@ import xyz.swagbot.database.TrackStorage
 import xyz.swagbot.database.shutdownAudioPlayer
 import xyz.swagbot.database.sql
 import xyz.swagbot.logger
+import xyz.swagbot.plugins.PluginStore
 import xyz.swagbot.status.StatusUpdate
 import java.lang.management.ManagementFactory
 import java.lang.management.MemoryNotificationInfo

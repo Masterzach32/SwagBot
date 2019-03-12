@@ -91,9 +91,9 @@ fun IUser.getConnectedVoiceChannel(guild: IGuild): IVoiceChannel? {
 
 val IUser.privateChannel: IChannel get() = orCreatePMChannel
 
-fun IUser.addRoles(roles: List<IRole>) = roles.forEach { RequestBuffer.request { addRole(it) } }
+fun IUser.addRoles(roles: List<IRole>) = roles.forEach { request { addRole(it) } }
 
-fun IUser.removeRoles(roles: List<IRole>) = roles.forEach { RequestBuffer.request { removeRole(it) } }
+fun IUser.removeRoles(roles: List<IRole>) = roles.forEach { request { removeRole(it) } }
 
 fun <T> request(block: () -> T) = RequestBuffer.request(block)!!
 

@@ -6,12 +6,20 @@ import org.jetbrains.exposed.sql.*
 import sx.blah.discord.handle.obj.IGuild
 import sx.blah.discord.handle.obj.IUser
 
-fun IUser.getBotPermission(guild: IGuild): Permission {
-    val permId = sql {
-        Permissions.select { (Permissions.user_id eq longID) and (Permissions.guild_id eq guild.longID) }
-                .firstOrNull()?.get(Permissions.permission) ?: Permission.NORMAL.ordinal
+fun IUser.getBotPermission(guild: IGuild?): Permission {
+    if (guild == null)
+        return this.getBotDMPermission()
+    else {
+        val perm = sql {
+            Permissions.select { (Permissions.user_id eq longID) and (Permissions.guild_id eq guild.longID) }
+                    .firstOrNull()?.get(Permissions.permission) ?: Permission.NORMAL.ordinal
+        }.let { Permission.values()[it] }
+
+        if (guild.owner == this && perm != Permission.DEVELOPER)
+            return Permission.ADMIN
+        else
+            return perm
     }
-    return Permission.values()[permId]
 }
 
 fun IUser.setBotPermission(guild: IGuild, permission: Permission) {
@@ -33,18 +41,16 @@ fun IUser.setBotPermission(guild: IGuild, permission: Permission) {
 
 fun IUser.getBotDMPermission(): Permission {
     return sql {
-        val perms = mutableListOf<Permission>()
-        Permissions
-                .select { Permissions.user_id eq longID }
-                .forEach {
-                    perms.add(when (it[Permissions.permission]) {
+        val perms = Permissions.select { Permissions.user_id eq longID }
+                .map {
+                    when (it[Permissions.permission]) {
                         0 -> Permission.NONE
                         1 -> Permission.NORMAL
                         2 -> Permission.MOD
                         3 -> Permission.ADMIN
                         4 -> Permission.DEVELOPER
                         else -> Permission.NORMAL
-                    })
+                    }
                 }
 
         if (perms.contains(Permission.DEVELOPER))

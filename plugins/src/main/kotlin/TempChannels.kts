@@ -83,13 +83,6 @@ createPlugin {
 
                 return@guild builder.withEmbed(embed)
             }
-
-            listen<CategoryDeleteEvent> {
-                if (category.longID == sql { xyz.swagbot.database.Guilds.select { Guilds.id eq guild.longID }.first()[Guilds.temp_category] }) {
-                    guild.tempChannelCategory = null
-                    guild.getTempChannels().forEach { request { it.delete() } }
-                }
-            }
         }
     }
 
@@ -120,10 +113,6 @@ createPlugin {
 
                 return@guild builder.withEmbed(embed)
             }
-
-            listen<VoiceChannelDeleteEvent> {
-                sql { TempChannel.find { TempChannels.channel_id eq voiceChannel.longID }.firstOrNull()?.delete() }
-            }
         }
     }
 
@@ -142,5 +131,16 @@ createPlugin {
         Executors.newScheduledThreadPool(1) { Thread("TempChannels Watcher") { it.run() } }
                 .apply { scheduleAtFixedRate(CheckTempChannelsTask(client), 1, 1, TimeUnit.MINUTES) }
                 .also { addShutdownHook { it.shutdown() } }
+    }
+
+    newListener<CategoryDeleteEvent> {
+        if (category.longID == sql { xyz.swagbot.database.Guilds.select { Guilds.id eq guild.longID }.first()[Guilds.temp_category] }) {
+            guild.tempChannelCategory = null
+            guild.getTempChannels().forEach { request { it.delete() } }
+        }
+    }
+
+    newListener<VoiceChannelDeleteEvent> {
+        sql { TempChannel.find { TempChannels.channel_id eq voiceChannel.longID }.firstOrNull()?.delete() }
     }
 }

@@ -3,9 +3,8 @@ package xyz.swagbot.commands
 import net.masterzach32.commands4k.Permission
 import net.masterzach32.commands4k.builder.createCommand
 import sx.blah.discord.util.EmbedBuilder
-import xyz.swagbot.database.commandPrefix
-import xyz.swagbot.database.refreshAudioPlayer
-import xyz.swagbot.database.trackHandler
+import xyz.swagbot.database.*
+import xyz.swagbot.dsl.getConnectedVoiceChannel
 import xyz.swagbot.utils.BLUE
 import xyz.swagbot.utils.RED
 import xyz.swagbot.utils.listOfEmojis
@@ -54,7 +53,7 @@ val AutoPlayCommand = createCommand("Autoplay") {
 }
 
 val RefreshAudioPlayerCommand = createCommand("Refresh Audio Player") {
-    aliases = listOf("refresh")
+    aliases = listOf("refreshaudio", "refresh")
 
     botPerm = Permission.MOD
 
@@ -65,7 +64,11 @@ val RefreshAudioPlayerCommand = createCommand("Refresh Audio Player") {
 
     onEvent {
         guild {
-            event.guild.refreshAudioPlayer()
+            event.guild.apply {
+                shutdownAudioPlayer(false)
+                event.client.ourUser.getConnectedVoiceChannel(this)?.leave()
+                initialize()
+            }
 
             return@guild null
         }

@@ -57,6 +57,8 @@ object QueueCommand : Command("View Track Queue", "queue", scope = Command.Scope
                 return getWrongArgumentsMessage(builder, this, cmdUsed)
             }
         }
+        if (audioHandler.getQueue().isNotEmpty() && audioHandler.player.playingTrack == null)
+            audioHandler.playNext()
 
         embed.withTitle("Track Queue")
         embed.appendField(
