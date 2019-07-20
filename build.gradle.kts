@@ -1,27 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    application
-    kotlin("jvm") version "1.2.60"
+    kotlin("jvm") version "1.3.31"
 }
 
-allprojects {
-    group = "xyz.swagbot"
-    version = "2.0"
+group = "xyz.swagbot"
+version = "3.0"
 
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven { setUrl("https://jitpack.io") }
-    }
-}
-
-application {
-    mainClassName = "xyz.swagbot.AppKt"
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib-jdk8"))
+    implementation("com.discord4j:discord4j-core:3.0.5")
 }
 
 tasks.withType<KotlinCompile> {
