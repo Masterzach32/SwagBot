@@ -4,6 +4,7 @@ import com.mojang.brigadier.*
 import com.mojang.brigadier.arguments.StringArgumentType.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.extensions.*
+import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
 
 object BringCommand : ChatCommand {

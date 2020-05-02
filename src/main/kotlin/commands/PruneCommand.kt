@@ -6,6 +6,7 @@ import discord4j.core.`object`.entity.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.extensions.*
 import reactor.core.publisher.*
+import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
 import xyz.swagbot.util.*
 import java.time.*

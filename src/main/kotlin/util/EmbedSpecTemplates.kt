@@ -2,7 +2,7 @@ package xyz.swagbot.util
 
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.core.spec.*
-import xyz.swagbot.features.music.*
+import xyz.swagbot.extensions.*
 import java.time.*
 import java.util.function.*
 

@@ -16,13 +16,14 @@ object VolumeCommand : ChatCommand {
                 val source = context.source
                 source.event.guildId.ifPresent { guildId ->
                     val newVol = context.getInt("level")
-                    source.client.feature(Music).updateVolumeFor(guildId, newVol)
                     source.message.channel
                         .flatMap { channel ->
                             channel.createEmbed {
                                 it.setColor(BLUE)
                                 it.setDescription("Volume changed to **$newVol**")
                             }
+                        }.flatMap {
+                            source.client.feature(Music).updateVolumeFor(guildId, newVol)
                         }
                         .subscribe()
                 }.let { 1 }
@@ -30,15 +31,14 @@ object VolumeCommand : ChatCommand {
             }).executes { context ->
                 val source = context.source
                 source.event.guildId.ifPresent { guildId ->
-                    val vol = source.client.feature(Music).volumeFor(guildId)
-                    source.message.channel
-                        .flatMap { channel ->
+                    source.client.feature(Music).volumeFor(guildId).flatMap { vol ->
+                        source.message.channel.flatMap { channel ->
                             channel.createEmbed {
                                 it.setColor(BLUE)
                                 it.setDescription("Volume is at **$vol**")
                             }
                         }
-                        .subscribe()
+                    }.subscribe()
                 }.let { 1 }
             })
         }

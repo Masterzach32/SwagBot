@@ -7,17 +7,21 @@ import io.facet.core.extensions.*
 import io.facet.discord.*
 import io.facet.discord.extensions.*
 import org.jetbrains.exposed.sql.*
+import reactor.core.publisher.*
 import xyz.swagbot.*
 import xyz.swagbot.database.*
+import xyz.swagbot.features.*
 import java.util.*
 
-class GuildStorage(config: Config) {
+class GuildStorage private constructor() {
 
-    private val tasks = mutableListOf<(GuildCreateEvent) -> Unit>()
+    private val tasks = mutableListOf<(GuildCreateEvent) -> Mono<Void>>()
 
-    fun hasGuild(id: Snowflake) = sql { GuildTable.select { GuildTable.guildId eq id.asLong() }.firstOrNull() != null }
+    fun hasGuild(id: Snowflake): Mono<Boolean> = sql {
+        GuildTable.select { GuildTable.guildId eq id.asLong() }.firstOrNull() != null
+    }
 
-    fun commandPrefixFor(guildId: Optional<Snowflake>): String = sql {
+    fun commandPrefixFor(guildId: Optional<Snowflake>): Mono<String> = sql {
         guildId.flatMap { id ->
             GuildTable.select(GuildTable.whereGuildIs(id))
                 .firstOrNull()
@@ -26,31 +30,29 @@ class GuildStorage(config: Config) {
         }.orElse("~")
     }
 
-    fun updateCommandPrefixFor(guildId: Snowflake, commandPrefix: String) = sql {
+    fun updateCommandPrefixFor(guildId: Snowflake, commandPrefix: String): Mono<Void> = sql {
         GuildTable.update(GuildTable.whereGuildIs(guildId)) {
             it[GuildTable.commandPrefix] = commandPrefix
         }
-    }
+    }.then()
 
-    fun addTaskOnInitialization(task: (GuildCreateEvent) -> Unit) = tasks.add(task)
+    fun addTaskOnGuildInitialization(task: (GuildCreateEvent) -> Mono<Void>) = tasks.add(task)
 
-    class Config
+    companion object : DiscordClientFeature<EmptyConfig, GuildStorage>("guildStorage") {
 
-    companion object : DiscordClientFeature<Config, GuildStorage>("guildStorage") {
-
-        override fun install(client: DiscordClient, configuration: Config.() -> Unit): GuildStorage {
+        override fun install(client: DiscordClient, configuration: EmptyConfig.() -> Unit): GuildStorage {
             sql { create(GuildTable) }
 
-            return GuildStorage(Config().apply(configuration)).also { feature ->
-
+            return GuildStorage().also { feature ->
                 client.listen<GuildCreateEvent>()
-                    .map { event ->
-                        if (!feature.hasGuild(event.guild.id)) {
-                            logger.info("New guild joined with id ${event.guild.id}, adding to database.")
-                            sql { GuildTable.insert { it[guildId] = event.guild.id.asLong() } }
-                        }
-                        logger.debug("Running initialization tasks for guild with id ${event.guild.id}.")
-                        feature.tasks.forEach { it.invoke(event) }
+                    .flatMap { event ->
+                        feature.hasGuild(event.guild.id)
+                            .filter { !it }
+                            .flatMap {
+                                logger.info("New guild joined with id ${event.guild.id}, adding to database.")
+                                sql { GuildTable.insert { it[guildId] = event.guild.id.asLong() } }
+                            }
+                            .then(feature.tasks.toFlux().flatMap { it.invoke(event) }.then())
                     }
                     .subscribe()
             }

@@ -7,14 +7,12 @@ import io.facet.discord.*
 import io.facet.discord.extensions.*
 import xyz.swagbot.features.music.*
 
-class BotPresence(config: Config) {
+class BotPresence private constructor() {
 
-    class Config
+    companion object : DiscordClientFeature<EmptyConfig, BotPresence>("presence", listOf(Music)) {
 
-    companion object : DiscordClientFeature<Config, BotPresence>("presence", listOf(Music)) {
-
-        override fun install(client: DiscordClient, configuration: Config.() -> Unit): BotPresence {
-            return BotPresence(Config().apply(configuration)).also { feature ->
+        override fun install(client: DiscordClient, configuration: EmptyConfig.() -> Unit): BotPresence {
+            return BotPresence().also { feature ->
                 client.listen<ReadyEvent>()
                     .flatMap { client.updatePresence(Presence.online(Activity.listening("~help"))) }
                     .subscribe()

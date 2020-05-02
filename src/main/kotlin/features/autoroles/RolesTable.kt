@@ -10,7 +10,7 @@ object RolesTable : Table("auto_assigned_roles") {
 
     override val primaryKey = PrimaryKey(guildId, roleId)
 
-    fun whereGuildIs(guildId: Snowflake): SqlExpressionBuilder.()->Op<Boolean> {
+    fun whereGuildIs(guildId: Snowflake): SqlExpressionBuilder.() -> Op<Boolean> {
         return { this@RolesTable.guildId eq guildId.asLong() }
     }
 }

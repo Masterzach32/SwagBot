@@ -6,6 +6,7 @@ import io.facet.discord.commands.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
 import reactor.core.publisher.*
+import xyz.swagbot.extensions.*
 import xyz.swagbot.util.*
 
 object ChangePermissionCommand : ChatCommand {

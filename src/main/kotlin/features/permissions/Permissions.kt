@@ -24,7 +24,7 @@ class Permissions(config: Config, private val client: DiscordClient) {
                     PermissionsTable.select(PermissionsTable.where(guildId, userId))
                         .firstOrNull()
                         ?.let { it[PermissionsTable.permission] }
-                } ?: PermissionType.NORMAL
+                }.block() ?: PermissionType.NORMAL
             }
         }
     }

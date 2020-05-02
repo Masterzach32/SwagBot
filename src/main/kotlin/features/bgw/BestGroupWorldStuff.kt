@@ -5,14 +5,13 @@ import discord4j.core.event.domain.message.*
 import io.facet.discord.*
 import io.facet.discord.extensions.*
 import org.joda.time.*
+import xyz.swagbot.features.*
 
-class BestGroupWorldStuff(config: Config) {
+class BestGroupWorldStuff private constructor() {
 
-    class Config
+    companion object : DiscordClientFeature<EmptyConfig, BestGroupWorldStuff>("bgw") {
 
-    companion object : DiscordClientFeature<Config, BestGroupWorldStuff>("bgw") {
-
-        override fun install(client: DiscordClient, configuration: Config.() -> Unit): BestGroupWorldStuff {
+        override fun install(client: DiscordClient, configuration: EmptyConfig.() -> Unit): BestGroupWorldStuff {
             client.listen<MessageCreateEvent>()
                 .filterWhen { event -> event.message.channel.map { it.id.asLong() == 402224449367179264L } }
                 .filter { it.message.attachments.isNotEmpty() || it.message.embeds.isNotEmpty() }
@@ -30,7 +29,7 @@ class BestGroupWorldStuff(config: Config) {
 //                }
 //                .subscribe()
 
-            return BestGroupWorldStuff(Config().apply(configuration)).also { feature ->
+            return BestGroupWorldStuff().also { feature ->
 
             }
         }

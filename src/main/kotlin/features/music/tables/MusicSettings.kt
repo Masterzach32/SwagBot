@@ -6,6 +6,7 @@ import xyz.swagbot.features.guilds.*
 
 object MusicSettings : Table("music_settings") {
     val guildId = long("guild_id") references GuildTable.guildId
+    val enabled = bool("enabled").default(false)
     val volume = integer("volume").default(50)
     val currentlyConnectedChannel = long("channel_id").nullable()
     val loop = bool("loop").default(false)

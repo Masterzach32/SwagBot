@@ -47,8 +47,8 @@ class TrackScheduler(val client: DiscordClient, val player: AudioPlayer) : Audio
 
     fun getQueue() = queue.toList()
 
-    fun allTracks() = player.playingTrack
-        ?.let { getQueue().toMutableList().apply { add(0, it) }.toList() }
+    fun allTracks(): List<AudioTrack> = player.playingTrack
+        ?.let { getQueue().toMutableList().apply { add(0, it) } }
         ?: getQueue()
 
     fun clearQueue() = queue.clear()

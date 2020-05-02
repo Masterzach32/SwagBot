@@ -2,32 +2,35 @@ package xyz.swagbot.features
 
 import discord4j.core.*
 import io.facet.discord.*
+import reactor.core.publisher.*
 import xyz.swagbot.*
 import xyz.swagbot.database.*
+import xyz.swagbot.extensions.*
+import java.time.*
+import java.util.concurrent.*
 
-class SystemInteraction(config: Config) {
+class SystemInteraction {
 
-    private val tasks = mutableListOf<Runnable>()
+    private val tasks = mutableListOf<() -> Mono<Void>>()
 
-    fun addShutdownTask(task: Runnable) = tasks.add(task)
+    val dbTasks: ExecutorService = Executors.newSingleThreadExecutor()
 
-    fun addShutdownTask(task: () -> Unit) = addShutdownTask(Runnable { task.invoke() })
+    fun addShutdownTask(task: () -> Mono<Void>) = tasks.add(task)
 
-    class Config
+    companion object : DiscordClientFeature<EmptyConfig, SystemInteraction>("system") {
 
-    companion object : DiscordClientFeature<Config, SystemInteraction>("system") {
+        override fun install(client: DiscordClient, configuration: EmptyConfig.() -> Unit): SystemInteraction {
+            getDatabaseConnection(client, login = System.getenv("DB_USERNAME"), password = System.getenv("DB_PASS"))
 
-        override fun install(client: DiscordClient, configuration: Config.() -> Unit): SystemInteraction {
-            getDatabaseConnection(login = System.getenv("DB_USERNAME"), password = System.getenv("DB_PASS"))
-
-            return SystemInteraction(Config().apply(configuration)).also { feature ->
+            return SystemInteraction().also { feature ->
                 Runtime.getRuntime().addShutdownHook(Thread {
                     logger.info("Received shutdown code from system, running shutdown tasks.")
-                    feature.tasks.forEach { it.run() }
-
-                    logger.info("Logging out of Discord.")
-                    client.logout().block()
-
+                    feature.tasks.toFlux()
+                        .flatMap { it.invoke() }
+                        .then(client.logout())
+                        .then(feature.dbTasks.shutdownAsync())
+                        .timeout(Duration.ofSeconds(10))
+                        .block()
                     logger.info("Done.")
                 })
             }

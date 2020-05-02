@@ -11,12 +11,12 @@ object LeaveCommand : ChatCommand {
     override fun register(dispatcher: CommandDispatcher<ChatCommandSource>) {
         dispatcher.register(literal("leave").executes { context ->
             val source = context.source
-            source.event.guildId.ifPresent { guildId ->
-                source.client.feature(Music).apply {
-                    voiceConnections.remove(guildId)?.disconnect()
-                    updateCurrentlyConnectedChannelFor(guildId, null)
+            source.event.guild.flatMap { guild ->
+                source.client.feature(Music).let { feature ->
+                    feature.voiceConnections.remove(guild.id)?.disconnect()
+                    feature.updateCurrentlyConnectedChannelFor(guild.id, null)
                 }
-            }.let { 1 }
+            }.subscribe().let { 1 }
         })
     }
 }

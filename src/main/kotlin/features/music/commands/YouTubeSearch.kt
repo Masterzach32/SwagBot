@@ -27,50 +27,44 @@ object YouTubeSearch : ChatCommand {
                 val requester = context.source.member.get()
                 val feature = context.source.client.feature(Music)
                 val searchCount = 5
-                context.source.channel.flatMap { it.type() }.subscribe()
-                feature.search("ytsearch:${context.getString("query")}", searchCount) { results ->
+                context.source.channel.flatMap { it.type() }.switchIfEmpty {
                     context.source.channel.flatMap { channel ->
-                        if (results.isEmpty())
-                            channel.respondError()
-                        else
+                        feature.search("ytsearch:${context.getString("query")}", searchCount).flatMap { results ->
                             channel.respondSuccess(results, requester).flatMap { message ->
                                 emojiUnicode.toFlux().take(searchCount.toLong())
                                     .flatMap { message.addReaction(ReactionEmoji.unicode(it)) }
-                                    .then()
-                                    .switchIfEmpty {
-                                        context.source.client.listen<ReactionAddEvent>()
-                                            .filter { event ->
-                                                event.userId == requester.id &&
-                                                        event.messageId == message.id &&
-                                                        event.emoji.asUnicodeEmoji()
-                                                            .map { emojiUnicode.contains(it.raw) }
-                                                            .orElse(false)
-                                            }
-                                            .next()
-                                            .flatMap { event ->
-                                                event.message.flatMap { it.removeAllReactions() }.switchIfEmpty {
-                                                    val index = emojiUnicode
-                                                        .indexOf(event.emoji.asUnicodeEmoji().get().raw)
-                                                    val track = results[index].also { track ->
-                                                        track.userData = TrackContext(requester.id, channel.id)
-                                                        feature
-                                                            .trackSchedulerFor(context.source.guildId.get())
-                                                            .queue(track)
-                                                    }
-                                                    channel
-                                                        .createEmbed(
-                                                            trackRequestedTemplate(requester.displayName, track)
-                                                        )
-                                                        .then()
+                                    .then(context.source.client.listen<ReactionAddEvent>()
+                                        .filter { event ->
+                                            event.userId == requester.id &&
+                                                    event.messageId == message.id &&
+                                                    event.emoji.asUnicodeEmoji()
+                                                        .map { emojiUnicode.contains(it.raw) }
+                                                        .orElse(false)
+                                        }
+                                        .next()
+                                        .flatMap { event ->
+                                            event.message.flatMap { it.removeAllReactions() }.switchIfEmpty {
+                                                val index = emojiUnicode
+                                                    .indexOf(event.emoji.asUnicodeEmoji().get().raw)
+                                                val track = results[index].also { track ->
+                                                    track.userData = TrackContext(requester.id, channel.id)
+                                                    feature
+                                                        .trackSchedulerFor(context.source.guildId.get())
+                                                        .queue(track)
                                                 }
-                                            }.timeout(
-                                                Duration.ofSeconds(60),
-                                                Mono.just(message).flatMap { it.removeAllReactions() }
-                                            )
-                                    }
+                                                channel
+                                                    .createEmbed(trackRequestedTemplate(requester.displayName, track))
+                                                    .then()
+                                            }
+                                        }.timeout(
+                                            Duration.ofSeconds(60),
+                                            message.toMono().flatMap { it.removeAllReactions() }
+                                        )
+                                    )
                             }
-                    }.subscribe()
-                }.let { 1 }
+                        }.onErrorResume { channel.respondError().then() }
+                    }
+                }.subscribe().let { 1 }
             })
         }.forEach { dispatcher.register(it) }
     }
