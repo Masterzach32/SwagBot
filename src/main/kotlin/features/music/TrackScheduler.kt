@@ -6,6 +6,7 @@ import com.sedmelluq.discord.lavaplayer.tools.*
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.core.*
 import xyz.swagbot.*
+import xyz.swagbot.extensions.*
 import java.util.concurrent.*
 
 class TrackScheduler(val client: DiscordClient, val player: AudioPlayer) : AudioEventAdapter() {
@@ -44,6 +45,14 @@ class TrackScheduler(val client: DiscordClient, val player: AudioPlayer) : Audio
 
         return oldTrack
     }
+
+    fun queueTimeLeft() = getQueue()
+        .map { it.info.length }
+        .let { if (it.isEmpty()) 0 else it.reduce { acc, l -> acc + l } } + currentTrackTimeLeft()
+
+    fun currentTrackTimeLeft() = player.playingTrack?.let { currentTrack ->
+        currentTrack.info.length - currentTrack.position
+    } ?: 0L
 
     fun getQueue() = queue.toList()
 

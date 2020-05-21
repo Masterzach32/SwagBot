@@ -1,15 +1,21 @@
 package xyz.swagbot.commands
 
 import com.mojang.brigadier.*
+import com.mojang.brigadier.builder.*
 import discord4j.common.*
+import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.extensions.*
 import xyz.swagbot.util.*
 
-object InfoCommand : ChatCommand {
+object InfoCommand : ChatCommand(
+    name = "Info",
+    aliases = setOf("info"),
+    scope = Scope.GUILD
+) {
 
-    override fun register(dispatcher: CommandDispatcher<ChatCommandSource>) {
-        dispatcher.register(literal("info").executes { context ->
+    override fun register(client: DiscordClient, node: LiteralArgumentBuilder<ChatCommandSource>) {
+        node.executesAsync { context ->
             context.source.message.channel.flatMap { channel ->
                 channel.createEmbed(baseTemplate.andThen {
                     it.setTitle("SwagBot v3 (3.0.0)")
@@ -39,7 +45,7 @@ https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&p
                         null
                     )
                 })
-            }.subscribe().let { 1 }
-        })
+            }.then()
+        }
     }
 }

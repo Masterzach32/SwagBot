@@ -15,15 +15,18 @@ import io.facet.core.extensions.*
 import io.facet.discord.*
 import io.facet.discord.commands.*
 import io.facet.discord.extensions.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactor.*
 import org.jetbrains.exposed.sql.*
 import reactor.core.publisher.*
 import xyz.swagbot.*
-import xyz.swagbot.database.*
 import xyz.swagbot.extensions.*
-import xyz.swagbot.features.*
 import xyz.swagbot.features.guilds.*
 import xyz.swagbot.features.music.commands.*
+import xyz.swagbot.features.music.listeners.*
 import xyz.swagbot.features.music.tables.*
+import xyz.swagbot.features.system.*
 import java.util.concurrent.*
 
 class Music private constructor(config: Config, private val guildStorage: GuildStorage) {
@@ -39,181 +42,200 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
         LeaveCommand,
         PauseResumeCommand,
         PlayCommand,
+        SkipCommand,
         VolumeCommand,
+        VoteSkipCommand,
         YouTubeSearch
     )
 
-    fun initializeFor(client: DiscordClient, guildId: Snowflake): Mono<Void> = guildStorage.hasGuild(guildId)
-        .filter { it && !schedulers.containsKey(guildId) }
-        .map { schedulers[guildId] = TrackScheduler(client, audioPlayerManager.createPlayer()) }
-        .map { trackSchedulerFor(guildId) }
-        .flatMap { scheduler ->
-            sql {
-                MusicQueue.select(MusicQueue.whereGuildIs(guildId))
-                    .also { if (!it.empty()) logger.debug("Found tracks in queue database for guild with id $guildId") }
-                    .forEach { row ->
-                        logger.debug("Loading track from queue database: ${row[MusicQueue.identifier]}")
-                        audioPlayerManager.loadItemOrdered(
-                            scheduler,
-                            row[MusicQueue.identifier],
-                            SilentAudioTrackLoadHandler(
-                                scheduler,
-                                row[MusicQueue.requesterId].toSnowflake(),
-                                row[MusicQueue.requestedChannelId].toSnowflake()
-                            )
-                        )
-                    }
-                MusicQueue.deleteWhere(op = MusicQueue.whereGuildIs(guildId))
+    suspend fun initializeFor(client: DiscordClient, guildId: Snowflake) {
+        if (!(guildStorage.hasGuild(guildId) && !schedulers.containsKey(guildId)))
+            return
 
-                MusicSettings.select(MusicSettings.whereGuildIs(guildId))
-                    .map { Triple(it[MusicSettings.loop], it[MusicSettings.autoplay], it[MusicSettings.volume])  }
-                    .first()
-            }.flatMap { (loop, autoplay, volume) ->
-                val setLoop = loop.toMono()
-                    .filter { it }
-                    .map { scheduler.toggleShouldLoop() }
-                    .then()
+        val scheduler = TrackScheduler(client, audioPlayerManager.createPlayer())
+            .also { schedulers[guildId] = it }
 
-                val setAutoplay = autoplay.toMono()
-                    .filter { it }
-                    .map { scheduler.toggleShouldAutoplay() }
-                    .then()
+        val settings = sql {
+            MusicQueue.select(MusicQueue.whereGuildIs(guildId)).forEach { row ->
+                logger.debug("Loading track from queue database: ${row[MusicQueue.identifier]}")
+                audioPlayerManager.loadItemOrdered(
+                    scheduler,
+                    row[MusicQueue.identifier],
+                    SilentAudioTrackLoadHandler(
+                        scheduler,
+                        row[MusicQueue.requesterId].toSnowflake(),
+                        row[MusicQueue.requestedChannelId].toSnowflake()
+                    )
+                )
+            }
 
-                val setVolume = volume.toMono()
-                    .map { scheduler.player.volume = it }
-                    .then()
+            MusicQueue.deleteWhere(op = MusicQueue.whereGuildIs(guildId))
 
-                setLoop.then(setAutoplay).then(setVolume)
-            }.then(
-                currentlyConnectedChannelFor(guildId)
-                    .flatMap { client.getChannelById(it) }
-                    .cast<VoiceChannel>()
-                    .flatMap { vc -> vc.join { it.setProvider(scheduler.audioProvider) } }
-                    .then()
-            )
+            MusicSettings.select(MusicSettings.whereGuildIs(guildId))
+                .first()
+                .let { Triple(it[MusicSettings.loop], it[MusicSettings.autoplay], it[MusicSettings.volume]) }
         }
-        .then()
+
+        val vc = client.getChannelById(currentlyConnectedChannelFor(guildId)).await() as VoiceChannel
+        coroutineScope {
+            async {
+                vc.join { it.setProvider(scheduler.audioProvider) }.await()
+            }
+        }
+
+        val (loop, autoplay, volume) = settings
+        if (loop)
+            scheduler.toggleShouldLoop()
+        if (autoplay)
+            scheduler.toggleShouldAutoplay()
+        scheduler.player.volume = volume
+    }
 
     fun trackSchedulerFor(guildId: Snowflake) = schedulers[guildId] ?: somethingIsWrong("trackScheduler", guildId)
 
-    fun volumeFor(guildId: Snowflake): Mono<Int> = sql {
-        MusicSettings.select(MusicSettings.whereGuildIs(guildId))
-            .firstOrNull()
-            ?.let { it[MusicSettings.volume] }
-            ?: somethingIsWrong("volume", guildId)
-    }
-
-    fun updateVolumeFor(guildId: Snowflake, volume: Int): Mono<Void> {
-        trackSchedulerFor(guildId).player.volume = volume
-        return sql {
-            MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
-                it[MusicSettings.volume] = volume
-            }
-        }.then()
-    }
-
-    fun currentlyConnectedChannelFor(guildId: Snowflake): Mono<Snowflake> = sql {
-        MusicSettings.select(MusicSettings.whereGuildIs(guildId))
-            .firstOrNull()
-            ?.let { it[MusicSettings.currentlyConnectedChannel]?.toSnowflake().toOptional() }
-    }.flatMap { optional ->
-        optional?.let { Mono.justOrEmpty(it) } ?: somethingIsWrong("currentlyConnectedChannel", guildId)
-    }
-
-    fun updateCurrentlyConnectedChannelFor(guildId: Snowflake, channelId: Snowflake?): Mono<Void> = sql {
-        MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
-            it[currentlyConnectedChannel] = channelId?.asLong()
-        }
-    }.then()
-
-    fun shouldLoopFor(guildId: Snowflake): Mono<Boolean> = sql {
-        MusicSettings.select(MusicSettings.whereGuildIs(guildId))
-            .firstOrNull()
-            ?.let { it[MusicSettings.loop] }
-            ?: somethingIsWrong("loop", guildId)
-    }
-
-    fun toggleShouldLoopFor(guildId: Snowflake): Mono<Void> = trackSchedulerFor(guildId)
-        .toggleShouldLoop()
-        .let { shouldLoop ->
-            sql {
-                MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
-                    it[loop] = shouldLoop
-                }
-            }.then()
-        }
-
-    fun shouldAutoplayFor(guildId: Snowflake): Mono<Boolean> = sql {
-        MusicSettings.select(MusicSettings.whereGuildIs(guildId))
-            .firstOrNull()
-            ?.let { it[MusicSettings.autoplay] }
-            ?: somethingIsWrong("autoplay", guildId)
-    }
-
-    fun toggleShouldAutoplayFor(guildId: Snowflake): Mono<Void> = trackSchedulerFor(guildId)
-        .toggleShouldAutoplay()
-        .let { shouldAutoplay ->
-            sql {
-                MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
-                    it[autoplay] = shouldAutoplay
-                }
-            }.then()
-        }
-
-    fun search(query: String, maxResults: Int = -1): Mono<List<AudioTrack>> = Mono.create { emitter ->
-        audioPlayerManager.loadItem(query, object : AudioLoadResultHandler {
-            override fun trackLoaded(track: AudioTrack) = emitter.success(listOf(track))
-
-            override fun playlistLoaded(playlist: AudioPlaylist) {
-                if (!playlist.isSearchResult)
-                    return
-
-                if (maxResults == -1)
-                    emitter.success(playlist.tracks)
-                else
-                    emitter.success(playlist.tracks.take(maxResults.coerceAtMost(playlist.tracks.size)))
-            }
-
-            override fun noMatches() = emitter.error(Exception("NO_MATCHES: $query"))
-            override fun loadFailed(e: FriendlyException) = emitter.error(Exception("LOAD_FAILED: $query", e))
-        })
-    }
-
-    private fun deinitializeFor(guildId: Snowflake): Mono<Void> {
-        return schedulers.remove(guildId)!!.toMono()
-            .flatMap { scheduler ->
-                logger.debug("Saving queue state for guild with id $guildId")
-                sql {
-                    MusicQueue.batchInsert(scheduler.allTracks()) { track ->
-                        logger.debug("Inserting track into queue database: ${track.identifier}")
-                        this[MusicQueue.guildId] = guildId.asLong()
-                        this[MusicQueue.identifier] = track.identifier
-                        this[MusicQueue.requesterId] = track.trackContext.requesterId.asLong()
-                        this[MusicQueue.requestedChannelId] = track.trackContext.requestedChannelId.asLong()
-                    }
-                }.then(scheduler.player.stopTrack().toMono())
-            }
-            .then()
-    }
-
-    fun isEnabledFor(guildId: Snowflake) = sql {
+    suspend fun isEnabledFor(guildId: Snowflake): Boolean = sql {
         MusicSettings.select(MusicSettings.whereGuildIs(guildId))
             .firstOrNull()
             ?.let { it[MusicSettings.enabled] }
             ?: somethingIsWrong("isEnabled", guildId)
     }
 
+    suspend fun updateIsEnabledFor(guildId: Snowflake, featureEnabled: Boolean) {
+        sql {
+            MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
+                it[enabled] = featureEnabled
+            }
+        }
+    }
+
+    suspend fun volumeFor(guildId: Snowflake): Int = sql {
+        MusicSettings.select(MusicSettings.whereGuildIs(guildId))
+            .firstOrNull()
+            ?.let { it[MusicSettings.volume] }
+            ?: somethingIsWrong("volume", guildId)
+    }
+
+    suspend fun updateVolumeFor(guildId: Snowflake, volume: Int) {
+        sql {
+            MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
+                it[MusicSettings.volume] = volume
+            }
+        }
+        trackSchedulerFor(guildId).player.volume = volume
+    }
+
+    suspend fun currentlyConnectedChannelFor(guildId: Snowflake): Snowflake? = sql {
+        MusicSettings.select(MusicSettings.whereGuildIs(guildId))
+            .firstOrNull()
+            ?.let { it[MusicSettings.currentlyConnectedChannel]?.toSnowflake() }
+            ?: somethingIsWrong("currentlyConnectedChannel", guildId)
+    }
+
+    suspend fun updateCurrentlyConnectedChannelFor(guildId: Snowflake, channelId: Snowflake?) {
+        sql {
+            MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
+                it[currentlyConnectedChannel] = channelId?.asLong()
+            }
+        }
+    }
+
+    suspend fun shouldLoopFor(guildId: Snowflake): Boolean = sql {
+        MusicSettings.select(MusicSettings.whereGuildIs(guildId))
+            .firstOrNull()
+            ?.let { it[MusicSettings.loop] }
+            ?: somethingIsWrong("loop", guildId)
+    }
+
+    suspend fun toggleShouldLoopFor(guildId: Snowflake) {
+        val scheduler = trackSchedulerFor(guildId)
+        val loop = scheduler.toggleShouldLoop()
+        sql {
+            MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
+                it[MusicSettings.loop] = loop
+            }
+        }
+    }
+
+    suspend fun shouldAutoplayFor(guildId: Snowflake): Boolean = sql {
+        MusicSettings.select(MusicSettings.whereGuildIs(guildId))
+            .firstOrNull()
+            ?.let { it[MusicSettings.autoplay] }
+            ?: somethingIsWrong("autoplay", guildId)
+    }
+
+    suspend fun toggleShouldAutoplayFor(guildId: Snowflake) {
+        val scheduler = trackSchedulerFor(guildId)
+        val autoplay = scheduler.toggleShouldAutoplay()
+        sql {
+            MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
+                it[MusicSettings.autoplay] = autoplay
+            }
+        }
+    }
+
+    suspend fun search(query: String): AudioTrack? = search(query, SearchResultPolicy.Single).firstOrNull()
+
+    suspend fun search(
+        query: String,
+        policy: SearchResultPolicy
+    ): List<AudioTrack> = Mono.create<List<AudioTrack>> { emitter ->
+        audioPlayerManager.loadItem(query, object : AudioLoadResultHandler {
+            override fun trackLoaded(track: AudioTrack) = emitter.success(listOf(track))
+
+            override fun playlistLoaded(playlist: AudioPlaylist) {
+                if (policy is SearchResultPolicy.Unlimited)
+                    emitter.success(playlist.tracks)
+                else
+                    emitter.success(playlist.tracks.take(policy.size.coerceAtMost(playlist.tracks.size)))
+            }
+
+            override fun noMatches() = emitter.success(listOf())
+            override fun loadFailed(e: FriendlyException) = emitter.error(Exception("LOAD_FAILED: $query", e))
+        })
+    }.await()
+
+    suspend fun deinitializeFor(guildId: Snowflake) {
+        schedulers.remove(guildId)?.let { scheduler ->
+            logger.debug("Saving queue state for guild with id $guildId")
+            sql {
+                MusicQueue.batchInsert(scheduler.allTracks()) { track ->
+                    logger.debug("Inserting track into queue database: ${track.identifier}")
+                    this[MusicQueue.guildId] = guildId.asLong()
+                    this[MusicQueue.identifier] = track.identifier
+                    this[MusicQueue.requesterId] = track.trackContext.requesterId.asLong()
+                    this[MusicQueue.requestedChannelId] = track.trackContext.requestedChannelId.asLong()
+                }
+            }
+            coroutineScope {
+                scheduler.player.stopTrack()
+            }
+        }
+    }
+
     private fun somethingIsWrong(variableName: String, guildId: Snowflake): Nothing {
         throw IllegalStateException("Could not access $variableName for $guildId")
     }
 
-    private fun insertNewRow(guildId: Snowflake): Mono<Void> = sql {
-        logger.info("Adding music settings entry to database for guild $guildId")
-        MusicSettings.insert { it[MusicSettings.guildId] = guildId.asLong() }
-    }.then()
+    private suspend fun insertNewRow(guildId: Snowflake) {
+        sql {
+            logger.info("Adding music settings entry to database for guild $guildId")
+            MusicSettings.insert { it[MusicSettings.guildId] = guildId.asLong() }
+        }
+    }
 
-    fun hasGuild(guildId: Snowflake) = sql {
+    suspend fun hasGuild(guildId: Snowflake): Boolean = sql {
         MusicSettings.select(MusicSettings.whereGuildIs(guildId)).firstOrNull() != null
+    }
+
+    sealed class SearchResultPolicy(val size: Int) {
+        object Unlimited : SearchResultPolicy(-1)
+        object Single : SearchResultPolicy(1)
+        class Limited(size: Int) : SearchResultPolicy(size) {
+            init {
+                if (size <= 1)
+                    throw IllegalStateException("Search result size must be larger than 1")
+            }
+        }
     }
 
     class Config {
@@ -226,7 +248,7 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
     ) {
 
         override fun install(client: DiscordClient, configuration: Config.() -> Unit): Music {
-            sql { create(MusicSettings, MusicQueue) }
+            runBlocking { sql { create(MusicSettings, MusicQueue) } }
 
             return Music(Config().apply(configuration), client.feature(GuildStorage)).also { feature ->
                 feature.audioPlayerManager.configuration.frameBufferFactory = AudioFrameBufferFactory { a, b, c ->
@@ -236,47 +258,34 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
                 AudioSourceManagers.registerRemoteSources(feature.audioPlayerManager)
                 AudioSourceManagers.registerLocalSource(feature.audioPlayerManager)
 
-                client.feature(ChatCommands).dispatcher.apply { feature.commands.forEach { it.register(this) } }
+                val list = listOf(VoiceStateListener(feature), GuildLeaveListener(feature))
+
+                client.feature(ChatCommands).apply { feature.commands.forEach { registerCommand(it) } }
 
                 client.feature(GuildStorage).addTaskOnGuildInitialization { event ->
-                    val handleNewGuild = feature.hasGuild(event.guild.id)
-                        .filter { !it }
-                        .flatMap { feature.insertNewRow(event.guild.id) }
-                        .then()
+                    val guildId = event.guild.id
+                    if (!feature.hasGuild(guildId))
+                        feature.insertNewRow(guildId)
 
-                    val initializeGuildPlayer = feature.isEnabledFor(event.guild.id)
-                        .filter { it }
-                        .flatMap { feature.initializeFor(client, event.guild.id) }
-                        .then()
-
-                    handleNewGuild.then(initializeGuildPlayer)
+                    if (feature.isEnabledFor(guildId))
+                        feature.initializeFor(client, guildId)
                 }
 
-                client.listen<VoiceStateUpdateEvent>()
-                    .map { it.current }
-                    .flatMap { vs ->
-                        vs.user
-                            .filter { it.id == it.client.selfId.get() }
-                            .filter { vs.channelId.isPresent }
-                            .map { feature.updateCurrentlyConnectedChannelFor(vs.guildId, vs.channelId.get()) }
-                    }
-                    .subscribe()
-
-                // handle bot leaving guild
-                client.listen<GuildDeleteEvent>()
-                    .filter { !it.isUnavailable }
-                    .flatMap { feature.deinitializeFor(it.guildId) }
-                    .subscribe()
-
                 client.feature(SystemInteraction).addShutdownTask {
-                    feature.voiceConnections.entries.toFlux()
-                        .map { (guildId, vc) ->
-                            logger.debug("Disconnecting from channel in guild with id $guildId")
-                            vc.disconnect()
-                        }
-                        .then(feature.schedulers.keys.toFlux().flatMap { feature.deinitializeFor(it) }.then())
-                        .then(feature.audioPlayerManager.shutdownAsync())
-                        .then()
+                    coroutineScope {
+                        feature.voiceConnections.entries
+                            .map { (guildId, vc) ->
+                                async {
+                                    logger.info("Disconnecting from channel in guild with id $guildId")
+                                    vc.disconnect()
+                                }
+                            }
+                            .forEach { it.await() }
+
+                        feature.schedulers.keys.forEach { feature.deinitializeFor(it) }
+
+                        feature.audioPlayerManager.shutdown()
+                    }
                 }
             }
         }

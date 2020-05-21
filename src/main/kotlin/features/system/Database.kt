@@ -1,37 +1,19 @@
-package xyz.swagbot.database
+package xyz.swagbot.features.system
 
-import discord4j.core.*
-import io.facet.discord.extensions.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.*
-import reactor.core.publisher.*
-import xyz.swagbot.features.*
-import xyz.swagbot.logger
-import java.util.concurrent.*
-import kotlin.system.exitProcess
+import xyz.swagbot.*
+import kotlin.system.*
 
 lateinit var database: Database
 
-private lateinit var dc: DiscordClient
-
-val systemExec by lazy { dc.feature(SystemInteraction).dbTasks }
-
-fun <T> sql(sqlcode: Transaction.() -> T): Mono<T> = Mono.create {
-    systemExec.submit {
-        try {
-            it.success(transaction(database, sqlcode))
-        } catch (e: Throwable) {
-            it.error(e)
-        }
-    }
-}
+suspend fun <T> sql(sqlcode: Transaction.() -> T): T = transaction(database, sqlcode)
 
 fun Transaction.create(vararg tables: Table) {
     SchemaUtils.create(*tables)
 }
 
-fun getDatabaseConnection(client: DiscordClient, login: String, password: String) {
-    dc = client
+fun getDatabaseConnection(login: String, password: String) {
     for (i in 2 downTo 0) {
         try {
             val url = "jdbc:mysql://db:3306/swagbot?useSSL=false&allowPublicKeyRetrieval=true"

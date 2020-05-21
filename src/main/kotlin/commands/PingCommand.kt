@@ -1,14 +1,20 @@
 package xyz.swagbot.commands
 
-import com.mojang.brigadier.*
+import com.mojang.brigadier.builder.*
+import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.extensions.*
 
-object PingCommand : ChatCommand {
+object PingCommand : ChatCommand(
+    name = "Ping",
+    aliases = setOf("ping")
+) {
 
-    override fun register(dispatcher: CommandDispatcher<ChatCommandSource>) {
-        dispatcher.register(literal("ping").executes { context ->
-            context.source.message.channel.flatMap { it.createMessage("Pong!") }.subscribe().let { 1 }
-        })
+    override fun register(client: DiscordClient, node: LiteralArgumentBuilder<ChatCommandSource>) {
+        node.executesAsync { context ->
+            context.source.message.channel
+                .flatMap { it.createMessage("Pong!") }
+                .then()
+        }
     }
 }

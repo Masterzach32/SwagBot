@@ -9,5 +9,5 @@ class TrackContext(val requesterId: Snowflake, val requestedChannelId: Snowflake
     val skipVoteCount: Int
         get() = skipList.size
 
-    fun addSkipVote(userId: Snowflake) = skipList.add(userId)
+    fun addSkipVote(userId: Snowflake): Boolean = skipList.add(userId)
 }

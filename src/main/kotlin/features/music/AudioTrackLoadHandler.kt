@@ -18,18 +18,18 @@ class AudioTrackLoadHandler(
         track.userData = TrackContext(requester.id, channel.id)
         scheduler.queue(track)
 
-        channel.createEmbed(trackRequestedTemplate(requester.displayName, track)).subscribe()
+        channel.createEmbed(trackRequestedTemplate(requester.displayName, track, scheduler.queueTimeLeft())).subscribe()
     }
 
     override fun playlistLoaded(playlist: AudioPlaylist) {
         if (playlist.isSearchResult && playlist.tracks.isNotEmpty())
             return playlist.tracks.first().let { track ->
                 track.userData = TrackContext(requester.id, channel.id)
-                channel.createEmbed(trackRequestedTemplate(requester.displayName, track).andThen { spec ->
+                channel.createEmbed(trackRequestedTemplate(requester.displayName, track, scheduler.queueTimeLeft()).andThen { spec ->
                     requester.client
                         .commandPrefixFor(requester.guildId)
                         .let { prefix ->
-                            spec.setFooter("You can search and pick results from youtube using ${prefix}search.", null)
+                            spec.setFooter("You can search and pick results from youtube using ${prefix.block()}search.", null)
                         }
                 }).subscribe()
                 scheduler.queue(track)
