@@ -12,11 +12,11 @@ class BotPresence private constructor() {
 
     companion object : DiscordClientFeature<EmptyConfig, BotPresence>("presence", listOf(Music)) {
 
-        override fun install(client: DiscordClient, configuration: EmptyConfig.() -> Unit): BotPresence {
+        override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): BotPresence {
             return BotPresence().also { feature ->
-                client.listen<ReadyEvent>()
-                    .flatMap { client.updatePresence(Presence.online(Activity.listening("~help"))) }
-                    .subscribe()
+                client.listener<ReadyEvent> {
+                    client.updatePresence(Presence.online(Activity.listening("~help"))).await()
+                }
             }
         }
     }

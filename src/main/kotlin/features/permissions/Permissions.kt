@@ -1,18 +1,19 @@
 package xyz.swagbot.features.permissions
 
+import discord4j.common.util.*
 import discord4j.core.*
-import discord4j.core.`object`.util.*
 import io.facet.discord.*
 import io.facet.discord.commands.*
+import io.facet.discord.exposed.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.features.guilds.*
 import xyz.swagbot.features.system.*
 
-class Permissions(config: Config, private val client: DiscordClient) {
+class Permissions(config: Config, private val client: GatewayDiscordClient) {
 
-    private val developers = config.developers.map { Snowflake.of(it) }
+    private val developers: Set<Snowflake> = config.developers.map { Snowflake.of(it) }.toSet()
 
     val commands = listOf(ChangePermissionCommand)
 
@@ -41,10 +42,10 @@ class Permissions(config: Config, private val client: DiscordClient) {
             sql {
                 PermissionsTable.deleteWhere(op = PermissionsTable.where(guildId, userId))
                 PermissionsTable.insert {
-                    it[PermissionsTable.guildId] = guildId.asLong()
-                    it[PermissionsTable.userId] = userId.asLong()
+                    it[PermissionsTable.guildId] = guildId
+                    it[PermissionsTable.userId] = userId
                     it[permission] = newLevel
-                    it[PermissionsTable.assignedById] = assignedById.asLong()
+                    it[PermissionsTable.assignedById] = assignedById
                 }
             }
             return true
@@ -59,12 +60,15 @@ class Permissions(config: Config, private val client: DiscordClient) {
     }
 
     class Config {
-        lateinit var developers: List<Long>
+        lateinit var developers: Set<Long>
     }
 
-    companion object : DiscordClientFeature<Config, Permissions>("permissions", listOf(GuildStorage, ChatCommands)) {
+    companion object : DiscordClientFeature<Config, Permissions>(
+        "permissions",
+        requiredFeatures = listOf(GuildStorage, ChatCommands)
+    ) {
 
-        override fun install(client: DiscordClient, configuration: Config.() -> Unit): Permissions {
+        override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Permissions {
             runBlocking { sql { create(PermissionsTable) } }
 
             return Permissions(Config().apply(configuration), client).also { feature ->

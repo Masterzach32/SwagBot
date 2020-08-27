@@ -14,4 +14,4 @@ suspend fun Member.hasBotPermission(permission: PermissionType): Boolean = botPe
 suspend fun Member.updateBotPermission(
     permission: PermissionType,
     assignedBy: Member
-) = permissionFeature.updatePermissionFor(guildId, id, permission, assignedBy.id)
+) = updateBotPermission(permission, assignedBy, guildId)

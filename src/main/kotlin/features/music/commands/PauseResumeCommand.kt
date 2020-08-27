@@ -1,13 +1,12 @@
 package xyz.swagbot.features.music.commands
 
-import com.mojang.brigadier.builder.*
 import discord4j.core.*
 import io.facet.discord.commands.*
+import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
-import reactor.core.publisher.*
 import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
+import xyz.swagbot.util.*
 
 object PauseResumeCommand : ChatCommand(
     name = "Pause/Resume",
@@ -16,16 +15,15 @@ object PauseResumeCommand : ChatCommand(
     category = "music"
 ) {
 
-    override fun register(client: DiscordClient, node: LiteralArgumentBuilder<ChatCommandSource>) {
-        node.executesAsync { context ->
-            val source = context.source
-            source.handlePremium()
-                .switchIfEmpty {
-                    source.event.guildId.ifPresent { guildId ->
-                        val feature = source.client.feature(Music).trackSchedulerFor(guildId)
-                    }
-                    Mono.empty()
-                }
+    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+        runs { context ->
+            val guild = getGuild()
+            val channel = getChannel()
+
+            if (!isMusicFeatureEnabled())
+                return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
+
+            TODO()
         }
     }
 }

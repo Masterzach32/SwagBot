@@ -1,21 +1,12 @@
 import com.bmuschko.gradle.docker.tasks.image.*
-import com.bmuschko.gradle.docker.tasks.container.*
-
-val logback_version: String by project
-val exposed_version: String by project
-val mysql_connector_version: String by project
-
-val discord4j_version: String by project
-val facet_version: String by project
-val lavaplayer_version: String by project
 
 val docker_username: String by project
 val docker_pass: String by project
 val docker_email: String by project
 
 plugins {
-    kotlin("jvm") version "1.3.72"
-    id("com.bmuschko.docker-java-application") version "6.1.3"
+    kotlin("jvm") version "1.4.0"
+    id("com.bmuschko.docker-java-application") version "6.6.1"
     id("net.thauvin.erik.gradle.semver") version "1.0.4"
 }
 
@@ -30,120 +21,78 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
+    implementation("com.discord4j:discord4j-core:3.1.0")
+    implementation("com.sedmelluq:lavaplayer:1.3.50")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 
-    implementation("ch.qos.logback:logback-classic:$logback_version")
+    val facet_version = "2.0.+"
+    implementation("io.facet:discord-commands:$facet_version")
+    implementation("io.facet:exposed-discord:$facet_version")
 
-    implementation("mysql:mysql-connector-java:$mysql_connector_version")
+    val kotlinx_coroutines_version = "1.3.9"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinx_coroutines_version")
+
+    val ktor_version = "1.4.0"
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
+    implementation("io.ktor:ktor-client-jackson:$ktor_version")
+
+    val exposed_version = "0.26.2"
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
-    implementation("org.jetbrains.exposed:exposed-jodatime:$exposed_version")
-
-    implementation("com.discord4j:discord4j-core:$discord4j_version")
-    implementation("io.facet:commands:$facet_version")
-    implementation("com.sedmelluq:lavaplayer:$lavaplayer_version")
-}
-
-docker {
-    registryCredentials {
-        username.set(docker_username)
-        password.set(docker_pass)
-        email.set(docker_email)
-    }
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
+    implementation("org.postgresql:postgresql:42.2.2")
 }
 
 tasks {
+    val createDockerfile by registering(Dockerfile::class) {
+        group = "swagbot"
+        dependsOn(classes, dockerSyncBuildContext)
+
+        from("openjdk:jre-alpine")
+
+        label(mapOf("maintainer" to "Zachary Kozar 'zachkozar@vt.edu'"))
+
+        environmentVariable(
+            mapOf(
+                "TZ" to "America/New_York",
+                "CODE_VERSION" to "$version",
+                "CODE_ENV" to "test",
+                "BOT_NAME" to "SwagBot",
+                "DEFAULT_COMMAND_PREFIX" to "~"
+            )
+        )
+
+        workingDir("/app")
+
+        copyFile("libs", "libs/")
+        copyFile("resources", "resources/")
+        copyFile("classes", "classes/")
+
+        entryPoint(
+            "java",
+            "-cp",
+            "/app/resources:/app/classes:/app/libs/*",
+            "xyz.swagbot.SwagBot"
+        )
+    }
+
+    val buildImage by registering(DockerBuildImage::class) {
+        group = "swagbot"
+        dependsOn(createDockerfile)
+        images.set(setOf("zachkozar/swagbot:$version", "zachkozar/swagbot:latest"))
+    }
+
+    build {
+        dependsOn(incrementPatch, buildImage)
+    }
+
     compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
-    }
-}
-
-val createSwagBotDockerfile by tasks.registering(Dockerfile::class) {
-    group = "docker"
-    dependsOn(tasks.getByPath("build"), tasks.getByPath("dockerSyncBuildContext"))
-
-    from("openjdk:8-jre")
-
-    label(mapOf("maintainer" to "Zachary Kozar 'zachk@vt.edu'"))
-
-    mapOf(
-        "BOT_TOKEN" to properties["swagbeta_token"],
-        "DB_USERNAME" to properties["swagbot_db_username"],
-        "DB_PASS" to properties["swagbot_db_pass"]
-    ).mapValues { (_, value) -> value.toString() }.let { environmentVariable(it) }
-
-    environmentVariable("TZ", "America/New_York")
-
-    workingDir("/app")
-
-    copyFile("libs", "libs/")
-    copyFile("resources", "resources/")
-    copyFile("classes", "classes/")
-
-    entryPoint(
-        "java",
-        "-Xms256m",
-        "-Xmx2G",
-        "-cp",
-        "/app/resources:/app/classes:/app/libs/*",
-        "xyz.swagbot.SwagBot"
-    )
-}
-
-val buildSwagBotImage by tasks.registering(DockerBuildImage::class) {
-    group = "docker"
-    dependsOn(createSwagBotDockerfile)
-    images.set(setOf("zachkozar/swagbot:$version", "zachkozar/swagbot:latest"))
-}
-
-val stopSwagBotContainer by tasks.registering(DockerStopContainer::class) {
-    group = "docker"
-    targetContainerId("swagbot")
-    onError {
-        logger.lifecycle("No container to stop, skipping.")
-    }
-}
-
-val removeSwagBotContainer by tasks.registering(DockerRemoveContainer::class) {
-    group = "docker"
-    dependsOn(stopSwagBotContainer)
-    targetContainerId("swagbot")
-    onError {
-        if (this.message?.contains("No such container") != true)
-            throw this
-        else
-            logger.lifecycle("No container to remove, skipping.")
-    }
-}
-
-val createSwagBotContainer by tasks.registering(DockerCreateContainer::class) {
-    group = "docker"
-    dependsOn(buildSwagBotImage, removeSwagBotContainer)
-    targetImageId(buildSwagBotImage.get().imageId)
-    hostConfig.autoRemove.set(false)
-    hostConfig.restartPolicy.set("always")
-    hostConfig.links.set(listOf("mysql:db"))
-    containerName.set("swagbot")
-}
-
-val startSwagBotContainer by tasks.registering(DockerStartContainer::class) {
-    group = "docker"
-    dependsOn(createSwagBotContainer)
-    targetContainerId(createSwagBotContainer.get().containerId)
-}
-
-val pushSwagBotImage by tasks.registering(DockerPushImage::class) {
-    group = "docker"
-    dependsOn(buildSwagBotImage)
-    images.set(setOf("zachkozar/swagbot:$version", "zachkozar/swagbot:latest"))
-}
-
-val sourcesJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get())
 }
 
 fun getVersionFromSemver() = file("version.properties")

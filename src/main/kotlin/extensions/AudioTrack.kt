@@ -2,9 +2,10 @@ package xyz.swagbot.extensions
 
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.core.`object`.entity.*
+import discord4j.core.`object`.entity.channel.*
 import xyz.swagbot.features.music.*
 
-val AudioTrack.trackContext: TrackContext
+val AudioTrack.context: TrackContext
     get() = getUserData(TrackContext::class.java)
 
 fun AudioTrack.setTrackContext(member: Member, channel: MessageChannel) {

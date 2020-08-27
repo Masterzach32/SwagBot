@@ -5,31 +5,28 @@ import com.sedmelluq.discord.lavaplayer.source.*
 import com.sedmelluq.discord.lavaplayer.tools.*
 import com.sedmelluq.discord.lavaplayer.track.*
 import com.sedmelluq.discord.lavaplayer.track.playback.*
+import discord4j.common.util.*
 import discord4j.core.*
-import discord4j.core.`object`.entity.*
-import discord4j.core.`object`.util.*
+import discord4j.core.`object`.entity.channel.*
 import discord4j.core.event.domain.*
 import discord4j.core.event.domain.guild.*
 import discord4j.voice.*
-import io.facet.core.extensions.*
 import io.facet.discord.*
 import io.facet.discord.commands.*
+import io.facet.discord.exposed.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactor.*
 import org.jetbrains.exposed.sql.*
-import reactor.core.publisher.*
 import xyz.swagbot.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.guilds.*
 import xyz.swagbot.features.music.commands.*
-import xyz.swagbot.features.music.listeners.*
 import xyz.swagbot.features.music.tables.*
 import xyz.swagbot.features.system.*
 import java.util.concurrent.*
+import kotlin.coroutines.*
 
-class Music private constructor(config: Config, private val guildStorage: GuildStorage) {
+class Music private constructor(config: Config) {
 
     val audioPlayerManager = config.audioPlayerManager
 
@@ -40,6 +37,7 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
     val commands = listOf(
         JoinCommand,
         LeaveCommand,
+        NowPlayingCommand,
         PauseResumeCommand,
         PlayCommand,
         SkipCommand,
@@ -48,8 +46,8 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
         YouTubeSearch
     )
 
-    suspend fun initializeFor(client: DiscordClient, guildId: Snowflake) {
-        if (!(guildStorage.hasGuild(guildId) && !schedulers.containsKey(guildId)))
+    suspend fun initializeFor(client: GatewayDiscordClient, guildId: Snowflake) {
+        if (schedulers.containsKey(guildId))
             return
 
         val scheduler = TrackScheduler(client, audioPlayerManager.createPlayer())
@@ -63,8 +61,8 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
                     row[MusicQueue.identifier],
                     SilentAudioTrackLoadHandler(
                         scheduler,
-                        row[MusicQueue.requesterId].toSnowflake(),
-                        row[MusicQueue.requestedChannelId].toSnowflake()
+                        row[MusicQueue.requesterId],
+                        row[MusicQueue.requestedChannelId]
                     )
                 )
             }
@@ -76,11 +74,9 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
                 .let { Triple(it[MusicSettings.loop], it[MusicSettings.autoplay], it[MusicSettings.volume]) }
         }
 
-        val vc = client.getChannelById(currentlyConnectedChannelFor(guildId)).await() as VoiceChannel
-        coroutineScope {
-            async {
-                vc.join { it.setProvider(scheduler.audioProvider) }.await()
-            }
+        lastConnectedChannelFor(guildId)?.let { channelId ->
+            val vc = client.getChannelById(channelId).await() as VoiceChannel
+            vc.join { it.setProvider(scheduler.audioProvider) }.await()
         }
 
         val (loop, autoplay, volume) = settings
@@ -124,17 +120,17 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
         trackSchedulerFor(guildId).player.volume = volume
     }
 
-    suspend fun currentlyConnectedChannelFor(guildId: Snowflake): Snowflake? = sql {
+    suspend fun lastConnectedChannelFor(guildId: Snowflake): Snowflake? = sql {
         MusicSettings.select(MusicSettings.whereGuildIs(guildId))
             .firstOrNull()
-            ?.let { it[MusicSettings.currentlyConnectedChannel]?.toSnowflake() }
-            ?: somethingIsWrong("currentlyConnectedChannel", guildId)
+            .also { it ?: somethingIsWrong("currentlyConnectedChannel", guildId) }!!
+            .let { it[MusicSettings.lastConnectedChannel] }
     }
 
-    suspend fun updateCurrentlyConnectedChannelFor(guildId: Snowflake, channelId: Snowflake?) {
+    suspend fun updateLastConnectedChannelFor(guildId: Snowflake, channelId: Snowflake?) {
         sql {
             MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
-                it[currentlyConnectedChannel] = channelId?.asLong()
+                it[lastConnectedChannel] = channelId
             }
         }
     }
@@ -178,21 +174,23 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
     suspend fun search(
         query: String,
         policy: SearchResultPolicy
-    ): List<AudioTrack> = Mono.create<List<AudioTrack>> { emitter ->
+    ): List<AudioTrack> = suspendCoroutine { cont ->
         audioPlayerManager.loadItem(query, object : AudioLoadResultHandler {
-            override fun trackLoaded(track: AudioTrack) = emitter.success(listOf(track))
+            override fun trackLoaded(track: AudioTrack) = cont.resume(listOf(track))
 
             override fun playlistLoaded(playlist: AudioPlaylist) {
-                if (policy is SearchResultPolicy.Unlimited)
-                    emitter.success(playlist.tracks)
-                else
-                    emitter.success(playlist.tracks.take(policy.size.coerceAtMost(playlist.tracks.size)))
+                when (policy) {
+                    is SearchResultPolicy.Unlimited -> cont.resume(playlist.tracks)
+                    else -> cont.resume(playlist.tracks.take(policy.size.coerceAtMost(playlist.tracks.size)))
+                }
             }
 
-            override fun noMatches() = emitter.success(listOf())
-            override fun loadFailed(e: FriendlyException) = emitter.error(Exception("LOAD_FAILED: $query", e))
+            override fun noMatches() =  cont.resume(listOf())
+            override fun loadFailed(e: FriendlyException) = cont.resumeWithException(
+                IllegalStateException("LOAD_FAILED: $query", e)
+            )
         })
-    }.await()
+    }
 
     suspend fun deinitializeFor(guildId: Snowflake) {
         schedulers.remove(guildId)?.let { scheduler ->
@@ -200,26 +198,25 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
             sql {
                 MusicQueue.batchInsert(scheduler.allTracks()) { track ->
                     logger.debug("Inserting track into queue database: ${track.identifier}")
-                    this[MusicQueue.guildId] = guildId.asLong()
+                    this[MusicQueue.guildId] = guildId
                     this[MusicQueue.identifier] = track.identifier
-                    this[MusicQueue.requesterId] = track.trackContext.requesterId.asLong()
-                    this[MusicQueue.requestedChannelId] = track.trackContext.requestedChannelId.asLong()
+                    this[MusicQueue.requesterId] = track.context.requesterId
+                    this[MusicQueue.requestedChannelId] = track.context.requestedChannelId
                 }
             }
-            coroutineScope {
-                scheduler.player.stopTrack()
-            }
+
+            scheduler.player.stopTrack()
         }
     }
 
     private fun somethingIsWrong(variableName: String, guildId: Snowflake): Nothing {
-        throw IllegalStateException("Could not access $variableName for $guildId")
+        error("Could not access $variableName for $guildId")
     }
 
     private suspend fun insertNewRow(guildId: Snowflake) {
         sql {
             logger.info("Adding music settings entry to database for guild $guildId")
-            MusicSettings.insert { it[MusicSettings.guildId] = guildId.asLong() }
+            MusicSettings.insert { it[MusicSettings.guildId] = guildId }
         }
     }
 
@@ -232,8 +229,7 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
         object Single : SearchResultPolicy(1)
         class Limited(size: Int) : SearchResultPolicy(size) {
             init {
-                if (size <= 1)
-                    throw IllegalStateException("Search result size must be larger than 1")
+                require(size > 1) { "Search result size must be larger than 1" }
             }
         }
     }
@@ -244,13 +240,13 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
 
     companion object : DiscordClientFeature<Config, Music>(
         keyName = "music",
-        requiredFeatures = listOf(SystemInteraction, GuildStorage, ChatCommands)
+        requiredFeatures = listOf(PostgresDatabase,  GuildStorage, ChatCommands)
     ) {
 
-        override fun install(client: DiscordClient, configuration: Config.() -> Unit): Music {
+        override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Music {
             runBlocking { sql { create(MusicSettings, MusicQueue) } }
 
-            return Music(Config().apply(configuration), client.feature(GuildStorage)).also { feature ->
+            return Music(Config().apply(configuration)).also { feature ->
                 feature.audioPlayerManager.configuration.frameBufferFactory = AudioFrameBufferFactory { a, b, c ->
                     NonAllocatingAudioFrameBuffer(a, b, c)
                 }
@@ -258,7 +254,16 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
                 AudioSourceManagers.registerRemoteSources(feature.audioPlayerManager)
                 AudioSourceManagers.registerLocalSource(feature.audioPlayerManager)
 
-                val list = listOf(VoiceStateListener(feature), GuildLeaveListener(feature))
+                client.listener<VoiceStateUpdateEvent> {
+                    if (current.userId == client.selfId && current.channelId.isPresent)
+                        feature.updateLastConnectedChannelFor(current.guildId, current.channelId.get())
+                }
+
+                client.listener<GuildDeleteEvent> {
+                    logger.info("Deinitializing guild: $guildId")
+                    if (!isUnavailable)
+                        feature.deinitializeFor(guildId)
+                }
 
                 client.feature(ChatCommands).apply { feature.commands.forEach { registerCommand(it) } }
 
@@ -271,7 +276,7 @@ class Music private constructor(config: Config, private val guildStorage: GuildS
                         feature.initializeFor(client, guildId)
                 }
 
-                client.feature(SystemInteraction).addShutdownTask {
+                client.feature(PostgresDatabase).addShutdownTask {
                     coroutineScope {
                         feature.voiceConnections.entries
                             .map { (guildId, vc) ->

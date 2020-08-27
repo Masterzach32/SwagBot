@@ -15,6 +15,12 @@ val errorTemplate: Consumer<EmbedCreateSpec> = Consumer { spec ->
     spec.setColor(RED)
 }
 
+fun notPremiumTemplate(prefixUsed: String): Consumer<EmbedCreateSpec> = errorTemplate.andThen {
+    it.setDescription(
+        "Music commands are a premium feature of SwagBot. Type `${prefixUsed}premium` to learn more."
+    )
+}
+
 fun trackRequestedTemplate(requesterName: String, track: AudioTrack, timeUntilPlayed: Long? = null): Consumer<EmbedCreateSpec> = Consumer { spec ->
     spec.setColor(BLUE)
     spec.setTitle(":musical_note: | Track requested by $requesterName")

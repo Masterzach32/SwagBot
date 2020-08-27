@@ -1,31 +1,34 @@
 package xyz.swagbot.commands
 
-import com.mojang.brigadier.builder.*
 import discord4j.core.*
 import io.facet.discord.commands.*
+import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.extensions.*
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.*
+import xyz.swagbot.util.*
 
 object DisconnectRouletteCommand : ChatCommand(
     name = "Disconnect Roulette",
     aliases = setOf("droulette"),
-    scope = Scope.GUILD
+    scope = Scope.GUILD,
+    category = "bgw"
 ) {
 
-    override fun register(client: DiscordClient, node: LiteralArgumentBuilder<ChatCommandSource>) {
-        node.executesAsync { context ->
-            val source = context.source
-            source.member.get().voiceState.flatMap { memberVs ->
-                memberVs.channel.flatMap { channel ->
-                    channel.voiceStates
-                        .flatMap { it.member }
-                        .collectList()
-                        .flatMap { members ->
-                            members[(0 until members.size).random()].edit {
-                                it.setNewVoiceChannel(null)
-                            }
-                        }
-                }
-            }
+    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+        runs {
+
+            val connectedMembers = member!!
+                .voiceState.await()
+                .channel.awaitNullable()
+                ?.voiceStates?.asFlow()
+                ?.map { it.member.await() }
+                ?.toList() ?: return@runs getChannel().createEmbed(errorTemplate.andThen { it.setDescription("") }).awaitComplete()
+
+            connectedMembers[connectedMembers.indices.random()].edit {
+                it.setNewVoiceChannel(null)
+            }.await()
         }
     }
 }

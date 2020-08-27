@@ -1,10 +1,10 @@
 package xyz.swagbot.features.music
 
-import discord4j.core.`object`.util.*
+import discord4j.common.util.*
 
 class TrackContext(val requesterId: Snowflake, val requestedChannelId: Snowflake) {
 
-    private val skipList = mutableSetOf<Snowflake>()
+    private val skipList: MutableSet<Snowflake> = mutableSetOf()
 
     val skipVoteCount: Int
         get() = skipList.size

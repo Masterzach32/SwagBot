@@ -12,7 +12,7 @@ class Stats {
         requiredFeatures = listOf(ChatCommands)
     ) {
 
-        override fun install(client: DiscordClient, configuration: EmptyConfig.() -> Unit): Stats {
+        override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): Stats {
             return Stats().also { feature ->
 
             }

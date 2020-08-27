@@ -10,7 +10,7 @@ class Market(config: Config) {
 
     companion object : DiscordClientFeature<Config, Market>("market", listOf(GuildStorage)) {
 
-        override fun install(client: DiscordClient, configuration: Config.() -> Unit): Market {
+        override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Market {
             return Market(Config().apply(configuration)).also { feature ->
 
             }

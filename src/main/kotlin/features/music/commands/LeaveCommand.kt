@@ -1,13 +1,12 @@
 package xyz.swagbot.features.music.commands
 
-import com.mojang.brigadier.builder.*
 import discord4j.core.*
 import io.facet.discord.commands.*
+import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
-import reactor.core.publisher.*
 import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
+import xyz.swagbot.util.*
 
 object LeaveCommand : ChatCommand(
     name = "Leave Voice",
@@ -16,17 +15,19 @@ object LeaveCommand : ChatCommand(
     category = "music"
 ) {
 
-    override fun register(client: DiscordClient, node: LiteralArgumentBuilder<ChatCommandSource>) {
-        node.executesAsync { context ->
-            val source = context.source
-            source.handlePremium().switchIfEmpty {
-                source.event.guild.flatMap { guild ->
-                    source.client.feature(Music).let { feature ->
-                        feature.voiceConnections.remove(guild.id)?.disconnect()
-                        feature.updateCurrentlyConnectedChannelFor(guild.id, null)
-                    }
-                }
+    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+        runs { context ->
+            val channel = getChannel()
+            val guild = getGuild()
+            if (!isMusicFeatureEnabled())
+                return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
+
+            guild.voiceConnection?.let {
+                it.disconnect()
+                guild.voiceConnection = null
             }
+
+            guild.setLastConnectedChannel(null)
         }
     }
 }

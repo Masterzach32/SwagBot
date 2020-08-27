@@ -3,7 +3,7 @@ package xyz.swagbot.features.music
 import com.sedmelluq.discord.lavaplayer.player.*
 import com.sedmelluq.discord.lavaplayer.tools.*
 import com.sedmelluq.discord.lavaplayer.track.*
-import discord4j.core.`object`.util.*
+import discord4j.common.util.*
 
 class SilentAudioTrackLoadHandler(
     val scheduler: TrackScheduler,

@@ -13,3 +13,6 @@ val AudioTrackInfo.formattedTitle: String
 
 val AudioTrackInfo.boldFormattedTitle: String
     get() = "**$title** by **$author**"
+
+val AudioTrackInfo.boldFormattedTitleWithLink: String
+    get() = "[**${title}** by **${author}**](${uri})"

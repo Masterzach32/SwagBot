@@ -1,69 +1,69 @@
 package xyz.swagbot.features.permissions
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
-import com.mojang.brigadier.builder.*
 import discord4j.core.*
+import discord4j.core.`object`.entity.*
+import discord4j.rest.util.*
 import io.facet.discord.commands.*
+import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
-import reactor.core.publisher.*
+import kotlinx.coroutines.reactive.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.util.*
 
 object ChangePermissionCommand : ChatCommand(
     name = "Change User Permissions",
     aliases = setOf("permission", "perm"),
-    scope = Scope.GUILD
+    scope = Scope.GUILD,
+    category = "admin",
+    discordPermsRequired = PermissionSet.of(Permission.ADMINISTRATOR)
 ) {
 
-    override fun register(client: DiscordClient, node: LiteralArgumentBuilder<ChatCommandSource>) {
-
-        PermissionType.values().filter { it != PermissionType.DEV }.map { permission ->
-            node.then(literal(permission.codeName).then(argument("users", greedyString()).requires {
-                it.hasBotPermission(PermissionType.ADMIN)
-            }.executesAsync { context ->
-                val feature = context.source.client.feature(Permissions)
-
-                context.source.guild.flatMap { guild ->
-                    context.source.message.allUserMentions
-                        .map { member ->
-                            feature.updatePermissionFor(guild.id, member.id, permission, context.source.member.get().id)
-                        }
-                        .filter { it }
-                        .collectList()
-                        .map { it.size }
-                        .map { usersUpdated ->
-                            context.source.message.channel.flatMap { channel ->
-                                channel.createEmbed(baseTemplate.andThen {
-                                    it.setDescription("Updated permissions for **$usersUpdated** members.")
-                                })
-                            }
-                        }
-                        .then()
-                    }
-            }))
+    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+        runs {
+            val perm = member!!.botPermission()
+            getChannel().createEmbed(baseTemplate.andThen {
+                it.setDescription("Your permission level is **$perm**")
+            }).awaitComplete()
         }
 
-        node.then(argument("user", greedyString()).executesAsync { context ->
-            val source = context.source
-            source.message.channel.flatMap { channel ->
-                source.message.userMentions.toMono().flatMap { user ->
-                    source.client.getMemberById(source.guildId.get(), user.id)
-                }.flatMap { member ->
-                    val perm = source.client.feature(Permissions).permissionLevelFor(source.guildId.get(), member.id)
-                    channel.createEmbed(baseTemplate.andThen {
-                        it.setDescription("**${member.displayName}** has permission **$perm**")
-                    })
-                }.then()
+        argument("user", greedyString()) {
+            runs {
+                val user = message.userMentions.awaitFirst()
+                val member = user as? Member ?: client.getMemberById(guildId!!, user.id).await()
+
+                val perm = member.botPermission()
+                getChannel().createEmbed(baseTemplate.andThen {
+                    it.setDescription("**${member.displayName}** has permission **$perm**")
+                }).awaitComplete()
             }
-        }).executesAsync { context ->
-            val source = context.source
-            val perm = source.client.feature(Permissions).permissionLevelFor(source.guildId.get(), source.member.get().id)
-            source.message.channel.flatMap { channel ->
-                channel.createEmbed(baseTemplate.andThen {
-                    it.setDescription("Your permission level is **$perm**")
-                })
-            }.then()
+        }
+
+        PermissionType.values().filter { it != PermissionType.DEV }.map { permission ->
+            literal(permission.codeName) {
+                argument("users", greedyString()) {
+                    require { hasBotPermission(PermissionType.ADMIN) }
+
+                    runs {
+                        val channel = getChannel().also {
+                            it.type().async()
+                        }
+
+                        val guild = getGuild()
+                        val assignedBy = member!!
+
+                        val allUserMentions = message.getAllUserMentions()
+
+                        val membersUpdated = allUserMentions
+                            .filter { it.updateBotPermission(permission, assignedBy, guild.id) }
+
+                        channel.createEmbed(baseTemplate.andThen {
+                            it.setDescription("Updated permissions for **${membersUpdated.size}** members.")
+                        }).awaitComplete()
+                    }
+                }
+            }
         }
     }
 }

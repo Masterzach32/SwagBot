@@ -6,17 +6,17 @@ import com.sedmelluq.discord.lavaplayer.tools.*
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.core.*
 import xyz.swagbot.*
-import xyz.swagbot.extensions.*
+import java.util.*
 import java.util.concurrent.*
 
-class TrackScheduler(val client: DiscordClient, val player: AudioPlayer) : AudioEventAdapter() {
+class TrackScheduler(val client: GatewayDiscordClient, val player: AudioPlayer) : AudioEventAdapter() {
 
     val audioProvider = LPAudioProvider(player)
 
     var shouldLoop = false
     var shouldAutoplay = false
 
-    private val queue = LinkedBlockingQueue<AudioTrack>()
+    private val queue: Queue<AudioTrack> = LinkedBlockingQueue()
 
     init {
         player.addListener(this)
@@ -74,6 +74,13 @@ class TrackScheduler(val client: DiscordClient, val player: AudioPlayer) : Audio
     override fun onTrackException(player: AudioPlayer, track: AudioTrack, exception: FriendlyException) {
         logger.warn("Encountered error with track: ${track.info.uri}")
         exception.printStackTrace()
+
+//        runBlocking {
+//            val channel = client.getChannelById(track.context.requestedChannelId).await() as MessageChannel
+//            channel.createEmbed(errorTemplate.andThen {
+//                it.setDescription()
+//            })
+//        }
     }
 
     override fun onTrackStuck(player: AudioPlayer, track: AudioTrack, thresholdMs: Long) {
