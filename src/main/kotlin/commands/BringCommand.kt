@@ -1,7 +1,6 @@
 package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
-import discord4j.core.*
 import discord4j.core.`object`.entity.channel.*
 import discord4j.rest.util.*
 import io.facet.discord.commands.*
@@ -9,6 +8,8 @@ import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
 import xyz.swagbot.util.*
@@ -21,7 +22,7 @@ object BringCommand : ChatCommand(
     discordPermsRequired = PermissionSet.of(Permission.MOVE_MEMBERS)
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         require {
             hasBotPermission(PermissionType.MOD)
         }
@@ -40,13 +41,13 @@ object BringCommand : ChatCommand(
                         it.setDescription("")
                     }).awaitComplete()
 
-                client.scope.launch {
-                    guild.voiceStates.await()
-                        .map { it.member.await() }
-                        .map { member ->
-                            member.edit { it.setNewVoiceChannel(channelToBring.id) }
+                launch {
+                    guild.voiceStates.asFlow()
+                        .filter { it.channelId.isPresent }
+                        .map { vs -> vs.member.await().edit { it.setNewVoiceChannel(channelToBring.id) } }
+                        .collect {
+                            launch { it.await() }
                         }
-                        .forEach { it.async() }
                 }
             }
         }

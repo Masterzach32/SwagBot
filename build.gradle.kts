@@ -5,7 +5,7 @@ val docker_pass: String by project
 val docker_email: String by project
 
 plugins {
-    kotlin("jvm") version "1.4.0"
+    kotlin("jvm") version "1.4.10"
     id("com.bmuschko.docker-java-application") version "6.6.1"
     id("net.thauvin.erik.gradle.semver") version "1.0.4"
 }
@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.discord4j:discord4j-core:3.1.0")
+    implementation("com.discord4j:discord4j-core:3.1.1")
     implementation("com.sedmelluq:lavaplayer:1.3.50")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
@@ -33,13 +33,13 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinx_coroutines_version")
 
-    val ktor_version = "1.4.0"
+    val ktor_version = "1.4.1"
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-client-jackson:$ktor_version")
 
-    val exposed_version = "0.26.2"
+    val exposed_version = "0.27.1"
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
@@ -48,9 +48,22 @@ dependencies {
 }
 
 tasks {
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    incrementPatch {
+        dependsOn(classes)
+        onlyIf { compileKotlin.get().didWork }
+    }
+
+    dockerSyncBuildContext {
+        dependsOn(classes)
+    }
+
     val createDockerfile by registering(Dockerfile::class) {
         group = "swagbot"
-        dependsOn(classes, dockerSyncBuildContext)
+        dependsOn(incrementPatch, dockerSyncBuildContext)
 
         from("openjdk:jre-alpine")
 
@@ -87,11 +100,7 @@ tasks {
     }
 
     build {
-        dependsOn(incrementPatch, buildImage)
-    }
-
-    compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        dependsOn(buildImage)
     }
 }
 

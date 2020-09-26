@@ -6,6 +6,7 @@ import discord4j.core.event.domain.guild.*
 import io.facet.core.*
 import io.facet.discord.*
 import io.facet.discord.commands.*
+import io.facet.discord.event.*
 import io.facet.discord.exposed.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
@@ -45,16 +46,25 @@ class AutoAssignRole private constructor() {
             runBlocking { sql { create(RolesTable) } }
 
             return AutoAssignRole().also { feature ->
-                client.listener<MemberJoinEvent> {
-                    if (member.isBot)
+                BotScope.listener<MemberJoinEvent>(client) { event ->
+                    if (event.member.isBot)
                         return@listener // ignore bots
 
-                    val roleIds = feature.autoAssignedRolesFor(guildId)
-                    logger.info("Adding roles: $roleIds to user: ${member.id}")
+                    val roleIds = feature.autoAssignedRolesFor(event.guildId)
+                    logger.info("Adding roles: $roleIds to user: ${event.member.id}")
 
                     roleIds
-                        .map { member.addRole(it, "Auto assigned role") }
-                        .forEach { it.await() }
+                        .map { it to event.member.addRole(it, "Auto assigned role") }
+                        .forEach { (roleId, request) ->
+                            try {
+                                request.await()
+                            } catch (e: Throwable) {
+                                logger.error("Could not add role $roleId to member. Removing.", e)
+                                sql {
+                                    RolesTable.deleteWhere { RolesTable.roleId eq roleId }
+                                }
+                            }
+                        }
                 }
             }
         }

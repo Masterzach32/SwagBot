@@ -1,6 +1,5 @@
 package xyz.swagbot.commands
 
-import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -24,7 +23,7 @@ object CatCommand : ChatCommand(
         }
     }
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
             val channel = getChannel()
 

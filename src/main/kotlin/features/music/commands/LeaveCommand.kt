@@ -1,6 +1,5 @@
 package xyz.swagbot.features.music.commands
 
-import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -15,17 +14,14 @@ object LeaveCommand : ChatCommand(
     category = "music"
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
             val channel = getChannel()
             val guild = getGuild()
             if (!isMusicFeatureEnabled())
                 return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
 
-            guild.voiceConnection?.let {
-                it.disconnect()
-                guild.voiceConnection = null
-            }
+            client.voiceConnectionRegistry.disconnect(guildId!!).await()
 
             guild.setLastConnectedChannel(null)
         }

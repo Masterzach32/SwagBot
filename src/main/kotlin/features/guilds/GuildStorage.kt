@@ -6,8 +6,8 @@ import discord4j.core.event.domain.guild.*
 import io.facet.core.*
 import io.facet.core.extensions.*
 import io.facet.discord.*
+import io.facet.discord.event.*
 import io.facet.discord.exposed.*
-import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.*
@@ -28,7 +28,7 @@ class GuildStorage private constructor() {
                 .firstOrNull()
                 .toOptional()
                 .map { it[GuildTable.commandPrefix] }
-        }.orElse("~")
+        }.orElse(EnvVars.DEFAULT_COMMAND_PREFIX)
     }
 
     suspend fun updateCommandPrefixFor(guildId: Snowflake, commandPrefix: String) {
@@ -49,19 +49,19 @@ class GuildStorage private constructor() {
             }
 
             return GuildStorage().also { feature ->
-                client.listener<GuildCreateEvent> {
-                    if (!feature.hasGuild(guild.id)) {
-                        logger.info("New guild joined with id ${guild.id}, adding to database.")
+                BotScope.listener<GuildCreateEvent>(client) { event ->
+                    if (!feature.hasGuild(event.guild.id)) {
+                        logger.info("New guild joined with id ${event.guild.id}, adding to database.")
                         sql {
                             GuildTable.insert {
-                                it[guildId] = guild.id
+                                it[guildId] = event.guild.id
                             }
                         }
                     }
 
                     coroutineScope {
                         feature.tasks.forEach {
-                            launch { it.invoke(this@listener) }
+                            launch { it.invoke(event) }
                         }
                     }
                 }

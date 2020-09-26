@@ -1,6 +1,5 @@
 package xyz.swagbot.features.music.commands
 
-import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -15,7 +14,7 @@ object JoinCommand : ChatCommand(
     category = "music"
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
             val channel = getChannel()
 
@@ -27,7 +26,7 @@ object JoinCommand : ChatCommand(
                 .channel.awaitNullable()
 
             if (voiceChannel != null) {
-                voiceChannel.joinVoice()
+                voiceChannel.join()
             } else {
                 channel.createEmbed(errorTemplate.andThen {
                     it.setDescription("You must be connected to a voice channel to summon me!")

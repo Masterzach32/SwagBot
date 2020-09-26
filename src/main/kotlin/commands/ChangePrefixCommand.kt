@@ -2,7 +2,6 @@ package xyz.swagbot.commands
 
 import com.mojang.brigadier.*
 import com.mojang.brigadier.arguments.*
-import discord4j.core.*
 import discord4j.rest.util.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
@@ -20,7 +19,7 @@ object ChangePrefixCommand : ChatCommand(
     discordPermsRequired = PermissionSet.of(Permission.ADMINISTRATOR)
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         argument("newPrefix", CommandPrefixArgumentType) {
             require {
                 hasBotPermission(PermissionType.ADMIN)

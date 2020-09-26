@@ -1,7 +1,6 @@
 package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
-import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -13,7 +12,7 @@ object LmgtfyCommand : ChatCommand(
     aliases = setOf("lmgtfy", "google")
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         argument("query", greedyString()) {
             runs { context ->
                 getChannel()

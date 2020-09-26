@@ -10,9 +10,19 @@ services:
     ports:
       - "5433:5432"
 
-  redis:
-    image: library/redis:6.0.6
+  adminer:
+    image: adminer
     restart: always
+    environment:
+      - ADMINER_DESIGN=nette
+    ports:
+      - 8083:8080
+    depends_on:
+      - postgres
+
+#  redis:
+#    image: library/redis:6.0.6
+#    restart: always
 
   bot:
     image: zachkozar/swagbot:latest
@@ -22,7 +32,7 @@ services:
       - postgres.env
     depends_on:
       - postgres
-      - redis
+#      - redis
 
 volumes:
   data:

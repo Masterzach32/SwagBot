@@ -1,6 +1,5 @@
 package xyz.swagbot.features.music.commands
 
-import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -15,7 +14,7 @@ object PauseResumeCommand : ChatCommand(
     category = "music"
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
             val guild = getGuild()
             val channel = getChannel()

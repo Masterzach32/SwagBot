@@ -1,7 +1,6 @@
 package xyz.swagbot.features.music.commands
 
 import com.sedmelluq.discord.lavaplayer.track.*
-import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -17,7 +16,7 @@ object NowPlayingCommand : ChatCommand(
     category = "music"
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
             val channel = getChannel()
             val musicFeature = client.feature(Music)

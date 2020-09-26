@@ -8,6 +8,7 @@ import discord4j.core.event.domain.lifecycle.*
 import discord4j.core.event.domain.message.*
 import io.facet.core.*
 import io.facet.discord.*
+import io.facet.discord.event.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -17,19 +18,27 @@ class BestGroupWorldStuff private constructor() {
     companion object : DiscordClientFeature<EmptyConfig, BestGroupWorldStuff>("bgw") {
 
         override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): BestGroupWorldStuff {
-            client.listener<MessageCreateEvent> {
-                val channel = message.channel.await()
+            BotScope.listener<MessageCreateEvent>(client) { event ->
+                val channel = event.message.channel.await()
+                val message = event.message
 
                 if (channel.id.asLong() == 402224449367179264) {
                     if (message.attachments.isNotEmpty() || message.embeds.isNotEmpty()) {
-                        message.delete("No images in #chat.").await()
+                        event.message.delete("No images in #chat.").await()
                     }
                 }
 
                 if (message.author.map { !it.isBot }.orElse(false) &&
-                    guildId.map { it.asLong() == 97342233241464832 }.orElse(false) &&
+                    event.guildId.map { it.asLong() == 97342233241464832 }.orElse(false) &&
                     message.content.toLowerCase().contains("sir")) {
-                    channel.createMessage("**${member.get().mention} I'LL SHOW YOU SIR**").awaitComplete()
+                    channel.createMessage("**${event.member.get().mention} I'LL SHOW YOU SIR**").awaitComplete()
+                }
+
+                if (channel.id.asLong() == 402224449367179264) {
+                    if (message.author.map { it.isBot }.orElse(false))
+                        message.delete("Bot commands are not allowed in #chat").await()
+                    else if (message.content.startsWith("~raid"))
+                        message.delete("Bot commands are not allowed in #chat").await()
                 }
             }
 
@@ -40,7 +49,7 @@ class BestGroupWorldStuff private constructor() {
             val regexes: List<Regex> = iAmNotWords
                 .map { it.toCharArray().joinToString(separator = delimiter).toRegex() }
 
-            client.listener<MemberUpdateEvent> {
+            BotScope.listener<MemberUpdateEvent>(client) { event ->
                 suspend fun removeGayRole(event: MemberUpdateEvent, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = event.currentRoles.filterNot { it.asLong() == roleToRemove.asLong() }
@@ -49,14 +58,14 @@ class BestGroupWorldStuff private constructor() {
                     }.await()
                 }
 
-                if (memberId.asLong() != 97341976214511616)
+                if (event.memberId.asLong() != 97341976214511616)
                     return@listener
 
-                if (currentRoles.contains(gayRoleId)) {
-                    removeGayRole(this, gayRoleId)
+                if (event.currentRoles.contains(gayRoleId)) {
+                    removeGayRole(event, gayRoleId)
                 } else {
-                    currentRoles.asFlow()
-                        .map { client.getRoleById(guildId, it).await() }
+                    event.currentRoles.asFlow()
+                        .map { client.getRoleById(event.guildId, it).await() }
                         .firstOrNull { role ->
                             role.name.toLowerCase().let { name ->
                                 regexes.any { regex ->
@@ -65,11 +74,11 @@ class BestGroupWorldStuff private constructor() {
                                 }
                             }
                         }
-                        ?.let { newGayRole -> removeGayRole(this, newGayRole.id) }
+                        ?.let { newGayRole -> removeGayRole(event, newGayRole.id) }
                 }
             }
 
-            client.listener<ReadyEvent> {
+            BotScope.listener<ReadyEvent>(client) { event ->
                 suspend fun removeGayRole(member: Member, currentRoles: List<Role>, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = currentRoles.filterNot { it.id == roleToRemove }
@@ -103,16 +112,16 @@ class BestGroupWorldStuff private constructor() {
             }
 
             // add gay role to jack
-            client.listener<MemberUpdateEvent> {
-                if (memberId.asLong() != 97486068630163456)
+            BotScope.listener<MemberUpdateEvent>(client) { event ->
+                if (event.memberId.asLong() != 97486068630163456)
                     return@listener
 
-                if (!currentRoles.contains(gayRoleId)) {
+                if (!event.currentRoles.contains(gayRoleId)) {
                     delay(5000)
-                    val newRoles = currentRoles.apply {
+                    val newRoles = event.currentRoles.apply {
                         add(gayRoleId)
                     }
-                    member.await().edit { spec ->
+                    event.member.await().edit { spec ->
                         spec.setRoles(newRoles.toSet())
                     }.await()
                 }

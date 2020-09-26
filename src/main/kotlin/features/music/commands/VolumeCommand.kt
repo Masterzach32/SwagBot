@@ -1,7 +1,6 @@
 package xyz.swagbot.features.music.commands
 
 import com.mojang.brigadier.arguments.IntegerArgumentType.*
-import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -17,7 +16,7 @@ object VolumeCommand : ChatCommand(
     category = "music"
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
             val channel = getChannel()
 
@@ -39,11 +38,15 @@ object VolumeCommand : ChatCommand(
 
                 val newVolume = context.getInt("level")
 
-                client.feature(Music).updateVolumeFor(guildId!!, newVolume)
+//                client.feature(Music).updateVolumeFor(guildId!!, newVolume)
+//
+//                channel.createEmbed(baseTemplate.andThen {
+//                    it.setDescription("Volume changed to **$newVolume**")
+//                }).await()
 
-                channel.createEmbed(baseTemplate.andThen {
-                    it.setDescription("Volume changed to **$newVolume**")
-                }).await()
+                channel.createEmbed(errorTemplate.andThen {
+                    it.setDescription("Volume changing is not supported on alpine-based jvm images.")
+                }).awaitComplete()
             }
         }
     }

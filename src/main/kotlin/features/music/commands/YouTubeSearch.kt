@@ -1,13 +1,13 @@
 package xyz.swagbot.features.music.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
-import discord4j.core.*
 import discord4j.core.`object`.reaction.*
 import discord4j.core.event.domain.message.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.*
 import xyz.swagbot.extensions.*
@@ -20,13 +20,21 @@ object YouTubeSearch : ChatCommand(
     name = "YouTube Search",
     aliases = setOf("search", "s", "ytsearch"),
     scope = Scope.GUILD,
-    category = "music"
+    category = "music",
+    description = "Search YouTube and select a video to play using reaction buttons.",
+    usage = commandUsage {
+        add(
+            "<query>",
+            "Will search YouTube and list the first five results found. Click on the " +
+                    "corresponding reaction to queue that video."
+        )
+    }
 ) {
 
     private val emojiUnicode = listOf("\u0031\u20e3", "\u0032\u20e3", "\u0033\u20e3", "\u0034\u20e3",
         "\u0035\u20e3", "\u0036\u20e3", "\u0037\u20e3", "\u0038\u20e3", "\u0039\u20e3", "\u0030\u20e3")
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         argument("query", greedyString()) {
             runs { context ->
                 val requester = member!!
@@ -37,7 +45,7 @@ object YouTubeSearch : ChatCommand(
                 if (!isMusicFeatureEnabled())
                     return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
 
-                channel.type().async()
+                launch { channel.type().await() }
 
                 val results = try {
                     feature.search("ytsearch:${context.getString("query")}", Music.SearchResultPolicy.Limited(searchCount))
@@ -68,10 +76,9 @@ object YouTubeSearch : ChatCommand(
                     }
                 ).await()
 
-                emojiUnicode.asFlow()
+                emojiUnicode
                     .take(searchCount)
-                    .map { resultMessage.addReaction(ReactionEmoji.unicode(it)).await() }
-                    .collect()
+                    .forEach { resultMessage.addReaction(ReactionEmoji.unicode(it)).await() }
 
                 val flow = client.on<ReactionAddEvent>()
                     .filter { event ->
@@ -85,7 +92,7 @@ object YouTubeSearch : ChatCommand(
                 try {
                     val event = flow.first()
 
-                    resultMessage.delete().async()
+                    launch { resultMessage.delete().await() }
 
                     val trackScheduler = feature.trackSchedulerFor(guildId!!)
                     val index = emojiUnicode.indexOf(event.emoji.asUnicodeEmoji().get().raw)

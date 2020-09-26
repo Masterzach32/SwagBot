@@ -5,6 +5,7 @@ package xyz.swagbot
 import discord4j.core.*
 import discord4j.core.shard.*
 import discord4j.gateway.intent.*
+import discord4j.rest.response.*
 import io.facet.discord.commands.*
 import io.facet.discord.extensions.*
 import org.slf4j.*
@@ -23,7 +24,9 @@ val logger = LoggerFactory.getLogger(EnvVars.BOT_NAME)
 fun main() {
     logger.info("Starting SwagBot...")
 
-    val client = DiscordClient.create(EnvVars.BOT_TOKEN)
+    val client = DiscordClient.builder(EnvVars.BOT_TOKEN)
+        .onClientResponse(ResponseFunction.emptyIfNotFound())
+        .build()
 
     client.gateway()
         .setEnabledIntents(IntentSet.all())
@@ -33,7 +36,6 @@ fun main() {
 }
 
 fun GatewayDiscordClient.configure() {
-    logger.info("Installing bot features into DiscordClient instance.")
     install(PostgresDatabase) {
         databaseName = EnvVars.POSTGRES_DB
         databaseUsername = EnvVars.POSTGRES_USER
@@ -51,13 +53,15 @@ fun GatewayDiscordClient.configure() {
             BringCommand,
             CatCommand,
             ChangePrefixCommand,
+            DeleteMessage,
             DisconnectRouletteCommand,
+            Dispatcher,
             DogCommand,
             InfoCommand,
             LmgtfyCommand,
             MigrateCommand,
-            PingCommand,
-            PruneCommand
+            Ping,
+            Prune
         )
     }
 
@@ -76,6 +80,4 @@ fun GatewayDiscordClient.configure() {
     install(Market)
 
     install(BestGroupWorldStuff)
-
-    logger.info("Done configuring client, logging into Discord.")
 }

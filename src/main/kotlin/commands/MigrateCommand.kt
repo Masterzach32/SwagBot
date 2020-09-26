@@ -1,7 +1,6 @@
 package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
-import discord4j.core.*
 import discord4j.rest.util.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
@@ -21,7 +20,7 @@ object MigrateCommand : ChatCommand(
     discordPermsRequired = PermissionSet.of(Permission.MOVE_MEMBERS)
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         require {
             hasBotPermission(PermissionType.MOD)
         }

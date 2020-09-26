@@ -1,7 +1,6 @@
 package xyz.swagbot.commands
 
 import discord4j.common.*
-import discord4j.core.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -14,7 +13,7 @@ object InfoCommand : ChatCommand(
     aliases = setOf("info")
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
             message.channel.await().createEmbed(baseTemplate.andThen {
                 it.setTitle("SwagBot v3 ${if (EnvVars.CODE_ENV == "test") "Development Version" else ""} (${EnvVars.CODE_VERSION})")
@@ -34,7 +33,7 @@ https://patreon.com/ultimatedoge
 Join the SwagBot support server:
 https://discord.me/swagbothub
 Want to add SwagBot to your server? Click the link below:
-https://discordapp.com/oauth2/authorize?client_id=217065780078968833&scope=bot&permissions=87149640
+https://discordapp.com/oauth2/authorize?client_id=${client.selfId.asLong()}&scope=bot&permissions=87149640
 """.trimIndent()
                 )
 

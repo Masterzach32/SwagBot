@@ -9,7 +9,7 @@ import xyz.swagbot.*
 import java.util.*
 import java.util.concurrent.*
 
-class TrackScheduler(val client: GatewayDiscordClient, val player: AudioPlayer) : AudioEventAdapter() {
+class TrackScheduler(private val client: GatewayDiscordClient, val player: AudioPlayer) : AudioEventAdapter() {
 
     val audioProvider = LPAudioProvider(player)
 

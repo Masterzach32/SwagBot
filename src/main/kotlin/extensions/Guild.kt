@@ -31,14 +31,7 @@ suspend fun Guild.setIsPremium(premium: Boolean) = musicFeature.updateIsEnabledF
 val Guild.trackScheduler: TrackScheduler
     get() = musicFeature.trackSchedulerFor(id)
 
-var Guild.voiceConnection: VoiceConnection?
-    get() = musicFeature.voiceConnections[id]
-    set(value) {
-        if (value != null)
-            musicFeature.voiceConnections[id] = value
-        else
-            musicFeature.voiceConnections.remove(id)
-    }
+suspend fun Guild.getVoiceConnection(): VoiceConnection? = client.voiceConnectionRegistry.getVoiceConnection(id).await()
 
 suspend fun Guild.getVolume(): Int = musicFeature.volumeFor(id)
 

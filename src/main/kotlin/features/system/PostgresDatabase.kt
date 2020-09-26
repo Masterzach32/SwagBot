@@ -30,7 +30,7 @@ class PostgresDatabase private constructor(
 
             val database = runBlocking {
                 retry(3, 2000) {
-                    logger.info("Attempting connection to: postgres:5432")
+                    logger.info("Attempting connection to database.")
                     Database.connect(
                         "jdbc:postgresql://postgres:5432/${config.databaseName}",
                         "org.postgresql.Driver",
@@ -45,7 +45,7 @@ class PostgresDatabase private constructor(
                 Runtime.getRuntime().addShutdownHook(Thread {
                     logger.info("Received shutdown code from system, running shutdown tasks.")
                     runBlocking {
-                        GlobalScope.launch {
+                        launch {
                             feature.tasks.map { async { it.invoke() } }.forEach { it.await() }
                             client.scope.cancel()
                             client.logout().await()

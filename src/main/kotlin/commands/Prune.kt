@@ -1,7 +1,6 @@
 package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.IntegerArgumentType.*
-import discord4j.core.*
 import discord4j.core.`object`.entity.channel.*
 import discord4j.rest.util.*
 import io.facet.discord.commands.*
@@ -13,22 +12,25 @@ import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
 import xyz.swagbot.util.*
 
-object PruneCommand : ChatCommand(
+object Prune : ChatCommand(
     name = "Prune Messages",
     aliases = setOf("prune", "purge"),
     scope = Scope.GUILD,
     category = "moderator",
-    discordPermsRequired = PermissionSet.of(Permission.MANAGE_MESSAGES)
+    discordPermsRequired = PermissionSet.of(Permission.MANAGE_MESSAGES),
+    usage = commandUsage {
+        add("<number of messages>", "Delete the last x number of messages in this channel.")
+    }
 ) {
 
-    override fun DSLCommandNode<ChatCommandSource>.register(client: GatewayDiscordClient) {
+    override fun DSLCommandNode<ChatCommandSource>.register() {
         argument("numMessages", integer(2, 100)) {
             require { hasBotPermission(PermissionType.MOD) }
 
             runs { context ->
                 val numToDelete = context.getInt("numMessages").toLong()
                 val channel = event.message.channel.await() as GuildMessageChannel
-                channel.type().async()
+                launch { channel.type().await() }
 
                 val notDeleted = channel.bulkDelete(
                     channel.getMessagesBefore(event.message.id)
@@ -36,15 +38,16 @@ object PruneCommand : ChatCommand(
                         .map { it.id }
                 ).await()
 
-                message.delete().async()
+                message.delete().await()
 
                 val resultMessage = channel.createEmbed(baseTemplate.andThen {
                     it.setDescription("Deleted **${numToDelete - notDeleted.size}** messages")
                 }).await()
 
-                delay(5000)
-
-                resultMessage.delete().async()
+                launch {
+                    delay(5000)
+                    resultMessage.delete().await()
+                }
             }
         }
     }
