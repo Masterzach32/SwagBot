@@ -33,18 +33,6 @@ class Music private constructor(config: Config) {
 
     private val schedulers = ConcurrentHashMap<Snowflake, TrackScheduler>()
 
-    val commands = listOf(
-        JoinCommand,
-        LeaveCommand,
-        NowPlayingCommand,
-        PauseResumeCommand,
-        Play,
-        SkipCommand,
-        VolumeCommand,
-        VoteSkipCommand,
-        YouTubeSearch
-    )
-
     suspend fun initializeFor(client: GatewayDiscordClient, guildId: Snowflake) {
         if (schedulers.containsKey(guildId))
             return
@@ -234,7 +222,9 @@ class Music private constructor(config: Config) {
     ) {
 
         override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Music {
-            runBlocking { sql { create(MusicSettings, MusicQueue) } }
+            runBlocking {
+                sql { create(MusicSettings, MusicQueue) }
+            }
 
             return Music(Config().apply(configuration)).apply {
                 audioPlayerManager.configuration.frameBufferFactory = AudioFrameBufferFactory { a, b, c ->
@@ -255,7 +245,17 @@ class Music private constructor(config: Config) {
                         deinitializeFor(event.guildId)
                 }
 
-                client.feature(ChatCommands).apply { commands.forEach { registerCommand(it) } }
+                client.feature(ChatCommands).registerCommands(
+                    JoinCommand,
+                    LeaveCommand,
+                    NowPlayingCommand,
+                    PauseResumeCommand,
+                    Play,
+                    SkipCommand,
+                    VolumeCommand,
+                    VoteSkipCommand,
+                    YouTubeSearch
+                )
 
                 client.feature(GuildStorage).addTaskOnGuildInitialization { event ->
                     val guildId = event.guild.id
@@ -268,7 +268,7 @@ class Music private constructor(config: Config) {
 
                 client.feature(PostgresDatabase).addShutdownTask {
                     coroutineScope {
-                        schedulers.keys.forEach { deinitializeFor(it) }
+                        schedulers.keys.toList().forEach { deinitializeFor(it) }
 
                         audioPlayerManager.shutdown()
                     }

@@ -10,6 +10,7 @@ import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.coroutines.*
 import xyz.swagbot.util.*
 
 object CatCommand : ChatCommand(
@@ -27,22 +28,23 @@ object CatCommand : ChatCommand(
         runs {
             val channel = getChannel()
 
-            channel.type().async()
+            launch { channel.type().await() }
 
             val response: Response = try {
                 retry(3, 3000) {
                     httpClient.get("http://aws.random.cat/meow")
                 }
             } catch (e: Throwable) {
-                return@runs channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("Sorry, but i'm having trouble connecting to the service at the moment.")
-                }).awaitComplete()
+                channel.sendEmbed(errorTemplate.andThen {
+                    description = "Sorry, but i'm having trouble connecting to the service at the moment."
+                })
+                return@runs
             }
 
             val image = response.getImage()
-            channel.createMessage {
-                it.addFile(response.fileName, image)
-            }.awaitComplete()
+            channel.sendMessage {
+                file(response.fileName, image)
+            }
         }
     }
 

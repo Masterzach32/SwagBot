@@ -18,7 +18,6 @@ object NowPlayingCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
-            val channel = getChannel()
             val musicFeature = client.feature(Music)
             val playingTrack: AudioTrack? = musicFeature.trackSchedulerFor(guildId!!).player.playingTrack
 
@@ -27,26 +26,23 @@ object NowPlayingCommand : ChatCommand(
                     .getMemberById(guildId!!, playingTrack.context.requesterId)
                     .awaitNullable()
                 val volume = musicFeature.volumeFor(guildId!!)
-                channel.createEmbed(baseTemplate.andThen {
-                    it.setTitle(":musical_note: | Now Playing")
+                respondEmbed(baseTemplate.andThen {
+                    title = ":musical_note: | Now Playing"
 
-                    val desc = "${playingTrack.info.boldFormattedTitleWithLink} - " +
+                    description = "${playingTrack.info.boldFormattedTitleWithLink} - " +
                             "**${playingTrack.formattedPosition}** / **${playingTrack.formattedLength}**" +
                             "\nAuthor/Channel: **${playingTrack.info.author}**" +
                             "\nRequested by: **${requester?.displayName ?: "Unknown"}**" +
                             "\nVolume: **${volume}/100**"
-                    it.setDescription(desc)
 
                     if (playingTrack.info.hasThumbnail)
-                        it.setThumbnail(playingTrack.info.thumbnailUrl)
-                }).await()
+                        thumbnailUrl = playingTrack.info.thumbnailUrl
+                })
             } else {
-                channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription(
-                        "Im not playing anything right now. Go add some music with the `~play` or `~search` commands!"
-                            .replace("~", prefixUsed)
-                    )
-                }).await()
+                respondEmbed(errorTemplate.andThen {
+                    description = "Im not playing anything right now. Go add some music with the " +
+                            "`~play` or `~search` commands!".replace("~", prefixUsed)
+                })
             }
         }
     }

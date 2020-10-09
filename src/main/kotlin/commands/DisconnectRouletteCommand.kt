@@ -6,7 +6,6 @@ import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.*
-import xyz.swagbot.util.*
 
 object DisconnectRouletteCommand : ChatCommand(
     name = "Disconnect Roulette",
@@ -18,14 +17,15 @@ object DisconnectRouletteCommand : ChatCommand(
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
 
-            val connectedMembers = member!!
-                .voiceState.await()
-                .channel.awaitNullable()
+            val connectedMembers = member
+                .voiceState.awaitNullable()
+                ?.channel?.awaitNullable()
                 ?.voiceStates?.asFlow()
                 ?.map { it.member.await() }
-                ?.toList() ?: return@runs getChannel().createEmbed(errorTemplate.andThen { it.setDescription("") }).awaitComplete()
+                ?.filterNotNull()
+                ?.toList() ?: return@runs
 
-            connectedMembers[connectedMembers.indices.random()].edit {
+            connectedMembers.random().edit {
                 it.setNewVoiceChannel(null)
             }.await()
         }

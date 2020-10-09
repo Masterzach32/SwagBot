@@ -28,10 +28,10 @@ object ChangePermissionCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
-            val perm = member!!.botPermission()
-            getChannel().createEmbed(baseTemplate.andThen {
-                it.setDescription("Your permission level is **$perm**")
-            }).awaitComplete()
+            val perm = member.botPermission()
+            respondEmbed(baseTemplate.andThen {
+                description = "Your permission level is **$perm**"
+            })
         }
 
         argument("user", string()) {
@@ -40,9 +40,9 @@ object ChangePermissionCommand : ChatCommand(
                 val member = user as? Member ?: client.getMemberById(guildId!!, user.id).await()
 
                 val perm = member.botPermission()
-                getChannel().createEmbed(baseTemplate.andThen {
-                    it.setDescription("**${member.displayName}** has permission **$perm**")
-                }).awaitComplete()
+                respondEmbed(baseTemplate.andThen {
+                    description = "**${member.displayName}** has permission **$perm**"
+                })
             }
         }
 
@@ -56,7 +56,7 @@ object ChangePermissionCommand : ChatCommand(
 
                         launch { channel.type().await() }
 
-                        val assignedBy = member!!
+                        val assignedBy = member
 
                         val membersUpdated = (message.allUserMentions as Flow<Member>)
                             .filter { it.updateBotPermission(permission, assignedBy) }
@@ -64,9 +64,9 @@ object ChangePermissionCommand : ChatCommand(
                             .joinToString(separator = "**, **", prefix = "**", postfix = "**")
 
 
-                        channel.createEmbed(baseTemplate.andThen {
-                            it.setDescription("Updated permissions for $membersUpdated.")
-                        }).awaitComplete()
+                        channel.sendEmbed(baseTemplate.andThen {
+                            description = "Updated permissions for $membersUpdated."
+                        })
                     }
                 }
             }

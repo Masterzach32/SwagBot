@@ -3,9 +3,8 @@ package xyz.swagbot.features.music.commands
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
-import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
-import xyz.swagbot.util.*
+import xyz.swagbot.features.music.*
 
 object PauseResumeCommand : ChatCommand(
     name = "Pause/Resume",
@@ -16,11 +15,11 @@ object PauseResumeCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
-            val guild = getGuild()
-            val channel = getChannel()
 
-            if (!isMusicFeatureEnabled())
-                return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
+            if (!isMusicFeatureEnabled()) {
+                respondEmbed(notPremiumTemplate(prefixUsed))
+                return@runs
+            }
 
             TODO()
         }

@@ -26,17 +26,17 @@ object Play : ChatCommand(
         argument("url/query", greedyString()) {
             runs { context ->
                 val guild = getGuild()
-                val channel = getChannel()
+                val channel = getGuildChannel()
 
                 if (!isMusicFeatureEnabled())
                     return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
 
-                val requester = member!! // requester is not null as play is only run in guild
-
-                if (!requester.voiceState.await().channelId.isPresent)
-                    return@runs channel.createEmbed(errorTemplate.andThen {
-                        it.setDescription("You must be in a voice channel to add music to the queue!")
-                    }).awaitComplete()
+                if (!member.voiceState.await().channelId.isPresent) {
+                    channel.sendEmbed(errorTemplate.andThen {
+                        description = "You must be in a voice channel to add music to the queue!"
+                    })
+                    return@runs
+                }
 
                 launch { channel.type().await() }
 
@@ -52,16 +52,14 @@ object Play : ChatCommand(
 
                 if (track != null) {
                     val trackScheduler = guild.trackScheduler
-                    track.setTrackContext(requester, channel)
+                    track.setTrackContext(member, channel)
                     trackScheduler.queue(track)
 
-                    channel.createEmbed(
-                        trackRequestedTemplate(requester.displayName, track, trackScheduler.queueTimeLeft())
-                    ).awaitComplete()
+                    channel.sendEmbed(trackRequestedTemplate(member.displayName, track, trackScheduler.queueTimeLeft()))
                 } else {
                     channel.createEmbed(errorTemplate.andThen {
-                        it.setDescription("I couldn't find anything for *\"${context.getString("url/query")}\"*.")
-                    }).awaitComplete()
+                        description = "I couldn't find anything for *\"${context.getString("url/query")}\"*."
+                    })
                 }
             }
         }

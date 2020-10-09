@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
-import xyz.swagbot.util.*
 
 object BringCommand : ChatCommand(
     name = "Bring Members",
@@ -37,9 +36,7 @@ object BringCommand : ChatCommand(
 
                 val channelToBring: GuildChannel = guild.channels.await()
                     .firstOrNull { it is VoiceChannel && it.name == context.getString("channel") }
-                    ?: return@runs getChannel().createEmbed(errorTemplate.andThen {
-                        it.setDescription("")
-                    }).awaitComplete()
+                    ?: return@runs
 
                 launch {
                     guild.voiceStates.asFlow()

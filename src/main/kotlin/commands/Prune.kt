@@ -40,9 +40,9 @@ object Prune : ChatCommand(
 
                 message.delete().await()
 
-                val resultMessage = channel.createEmbed(baseTemplate.andThen {
-                    it.setDescription("Deleted **${numToDelete - notDeleted.size}** messages")
-                }).await()
+                val resultMessage = channel.sendEmbed(baseTemplate.andThen {
+                    description = "Deleted **${numToDelete - notDeleted.size}** messages"
+                })
 
                 launch {
                     delay(5000)

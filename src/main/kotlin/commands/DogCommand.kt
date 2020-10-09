@@ -11,6 +11,7 @@ import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.coroutines.*
 import xyz.swagbot.util.*
 
 object DogCommand : ChatCommand(
@@ -28,27 +29,28 @@ object DogCommand : ChatCommand(
         runs {
             val channel = getChannel()
 
-            channel.type().async()
+            launch { channel.type().await() }
 
             val response: Response = try {
                 retry(3, 3000) {
                     httpClient.get("https://dog.ceo/api/breeds/image/random")
                 }
             } catch (e: Throwable) {
-                return@runs channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("Sorry, but i'm having trouble connecting to the service at the moment.")
-                }).awaitComplete()
+                channel.sendEmbed(errorTemplate.andThen {
+                    description = "Sorry, but i'm having trouble connecting to the service at the moment."
+                })
+                return@runs
             }
 
             if (response.status == "success") {
                 val image = response.getImage()
-                channel.createMessage {
-                    it.addFile(response.fileName, image)
-                }.await()
+                channel.sendMessage {
+                    file(response.fileName, image)
+                }
             } else {
-                channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("Sorry, but i'm having trouble connecting to the service at the moment.")
-                }).await()
+                channel.sendEmbed(errorTemplate.andThen {
+                    description = "Sorry, but i'm having trouble connecting to the service at the moment."
+                })
             }
         }
 

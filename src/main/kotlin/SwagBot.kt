@@ -22,7 +22,7 @@ import xyz.swagbot.features.system.*
 val logger = LoggerFactory.getLogger(EnvVars.BOT_NAME)
 
 fun main() {
-    logger.info("Starting SwagBot...")
+    logger.info("Starting SwagBot (v${EnvVars.CODE_VERSION})")
 
     val client = DiscordClient.builder(EnvVars.BOT_TOKEN)
         .onClientResponse(ResponseFunction.emptyIfNotFound())
@@ -30,7 +30,7 @@ fun main() {
 
     client.gateway()
         .setEnabledIntents(IntentSet.all())
-        .setSharding(ShardingStrategy.single())
+        .setSharding(ShardingStrategy.recommended())
         .withFeatures(GatewayDiscordClient::configure)
         .block()
 }

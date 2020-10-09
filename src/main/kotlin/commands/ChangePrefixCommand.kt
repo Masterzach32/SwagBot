@@ -6,7 +6,6 @@ import discord4j.rest.util.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
-import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
 import xyz.swagbot.util.*
@@ -30,9 +29,9 @@ object ChangePrefixCommand : ChatCommand(
 
                 getGuild().updateCommandPrefix(newPrefix)
 
-                event.message.channel.await().createEmbed(baseTemplate.andThen {
-                    it.setDescription("Command prefix changed to **$newPrefix**")
-                }).awaitComplete()
+                respondEmbed(baseTemplate.andThen {
+                    description = "Command prefix changed to **$newPrefix**"
+                })
             }
         }
     }

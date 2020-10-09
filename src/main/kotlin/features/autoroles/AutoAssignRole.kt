@@ -45,13 +45,14 @@ class AutoAssignRole private constructor() {
         override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): AutoAssignRole {
             runBlocking { sql { create(RolesTable) } }
 
-            return AutoAssignRole().also { feature ->
+            return AutoAssignRole().apply {
                 BotScope.listener<MemberJoinEvent>(client) { event ->
                     if (event.member.isBot)
                         return@listener // ignore bots
 
-                    val roleIds = feature.autoAssignedRolesFor(event.guildId)
-                    logger.info("Adding roles: $roleIds to user: ${event.member.id}")
+                    val roleIds = autoAssignedRolesFor(event.guildId)
+                    if (roleIds.isNotEmpty())
+                        logger.info("Adding roles: $roleIds to user: ${event.member.id}")
 
                     roleIds
                         .map { it to event.member.addRole(it, "Auto assigned role") }
@@ -59,10 +60,24 @@ class AutoAssignRole private constructor() {
                             try {
                                 request.await()
                             } catch (e: Throwable) {
-                                logger.error("Could not add role $roleId to member. Removing.", e)
+                                logger.error("Could not add role $roleId to member. Removing from database.", e)
                                 sql {
                                     RolesTable.deleteWhere { RolesTable.roleId eq roleId }
                                 }
+                            }
+                        }
+                }
+
+                client.feature(GuildStorage).addTaskOnGuildInitialization { event ->
+                    autoAssignedRolesFor(event.guild.id)
+                        .map { it to event.guild.getRoleById(it).awaitNullable() }
+                        .filter { (_, role) -> role == null }
+                        .forEach { (roleId, _) ->
+                            logger.error(
+                                "Auto assigned role $roleId in database could not be found in guild ${event.guild.id}."
+                            )
+                            sql {
+                                RolesTable.deleteWhere { RolesTable.roleId eq roleId }
                             }
                         }
                 }

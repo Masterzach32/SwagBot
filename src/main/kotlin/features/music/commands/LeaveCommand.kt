@@ -5,7 +5,7 @@ import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
-import xyz.swagbot.util.*
+import xyz.swagbot.features.music.*
 
 object LeaveCommand : ChatCommand(
     name = "Leave Voice",
@@ -16,10 +16,11 @@ object LeaveCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
-            val channel = getChannel()
             val guild = getGuild()
-            if (!isMusicFeatureEnabled())
-                return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
+            if (!isMusicFeatureEnabled()) {
+                respondEmbed(notPremiumTemplate(prefixUsed))
+                return@runs
+            }
 
             client.voiceConnectionRegistry.disconnect(guildId!!).await()
 

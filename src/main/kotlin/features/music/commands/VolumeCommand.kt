@@ -18,15 +18,16 @@ object VolumeCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
-            val channel = getChannel()
 
-            if (!isMusicFeatureEnabled())
-                return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
+            if (!isMusicFeatureEnabled()) {
+                respondEmbed(notPremiumTemplate(prefixUsed))
+                return@runs
+            }
 
             val volume = client.feature(Music).volumeFor(guildId!!)
-            channel.createEmbed(baseTemplate.andThen {
-                it.setDescription("Volume is at **$volume**")
-            }).await()
+            respondEmbed(baseTemplate.andThen {
+                description = "Volume is at **$volume**"
+            })
         }
 
         argument("level", integer(0, 100)) {
@@ -44,9 +45,9 @@ object VolumeCommand : ChatCommand(
 //                    it.setDescription("Volume changed to **$newVolume**")
 //                }).await()
 
-                channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("Volume changing is not supported on alpine-based jvm images.")
-                }).awaitComplete()
+                respondEmbed(errorTemplate.andThen {
+                    description = "Volume changing is not supported on alpine-based jvm images."
+                })
             }
         }
     }

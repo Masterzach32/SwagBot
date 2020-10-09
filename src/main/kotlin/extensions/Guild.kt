@@ -4,7 +4,6 @@ import discord4j.common.util.*
 import discord4j.core.`object`.entity.*
 import discord4j.core.`object`.entity.channel.*
 import discord4j.voice.*
-import io.facet.core.extensions.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.flow.*
 import xyz.swagbot.features.autoroles.*
@@ -20,7 +19,7 @@ private val Guild.musicFeature: Music
 private val Guild.aarFeature: AutoAssignRole
     get() = client.feature(AutoAssignRole)
 
-suspend fun Guild.getCommandPrefix(): String = storageFeature.commandPrefixFor(id.toOptional())
+suspend fun Guild.getCommandPrefix(): String = storageFeature.commandPrefixFor(id)
 
 suspend fun Guild.updateCommandPrefix(prefix: String) = storageFeature.updateCommandPrefixFor(id, prefix)
 

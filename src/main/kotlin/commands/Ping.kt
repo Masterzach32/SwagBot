@@ -3,7 +3,6 @@ package xyz.swagbot.commands
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
-import io.facet.discord.extensions.*
 
 object Ping : ChatCommand(
     name = "Ping",
@@ -12,7 +11,7 @@ object Ping : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
-            getChannel().createMessage("Pong!").awaitComplete()
+            respondMessage("Pong!")
         }
     }
 }

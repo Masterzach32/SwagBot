@@ -6,6 +6,7 @@ import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.*
 import xyz.swagbot.extensions.*
@@ -29,29 +30,33 @@ object MigrateCommand : ChatCommand(
             argument("toChannel", string()) {
                 runs { context ->
                     val guild = getGuild()
-                    val channel = getChannel()
                     val fromChannelName = context.getString("fromChannel")
                     val fromChannel = guild.getVoiceChannelByName(fromChannelName)
                     val toChannelName = context.getString("toChannel")
                     val toChannel = guild.getVoiceChannelByName(toChannelName)
 
-                    if (fromChannel == null)
-                        return@runs channel.createEmbed(errorTemplate.andThen {
-                            it.setDescription("I could not find a voice channel with the name **${fromChannelName}**")
-                        }).awaitComplete()
-                    if (toChannel == null)
-                        return@runs channel.createEmbed(errorTemplate.andThen {
-                            it.setDescription("I could not find a voice channel with the name **${toChannelName}**")
-                        }).awaitComplete()
+                    if (fromChannel == null) {
+                        respondEmbed(errorTemplate.andThen {
+                            description = "I could not find a voice channel with the name **${fromChannelName}**"
+                        })
+                        return@runs
+                    }
+                    if (toChannel == null) {
+                        respondEmbed(errorTemplate.andThen {
+                            description = "I could not find a voice channel with the name **${toChannelName}**"
+                        })
+                        return@runs
+                    }
 
                     val numMoved = fromChannel.voiceStates.asFlow()
                         .map { it.member.await() }
-                        .map { member -> member.edit { it.setNewVoiceChannel(toChannel.id) }.async() }
+                        .map { member -> member.edit { it.setNewVoiceChannel(toChannel.id) } }
+                        .map { launch { it.await() } }
                         .count()
 
-                    channel.createEmbed(baseTemplate.andThen {
-                        it.setDescription("Moved **${numMoved}** members from **${fromChannelName}** to **${toChannelName}**")
-                    }).awaitComplete()
+                    respondEmbed(baseTemplate.andThen {
+                        description = "Moved **${numMoved}** members from **${fromChannelName}** to **${toChannelName}**"
+                    })
                 }
             }
         }

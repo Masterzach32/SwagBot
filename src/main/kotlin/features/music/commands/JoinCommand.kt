@@ -5,6 +5,7 @@ import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
+import xyz.swagbot.features.music.*
 import xyz.swagbot.util.*
 
 object JoinCommand : ChatCommand(
@@ -16,21 +17,21 @@ object JoinCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
-            val channel = getChannel()
+            if (!isMusicFeatureEnabled()) {
+                respondEmbed(notPremiumTemplate(prefixUsed))
+                return@runs
+            }
 
-            if (!isMusicFeatureEnabled())
-                return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
-
-            val voiceChannel = member!!
+            val voiceChannel = member
                 .voiceState.await()
                 .channel.awaitNullable()
 
             if (voiceChannel != null) {
                 voiceChannel.join()
             } else {
-                channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("You must be connected to a voice channel to summon me!")
-                }).await()
+                respondEmbed(errorTemplate.andThen {
+                    description = "You must be connected to a voice channel to summon me!"
+                })
             }
         }
     }

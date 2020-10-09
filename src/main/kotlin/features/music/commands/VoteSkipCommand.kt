@@ -5,6 +5,7 @@ import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
+import xyz.swagbot.features.music.*
 import xyz.swagbot.util.*
 import kotlin.math.*
 
@@ -19,50 +20,60 @@ object VoteSkipCommand : ChatCommand(
         runs { context ->
             val channel = getChannel()
             val guild = getGuild()
-            val member = member!!
 
-            if (!isMusicFeatureEnabled())
-                return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
+            if (!isMusicFeatureEnabled()) {
+                respondEmbed(notPremiumTemplate(prefixUsed))
+                return@runs
+            }
 
             val voiceChannel = guild.getOurConnectedVoiceChannel()
-                ?: return@runs channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("The bot is currently not in a voice channel!")
-                }).awaitComplete()
+            if (voiceChannel == null) {
+                respondEmbed(errorTemplate.andThen {
+                    description = "The bot is currently not in a voice channel!"
+                })
+                return@runs
+            }
 
             val memberVs = member.voiceState.await()
-            if (memberVs.channelId.map { it != voiceChannel.id }.orElse(true))
-                return@runs channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("You must be in ${voiceChannel.name} to vote skip a track!")
-                }).awaitComplete()
+            if (memberVs.channelId.map { it != voiceChannel.id }.orElse(true)) {
+                respondEmbed(errorTemplate.andThen {
+                    description = "You must be in ${voiceChannel.name} to vote skip a track!"
+                })
+                return@runs
+            }
 
             val trackScheduler = guild.trackScheduler
             val trackToSkip = trackScheduler.player.playingTrack
-                ?: return@runs channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("I'm not currently playing a track!")
-                }).awaitComplete()
+            if (trackToSkip == null) {
+                respondEmbed(errorTemplate.andThen {
+                    description = "I'm not currently playing a track!"
+                })
+                return@runs
+            }
 
             val successfulVote = trackToSkip.context.addSkipVote(member.id)
 
-            if (!successfulVote)
-                return@runs channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("You have already voted to skip this track.")
-                }).awaitComplete()
+            if (!successfulVote) {
+                channel.createEmbed(errorTemplate.andThen {
+                    description = "You have already voted to skip this track."
+                })
+                return@runs
+            }
 
             val connectedMemberIds = voiceChannel.getConnectedMemberIds()
             val voteThreshold = ((connectedMemberIds.size-1)/2.0 - trackToSkip.context.skipVoteCount)
 
             if (voteThreshold <= 0) {
                 trackScheduler.playNext()
-                channel.createEmbed(baseTemplate.andThen {
-                    it.setDescription("Skipped track: ${trackToSkip.info.boldFormattedTitle}")
-                }).awaitComplete()
+                respondEmbed(baseTemplate.andThen {
+                    description = "Skipped track: ${trackToSkip.info.boldFormattedTitle}"
+                })
             } else {
-                channel.createEmbed(baseTemplate.andThen {
-                    it.setDescription(
-                        "${trackToSkip.context.skipVoteCount}/${((connectedMemberIds.size-1)/2.0).roundToInt()} " +
-                                "votes to skip."
-                    )
-                }).awaitComplete()
+                val skipCount = trackToSkip.context.skipVoteCount
+                val majority = ((connectedMemberIds.size-1)/2.0).roundToInt()
+                respondEmbed(baseTemplate.andThen {
+                    description = "$skipCount / $majority votes to skip."
+                })
             }
         }
     }

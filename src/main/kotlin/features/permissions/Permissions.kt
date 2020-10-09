@@ -15,8 +15,6 @@ class Permissions(config: Config, private val client: GatewayDiscordClient) {
 
     private val developers: Set<Snowflake> = config.developers.map { Snowflake.of(it) }.toSet()
 
-    val commands = listOf(ChangePermissionCommand)
-
     suspend fun permissionLevelFor(guildId: Snowflake, userId: Snowflake): PermissionType {
         return when {
             isDeveloper(userId) -> PermissionType.DEV
@@ -71,8 +69,8 @@ class Permissions(config: Config, private val client: GatewayDiscordClient) {
         override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Permissions {
             runBlocking { sql { create(PermissionsTable) } }
 
-            return Permissions(Config().apply(configuration), client).also { feature ->
-                client.feature(ChatCommands).registerCommands(*feature.commands.toTypedArray())
+            return Permissions(Config().apply(configuration), client).also {
+                client.feature(ChatCommands).registerCommands(ChangePermissionCommand)
             }
         }
     }

@@ -14,9 +14,10 @@ class Brawl(game: Game) : Game by game {
         logger.info("Fight starting in 20 seconds.")
         ticker.receive()
         if (players.size <= 1) {
-            return channel.createEmbed(errorTemplate.andThen {
-                it.setDescription("The brawl failed to start because not enough players joined!")
-            }).awaitComplete()
+            channel.sendEmbed(errorTemplate.andThen {
+                description = "The brawl failed to start because not enough players joined!"
+            })
+            return
         }
         channel.createMessage("Let the brawl begin!").awaitComplete()
 

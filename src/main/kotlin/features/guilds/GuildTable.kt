@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.*
 
 object GuildTable : Table("guilds") {
     val guildId = snowflake("guild_id")
-    val commandPrefix = varchar("prefix", 6).default("~")
+    val commandPrefix = varchar("prefix", 10).default("~")
 
     override val primaryKey = PrimaryKey(guildId)
 

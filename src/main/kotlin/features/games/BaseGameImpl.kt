@@ -15,18 +15,18 @@ class BaseGameImpl(override val channel: GuildMessageChannel, scope: CoroutineSc
         players as MutableSet<Member>
         for (member in channel) {
             if (currentStage !is Game.Stage.PreGame) {
-                this@BaseGameImpl.channel.createEmbed(errorTemplate.andThen {
-                    it.setDescription("Sorry, the game has already started!")
+                this@BaseGameImpl.channel.sendEmbed(errorTemplate.andThen {
+                    description = "Sorry, the game has already started!"
                 })
             } else {
                 if (players.add(member)) {
-                    this@BaseGameImpl.channel.createEmbed(baseTemplate.andThen {
-                        it.setDescription(getJoinMessageForPlayer(member))
-                    }).await()
+                    this@BaseGameImpl.channel.sendEmbed(baseTemplate.andThen {
+                        description = getJoinMessageForPlayer(member)
+                    })
                 } else {
-                    this@BaseGameImpl.channel.createEmbed(errorTemplate.andThen {
-                        it.setDescription("You have already joined the game! It should be starting shortly.")
-                    }).await()
+                    this@BaseGameImpl.channel.sendEmbed(errorTemplate.andThen {
+                        description = "You have already joined the game! It should be starting shortly."
+                    })
                 }
             }
         }
