@@ -5,6 +5,6 @@ import xyz.swagbot.features.permissions.*
 
 suspend fun ChatCommandSource.hasBotPermission(
     permission: PermissionType
-): Boolean = member?.hasBotPermission(permission) ?: user.hasBotPermission(permission)
+): Boolean = if (this.guildId != null) member.hasBotPermission(permission) else user.hasBotPermission(permission)
 
 suspend fun ChatCommandSource.isMusicFeatureEnabled(): Boolean = getGuild().isPremium()

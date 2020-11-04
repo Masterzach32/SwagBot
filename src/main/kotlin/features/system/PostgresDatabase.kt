@@ -1,17 +1,14 @@
 package xyz.swagbot.features.system
 
 import discord4j.core.*
+import io.facet.core.util.*
 import io.facet.discord.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.*
-import xyz.swagbot.util.*
 
-class PostgresDatabase private constructor(
-    private val client: GatewayDiscordClient,
-    val database: Database
-) {
+class PostgresDatabase private constructor(val database: Database) {
 
     private val tasks = mutableListOf<suspend () -> Unit>()
 
@@ -41,16 +38,13 @@ class PostgresDatabase private constructor(
             }
             logger.info("Connected to postgres database.")
 
-            return PostgresDatabase(client, database).also { feature ->
+            return PostgresDatabase(database).also { feature ->
                 Runtime.getRuntime().addShutdownHook(Thread {
                     logger.info("Received shutdown code from system, running shutdown tasks.")
                     runBlocking {
-                        launch {
-                            feature.tasks.map { async { it.invoke() } }.forEach { it.await() }
-                            client.scope.cancel()
-                            client.logout().await()
-                        }
-                        delay(10_000)
+                        feature.tasks.map { launch { it.invoke() } }.forEach { it.join() }
+                        BotScope.cancel()
+                        client.logout().await()
                     }
                     logger.info("Done.")
                 })

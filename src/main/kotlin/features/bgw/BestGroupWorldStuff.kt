@@ -3,15 +3,19 @@ package xyz.swagbot.features.bgw
 import discord4j.common.util.*
 import discord4j.core.*
 import discord4j.core.`object`.entity.*
+import discord4j.core.event.domain.*
 import discord4j.core.event.domain.guild.*
 import discord4j.core.event.domain.lifecycle.*
 import discord4j.core.event.domain.message.*
 import io.facet.core.*
+import io.facet.core.extensions.*
 import io.facet.discord.*
 import io.facet.discord.event.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import xyz.swagbot.*
+import java.time.*
 
 class BestGroupWorldStuff private constructor() {
 
@@ -124,6 +128,30 @@ class BestGroupWorldStuff private constructor() {
                     event.member.await().edit { spec ->
                         spec.setRoles(newRoles.toSet())
                     }.await()
+                }
+            }
+
+            // disconnect joevanni and jack after an hour or so
+            val ids = setOf(97486068630163456, 212311415455744000).map { it.toSnowflake() }.toSet()
+            client.listener<VoiceStateUpdateEvent> { event ->
+                val vs = event.current
+                if (vs.guildId.asLong() != 97342233241464832 || vs.channelId.value == null)
+                    return@listener
+
+                if (!ids.contains(vs.userId))
+                    return@listener
+
+                val member = vs.member.await()
+                val delay = (3600*1000..3*3600*1000).random().toLong()
+                val kickTime = LocalDateTime.now().plusSeconds(delay/1000)
+                logger.info("Delaying ${delay/1000} seconds until disconnecting ${member.tag}. ($kickTime)")
+                launch {
+                    delay(delay)
+                    if (member.voiceState.await().channelId.value != null) {
+                        member.edit { it.setNewVoiceChannel(null) }.await()
+                        logger.info("Disconnected ${member.tag} for being in voice too long.")
+                    }
+                    logger.info("Could not disconnect ${member.tag} because they left voice.")
                 }
             }
 

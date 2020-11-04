@@ -218,7 +218,7 @@ class Music private constructor(config: Config) {
 
     companion object : DiscordClientFeature<Config, Music>(
         keyName = "music",
-        requiredFeatures = listOf(PostgresDatabase,  GuildStorage, ChatCommands)
+        requiredFeatures = listOf(PostgresDatabase, GuildStorage, ChatCommands)
     ) {
 
         override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Music {
@@ -267,11 +267,9 @@ class Music private constructor(config: Config) {
                 }
 
                 client.feature(PostgresDatabase).addShutdownTask {
-                    coroutineScope {
-                        schedulers.keys.toList().forEach { deinitializeFor(it) }
+                    schedulers.keys.toList().forEach { deinitializeFor(it) }
 
-                        audioPlayerManager.shutdown()
-                    }
+                    audioPlayerManager.shutdown()
                 }
             }
         }

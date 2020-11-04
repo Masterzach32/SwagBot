@@ -1,7 +1,6 @@
 package xyz.swagbot.features.permissions
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
-import discord4j.core.`object`.entity.*
 import discord4j.rest.util.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
@@ -9,7 +8,6 @@ import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.util.*
 
@@ -36,8 +34,7 @@ object ChangePermissionCommand : ChatCommand(
 
         argument("user", string()) {
             runs {
-                val user = message.userMentions.awaitFirst()
-                val member = user as? Member ?: client.getMemberById(guildId!!, user.id).await()
+                val member = message.allMemberMentions.first()
 
                 val perm = member.botPermission()
                 respondEmbed(baseTemplate.andThen {
@@ -56,13 +53,10 @@ object ChangePermissionCommand : ChatCommand(
 
                         launch { channel.type().await() }
 
-                        val assignedBy = member
-
-                        val membersUpdated = (message.allUserMentions as Flow<Member>)
-                            .filter { it.updateBotPermission(permission, assignedBy) }
-                            .toSet()
-                            .joinToString(separator = "**, **", prefix = "**", postfix = "**")
-
+                        val membersUpdated = message.allMemberMentions
+                            .filter { it.updateBotPermission(permission, member) }
+                            .toList()
+                            .joinToString(separator = "**, **", prefix = "**", postfix = "**") { it.displayName }
 
                         channel.sendEmbed(baseTemplate.andThen {
                             description = "Updated permissions for $membersUpdated."

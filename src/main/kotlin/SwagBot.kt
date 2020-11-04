@@ -19,7 +19,7 @@ import xyz.swagbot.features.music.*
 import xyz.swagbot.features.permissions.*
 import xyz.swagbot.features.system.*
 
-val logger = LoggerFactory.getLogger(EnvVars.BOT_NAME)
+val logger: Logger = LoggerFactory.getLogger(EnvVars.BOT_NAME)
 
 fun main() {
     logger.info("Starting SwagBot (v${EnvVars.CODE_VERSION})")
@@ -80,4 +80,6 @@ fun GatewayDiscordClient.configure() {
     install(Market)
 
     install(BestGroupWorldStuff)
+
+    install(AmongUs)
 }

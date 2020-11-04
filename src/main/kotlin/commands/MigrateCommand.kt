@@ -48,13 +48,17 @@ object MigrateCommand : ChatCommand(
                         return@runs
                     }
 
+                    val channel = getChannel()
+                    launch { channel.type().await() }
+
                     val numMoved = fromChannel.voiceStates.asFlow()
                         .map { it.member.await() }
+                        .toList()
                         .map { member -> member.edit { it.setNewVoiceChannel(toChannel.id) } }
                         .map { launch { it.await() } }
                         .count()
 
-                    respondEmbed(baseTemplate.andThen {
+                    channel.sendEmbed(baseTemplate.andThen {
                         description = "Moved **${numMoved}** members from **${fromChannelName}** to **${toChannelName}**"
                     })
                 }

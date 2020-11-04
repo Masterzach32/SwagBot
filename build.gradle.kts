@@ -15,7 +15,7 @@ version = getVersionFromSemver()
 repositories {
     mavenCentral()
     jcenter()
-    maven("https://maven.masterzach32.net")
+    maven("https://maven.masterzach32.net/artifactory/dev/")
     maven("https://libraries.minecraft.net")
 }
 
@@ -25,13 +25,13 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
     //implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.0")
 
-    val kotlinx_coroutines_version = "1.3.+"
+    val kotlinx_coroutines_version = "1.4.0"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinx_coroutines_version")
 
-    val facet_version = "2.0.+"
-    implementation("io.facet:facet-discord4j-commands:$facet_version")
-    implementation("io.facet:facet-discord4j-exposed:$facet_version")
+    val facet_version = "+"
+    implementation("io.facet:facet-d4j-commands:$facet_version")
+    implementation("io.facet:facet-d4j-exposed:$facet_version")
 
     val ktor_version = "1.4.+"
     implementation("io.ktor:ktor-client-core:$ktor_version")
@@ -39,7 +39,7 @@ dependencies {
     implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-client-jackson:$ktor_version")
 
-    val exposed_version = "0.27.+"
+    val exposed_version = "0.28.1"
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
@@ -58,6 +58,10 @@ tasks {
 }
 
 jib {
+    from {
+        image = "openjdk:15-alpine"
+    }
+
     to {
         image = "zachkozar/swagbot:$version"
         tags = setOf("latest")
@@ -73,13 +77,7 @@ jib {
     }
 
     container {
-        environment = mapOf(
-            "TZ" to "America/New_York",
-            "CODE_VERSION" to "$version",
-            "CODE_ENV" to "test",
-            "BOT_NAME" to "SwagBot",
-            "DEFAULT_COMMAND_PREFIX" to "~"
-        )
+        environment = mapOf("CODE_VERSION" to "$version")
     }
 }
 
