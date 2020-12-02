@@ -10,17 +10,16 @@ import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
-import xyz.swagbot.util.*
 
 object Prune : ChatCommand(
-    name = "Prune Messages",
-    aliases = setOf("prune", "purge"),
-    scope = Scope.GUILD,
-    category = "moderator",
-    discordPermsRequired = PermissionSet.of(Permission.MANAGE_MESSAGES),
-    usage = commandUsage {
-        add("<number of messages>", "Delete the last x number of messages in this channel.")
-    }
+        name = "Purge Messages",
+        aliases = setOf("prune", "purge"),
+        scope = Scope.GUILD,
+        category = "moderator",
+        discordPermsRequired = PermissionSet.of(Permission.MANAGE_MESSAGES),
+        usage = commandUsage {
+            add("<number of messages>", "Delete the last x number of messages in this channel.")
+        }
 ) {
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
@@ -38,14 +37,11 @@ object Prune : ChatCommand(
                         .map { it.id }
                 ).await()
 
-                message.delete().await()
-
-                val resultMessage = channel.sendEmbed(baseTemplate.andThen {
-                    description = "Deleted **${numToDelete - notDeleted.size}** messages"
-                })
+                val resultMessage = message.reply("Deleted **${numToDelete - notDeleted.size}** messages")
 
                 launch {
-                    delay(5000)
+                    delay(10_000)
+                    message.delete().await()
                     resultMessage.delete().await()
                 }
             }

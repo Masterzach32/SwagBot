@@ -4,8 +4,10 @@ import com.sedmelluq.discord.lavaplayer.player.*
 import com.sedmelluq.discord.lavaplayer.player.event.*
 import com.sedmelluq.discord.lavaplayer.tools.*
 import com.sedmelluq.discord.lavaplayer.track.*
+import discord4j.common.util.*
 import discord4j.core.*
 import xyz.swagbot.*
+import xyz.swagbot.extensions.*
 import java.util.*
 import java.util.concurrent.*
 
@@ -14,9 +16,34 @@ class TrackScheduler(private val client: GatewayDiscordClient, val player: Audio
     val audioProvider = LPAudioProvider(player)
 
     var shouldLoop = false
-    var shouldAutoplay = false
+        internal set(value) {
+            field = if (shouldAutoplay) false else value
+        }
 
-    private val queue: Queue<AudioTrack> = LinkedBlockingQueue()
+    var shouldAutoplay = false
+        internal set(value) {
+            field = value
+
+            if (shouldAutoplay)
+                shouldLoop = false
+        }
+
+
+    val _queue: Queue<AudioTrack> = LinkedBlockingQueue()
+
+    val queue: List<AudioTrack>
+        get() = _queue.toList()
+
+    val allTracks: List<AudioTrack>
+        get() = queue // TODO: fix
+
+    val currentTrackTimeLeft: Long
+        get() = player.playingTrack?.let { currentTrack ->
+            currentTrack.info.length - currentTrack.position
+        } ?: 0L
+
+    val queueTimeLeft: Long
+        get() = queue.fold(0L) { acc, track -> acc + track.info.length } + currentTrackTimeLeft
 
     init {
         player.addListener(this)
@@ -24,7 +51,7 @@ class TrackScheduler(private val client: GatewayDiscordClient, val player: Audio
 
     fun queue(track: AudioTrack) {
         if (!player.startTrack(track, true))
-            queue.add(track)
+            _queue.add(track)
     }
 
     fun playNext(): AudioTrack? {
@@ -35,8 +62,8 @@ class TrackScheduler(private val client: GatewayDiscordClient, val player: Audio
             queue(clone)
         }
 
-        if (queue.isNotEmpty())
-            player.startTrack(queue.poll(), false)
+        if (_queue.isNotEmpty())
+            player.startTrack(_queue.poll(), false)
         else if (player.playingTrack != null)
             player.stopTrack()
 
@@ -46,21 +73,11 @@ class TrackScheduler(private val client: GatewayDiscordClient, val player: Audio
         return oldTrack
     }
 
-    fun queueTimeLeft() = getQueue()
-        .map { it.info.length }
-        .let { if (it.isEmpty()) 0 else it.reduce { acc, l -> acc + l } } + currentTrackTimeLeft()
+    fun clearQueue() = _queue.clear()
 
-    fun currentTrackTimeLeft() = player.playingTrack?.let { currentTrack ->
-        currentTrack.info.length - currentTrack.position
-    } ?: 0L
-
-    fun getQueue() = queue.toList()
-
-    fun allTracks(): List<AudioTrack> = player.playingTrack
-        ?.let { getQueue().toMutableList().apply { add(0, it) } }
-        ?: getQueue()
-
-    fun clearQueue() = queue.clear()
+    fun pruneQueue(users: Set<Snowflake>) = queue
+        .filter { it.context.requesterId !in users }
+        .onEach { _queue.remove(it) }
 
     override fun onTrackStart(player: AudioPlayer?, track: AudioTrack?) {
 
@@ -72,8 +89,7 @@ class TrackScheduler(private val client: GatewayDiscordClient, val player: Audio
     }
 
     override fun onTrackException(player: AudioPlayer, track: AudioTrack, exception: FriendlyException) {
-        logger.warn("Encountered error with track: ${track.info.uri}")
-        exception.printStackTrace()
+        logger.warn("Encountered error with track: ${track.info.uri}", exception)
 
 //        runBlocking {
 //            val channel = client.getChannelById(track.context.requestedChannelId).await() as MessageChannel
@@ -88,6 +104,7 @@ class TrackScheduler(private val client: GatewayDiscordClient, val player: Audio
         playNext()
     }
 
+    @Deprecated("Use property accessor syntax")
     fun toggleShouldLoop(): Boolean {
         shouldLoop = !shouldLoop
 
@@ -97,6 +114,7 @@ class TrackScheduler(private val client: GatewayDiscordClient, val player: Audio
         return shouldLoop
     }
 
+    @Deprecated("Use property accessor syntax")
     fun toggleShouldAutoplay(): Boolean {
         shouldAutoplay = !shouldAutoplay
 

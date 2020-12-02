@@ -1,6 +1,7 @@
 package xyz.swagbot.features.music.commands
 
 import com.sedmelluq.discord.lavaplayer.track.*
+import discord4j.core.`object`.entity.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -18,6 +19,11 @@ object NowPlayingCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs { context ->
+            if (!isMusicFeatureEnabled()) {
+                message.reply(notPremiumTemplate(prefixUsed))
+                return@runs
+            }
+
             val musicFeature = client.feature(Music)
             val playingTrack: AudioTrack? = musicFeature.trackSchedulerFor(guildId!!).player.playingTrack
 
@@ -25,24 +31,24 @@ object NowPlayingCommand : ChatCommand(
                 val requester = client
                     .getMemberById(guildId!!, playingTrack.context.requesterId)
                     .awaitNullable()
-                val volume = musicFeature.volumeFor(guildId!!)
-                respondEmbed(baseTemplate.andThen {
+                val volume = musicFeature.getVolumeFor(guildId!!)
+                message.reply(baseTemplate.andThen {
                     title = ":musical_note: | Now Playing"
 
                     description = "${playingTrack.info.boldFormattedTitleWithLink} - " +
-                            "**${playingTrack.formattedPosition}** / **${playingTrack.formattedLength}**" +
-                            "\nAuthor/Channel: **${playingTrack.info.author}**" +
-                            "\nRequested by: **${requester?.displayName ?: "Unknown"}**" +
-                            "\nVolume: **${volume}/100**"
+                        "**${playingTrack.formattedPosition}** / **${playingTrack.formattedLength}**" +
+                        "\nAuthor/Channel: **${playingTrack.info.author}**" +
+                        "\nRequested by: **${requester?.displayName ?: "Unknown"}**" +
+                        "\nVolume: **${volume}/100**"
 
-                    if (playingTrack.info.hasThumbnail)
-                        thumbnailUrl = playingTrack.info.thumbnailUrl
+                    if (playingTrack.info.thumbnailUrl != null)
+                        thumbnailUrl = playingTrack.info.thumbnailUrl!!
                 })
             } else {
-                respondEmbed(errorTemplate.andThen {
-                    description = "Im not playing anything right now. Go add some music with the " +
-                            "`~play` or `~search` commands!".replace("~", prefixUsed)
-                })
+                message.reply(
+                    "I'm not playing anything right now. Go add some music with the `~play` or `~search` commands!"
+                        .replace("~", prefixUsed)
+                )
             }
         }
     }

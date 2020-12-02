@@ -3,6 +3,7 @@
 package xyz.swagbot
 
 import discord4j.core.*
+import discord4j.core.`object`.presence.*
 import discord4j.core.shard.*
 import discord4j.gateway.intent.*
 import discord4j.rest.response.*
@@ -31,6 +32,7 @@ fun main() {
     client.gateway()
         .setEnabledIntents(IntentSet.all())
         .setSharding(ShardingStrategy.recommended())
+        .setInitialStatus { Presence.online(Activity.listening("~help")) }
         .withFeatures(GatewayDiscordClient::configure)
         .block()
 }
@@ -53,9 +55,7 @@ fun GatewayDiscordClient.configure() {
             BringCommand,
             CatCommand,
             ChangePrefixCommand,
-            DeleteMessage,
             DisconnectRouletteCommand,
-            Dispatcher,
             DogCommand,
             InfoCommand,
             LmgtfyCommand,

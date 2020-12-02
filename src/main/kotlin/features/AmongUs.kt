@@ -44,7 +44,6 @@ class AmongUs {
 
         override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): AmongUs {
             return AmongUs().also { feature ->
-
                 client.listener<PresenceUpdateEvent> { event ->
                     val member = event.member.await()
                     if (event.guildId.asLong() != 97342233241464832 || member.isBot)

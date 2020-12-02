@@ -18,11 +18,11 @@ object LeaveCommand : ChatCommand(
         runs { context ->
             val guild = getGuild()
             if (!isMusicFeatureEnabled()) {
-                respondEmbed(notPremiumTemplate(prefixUsed))
+                message.reply(notPremiumTemplate(prefixUsed))
                 return@runs
             }
 
-            client.voiceConnectionRegistry.disconnect(guildId!!).await()
+            guild.voiceConnection.await().disconnect().await()
 
             guild.setLastConnectedChannel(null)
         }

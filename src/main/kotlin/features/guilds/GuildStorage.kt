@@ -14,7 +14,7 @@ import xyz.swagbot.features.system.*
 
 class GuildStorage private constructor() {
 
-    val tasks = mutableListOf<GuildInitializationTask>()
+    val tasks = mutableListOf<suspend (GuildCreateEvent) -> Unit>()
 
     suspend fun hasGuild(id: Snowflake): Boolean = sql {
         GuildTable.select { GuildTable.guildId eq id }.any()
@@ -35,7 +35,7 @@ class GuildStorage private constructor() {
         }
     }
 
-    fun addTaskOnGuildInitialization(task: GuildInitializationTask) = tasks.add(task)
+    fun addTaskOnGuildInitialization(task: suspend (GuildCreateEvent) -> Unit) = tasks.add(task)
 
     companion object : DiscordClientFeature<EmptyConfig, GuildStorage>("guildStorage") {
 
@@ -45,7 +45,7 @@ class GuildStorage private constructor() {
             }
 
             return GuildStorage().apply {
-                BotScope.listener<GuildCreateEvent>(client) { event ->
+                client.listener<GuildCreateEvent> { event ->
                     if (!hasGuild(event.guild.id)) {
                         logger.info("New guild joined with id ${event.guild.id}, adding to database.")
                         sql {

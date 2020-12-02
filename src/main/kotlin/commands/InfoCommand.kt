@@ -4,6 +4,7 @@ import discord4j.common.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.extensions.*
 import xyz.swagbot.*
 import xyz.swagbot.util.*
 
@@ -14,7 +15,7 @@ object InfoCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
-            respondEmbed(baseTemplate.andThen {
+            message.reply(baseTemplate.andThen {
                 title = "SwagBot v3 ${if (EnvVars.CODE_ENV == "test") "Development Version" else ""} (${EnvVars.CODE_VERSION})"
                 description = """
 SwagBot is a music bot with many additional features. Type `${EnvVars.DEFAULT_COMMAND_PREFIX}help` to see more commands!

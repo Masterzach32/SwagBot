@@ -20,34 +20,28 @@ object VolumeCommand : ChatCommand(
         runs {
 
             if (!isMusicFeatureEnabled()) {
-                respondEmbed(notPremiumTemplate(prefixUsed))
+                message.reply(notPremiumTemplate(prefixUsed))
                 return@runs
             }
 
-            val volume = client.feature(Music).volumeFor(guildId!!)
-            respondEmbed(baseTemplate.andThen {
-                description = "Volume is at **$volume**"
-            })
+            val volume = client.feature(Music).getVolumeFor(guildId!!)
+            message.reply("Volume is at **$volume**")
         }
 
         argument("level", integer(0, 100)) {
             runs { context ->
-                val channel = getChannel()
-
-                if (!isMusicFeatureEnabled())
-                    return@runs channel.createEmbed(notPremiumTemplate(prefixUsed)).awaitComplete()
+                if (!isMusicFeatureEnabled()) {
+                    message.reply(notPremiumTemplate(prefixUsed))
+                    return@runs
+                }
 
                 val newVolume = context.getInt("level")
 
-//                client.feature(Music).updateVolumeFor(guildId!!, newVolume)
-//
-//                channel.createEmbed(baseTemplate.andThen {
-//                    it.setDescription("Volume changed to **$newVolume**")
-//                }).await()
+                client.feature(Music).updateVolumeFor(guildId!!, newVolume)
 
-                respondEmbed(errorTemplate.andThen {
-                    description = "Volume changing is not supported on alpine-based jvm images."
-                })
+                message.reply("Volume changed to **$newVolume**")
+
+                //message.reply("Volume changing is not supported on alpine-based jvm images.")
             }
         }
     }

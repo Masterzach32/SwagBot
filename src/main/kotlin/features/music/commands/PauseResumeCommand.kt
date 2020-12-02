@@ -3,6 +3,7 @@ package xyz.swagbot.features.music.commands
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.music.*
 
@@ -17,7 +18,7 @@ object PauseResumeCommand : ChatCommand(
         runs { context ->
 
             if (!isMusicFeatureEnabled()) {
-                respondEmbed(notPremiumTemplate(prefixUsed))
+                message.reply(notPremiumTemplate(prefixUsed))
                 return@runs
             }
 

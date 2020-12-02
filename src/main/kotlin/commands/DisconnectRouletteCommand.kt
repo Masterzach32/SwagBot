@@ -16,18 +16,14 @@ object DisconnectRouletteCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
+            val connectedMembers = member.getConnectedVoiceChannel()?.getConnectedMembers() ?: return@runs
 
-            val connectedMembers = member
-                .voiceState.awaitNullable()
-                ?.channel?.awaitNullable()
-                ?.voiceStates?.asFlow()
-                ?.map { it.member.await() }
-                ?.filterNotNull()
-                ?.toList() ?: return@runs
-
-            connectedMembers.random().edit {
-                it.setNewVoiceChannel(null)
-            }.await()
+            connectedMembers.random().let { member ->
+                member.edit {
+                    it.setNewVoiceChannel(null)
+                }.await()
+                message.reply("The roulette has chosen **${member.displayName}**!")
+            }
         }
     }
 }

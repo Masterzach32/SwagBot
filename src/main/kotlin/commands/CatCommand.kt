@@ -27,23 +27,19 @@ object CatCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
-            val channel = getChannel()
-
-            launch { channel.type().await() }
+            launch { getChannel().type().await() }
 
             val response: Response = try {
                 retry(3, 3000) {
                     httpClient.get("http://aws.random.cat/meow")
                 }
             } catch (e: Throwable) {
-                channel.sendEmbed(errorTemplate.andThen {
-                    description = "Sorry, but i'm having trouble connecting to the service at the moment."
-                })
+                message.reply(errorTemplate("Sorry, but i'm having trouble getting images at the moment.", e))
                 return@runs
             }
 
             val image = response.getImage()
-            channel.sendMessage {
+            message.reply {
                 file(response.fileName, image)
             }
         }

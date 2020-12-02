@@ -36,20 +36,15 @@ object MigrateCommand : ChatCommand(
                     val toChannel = guild.getVoiceChannelByName(toChannelName)
 
                     if (fromChannel == null) {
-                        respondEmbed(errorTemplate.andThen {
-                            description = "I could not find a voice channel with the name **${fromChannelName}**"
-                        })
+                        message.reply("I could not find a voice channel with the name **${fromChannelName}**")
                         return@runs
                     }
                     if (toChannel == null) {
-                        respondEmbed(errorTemplate.andThen {
-                            description = "I could not find a voice channel with the name **${toChannelName}**"
-                        })
+                        message.reply("I could not find a voice channel with the name **${toChannelName}**")
                         return@runs
                     }
 
-                    val channel = getChannel()
-                    launch { channel.type().await() }
+                    launch { getChannel().type().await() }
 
                     val numMoved = fromChannel.voiceStates.asFlow()
                         .map { it.member.await() }
@@ -58,9 +53,7 @@ object MigrateCommand : ChatCommand(
                         .map { launch { it.await() } }
                         .count()
 
-                    channel.sendEmbed(baseTemplate.andThen {
-                        description = "Moved **${numMoved}** members from **${fromChannelName}** to **${toChannelName}**"
-                    })
+                    message.reply("Moved **${numMoved}** members from **${fromChannelName}** to **${toChannelName}**")
                 }
             }
         }

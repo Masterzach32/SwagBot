@@ -37,21 +37,17 @@ object DogCommand : ChatCommand(
                     httpClient.get("https://dog.ceo/api/breeds/image/random")
                 }
             } catch (e: Throwable) {
-                channel.sendEmbed(errorTemplate.andThen {
-                    description = "Sorry, but i'm having trouble connecting to the service at the moment."
-                })
+                message.reply(errorTemplate("Sorry, but i'm having trouble getting images at the moment.", e))
                 return@runs
             }
 
             if (response.status == "success") {
                 val image = response.getImage()
-                channel.sendMessage {
+                message.reply {
                     file(response.fileName, image)
                 }
             } else {
-                channel.sendEmbed(errorTemplate.andThen {
-                    description = "Sorry, but i'm having trouble connecting to the service at the moment."
-                })
+                message.reply("Sorry, but i'm having trouble getting images at the moment.")
             }
         }
 

@@ -35,7 +35,7 @@ class BestGroupWorldStuff private constructor() {
                 if (message.author.map { !it.isBot }.orElse(false) &&
                     event.guildId.map { it.asLong() == 97342233241464832 }.orElse(false) &&
                     message.content.toLowerCase().contains("sir")) {
-                    channel.createMessage("**${event.member.get().mention} I'LL SHOW YOU SIR**").awaitComplete()
+                    message.reply("**${event.member.get().mention} I'LL SHOW YOU SIR**")
                 }
 
                 if (channel.id.asLong() == 402224449367179264) {
@@ -48,7 +48,7 @@ class BestGroupWorldStuff private constructor() {
 
             // remove gay role from me
             val gayRoleId = Snowflake.of(584542070002286624)
-            val iAmNotWords: Set<String> = setOf("gay", "homo", "rainbow", "gey")
+            val iAmNotWords: Set<String> = setOf("gay", "homo", "rainbow", "gey", "horse")
             val delimiter = "[\\W]*".toRegex().pattern
             val regexes: List<Regex> = iAmNotWords
                 .map { it.toCharArray().joinToString(separator = delimiter).toRegex() }
@@ -138,20 +138,31 @@ class BestGroupWorldStuff private constructor() {
                 if (vs.guildId.asLong() != 97342233241464832 || vs.channelId.value == null)
                     return@listener
 
+                if (event.old.value?.channelId?.value != null)
+                    return@listener
+
                 if (!ids.contains(vs.userId))
                     return@listener
 
                 val member = vs.member.await()
-                val delay = (3600*1000..3*3600*1000).random().toLong()
-                val kickTime = LocalDateTime.now().plusSeconds(delay/1000)
-                logger.info("Delaying ${delay/1000} seconds until disconnecting ${member.tag}. ($kickTime)")
+                val delay = (3 * 3600 * 1000..6 * 3600 * 1000).random().toLong()
+                val kickTime = LocalDateTime.now().plusSeconds(delay / 1000)
+                logger.info("${member.tag} will be disconnected at $kickTime")
                 launch {
+                    val cancellationListener = listener<VoiceStateUpdateEvent>(client) { event ->
+                        if (event.current.userId == member.id && event.current.channelId.value == null) {
+                            logger.info("${member.tag} left voice early, cancelling disconnect timer.")
+                            this@launch.cancel()
+                        }
+                    }
+
                     delay(delay)
-                    if (member.voiceState.await().channelId.value != null) {
+                    if (member.voiceState.awaitNullable()?.channelId?.value != null) {
+                        cancellationListener.cancel("Completed.")
                         member.edit { it.setNewVoiceChannel(null) }.await()
                         logger.info("Disconnected ${member.tag} for being in voice too long.")
-                    }
-                    logger.info("Could not disconnect ${member.tag} because they left voice.")
+                    } else
+                        logger.info("Could not disconnect ${member.tag} because they left voice.")
                 }
             }
 

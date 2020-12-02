@@ -4,11 +4,12 @@ import com.sedmelluq.discord.lavaplayer.player.*
 import com.sedmelluq.discord.lavaplayer.tools.*
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.common.util.*
+import xyz.swagbot.*
 
 class SilentAudioTrackLoadHandler(
-    val scheduler: TrackScheduler,
-    val requesterId: Snowflake,
-    val requestedChannelId: Snowflake
+    private val scheduler: TrackScheduler,
+    private val requesterId: Snowflake,
+    private val requestedChannelId: Snowflake
 ) : AudioLoadResultHandler {
 
     override fun trackLoaded(track: AudioTrack) {
@@ -23,12 +24,9 @@ class SilentAudioTrackLoadHandler(
         }
     }
 
-    override fun noMatches() {
+    override fun noMatches() {}
 
-    }
-
-    override fun loadFailed(exception: FriendlyException) {
-        if (exception.severity != FriendlyException.Severity.COMMON)
-            exception.printStackTrace()
+    override fun loadFailed(e: FriendlyException) {
+        logger.warn("Exception while loading track from database.", e)
     }
 }

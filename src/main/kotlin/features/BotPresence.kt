@@ -1,12 +1,10 @@
 package xyz.swagbot.features
 
 import discord4j.core.*
-import discord4j.core.`object`.presence.*
 import discord4j.core.event.domain.lifecycle.*
 import io.facet.core.*
 import io.facet.discord.*
 import io.facet.discord.event.*
-import io.facet.discord.extensions.*
 import xyz.swagbot.features.music.*
 
 class BotPresence private constructor() {
@@ -19,7 +17,7 @@ class BotPresence private constructor() {
         override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): BotPresence {
             return BotPresence().also {
                 BotScope.listener<ReadyEvent>(client) { event ->
-                    event.client.updatePresence(Presence.online(Activity.listening("~help"))).await()
+                    //event.client.updatePresence(Presence.online(Activity.listening("~help"))).await()
                 }
             }
         }

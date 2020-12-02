@@ -6,9 +6,9 @@ import discord4j.rest.util.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
-import xyz.swagbot.util.*
 
 object ChangePrefixCommand : ChatCommand(
     name = "Change Prefix",
@@ -27,11 +27,11 @@ object ChangePrefixCommand : ChatCommand(
             runs { context ->
                 val newPrefix = context.getString("newPrefix")
 
-                getGuild().updateCommandPrefix(newPrefix)
-
-                respondEmbed(baseTemplate.andThen {
-                    description = "Command prefix changed to **$newPrefix**"
-                })
+                if (newPrefix.length in 1..10) {
+                    getGuild().updateCommandPrefix(newPrefix)
+                    message.reply("Command prefix changed to **$newPrefix**")
+                } else
+                    message.reply("Command prefixes must be between 1 and 10 characters.")
             }
         }
     }

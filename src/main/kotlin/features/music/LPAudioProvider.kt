@@ -7,10 +7,10 @@ import discord4j.voice.*
 import java.nio.*
 
 class LPAudioProvider(
-    val player: AudioPlayer
+    private val player: AudioPlayer
 ) : AudioProvider(ByteBuffer.allocate(StandardAudioDataFormats.DISCORD_OPUS.maximumChunkSize())) {
 
-    val frame = MutableAudioFrame()
+    private val frame = MutableAudioFrame()
 
     init {
         frame.setBuffer(buffer)

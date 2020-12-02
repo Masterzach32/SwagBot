@@ -10,6 +10,7 @@ import discord4j.core.*
 import discord4j.core.`object`.entity.channel.*
 import discord4j.core.event.domain.*
 import discord4j.core.event.domain.guild.*
+import io.facet.core.extensions.*
 import io.facet.discord.*
 import io.facet.discord.commands.*
 import io.facet.discord.event.*
@@ -17,7 +18,6 @@ import io.facet.discord.exposed.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
-import reactor.core.publisher.*
 import xyz.swagbot.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.guilds.*
@@ -38,6 +38,7 @@ class Music private constructor(config: Config) {
             return
 
         val scheduler = TrackScheduler(client, audioPlayerManager.createPlayer())
+        schedulers[guildId] = scheduler
 
         coroutineScope {
             launch {
@@ -58,26 +59,21 @@ class Music private constructor(config: Config) {
             }
 
             launch {
-                val (loop, autoplay, volume) = sql {
-                    MusicSettings.select(MusicSettings.whereGuildIs(guildId))
-                        .first()
-                        .let { Triple(it[MusicSettings.loop], it[MusicSettings.autoplay], it[MusicSettings.volume]) }
+                val row = sql {
+                    MusicSettings.select(MusicSettings.whereGuildIs(guildId)).first()
                 }
-                if (loop)
-                    scheduler.toggleShouldLoop()
-                if (autoplay)
-                    scheduler.toggleShouldAutoplay()
-                scheduler.player.volume = volume
-            }
 
-            launch {
-                lastConnectedChannelFor(guildId)?.let { channelId ->
-                    client.getChannelById(channelId).cast<VoiceChannel>().await().join()
+                launch {
+                    row[MusicSettings.lastConnectedChannel]?.let { channelId ->
+                        client.getChannelById(channelId).awaitNullable() as? VoiceChannel
+                    }?.join(this)
                 }
+
+                scheduler.shouldLoop = row[MusicSettings.loop]
+                scheduler.shouldAutoplay = row[MusicSettings.autoplay]
+                scheduler.player.volume = row[MusicSettings.volume]
             }
         }
-
-        schedulers[guildId] = scheduler
     }
 
     fun trackSchedulerFor(guildId: Snowflake) = schedulers[guildId] ?: somethingIsWrong("trackScheduler", guildId)
@@ -97,7 +93,7 @@ class Music private constructor(config: Config) {
         }
     }
 
-    suspend fun volumeFor(guildId: Snowflake): Int = trackSchedulerFor(guildId).player.volume
+    fun getVolumeFor(guildId: Snowflake): Int = trackSchedulerFor(guildId).player.volume
 
     suspend fun updateVolumeFor(guildId: Snowflake, volume: Int) {
         sql {
@@ -111,7 +107,7 @@ class Music private constructor(config: Config) {
     suspend fun lastConnectedChannelFor(guildId: Snowflake): Snowflake? = sql {
         MusicSettings.select(MusicSettings.whereGuildIs(guildId))
             .firstOrNull()
-            .also { it ?: somethingIsWrong("currentlyConnectedChannel", guildId) }!!
+            .let { it ?: somethingIsWrong("currentlyConnectedChannel", guildId) }
             .let { it[MusicSettings.lastConnectedChannel] }
     }
 
@@ -123,26 +119,26 @@ class Music private constructor(config: Config) {
         }
     }
 
-    suspend fun shouldLoopFor(guildId: Snowflake): Boolean = trackSchedulerFor(guildId).shouldLoop
+    fun shouldLoopFor(guildId: Snowflake): Boolean = trackSchedulerFor(guildId).shouldLoop
 
-    suspend fun toggleShouldLoopFor(guildId: Snowflake) {
+    suspend fun toggleShouldLoopFor(guildId: Snowflake, loop: Boolean) {
         val scheduler = trackSchedulerFor(guildId)
-        val loop = scheduler.toggleShouldLoop()
+        scheduler.shouldLoop = loop
         sql {
             MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
-                it[MusicSettings.loop] = loop
+                it[MusicSettings.loop] = scheduler.shouldLoop
             }
         }
     }
 
-    suspend fun shouldAutoplayFor(guildId: Snowflake): Boolean = trackSchedulerFor(guildId).shouldAutoplay
+    fun shouldAutoplayFor(guildId: Snowflake): Boolean = trackSchedulerFor(guildId).shouldAutoplay
 
-    suspend fun toggleShouldAutoplayFor(guildId: Snowflake) {
+    suspend fun setShouldAutoplayFor(guildId: Snowflake, autoplay: Boolean) {
         val scheduler = trackSchedulerFor(guildId)
-        val autoplay = scheduler.toggleShouldAutoplay()
+        scheduler.shouldAutoplay = autoplay
         sql {
             MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
-                it[MusicSettings.autoplay] = autoplay
+                it[MusicSettings.autoplay] = scheduler.shouldAutoplay
             }
         }
     }
@@ -163,10 +159,19 @@ class Music private constructor(config: Config) {
                 }
             }
 
-            override fun noMatches() =  cont.resume(listOf())
-            override fun loadFailed(e: FriendlyException) = cont.resumeWithException(
-                IllegalStateException("LOAD_FAILED: $query", e)
-            )
+            override fun noMatches() = cont.resume(listOf())
+            override fun loadFailed(e: FriendlyException) = cont.resumeWithException(e)
+        })
+    }
+
+    suspend fun loadItem(query: String): AudioItem? = suspendCoroutine { cont ->
+        audioPlayerManager.loadItem(query, object : AudioLoadResultHandler {
+            override fun trackLoaded(track: AudioTrack) = cont.resume(track)
+
+            override fun playlistLoaded(playlist: AudioPlaylist) = cont.resume(playlist)
+
+            override fun noMatches() = cont.resume(null)
+            override fun loadFailed(e: FriendlyException) = cont.resumeWithException(e)
         })
     }
 
@@ -174,7 +179,7 @@ class Music private constructor(config: Config) {
         schedulers.remove(guildId)?.let { scheduler ->
             logger.debug("Saving queue state for guild with id $guildId")
             sql {
-                MusicQueue.batchInsert(scheduler.allTracks()) { track ->
+                MusicQueue.batchInsert(scheduler.allTracks) { track ->
                     logger.debug("Inserting track into queue database: ${track.identifier}")
                     this[MusicQueue.guildId] = guildId
                     this[MusicQueue.identifier] = track.identifier
@@ -235,8 +240,8 @@ class Music private constructor(config: Config) {
                 AudioSourceManagers.registerLocalSource(audioPlayerManager)
 
                 BotScope.listener<VoiceStateUpdateEvent>(client) { event ->
-                    if (event.current.userId == client.selfId && event.current.channelId.isPresent)
-                        updateLastConnectedChannelFor(event.current.guildId, event.current.channelId.get())
+                    if (event.current.userId == client.selfId)
+                        updateLastConnectedChannelFor(event.current.guildId, event.current.channelId.value)
                 }
 
                 BotScope.listener<GuildDeleteEvent>(client) { event ->
@@ -246,11 +251,15 @@ class Music private constructor(config: Config) {
                 }
 
                 client.feature(ChatCommands).registerCommands(
+                    Clear,
                     JoinCommand,
                     LeaveCommand,
+                    LeaverClear,
                     NowPlayingCommand,
                     PauseResumeCommand,
                     Play,
+                    Premium,
+                    Queue,
                     SkipCommand,
                     VolumeCommand,
                     VoteSkipCommand,

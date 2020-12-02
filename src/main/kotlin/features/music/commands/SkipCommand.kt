@@ -21,44 +21,37 @@ object SkipCommand : ChatCommand(
             val guild = getGuild()
 
             if (!isMusicFeatureEnabled()) {
-                respondEmbed(notPremiumTemplate(prefixUsed))
+                message.reply(notPremiumTemplate(prefixUsed))
                 return@runs
             }
 
             if (!hasBotPermission(PermissionType.MOD)) {
-                respondEmbed(errorTemplate.andThen {
-                    description = "You don't have permission to instantly skip a track. " +
-                            "Try using `${prefixUsed}voteskip` instead."
-                })
+                message.reply(
+                    "You don't have permission to instantly skip a track. Use `${prefixUsed}voteskip` instead."
+                )
                 return@runs
             }
 
-            val voiceChannel = guild.getOurConnectedVoiceChannel()
-            if (voiceChannel == null) {
-                respondEmbed(errorTemplate.andThen {
-                    description = "The bot is currently not in a voice channel!"
-                })
-                return@runs
-            }
+            val voiceChannel = guild.getOurConnectedVoiceChannel() ?: return@runs
 
             val memberVs = member.voiceState.await()
             if (memberVs.channelId.map { it != voiceChannel.id }.orElse(true)) {
-                respondEmbed(errorTemplate.andThen {
-                    description = "You must be in ${voiceChannel.name} to skip a track!"
-                })
+                message.reply("You must be in ${voiceChannel.name} to skip a track!")
                 return@runs
             }
 
             val skippedTrack = guild.trackScheduler.playNext()
 
             if (skippedTrack != null) {
-                respondEmbed(baseTemplate.andThen {
-                    description = "Skipped track: ${skippedTrack.info.boldFormattedTitle}"
-                })
+                message.reply(
+                    trackSkippedTemplate(
+                        member.displayName,
+                        skippedTrack,
+                        guild.trackScheduler.player.playingTrack
+                    )
+                )
             } else {
-                respondEmbed(errorTemplate.andThen {
-                    description = "Cannot skip as there is no track playing!"
-                })
+                message.reply("Cannot skip as there is no track playing!")
             }
         }
     }

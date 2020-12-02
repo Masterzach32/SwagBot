@@ -5,5 +5,12 @@ enum class PermissionType(val codeName: String) {
     NORMAL("normal"),
     MOD("moderator"),
     ADMIN("admin"),
-    DEV("developer")
+    DEV("developer");
+
+    companion object {
+
+        fun all() = values()
+
+        fun allAvailable() = values().filterNot { it == DEV }
+    }
 }

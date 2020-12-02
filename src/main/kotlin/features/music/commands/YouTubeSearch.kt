@@ -37,43 +37,43 @@ object YouTubeSearch : ChatCommand(
     override fun DSLCommandNode<ChatCommandSource>.register() {
         argument("query", greedyString()) {
             runs { context ->
-                val feature = client.feature(Music)
+                val music = client.feature(Music)
                 val searchCount = 5
 
                 val channel = getGuildChannel()
                 if (!isMusicFeatureEnabled()) {
-                    channel.sendEmbed(notPremiumTemplate(prefixUsed))
+                    message.reply(notPremiumTemplate(prefixUsed))
                     return@runs
                 }
 
                 launch { channel.type().await() }
 
                 val results = try {
-                    feature.search("ytsearch:${context.getString("query")}", Music.SearchResultPolicy.Limited(searchCount))
+                    music.search(
+                        "ytsearch:${context.getString("query")}",
+                        Music.SearchResultPolicy.Limited(searchCount)
+                    )
                 } catch (e: Throwable) {
-                    channel.sendEmbed(errorTemplate.andThen {
-                        description = "Oops! Something went wrong when trying to search youtube."
-                    })
+                    message.reply(errorTemplate("Oops! Something went wrong when trying to search youtube.", e))
                     return@runs
                 }
 
                 if (results.isEmpty()) {
-                    channel.sendEmbed(errorTemplate.andThen {
-                        description = "Sorry, I could not find any videos that matched that description. " +
-                                "Try refining your search."
-                    })
+                    message.reply(
+                        "Sorry, I could not find any videos that matched that description. Try refining your search."
+                    )
                     return@runs
                 }
 
-                val resultMessage = channel.sendEmbed(
+                val resultMessage = message.reply(
                     baseTemplate.andThen {
                         title = "YouTube Search Result"
                         val list = results
                             .mapIndexed { i, track -> "${i + 1}. ${track.info.boldFormattedTitleWithLink}" }
                             .joinToString(separator = "\n")
 
-                        description = "$list\n${member.mention}, if you would like to queue one of these videos, " +
-                                "select it's corresponding reaction below within 60 seconds."
+                        description = "$list\nIf you would like to queue one of these videos, select it's " +
+                            "corresponding reaction below within 60 seconds."
                     }
                 )
 
@@ -81,29 +81,32 @@ object YouTubeSearch : ChatCommand(
                     .take(searchCount)
                     .forEach { resultMessage.addReaction(ReactionEmoji.unicode(it)).await() }
 
-                val flow = client.on<ReactionAddEvent>()
-                    .filter { event ->
-                        event.userId == member.id && event.messageId == resultMessage.id &&
-                                event.emoji.asUnicodeEmoji().map { emojiUnicode.contains(it.raw) }.orElse(false)
-                    }
-                    .take(1)
-                    .timeout(Duration.ofSeconds(60))
-                    .asFlow()
-
                 launch {
                     try {
-                        val event = flow.first()
+                        val event = client.on<ReactionAddEvent>()
+                            .filter { event ->
+                                event.userId == member.id && event.messageId == resultMessage.id &&
+                                    event.emoji.asUnicodeEmoji().map { emojiUnicode.contains(it.raw) }.orElse(false)
+                            }
+                            .timeout(Duration.ofSeconds(60))
+                            .asFlow()
+                            .first()
 
-                        resultMessage.delete().await()
-
-                        val trackScheduler = feature.trackSchedulerFor(guildId!!)
+                        val trackScheduler = music.trackSchedulerFor(guildId!!)
                         val index = emojiUnicode.indexOf(event.emoji.asUnicodeEmoji().get().raw)
                         val track = results[index].also { track ->
                             track.userData = TrackContext(member.id, channel.id)
                             trackScheduler.queue(track)
                         }
-                        channel.sendEmbed(trackRequestedTemplate(member.displayName, track, trackScheduler.queueTimeLeft()))
+                        resultMessage.edit {
+                            it.setEmbed(trackRequestedTemplate(member.displayName, track, trackScheduler.queueTimeLeft))
+                        }.await()
+
+                        if (getGuild().getOurConnectedVoiceChannel() == null)
+                            member.getConnectedVoiceChannel()?.join(this)
                     } catch (e: TimeoutException) {
+
+                    } finally {
                         resultMessage.removeAllReactions().await()
                     }
                 }

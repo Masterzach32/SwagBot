@@ -3,7 +3,6 @@ package xyz.swagbot.extensions
 import discord4j.common.util.*
 import discord4j.core.`object`.entity.*
 import discord4j.core.`object`.entity.channel.*
-import discord4j.voice.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.flow.*
 import xyz.swagbot.features.autoroles.*
@@ -30,9 +29,7 @@ suspend fun Guild.setIsPremium(premium: Boolean) = musicFeature.updateIsEnabledF
 val Guild.trackScheduler: TrackScheduler
     get() = musicFeature.trackSchedulerFor(id)
 
-suspend fun Guild.getVoiceConnection(): VoiceConnection? = client.voiceConnectionRegistry.getVoiceConnection(id).await()
-
-suspend fun Guild.getVolume(): Int = musicFeature.volumeFor(id)
+fun Guild.getVolume(): Int = musicFeature.getVolumeFor(id)
 
 suspend fun Guild.setVolume(volume: Int) = musicFeature.updateVolumeFor(id, volume)
 
@@ -45,13 +42,13 @@ suspend fun Guild.setLastConnectedChannel(
     channelId: Snowflake?
 ) = musicFeature.updateLastConnectedChannelFor(id, channelId)
 
-suspend fun Guild.getShouldLoop(): Boolean = musicFeature.shouldLoopFor(id)
+fun Guild.getShouldLoop(): Boolean = musicFeature.shouldLoopFor(id)
 
-suspend fun Guild.toggleShouldLoop() = musicFeature.toggleShouldLoopFor(id)
+suspend fun Guild.setShouldLoop(loop: Boolean) = musicFeature.toggleShouldLoopFor(id, loop)
 
-suspend fun Guild.getAutoplay(): Boolean = musicFeature.shouldAutoplayFor(id)
+fun Guild.getAutoplay(): Boolean = musicFeature.shouldAutoplayFor(id)
 
-suspend fun Guild.toggleAutoplay() = musicFeature.toggleShouldAutoplayFor(id)
+suspend fun Guild.toggleAutoplay(autoplay: Boolean) = musicFeature.setShouldAutoplayFor(id, autoplay)
 
 suspend fun Guild.getAutoAssignedRoleIds(): List<Snowflake> = aarFeature.autoAssignedRolesFor(id)
 
