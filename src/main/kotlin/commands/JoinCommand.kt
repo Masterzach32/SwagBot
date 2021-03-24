@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import discord4j.core.event.domain.*
 import io.facet.core.extensions.*

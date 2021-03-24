@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*

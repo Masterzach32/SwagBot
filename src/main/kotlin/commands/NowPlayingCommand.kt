@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.core.`object`.entity.*

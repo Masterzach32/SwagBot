@@ -6,12 +6,14 @@ import com.sedmelluq.discord.lavaplayer.tools.*
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.common.util.*
 import discord4j.core.*
+import discord4j.gateway.*
 import xyz.swagbot.*
 import xyz.swagbot.extensions.*
 import java.util.*
 import java.util.concurrent.*
 
-class TrackScheduler(private val client: GatewayDiscordClient, val player: AudioPlayer) : AudioEventAdapter() {
+class TrackScheduler(private val client: GatewayDiscordClient, shardInfo: ShardInfo, val player: AudioPlayer) :
+    AudioEventAdapter() {
 
     val audioProvider = LPAudioProvider(player)
 
@@ -29,13 +31,13 @@ class TrackScheduler(private val client: GatewayDiscordClient, val player: Audio
         }
 
 
-    val _queue: Queue<AudioTrack> = LinkedBlockingQueue()
+    private val _queue: Queue<AudioTrack> = LinkedBlockingQueue()
 
     val queue: List<AudioTrack>
         get() = _queue.toList()
 
     val allTracks: List<AudioTrack>
-        get() = queue // TODO: fix
+        get() = listOfNotNull(player.playingTrack) + queue
 
     val currentTrackTimeLeft: Long
         get() = player.playingTrack?.let { currentTrack ->

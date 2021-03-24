@@ -12,7 +12,7 @@ object MusicQueue : Table("music_queue") {
     val requesterId = snowflake("requester_id")
     val requestedChannelId = snowflake("requested_channel_id")
 
-    fun whereGuildIs(guildId: Snowflake): SqlExpressionBuilder.()->Op<Boolean> {
+    fun whereGuildIs(guildId: Snowflake): SqlExpressionBuilder.() -> Op<Boolean> {
         return { this@MusicQueue.guildId eq guildId }
     }
 }

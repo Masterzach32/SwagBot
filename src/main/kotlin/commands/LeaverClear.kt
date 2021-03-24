@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
@@ -18,7 +18,7 @@ object LeaverClear : ChatCommand(
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
             val guild = getGuild()
-            val voiceChannel = guild.getOurConnectedVoiceChannel() ?: return@runs
+            val voiceChannel = guild.getConnectedVoiceChannel() ?: return@runs
 
             val removed = guild.trackScheduler.pruneQueue(voiceChannel.getConnectedMemberIds().toSet())
 

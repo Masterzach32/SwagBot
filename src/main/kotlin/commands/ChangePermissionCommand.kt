@@ -1,16 +1,17 @@
-package xyz.swagbot.features.permissions
+package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
 import discord4j.rest.util.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.exposed.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.extensions.*
-import xyz.swagbot.features.system.*
+import xyz.swagbot.features.permissions.*
 import xyz.swagbot.util.*
 
 object ChangePermissionCommand : ChatCommand(

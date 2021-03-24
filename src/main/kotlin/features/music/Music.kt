@@ -8,8 +8,10 @@ import com.sedmelluq.discord.lavaplayer.track.playback.*
 import discord4j.common.util.*
 import discord4j.core.*
 import discord4j.core.`object`.entity.channel.*
+import discord4j.core.event.*
 import discord4j.core.event.domain.*
 import discord4j.core.event.domain.guild.*
+import discord4j.gateway.*
 import io.facet.core.extensions.*
 import io.facet.discord.*
 import io.facet.discord.commands.*
@@ -21,7 +23,6 @@ import org.jetbrains.exposed.sql.*
 import xyz.swagbot.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.guilds.*
-import xyz.swagbot.features.music.commands.*
 import xyz.swagbot.features.music.tables.*
 import xyz.swagbot.features.system.*
 import java.util.concurrent.*
@@ -33,11 +34,11 @@ class Music private constructor(config: Config) {
 
     private val schedulers = ConcurrentHashMap<Snowflake, TrackScheduler>()
 
-    suspend fun initializeFor(client: GatewayDiscordClient, guildId: Snowflake) {
+    suspend fun initializeFor(client: GatewayDiscordClient, shardInfo: ShardInfo, guildId: Snowflake) {
         if (schedulers.containsKey(guildId))
             return
 
-        val scheduler = TrackScheduler(client, audioPlayerManager.createPlayer())
+        val scheduler = TrackScheduler(client, shardInfo, audioPlayerManager.createPlayer())
         schedulers[guildId] = scheduler
 
         coroutineScope {
@@ -58,21 +59,19 @@ class Music private constructor(config: Config) {
                 sql { MusicQueue.deleteWhere(op = MusicQueue.whereGuildIs(guildId)) }
             }
 
-            launch {
-                val row = sql {
-                    MusicSettings.select(MusicSettings.whereGuildIs(guildId)).first()
-                }
-
-                launch {
-                    row[MusicSettings.lastConnectedChannel]?.let { channelId ->
-                        client.getChannelById(channelId).awaitNullable() as? VoiceChannel
-                    }?.join(this)
-                }
-
-                scheduler.shouldLoop = row[MusicSettings.loop]
-                scheduler.shouldAutoplay = row[MusicSettings.autoplay]
-                scheduler.player.volume = row[MusicSettings.volume]
+            val row = sql {
+                MusicSettings.select(MusicSettings.whereGuildIs(guildId)).first()
             }
+
+            launch {
+                row[MusicSettings.lastConnectedChannel]?.let { channelId ->
+                    client.getChannelById(channelId).awaitNullable() as? VoiceChannel
+                }?.join(this)
+            }
+
+            scheduler.shouldLoop = row[MusicSettings.loop]
+            scheduler.shouldAutoplay = row[MusicSettings.autoplay]
+            scheduler.player.volume = row[MusicSettings.volume]
         }
     }
 
@@ -164,7 +163,7 @@ class Music private constructor(config: Config) {
         })
     }
 
-    suspend fun loadItem(query: String): AudioItem? = suspendCoroutine { cont ->
+    suspend fun searchItem(query: String): AudioItem? = suspendCoroutine { cont ->
         audioPlayerManager.loadItem(query, object : AudioLoadResultHandler {
             override fun trackLoaded(track: AudioTrack) = cont.resume(track)
 
@@ -221,12 +220,12 @@ class Music private constructor(config: Config) {
         val audioPlayerManager: AudioPlayerManager = DefaultAudioPlayerManager()
     }
 
-    companion object : DiscordClientFeature<Config, Music>(
+    companion object : EventDispatcherFeature<Config, Music>(
         keyName = "music",
         requiredFeatures = listOf(PostgresDatabase, GuildStorage, ChatCommands)
     ) {
 
-        override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Music {
+        override fun install(dispatcher: EventDispatcher, configuration: Config.() -> Unit): Music {
             runBlocking {
                 sql { create(MusicSettings, MusicQueue) }
             }
@@ -239,43 +238,27 @@ class Music private constructor(config: Config) {
                 AudioSourceManagers.registerRemoteSources(audioPlayerManager)
                 AudioSourceManagers.registerLocalSource(audioPlayerManager)
 
-                BotScope.listener<VoiceStateUpdateEvent>(client) { event ->
-                    if (event.current.userId == client.selfId)
+                dispatcher.listener<VoiceStateUpdateEvent> { event ->
+                    if (event.current.userId == event.client.selfId)
                         updateLastConnectedChannelFor(event.current.guildId, event.current.channelId.value)
                 }
 
-                BotScope.listener<GuildDeleteEvent>(client) { event ->
+                dispatcher.listener<GuildDeleteEvent> { event ->
                     logger.info("Deinitializing guild: ${event.guildId}")
                     if (!event.isUnavailable)
                         deinitializeFor(event.guildId)
                 }
 
-                client.feature(ChatCommands).registerCommands(
-                    Clear,
-                    JoinCommand,
-                    LeaveCommand,
-                    LeaverClear,
-                    NowPlayingCommand,
-                    PauseResumeCommand,
-                    Play,
-                    Premium,
-                    Queue,
-                    SkipCommand,
-                    VolumeCommand,
-                    VoteSkipCommand,
-                    YouTubeSearch
-                )
-
-                client.feature(GuildStorage).addTaskOnGuildInitialization { event ->
+                dispatcher.feature(GuildStorage).addTaskOnGuildInitialization { event ->
                     val guildId = event.guild.id
                     if (!hasGuild(guildId))
                         insertNewRow(guildId)
 
                     if (isEnabledFor(guildId))
-                        initializeFor(client, guildId)
+                        initializeFor(event.client, event.shardInfo, guildId)
                 }
 
-                client.feature(PostgresDatabase).addShutdownTask {
+                dispatcher.feature(PostgresDatabase).addShutdownTask {
                     schedulers.keys.toList().forEach { deinitializeFor(it) }
 
                     audioPlayerManager.shutdown()

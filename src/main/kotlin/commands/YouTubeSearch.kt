@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
 import discord4j.core.`object`.reaction.*
@@ -102,7 +102,7 @@ object YouTubeSearch : ChatCommand(
                             it.setEmbed(trackRequestedTemplate(member.displayName, track, trackScheduler.queueTimeLeft))
                         }.await()
 
-                        if (getGuild().getOurConnectedVoiceChannel() == null)
+                        if (getGuild().getConnectedVoiceChannel() == null)
                             member.getConnectedVoiceChannel()?.join(this)
                     } catch (e: TimeoutException) {
 

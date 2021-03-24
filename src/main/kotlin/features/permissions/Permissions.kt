@@ -9,7 +9,6 @@ import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.features.guilds.*
-import xyz.swagbot.features.system.*
 
 class Permissions(config: Config, private val client: GatewayDiscordClient) {
 
@@ -61,7 +60,7 @@ class Permissions(config: Config, private val client: GatewayDiscordClient) {
         lateinit var developers: Set<Long>
     }
 
-    companion object : DiscordClientFeature<Config, Permissions>(
+    companion object : GatewayFeature<Config, Permissions>(
         "permissions",
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
@@ -69,9 +68,7 @@ class Permissions(config: Config, private val client: GatewayDiscordClient) {
         override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Permissions {
             runBlocking { sql { create(PermissionsTable) } }
 
-            return Permissions(Config().apply(configuration), client).also {
-                client.feature(ChatCommands).registerCommands(ChangePermissionCommand)
-            }
+            return Permissions(Config().apply(configuration), client)
         }
     }
 }

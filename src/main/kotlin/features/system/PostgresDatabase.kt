@@ -1,8 +1,10 @@
 package xyz.swagbot.features.system
 
-import discord4j.core.*
+import discord4j.core.event.*
+import discord4j.core.event.domain.lifecycle.*
 import io.facet.core.util.*
 import io.facet.discord.*
+import io.facet.discord.event.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
@@ -20,9 +22,12 @@ class PostgresDatabase private constructor(val database: Database) {
         lateinit var databasePassword: String
     }
 
-    companion object : DiscordClientFeature<Config, PostgresDatabase>("postgres") {
+    companion object : EventDispatcherFeature<Config, PostgresDatabase>("postgres") {
 
-        override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): PostgresDatabase {
+        override fun EventDispatcher.install(
+            scope: CoroutineScope,
+            configuration: Config.() -> Unit
+        ): PostgresDatabase {
             val config = Config().apply(configuration)
 
             val database = runBlocking {
@@ -39,15 +44,17 @@ class PostgresDatabase private constructor(val database: Database) {
             logger.info("Connected to postgres database.")
 
             return PostgresDatabase(database).also { feature ->
-                Runtime.getRuntime().addShutdownHook(Thread {
-                    logger.info("Received shutdown code from system, running shutdown tasks.")
-                    runBlocking {
-                        feature.tasks.map { launch { it.invoke() } }.forEach { it.join() }
-                        BotScope.cancel()
-                        client.logout().await()
-                    }
-                    logger.info("Done.")
-                })
+                dispatcher.listener<ReadyEvent> { event ->
+                    Runtime.getRuntime().addShutdownHook(Thread {
+                        logger.info("Received shutdown code from system, running shutdown tasks.")
+                        runBlocking {
+                            feature.tasks.map { launch { it.invoke() } }.forEach { it.join() }
+                            BotScope.cancel()
+                            event.client.logout().await()
+                        }
+                        logger.info("Done.")
+                    })
+                }
             }
         }
     }

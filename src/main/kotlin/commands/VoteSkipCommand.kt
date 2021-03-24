@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
@@ -26,7 +26,7 @@ object VoteSkipCommand : ChatCommand(
                 return@runs
             }
 
-            val voiceChannel = guild.getOurConnectedVoiceChannel() ?: return@runs
+            val voiceChannel = guild.getConnectedVoiceChannel() ?: return@runs
 
             val memberVs = member.voiceState.await()
             if (memberVs.channelId.map { it != voiceChannel.id }.orElse(true)) {

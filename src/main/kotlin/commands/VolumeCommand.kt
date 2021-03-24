@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.IntegerArgumentType.*
 import io.facet.discord.commands.*
@@ -18,7 +18,6 @@ object VolumeCommand : ChatCommand(
 
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
-
             if (!isMusicFeatureEnabled()) {
                 message.reply(notPremiumTemplate(prefixUsed))
                 return@runs

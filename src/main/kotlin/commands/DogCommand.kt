@@ -9,10 +9,12 @@ import io.facet.discord.extensions.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.*
+import kotlinx.serialization.*
 import xyz.swagbot.util.*
 
 object DogCommand : ChatCommand(
@@ -22,7 +24,7 @@ object DogCommand : ChatCommand(
 
     private val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
-            serializer = JacksonSerializer()
+            serializer = KotlinxSerializer()
         }
     }
 
@@ -58,6 +60,7 @@ object DogCommand : ChatCommand(
         }
     }
 
+    @Serializable
     private data class Response(val message: String, val status: String) {
 
         val fileName: String

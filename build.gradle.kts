@@ -1,6 +1,7 @@
 
 plugins {
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.4.30"
+    kotlin("plugin.serialization") version "1.4.30"
     id("net.thauvin.erik.gradle.semver") version "1.0.4"
     id("com.google.cloud.tools.jib") version "2.6.0"
 }
@@ -14,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.discord4j:discord4j-core:3.1.3-SNAPSHOT")
+    implementation("com.discord4j:discord4j-core:3.1.3")
     implementation("com.sedmelluq:lavaplayer:1.3.+")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
@@ -25,16 +26,16 @@ dependencies {
     val facet_version = "0.1.+"
     implementation("io.facet:facet-d4j-commands:$facet_version")
     implementation("io.facet:facet-d4j-exposed:$facet_version")
+    implementation("io.facet:facet-d4j-lavaplayer-extensions:$facet_version")
 
-    val ktor_version = "1.4.+"
+    val ktor_version = "1.5.+"
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-client-jackson:$ktor_version")
+    implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
 
-    val exposed_version = "0.28.+"
+    val exposed_version = "0.29.+"
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
-    implementation("org.jetbrains.exposed:exposed-dao:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
     implementation("org.postgresql:postgresql:42.2.2")
@@ -42,7 +43,7 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "14"
+        kotlinOptions.jvmTarget = "15"
     }
 
     build {
@@ -59,7 +60,7 @@ tasks {
 
 jib {
     from {
-        image = "openjdk:15"
+        image = "openjdk:16"
     }
 
     to {

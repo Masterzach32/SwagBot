@@ -3,6 +3,7 @@ package xyz.swagbot.features.bgw
 import discord4j.common.util.*
 import discord4j.core.*
 import discord4j.core.`object`.entity.*
+import discord4j.core.event.*
 import discord4j.core.event.domain.*
 import discord4j.core.event.domain.guild.*
 import discord4j.core.event.domain.lifecycle.*
@@ -19,10 +20,13 @@ import java.time.*
 
 class BestGroupWorldStuff private constructor() {
 
-    companion object : DiscordClientFeature<EmptyConfig, BestGroupWorldStuff>("bgw") {
+    companion object : EventDispatcherFeature<EmptyConfig, BestGroupWorldStuff>("bgw") {
 
-        override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): BestGroupWorldStuff {
-            BotScope.listener<MessageCreateEvent>(client) { event ->
+        override fun EventDispatcher.install(
+            scope: CoroutineScope,
+            configuration: EmptyConfig.() -> Unit
+        ): BestGroupWorldStuff {
+            scope.listener<MessageCreateEvent> { event ->
                 val channel = event.message.channel.await()
                 val message = event.message
 
@@ -39,10 +43,16 @@ class BestGroupWorldStuff private constructor() {
                 }
 
                 if (channel.id.asLong() == 402224449367179264) {
-                    if (message.author.map { it.isBot }.orElse(false))
+                    if (message.author.map { it.isBot && it.id.asLong() != 219554475055120384 }.orElse(false))
                         message.delete("Bot commands are not allowed in #chat").await()
                     else if (message.content.startsWith("~raid"))
                         message.delete("Bot commands are not allowed in #chat").await()
+                }
+            }
+
+            scope.listener<MessageCreateEvent> { event ->
+                if (event.guildId.value == 97342233241464832.toSnowflake()) {
+
                 }
             }
 
@@ -53,7 +63,7 @@ class BestGroupWorldStuff private constructor() {
             val regexes: List<Regex> = iAmNotWords
                 .map { it.toCharArray().joinToString(separator = delimiter).toRegex() }
 
-            BotScope.listener<MemberUpdateEvent>(client) { event ->
+            scope.listener<MemberUpdateEvent> { event ->
                 suspend fun removeGayRole(event: MemberUpdateEvent, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = event.currentRoles.filterNot { it.asLong() == roleToRemove.asLong() }
@@ -69,7 +79,7 @@ class BestGroupWorldStuff private constructor() {
                     removeGayRole(event, gayRoleId)
                 } else {
                     event.currentRoles.asFlow()
-                        .map { client.getRoleById(event.guildId, it).await() }
+                        .map { event.client.getRoleById(event.guildId, it).await() }
                         .firstOrNull { role ->
                             role.name.toLowerCase().let { name ->
                                 regexes.any { regex ->
@@ -78,11 +88,11 @@ class BestGroupWorldStuff private constructor() {
                                 }
                             }
                         }
-                        ?.let { newGayRole -> removeGayRole(event, newGayRole.id) }
+                        .let { newGayRole -> removeGayRole(event, newGayRole.id) }
                 }
             }
 
-            BotScope.listener<ReadyEvent>(client) { event ->
+            scope.listener<ReadyEvent> { event ->
                 suspend fun removeGayRole(member: Member, currentRoles: List<Role>, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = currentRoles.filterNot { it.id == roleToRemove }
@@ -93,7 +103,7 @@ class BestGroupWorldStuff private constructor() {
                     }.await()
                 }
 
-                val member = client.getMemberById(
+                val member = event.client.getMemberById(
                     Snowflake.of(97342233241464832),
                     Snowflake.of(97341976214511616)
                 ).await()
@@ -111,12 +121,12 @@ class BestGroupWorldStuff private constructor() {
                                 }
                             }
                         }
-                        ?.let { newGayRole -> removeGayRole(member, currentRoles, newGayRole.id) }
+                        .let { newGayRole -> removeGayRole(member, currentRoles, newGayRole.id) }
                 }
             }
 
             // add gay role to jack
-            BotScope.listener<MemberUpdateEvent>(client) { event ->
+            scope.listener<MemberUpdateEvent> { event ->
                 if (event.memberId.asLong() != 97486068630163456)
                     return@listener
 
@@ -133,23 +143,23 @@ class BestGroupWorldStuff private constructor() {
 
             // disconnect joevanni and jack after an hour or so
             val ids = setOf(97486068630163456, 212311415455744000).map { it.toSnowflake() }.toSet()
-            client.listener<VoiceStateUpdateEvent> { event ->
+            scope.listener<VoiceStateUpdateEvent> { event ->
                 val vs = event.current
                 if (vs.guildId.asLong() != 97342233241464832 || vs.channelId.value == null)
                     return@listener
 
-                if (event.old.value?.channelId?.value != null)
+                if (event.old.value.channelId.value != null)
                     return@listener
 
                 if (!ids.contains(vs.userId))
                     return@listener
 
                 val member = vs.member.await()
-                val delay = (3 * 3600 * 1000..6 * 3600 * 1000).random().toLong()
+                val delay = (2 * 3600 * 1000..6 * 3600 * 1000).random().toLong()
                 val kickTime = LocalDateTime.now().plusSeconds(delay / 1000)
                 logger.info("${member.tag} will be disconnected at $kickTime")
                 launch {
-                    val cancellationListener = listener<VoiceStateUpdateEvent>(client) { event ->
+                    val cancellationListener = listener<VoiceStateUpdateEvent>(event.client) { event ->
                         if (event.current.userId == member.id && event.current.channelId.value == null) {
                             logger.info("${member.tag} left voice early, cancelling disconnect timer.")
                             this@launch.cancel()
@@ -157,12 +167,25 @@ class BestGroupWorldStuff private constructor() {
                     }
 
                     delay(delay)
-                    if (member.voiceState.awaitNullable()?.channelId?.value != null) {
+                    if (member.voiceState.awaitNullable().channelId.value != null) {
                         cancellationListener.cancel("Completed.")
                         member.edit { it.setNewVoiceChannel(null) }.await()
                         logger.info("Disconnected ${member.tag} for being in voice too long.")
                     } else
                         logger.info("Could not disconnect ${member.tag} because they left voice.")
+                }
+            }
+
+            scope.listener<MessageCreateEvent> { event ->
+                if (!event.guildId.map { it.asLong() == 97342233241464832 }.orElse(false))
+                    return@listener
+
+                event.message.content.let {
+                    if ("board" in it && "game" in it && "night" in it) {
+                        async { event.message.channel.await().type().await() }
+                        delay(5000)
+                        event.message.reply("maybe")
+                    }
                 }
             }
 

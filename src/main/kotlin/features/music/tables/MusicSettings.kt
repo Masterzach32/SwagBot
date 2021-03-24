@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.*
 import xyz.swagbot.features.guilds.*
 
 object MusicSettings : Table("music_settings") {
+
     val guildId = snowflake("guild_id") references GuildTable.guildId
     val enabled = bool("enabled").default(false)
     val volume = integer("volume").default(100)
@@ -15,7 +16,7 @@ object MusicSettings : Table("music_settings") {
 
     override val primaryKey = PrimaryKey(guildId)
 
-    fun whereGuildIs(guildId: Snowflake): SqlExpressionBuilder.()->Op<Boolean> {
-        return { this@MusicSettings.guildId eq guildId }
+    fun whereGuildIs(guildId: Snowflake): SqlExpressionBuilder.() -> Op<Boolean> = {
+        this@MusicSettings.guildId eq guildId
     }
 }

@@ -1,7 +1,7 @@
 package xyz.swagbot.features.guilds
 
 import discord4j.common.util.*
-import discord4j.core.*
+import discord4j.core.event.*
 import discord4j.core.event.domain.guild.*
 import io.facet.core.*
 import io.facet.discord.*
@@ -10,7 +10,6 @@ import io.facet.discord.exposed.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.*
-import xyz.swagbot.features.system.*
 
 class GuildStorage private constructor() {
 
@@ -37,15 +36,15 @@ class GuildStorage private constructor() {
 
     fun addTaskOnGuildInitialization(task: suspend (GuildCreateEvent) -> Unit) = tasks.add(task)
 
-    companion object : DiscordClientFeature<EmptyConfig, GuildStorage>("guildStorage") {
+    companion object : EventDispatcherFeature<EmptyConfig, GuildStorage>("guildStorage") {
 
-        override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): GuildStorage {
+        override fun install(dispatcher: EventDispatcher, configuration: EmptyConfig.() -> Unit): GuildStorage {
             runBlocking {
                 sql { create(GuildTable) }
             }
 
             return GuildStorage().apply {
-                client.listener<GuildCreateEvent> { event ->
+                dispatcher.listener<GuildCreateEvent> { event ->
                     if (!hasGuild(event.guild.id)) {
                         logger.info("New guild joined with id ${event.guild.id}, adding to database.")
                         sql {

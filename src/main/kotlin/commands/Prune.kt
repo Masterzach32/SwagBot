@@ -8,6 +8,7 @@ import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
 
@@ -37,7 +38,13 @@ object Prune : ChatCommand(
                         .map { it.id }
                 ).await()
 
-                val resultMessage = message.reply("Deleted **${numToDelete - notDeleted.size}** messages")
+                val stillNotDeleted = notDeleted.asFlow()
+                    .map { client.getMessageById(channel.id, it).await() }
+                    .buffer()
+                    .map { it?.delete("")?.await() }
+                    .count()
+
+                val resultMessage = message.reply("Deleted **${numToDelete - stillNotDeleted}** messages")
 
                 launch {
                     delay(10_000)

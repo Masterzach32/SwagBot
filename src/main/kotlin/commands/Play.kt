@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
 import com.sedmelluq.discord.lavaplayer.track.*
@@ -46,9 +46,9 @@ object Play : ChatCommand(
                 val query = context.getString("url/query")
                 val item: AudioItem? = try {
                     if ("http://" in query || "https://" in query)
-                        musicFeature.loadItem(query)
+                        musicFeature.searchItem(query)
                     else
-                        musicFeature.loadItem("ytsearch:$query")
+                        musicFeature.searchItem("ytsearch:$query")
                 } catch (e: Throwable) {
                     message.reply("I couldn't find anything for *\"$query\"*.")
                     return@runs
@@ -67,7 +67,7 @@ object Play : ChatCommand(
                                 scheduler.queueTimeLeft
                             )
                         )
-                        if (getGuild().getOurConnectedVoiceChannel() == null)
+                        if (getGuild().getConnectedVoiceChannel() == null)
                             member.getConnectedVoiceChannel()?.join(this)
                     }
                     is AudioPlaylist -> {
@@ -87,7 +87,7 @@ object Play : ChatCommand(
                                         scheduler.queueTimeLeft
                                     )
                                 )
-                                if (getGuild().getOurConnectedVoiceChannel() == null)
+                                if (getGuild().getConnectedVoiceChannel() == null)
                                     member.getConnectedVoiceChannel()?.join(this)
                             } else
                                 message.reply("I couldn't find anything for *\"$query\"*.")
@@ -104,7 +104,7 @@ object Play : ChatCommand(
                                     ${item.tracks.size} Tracks
                                 """.trimIndent().trim()
                             })
-                            if (getGuild().getOurConnectedVoiceChannel() == null)
+                            if (getGuild().getConnectedVoiceChannel() == null)
                                 member.getConnectedVoiceChannel()?.join(this)
                         }
                     }

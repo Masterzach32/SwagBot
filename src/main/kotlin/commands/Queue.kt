@@ -1,4 +1,4 @@
-package xyz.swagbot.features.music.commands
+package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.*
 import com.sedmelluq.discord.lavaplayer.track.*
@@ -69,7 +69,7 @@ object Queue : ChatCommand(
 
             val pagesActor = actor<ReactionAddEvent> {
                 var currentPage = 0
-                for (event in this) {
+                for (event in channel) {
                     val queue = scheduler.queue
                         .map { it to client.getMemberById(guildId!!, it.context.requesterId).awaitNullable() }
                     val maxPage = queue.size / 10
@@ -104,14 +104,16 @@ object Queue : ChatCommand(
                 queueMessage.removeAllReactions().await()
             }
 
-            val pagesJob = client.flowOf<ReactionAddEvent>()
-                .filter { it.messageId == queueMessage.id && it.userId == member.id && it.emoji in allReactions }
+            val reactionEvents = client.flowOf<ReactionAddEvent>()
+                .filter { it.messageId == queueMessage.id }
+
+            val pagesJob = reactionEvents
+                .filter { it.userId == member.id && it.emoji in allReactions }
                 .onEach { pagesActor.send(it) }
                 .launchIn(this)
 
-            val cleanupJob = client.flowOf<ReactionAddEvent>()
-                .filter { it.messageId == queueMessage.id && (it.userId != member.id || it.emoji !in allReactions) }
-                .filter { it.userId != client.selfId }
+            val cleanupJob = reactionEvents
+                .filter { it.userId != client.selfId && (it.userId != member.id || it.emoji !in allReactions) }
                 .onEach { queueMessage.removeReaction(it.emoji, it.userId).await() }
                 .launchIn(this)
 
@@ -151,7 +153,7 @@ object Queue : ChatCommand(
                 "${startIndex + i + 1}. ${track.info.boldFormattedTitleWithLink} - " +
                     "**${track.formattedLength}** (**${member?.displayName ?: "Unknown"}**)"
             }
-            .joinToString("\n")
+            .joinToString("\n") + "\n"
 
         field {
             name = ":musical_note: Currently Playing"

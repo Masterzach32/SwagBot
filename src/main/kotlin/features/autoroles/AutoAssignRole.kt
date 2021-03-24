@@ -2,6 +2,7 @@ package xyz.swagbot.features.autoroles
 
 import discord4j.common.util.*
 import discord4j.core.*
+import discord4j.core.event.*
 import discord4j.core.event.domain.guild.*
 import io.facet.core.*
 import io.facet.discord.*
@@ -37,16 +38,16 @@ class AutoAssignRole private constructor() {
         }
     }
 
-    companion object : DiscordClientFeature<EmptyConfig, AutoAssignRole>(
+    companion object : EventDispatcherFeature<EmptyConfig, AutoAssignRole>(
         keyName = "autoAssignRole",
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
 
-        override fun install(client: GatewayDiscordClient, configuration: EmptyConfig.() -> Unit): AutoAssignRole {
+        override fun install(dispatcher: EventDispatcher, configuration: EmptyConfig.() -> Unit): AutoAssignRole {
             runBlocking { sql { create(RolesTable) } }
 
             return AutoAssignRole().apply {
-                BotScope.listener<MemberJoinEvent>(client) { event ->
+                dispatcher.listener<MemberJoinEvent> { event ->
                     if (event.member.isBot)
                         return@listener // ignore bots
 
@@ -68,7 +69,7 @@ class AutoAssignRole private constructor() {
                         }
                 }
 
-                client.feature(GuildStorage).addTaskOnGuildInitialization { event ->
+                dispatcher.feature(GuildStorage).addTaskOnGuildInitialization { event ->
                     autoAssignedRolesFor(event.guild.id)
                         .map { it to event.guild.getRoleById(it).awaitNullable() }
                         .filter { (_, role) -> role == null }
