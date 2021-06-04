@@ -44,7 +44,7 @@ class PostgresDatabase private constructor(val database: Database) {
             logger.info("Connected to postgres database.")
 
             return PostgresDatabase(database).also { feature ->
-                dispatcher.listener<ReadyEvent> { event ->
+                listener<ReadyEvent> { event ->
                     Runtime.getRuntime().addShutdownHook(Thread {
                         logger.info("Received shutdown code from system, running shutdown tasks.")
                         runBlocking {

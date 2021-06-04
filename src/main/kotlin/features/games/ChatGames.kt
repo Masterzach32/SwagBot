@@ -3,6 +3,7 @@ package xyz.swagbot.features.games
 import discord4j.core.event.*
 import io.facet.core.*
 import io.facet.discord.*
+import kotlinx.coroutines.*
 
 class ChatGames {
 
@@ -11,7 +12,7 @@ class ChatGames {
         requiredFeatures = emptyList()
     ) {
 
-        override fun install(dispatcher: EventDispatcher, configuration: EmptyConfig.() -> Unit): ChatGames {
+        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): ChatGames {
             return ChatGames()
         }
     }

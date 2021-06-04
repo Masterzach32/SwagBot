@@ -225,7 +225,7 @@ class Music private constructor(config: Config) {
         requiredFeatures = listOf(PostgresDatabase, GuildStorage, ChatCommands)
     ) {
 
-        override fun install(dispatcher: EventDispatcher, configuration: Config.() -> Unit): Music {
+        override fun EventDispatcher.install(scope: CoroutineScope, configuration: Config.() -> Unit): Music {
             runBlocking {
                 sql { create(MusicSettings, MusicQueue) }
             }
@@ -238,18 +238,18 @@ class Music private constructor(config: Config) {
                 AudioSourceManagers.registerRemoteSources(audioPlayerManager)
                 AudioSourceManagers.registerLocalSource(audioPlayerManager)
 
-                dispatcher.listener<VoiceStateUpdateEvent> { event ->
+                listener<VoiceStateUpdateEvent> { event ->
                     if (event.current.userId == event.client.selfId)
                         updateLastConnectedChannelFor(event.current.guildId, event.current.channelId.value)
                 }
 
-                dispatcher.listener<GuildDeleteEvent> { event ->
+                listener<GuildDeleteEvent> { event ->
                     logger.info("Deinitializing guild: ${event.guildId}")
                     if (!event.isUnavailable)
                         deinitializeFor(event.guildId)
                 }
 
-                dispatcher.feature(GuildStorage).addTaskOnGuildInitialization { event ->
+                feature(GuildStorage).addTaskOnGuildInitialization { event ->
                     val guildId = event.guild.id
                     if (!hasGuild(guildId))
                         insertNewRow(guildId)
@@ -258,7 +258,7 @@ class Music private constructor(config: Config) {
                         initializeFor(event.client, event.shardInfo, guildId)
                 }
 
-                dispatcher.feature(PostgresDatabase).addShutdownTask {
+                feature(PostgresDatabase).addShutdownTask {
                     schedulers.keys.toList().forEach { deinitializeFor(it) }
 
                     audioPlayerManager.shutdown()

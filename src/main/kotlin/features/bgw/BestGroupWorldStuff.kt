@@ -17,6 +17,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import xyz.swagbot.*
 import java.time.*
+import java.util.*
 
 class BestGroupWorldStuff private constructor() {
 
@@ -26,7 +27,7 @@ class BestGroupWorldStuff private constructor() {
             scope: CoroutineScope,
             configuration: EmptyConfig.() -> Unit
         ): BestGroupWorldStuff {
-            scope.listener<MessageCreateEvent> { event ->
+            scope.listener<MessageCreateEvent>(this) { event ->
                 val channel = event.message.channel.await()
                 val message = event.message
 
@@ -50,7 +51,7 @@ class BestGroupWorldStuff private constructor() {
                 }
             }
 
-            scope.listener<MessageCreateEvent> { event ->
+            scope.listener<MessageCreateEvent>(this) { event ->
                 if (event.guildId.value == 97342233241464832.toSnowflake()) {
 
                 }
@@ -58,12 +59,12 @@ class BestGroupWorldStuff private constructor() {
 
             // remove gay role from me
             val gayRoleId = Snowflake.of(584542070002286624)
-            val iAmNotWords: Set<String> = setOf("gay", "homo", "rainbow", "gey", "horse")
+            val iAmNotWords: Set<String> = setOf("gay", "homo", "rainbow", "gey", "horse", "bottom", "penis")
             val delimiter = "[\\W]*".toRegex().pattern
             val regexes: List<Regex> = iAmNotWords
                 .map { it.toCharArray().joinToString(separator = delimiter).toRegex() }
 
-            scope.listener<MemberUpdateEvent> { event ->
+            scope.listener<MemberUpdateEvent>(this) { event ->
                 suspend fun removeGayRole(event: MemberUpdateEvent, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = event.currentRoles.filterNot { it.asLong() == roleToRemove.asLong() }
@@ -72,7 +73,7 @@ class BestGroupWorldStuff private constructor() {
                     }.await()
                 }
 
-                if (event.memberId.asLong() != 97341976214511616)
+                if (event.memberId.asLong() !in listOf(97341976214511616, 219554475055120384, 217065780078968833))
                     return@listener
 
                 if (event.currentRoles.contains(gayRoleId)) {
@@ -81,18 +82,18 @@ class BestGroupWorldStuff private constructor() {
                     event.currentRoles.asFlow()
                         .map { event.client.getRoleById(event.guildId, it).await() }
                         .firstOrNull { role ->
-                            role.name.toLowerCase().let { name ->
+                            role.name.lowercase(Locale.getDefault()).let { name ->
                                 regexes.any { regex ->
                                     //println("$name: ${regex.find(name)} ${name matches regex}")
                                     regex.find(name) != null
                                 }
                             }
                         }
-                        .let { newGayRole -> removeGayRole(event, newGayRole.id) }
+                        ?.let { newGayRole -> removeGayRole(event, newGayRole.id) }
                 }
             }
 
-            scope.listener<ReadyEvent> { event ->
+            scope.listener<ReadyEvent>(this) { event ->
                 suspend fun removeGayRole(member: Member, currentRoles: List<Role>, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = currentRoles.filterNot { it.id == roleToRemove }
@@ -121,12 +122,12 @@ class BestGroupWorldStuff private constructor() {
                                 }
                             }
                         }
-                        .let { newGayRole -> removeGayRole(member, currentRoles, newGayRole.id) }
+                        ?.let { newGayRole -> removeGayRole(member, currentRoles, newGayRole.id) }
                 }
             }
 
             // add gay role to jack
-            scope.listener<MemberUpdateEvent> { event ->
+            scope.listener<MemberUpdateEvent>(this) { event ->
                 if (event.memberId.asLong() != 97486068630163456)
                     return@listener
 
@@ -142,13 +143,14 @@ class BestGroupWorldStuff private constructor() {
             }
 
             // disconnect joevanni and jack after an hour or so
-            val ids = setOf(97486068630163456, 212311415455744000).map { it.toSnowflake() }.toSet()
-            scope.listener<VoiceStateUpdateEvent> { event ->
+            val ids = setOf(97486068630163456, 212311415455744000)
+                .map { it.toSnowflake() }
+            listener<VoiceStateUpdateEvent> { event ->
                 val vs = event.current
                 if (vs.guildId.asLong() != 97342233241464832 || vs.channelId.value == null)
                     return@listener
 
-                if (event.old.value.channelId.value != null)
+                if (event.old.value?.channelId?.value != null)
                     return@listener
 
                 if (!ids.contains(vs.userId))
@@ -167,7 +169,7 @@ class BestGroupWorldStuff private constructor() {
                     }
 
                     delay(delay)
-                    if (member.voiceState.awaitNullable().channelId.value != null) {
+                    if (member.voiceState.awaitNullable()?.channelId?.value != null) {
                         cancellationListener.cancel("Completed.")
                         member.edit { it.setNewVoiceChannel(null) }.await()
                         logger.info("Disconnected ${member.tag} for being in voice too long.")
@@ -176,7 +178,7 @@ class BestGroupWorldStuff private constructor() {
                 }
             }
 
-            scope.listener<MessageCreateEvent> { event ->
+            scope.listener<MessageCreateEvent>(this) { event ->
                 if (!event.guildId.map { it.asLong() == 97342233241464832 }.orElse(false))
                     return@listener
 

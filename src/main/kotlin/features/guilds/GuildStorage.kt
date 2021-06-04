@@ -38,13 +38,13 @@ class GuildStorage private constructor() {
 
     companion object : EventDispatcherFeature<EmptyConfig, GuildStorage>("guildStorage") {
 
-        override fun install(dispatcher: EventDispatcher, configuration: EmptyConfig.() -> Unit): GuildStorage {
+        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): GuildStorage {
             runBlocking {
                 sql { create(GuildTable) }
             }
 
             return GuildStorage().apply {
-                dispatcher.listener<GuildCreateEvent> { event ->
+                listener<GuildCreateEvent> { event ->
                     if (!hasGuild(event.guild.id)) {
                         logger.info("New guild joined with id ${event.guild.id}, adding to database.")
                         sql {

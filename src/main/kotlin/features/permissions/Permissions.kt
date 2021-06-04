@@ -65,10 +65,10 @@ class Permissions(config: Config, private val client: GatewayDiscordClient) {
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
 
-        override fun install(client: GatewayDiscordClient, configuration: Config.() -> Unit): Permissions {
+        override fun GatewayDiscordClient.install(scope: CoroutineScope, configuration: Config.() -> Unit): Permissions {
             runBlocking { sql { create(PermissionsTable) } }
 
-            return Permissions(Config().apply(configuration), client)
+            return Permissions(Config().apply(configuration), this)
         }
     }
 }

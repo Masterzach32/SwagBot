@@ -4,6 +4,7 @@ import discord4j.core.event.*
 import io.facet.core.*
 import io.facet.discord.*
 import io.facet.discord.commands.*
+import kotlinx.coroutines.*
 
 class Stats {
 
@@ -12,7 +13,7 @@ class Stats {
         requiredFeatures = listOf(ChatCommands)
     ) {
 
-        override fun install(dispatcher: EventDispatcher, configuration: EmptyConfig.() -> Unit): Stats {
+        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): Stats {
             return Stats().also { feature ->
 
             }

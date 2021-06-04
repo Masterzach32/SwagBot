@@ -43,11 +43,11 @@ class AutoAssignRole private constructor() {
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
 
-        override fun install(dispatcher: EventDispatcher, configuration: EmptyConfig.() -> Unit): AutoAssignRole {
+        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): AutoAssignRole {
             runBlocking { sql { create(RolesTable) } }
 
             return AutoAssignRole().apply {
-                dispatcher.listener<MemberJoinEvent> { event ->
+                listener<MemberJoinEvent> { event ->
                     if (event.member.isBot)
                         return@listener // ignore bots
 
@@ -69,7 +69,7 @@ class AutoAssignRole private constructor() {
                         }
                 }
 
-                dispatcher.feature(GuildStorage).addTaskOnGuildInitialization { event ->
+                feature(GuildStorage).addTaskOnGuildInitialization { event ->
                     autoAssignedRolesFor(event.guild.id)
                         .map { it to event.guild.getRoleById(it).awaitNullable() }
                         .filter { (_, role) -> role == null }

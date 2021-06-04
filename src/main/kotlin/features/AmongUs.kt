@@ -45,16 +45,16 @@ class AmongUs {
 
         override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): AmongUs {
             return AmongUs().also { feature ->
-                scope.listener<PresenceUpdateEvent> { event ->
+                scope.listener<PresenceUpdateEvent>(this) { event ->
                     val member = event.member.await()
                     if (event.guildId.asLong() != 97342233241464832 || member.isBot)
                         return@listener
 
                     val voiceState = member.voiceState.awaitNullable()
-                    val voiceChannel = voiceState.channel.awaitNullable()
-                    if (voiceChannel.id.asLong() == 765385808151969804) {
+                    val voiceChannel = voiceState?.channel?.awaitNullable()
+                    if (voiceChannel?.id?.asLong() == 765385808151969804) {
                         val amongUsActivity = event.current.activities.firstOrNull { activity ->
-                            activity.applicationId.value.asLong() == 477175586805252107
+                            activity.applicationId.value?.asLong() == 477175586805252107
                         }
                         if (amongUsActivity != null) {
                             val joinCode = amongUsActivity.partyId.value
@@ -72,12 +72,12 @@ class AmongUs {
                     }
                 }
 
-                scope.listener<VoiceStateUpdateEvent> { event ->
+                scope.listener<VoiceStateUpdateEvent>(this) { event ->
                     if (event.current.guildId.asLong() != 97342233241464832)
                         return@listener
 
-                    val voiceChannel = event.old.value.channel.awaitNullable()
-                    if (voiceChannel.id.asLong() == 765385808151969804)
+                    val voiceChannel = event.old.value?.channel?.awaitNullable()
+                    if (voiceChannel?.id?.asLong() == 765385808151969804)
                         if (voiceChannel.voiceStates.asFlow().count() == 0)
                             feature.resetChannelName(voiceChannel)
                 }
