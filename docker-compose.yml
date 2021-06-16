@@ -1,0 +1,38 @@
+version: "3.1"
+
+services:
+  postgres:
+    image: postgres:13
+    restart: always
+    env_file: postgres.env
+    volumes:
+      - data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      - ADMINER_DESIGN=nette
+    ports:
+      - 8083:8080
+    depends_on:
+      - postgres
+
+#  redis:
+#    image: library/redis:6.0.6
+#    restart: always
+
+  bot:
+    image: zachkozar/swagbot:latest
+    restart: always
+    env_file:
+      - bot.env
+      - postgres.env
+    depends_on:
+      - postgres
+#      - redis
+
+volumes:
+  data:

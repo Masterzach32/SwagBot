@@ -1,3 +1,2 @@
-rootProject.name = "SwagBot"
-include("api")
-include("plugins")
+rootProject.name = "swagbot"
+

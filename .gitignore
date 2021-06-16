@@ -5,7 +5,6 @@
 .settings/
 
 # IntelliJ
-.idea/
 out/
 *.iml
 *.iws
@@ -26,4 +25,4 @@ build/
 grav.perl
 
 # Add other files here:
-run/
+*.env
