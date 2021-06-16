@@ -13,34 +13,30 @@ import xyz.swagbot.features.music.*
 private val VoiceChannel.musicFeature: Music
     get() = client.feature(Music)
 
-suspend fun VoiceChannel.join(scope: CoroutineScope): VoiceConnection = join {
+suspend fun VoiceChannel.join(): VoiceConnection = join {
     it.setProvider(musicFeature.trackSchedulerFor(guildId).audioProvider)
 }.await().also { connection ->
-    scope.launch {
+    GlobalScope.launch main@{
         suspend fun memberCountThresholdMet() = voiceStates.asFlow().count() == 1
 
-        launch disconnect@{
-            client.flowOf<VoiceStateUpdateEvent>()
-                .filter { it.current.userId == client.selfId && it.old.value?.channelId?.value == id }
-                .first()
-            this@launch.cancel("Bot was disconnected from voice.")
-        }
-
-        val noMembersJoinedConstraint = async {
+        launch {
             delay(10_000)
-            memberCountThresholdMet()
+            if (memberCountThresholdMet()) {
+                connection.disconnect().await()
+                this@main.cancel("Disconnecting from voice, no members left in channel.")
+            }
         }
 
-        val noMembersLeftConstraint = async {
-            client.flowOf<VoiceStateUpdateEvent>()
-                .filter { it.old.value?.channelId?.value == id && memberCountThresholdMet() }
-                .map { true }
-                .first()
-        }
-
-        if (noMembersJoinedConstraint.await() || noMembersLeftConstraint.await()) {
-            connection.disconnect().await()
-            cancel("Disconnecting from voice, no members left in channel.")
-        }
+        client.flowOf<VoiceStateUpdateEvent>()
+            .filter { event -> event.isLeaveEvent && event.old.flatMap { it.channelId }.unwrap() == id }
+            .collect { event ->
+                when {
+                    memberCountThresholdMet() -> {
+                        connection.disconnect().await()
+                        cancel("Disconnecting from voice, no members left in channel.")
+                    }
+                    event.current.userId == client.selfId -> cancel("Bot was disconnected from voice.")
+                }
+            }
     }
 }

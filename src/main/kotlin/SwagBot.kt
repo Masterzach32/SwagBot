@@ -5,13 +5,11 @@ package xyz.swagbot
 import discord4j.core.*
 import discord4j.core.`object`.presence.*
 import discord4j.core.event.*
-import discord4j.core.event.domain.*
 import discord4j.core.event.domain.message.*
 import discord4j.core.shard.*
-import discord4j.discordjson.json.*
 import discord4j.gateway.intent.*
 import discord4j.rest.response.*
-import discord4j.rest.util.*
+import io.facet.discord.appcommands.*
 import io.facet.discord.commands.*
 import io.facet.discord.event.*
 import io.facet.discord.extensions.*
@@ -41,8 +39,8 @@ fun main() {
     client.gateway()
         .setEnabledIntents(IntentSet.all())
         .setSharding(ShardingStrategy.recommended())
-        .setInitialPresence { Presence.online(Activity.listening("~help")) }
-        .withFeatures(EventDispatcher::configure)
+        .setInitialPresence { ClientPresence.online(ClientActivity.listening("~help")) }
+        .withPlugins(EventDispatcher::configure)
         .withFeatures(GatewayDiscordClient::configure)
         .block()
 }
@@ -64,7 +62,6 @@ fun EventDispatcher.configure(scope: CoroutineScope) {
         registerCommands(
             BringCommand,
             CatCommand,
-            ChangePermissionCommand,
             ChangePrefixCommand,
             Clear,
             Crewlink,
@@ -78,15 +75,9 @@ fun EventDispatcher.configure(scope: CoroutineScope) {
             MigrateCommand,
             NowPlayingCommand,
             PauseResumeCommand,
-            Ping,
-            Play,
             Premium,
-            Prune,
             Queue,
             SkipCommand,
-            VolumeCommand,
-            VoteSkipCommand,
-            YouTubeSearch
         )
     }
 
@@ -106,36 +97,6 @@ fun EventDispatcher.configure(scope: CoroutineScope) {
 }
 
 fun GatewayDiscordClient.configure(scope: CoroutineScope) {
-
-    val pingCommand = applicationCommand(name = "ping", desc = "Ping the bot")
-
-    val playCommand = ApplicationCommandRequest.builder()
-        .name("play")
-        .description("Play music.")
-        .addOption(ApplicationCommandOptionData.builder()
-            .name("url/name")
-            .description("Url of the track or name of the song.")
-            .type(ApplicationCommandOptionType.STRING.value)
-            .build())
-        .build()
-
-    scope.launch {
-        restClient.apply {
-            applicationService.apply {
-                createGlobalApplicationCommand(applicationId.await(), pingCommand)
-                    .await()
-            }
-        }
-    }
-
-    listener<InteractionCreateEvent> { event ->
-        if (event.commandName == "ping") {
-            event.acknowledge().await()
-            event.interactionResponse.createFollowupMessage("Pong!").await()
-            event.interaction.commandInteraction
-        }
-    }
-
     listener<MessageCreateEvent>(scope) { event ->
         if (event.message.userMentionIds.contains(selfId)) {
             val prefix = commandPrefixFor(null)
@@ -148,5 +109,26 @@ fun GatewayDiscordClient.configure(scope: CoroutineScope) {
 
     install(Permissions) {
         developers = setOf(97341976214511616, 212311415455744000, 98200921950920704)
+    }
+
+    install(ApplicationCommands) {
+        registerCommand(
+            ChangePermissionCommand,
+            Ping,
+            Play,
+            Prune,
+            YouTubeSearch,
+            VolumeCommand,
+            VoteSkipCommand
+        )
+    }
+
+    scope.launch {
+//        logger.info(
+//            restClient.applicationService.getGlobalApplicationCommands(selfId.asLong()).await().toString()
+//        )
+//        logger.info(
+//            restClient.applicationService.getGuildApplicationCommands(selfId.asLong(), 97342233241464832).await().toString()
+//        )
     }
 }

@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.tools.*
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.common.util.*
 import xyz.swagbot.*
+import xyz.swagbot.extensions.*
 
 class SilentAudioTrackLoadHandler(
     private val scheduler: TrackScheduler,
@@ -13,13 +14,13 @@ class SilentAudioTrackLoadHandler(
 ) : AudioLoadResultHandler {
 
     override fun trackLoaded(track: AudioTrack) {
-        track.userData = TrackContext(requesterId, requestedChannelId)
+        track.setTrackContext(requesterId, requestedChannelId)
         scheduler.queue(track)
     }
 
     override fun playlistLoaded(playlist: AudioPlaylist) {
         playlist.tracks.forEach {
-            it.userData = TrackContext(requesterId, requestedChannelId)
+            it.setTrackContext(requesterId, requestedChannelId)
             scheduler.queue(it)
         }
     }

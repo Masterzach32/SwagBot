@@ -1,72 +1,57 @@
 package xyz.swagbot.commands
 
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
+import io.facet.discord.appcommands.*
+import io.facet.discord.appcommands.extensions.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.flow.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.music.*
-import xyz.swagbot.util.*
 import kotlin.math.*
 
-object VoteSkipCommand : ChatCommand(
-    name = "Vote Skip",
-    aliases = setOf("voteskip", "vs"),
-    scope = Scope.GUILD,
-    category = "music"
-) {
+object VoteSkipCommand : GlobalGuildApplicationCommand {
 
-    override fun DSLCommandNode<ChatCommandSource>.register() {
-        runs { context ->
-            val guild = getGuild()
+    override val request = applicationCommandRequest("voteskip", "Vote to skip the playing track.")
 
-            if (!isMusicFeatureEnabled()) {
-                message.reply(notPremiumTemplate(prefixUsed))
-                return@runs
-            }
+    override suspend fun GuildInteractionContext.execute() {
+        val guild = getGuild()
 
-            val voiceChannel = guild.getConnectedVoiceChannel() ?: return@runs
+        if (!guild.isPremium())
+            return event.replyEphemeral("Music is a premium feature of SwagBot").await()
 
-            val memberVs = member.voiceState.await()
-            if (memberVs.channelId.map { it != voiceChannel.id }.orElse(true)) {
-                message.reply("You must be in ${voiceChannel.name} to vote skip a track!")
-                return@runs
-            }
+        val voiceChannel = guild.getConnectedVoiceChannel()
+            ?: return event.replyEphemeral("Cannot vote to skip as there is nothing playing!").await()
 
-            val trackScheduler = guild.trackScheduler
-            val trackToSkip = trackScheduler.player.playingTrack
-            if (trackToSkip == null) {
-                message.reply("Cannot vote to skip as there is no track playing!")
-                return@runs
-            }
+        val memberVs = member.voiceState.await()
+        if (memberVs.channelId.map { it != voiceChannel.id }.orElse(true))
+            return event.replyEphemeral("You must be in ${voiceChannel.name} to vote skip!").await()
 
-            val successfulVote = trackToSkip.context.addSkipVote(member.id)
+        val trackScheduler = guild.trackScheduler
+        val trackToSkip = trackScheduler.player.playingTrack
+            ?: return event.replyEphemeral("Cannot vote to skip as there is nothing playing!").await()
 
-            if (!successfulVote) {
-                message.reply("You have already voted to skip this track.")
-                return@runs
-            }
+        val successfulVote = trackToSkip.context.addSkipVote(member.id)
 
-            val connectedMembers = voiceChannel.connectedMembers.count()
-            val voteThreshold = ((connectedMembers - 1) / 2.0 - trackToSkip.context.skipVoteCount)
+        if (!successfulVote)
+            return event.replyEphemeral("You have already voted to skip this track.").await()
 
-            if (voteThreshold <= 0) {
-                trackScheduler.playNext()
-                message.reply(
-                    trackSkippedTemplate(
-                        member.displayName,
-                        trackToSkip,
-                        guild.trackScheduler.player.playingTrack
-                    )
+        acknowledge()
+
+        val connectedMembers = voiceChannel.connectedMembers.count()
+        val voteThreshold = ((connectedMembers - 1) / 2.0 - trackToSkip.context.skipVoteCount)
+
+        if (voteThreshold <= 0) {
+            trackScheduler.playNext()
+            createFollowupMessage(
+                trackSkippedTemplate(
+                    member.displayName,
+                    trackToSkip,
+                    guild.trackScheduler.player.playingTrack
                 )
-            } else {
-                val skipCount = trackToSkip.context.skipVoteCount
-                val majority = ((connectedMembers - 1) / 2.0).roundToInt()
-                message.reply("$skipCount / $majority votes to skip.")
-            }
+            )
+        } else {
+            val skipCount = trackToSkip.context.skipVoteCount
+            val majority = ((connectedMembers - 1) / 2.0).roundToInt()
+            event.interactionResponse.createFollowupMessage("$skipCount / $majority votes to skip.").await()
         }
     }
-
-
 }

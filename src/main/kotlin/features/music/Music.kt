@@ -59,19 +59,19 @@ class Music private constructor(config: Config) {
                 sql { MusicQueue.deleteWhere(op = MusicQueue.whereGuildIs(guildId)) }
             }
 
-            val row = sql {
+            val settingsRow = sql {
                 MusicSettings.select(MusicSettings.whereGuildIs(guildId)).first()
             }
 
             launch {
-                row[MusicSettings.lastConnectedChannel]?.let { channelId ->
+                settingsRow[MusicSettings.lastConnectedChannel]?.let { channelId ->
                     client.getChannelById(channelId).awaitNullable() as? VoiceChannel
-                }?.join(this)
+                }?.join()
             }
 
-            scheduler.shouldLoop = row[MusicSettings.loop]
-            scheduler.shouldAutoplay = row[MusicSettings.autoplay]
-            scheduler.player.volume = row[MusicSettings.volume]
+            scheduler.shouldLoop = settingsRow[MusicSettings.loop]
+            scheduler.shouldAutoplay = settingsRow[MusicSettings.autoplay]
+            scheduler.player.volume = settingsRow[MusicSettings.volume]
         }
     }
 

@@ -1,18 +1,13 @@
 package xyz.swagbot.commands
 
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
+import io.facet.discord.appcommands.*
 import io.facet.discord.extensions.*
 
-object Ping : ChatCommand(
-    name = "Ping",
-    aliases = setOf("ping")
-) {
+object Ping : GlobalApplicationCommand {
 
-    override fun DSLCommandNode<ChatCommandSource>.register() {
-        runs {
-            message.reply("Pong!")
-        }
+    override val request = applicationCommandRequest("ping", "Ping the bot.")
+
+    override suspend fun GlobalInteractionContext.execute() {
+        event.reply("Pong!").await()
     }
 }

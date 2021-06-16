@@ -1,21 +1,27 @@
 
 plugins {
-    kotlin("jvm") version "1.5.0"
+    kotlin("jvm") version "1.5.10"
     kotlin("plugin.serialization") version "1.5.0"
     id("net.thauvin.erik.gradle.semver") version "1.0.4"
-    id("com.google.cloud.tools.jib") version "3.0.0"
+    id("com.google.cloud.tools.jib") version "3.1.1"
 }
 
 group = "xyz.swagbot"
 
 repositories {
     mavenCentral()
+    mavenLocal()
     jcenter()
-    maven("http://localhost:8072/artifactory/libraries/")
+    //maven("https://maven.masterzach32.net/artifactory/libraries/")
+    maven("https://libraries.minecraft.net")
+    maven("https://m2.dv8tion.net/releases")
+
+    maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://repo.spring.io/milestone")
 }
 
 dependencies {
-    implementation("com.discord4j:discord4j-core:3.1.5")
+    implementation("com.discord4j:discord4j-core:3.2.0-SNAPSHOT")
     implementation("com.sedmelluq:lavaplayer:1.3.+")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
@@ -23,8 +29,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinx_coroutines_version")
 
-    val facet_version = "0.2.+"
+    val facet_version = "0.3.0-SNAPSHOT"
     implementation("io.facet:facet-d4j-commands:$facet_version")
+    implementation("io.facet:facet-d4j-application-commands:$facet_version")
     implementation("io.facet:facet-d4j-exposed:$facet_version")
     implementation("io.facet:facet-d4j-lavaplayer-extensions:$facet_version")
 
@@ -34,7 +41,7 @@ dependencies {
     implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
 
-    val exposed_version = "0.31.+"
+    val exposed_version = "0.32.+"
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
@@ -43,11 +50,7 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "15"
-    }
-
-    build {
-        dependsOn(jib)
+        kotlinOptions.jvmTarget = "16"
     }
 
     incrementBuildMeta {
@@ -88,7 +91,12 @@ jib {
         creationTime = "USE_CURRENT_TIMESTAMP"
 
         afterEvaluate {
-            environment = mapOf("CODE_VERSION" to "$version")
+            environment = mapOf(
+                "CODE_VERSION" to "$version",
+                "CODE_ENV" to "test",
+                "BOT_NAME" to "SwagBot",
+                "DEFAULT_COMMAND_PREFIX" to "~"
+            )
         }
     }
 }

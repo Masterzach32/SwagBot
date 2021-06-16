@@ -12,8 +12,11 @@ import xyz.swagbot.extensions.*
 import java.util.*
 import java.util.concurrent.*
 
-class TrackScheduler(private val client: GatewayDiscordClient, shardInfo: ShardInfo, val player: AudioPlayer) :
-    AudioEventAdapter() {
+class TrackScheduler(
+    private val client: GatewayDiscordClient,
+    shardInfo: ShardInfo,
+    val player: AudioPlayer
+) : AudioEventAdapter() {
 
     val audioProvider = LPAudioProvider(player)
 
@@ -81,7 +84,7 @@ class TrackScheduler(private val client: GatewayDiscordClient, shardInfo: ShardI
         .filter { it.context.requesterId !in users }
         .onEach { _queue.remove(it) }
 
-    override fun onTrackStart(player: AudioPlayer?, track: AudioTrack?) {
+    override fun onTrackStart(player: AudioPlayer, track: AudioTrack) {
 
     }
 

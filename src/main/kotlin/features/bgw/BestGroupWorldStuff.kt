@@ -1,7 +1,6 @@
 package xyz.swagbot.features.bgw
 
 import discord4j.common.util.*
-import discord4j.core.*
 import discord4j.core.`object`.entity.*
 import discord4j.core.event.*
 import discord4j.core.event.domain.*
@@ -15,6 +14,7 @@ import io.facet.discord.event.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.*
 import xyz.swagbot.*
 import java.time.*
 import java.util.*
@@ -67,7 +67,7 @@ class BestGroupWorldStuff private constructor() {
             scope.listener<MemberUpdateEvent>(this) { event ->
                 suspend fun removeGayRole(event: MemberUpdateEvent, roleToRemove: Snowflake) {
                     delay(1000)
-                    val newRoles = event.currentRoles.filterNot { it.asLong() == roleToRemove.asLong() }
+                    val newRoles = event.currentRoleIds.filterNot { it.asLong() == roleToRemove.asLong() }
                     event.member.await().edit { spec ->
                         spec.setRoles(newRoles.toSet())
                     }.await()
@@ -76,11 +76,10 @@ class BestGroupWorldStuff private constructor() {
                 if (event.memberId.asLong() !in listOf(97341976214511616, 219554475055120384, 217065780078968833))
                     return@listener
 
-                if (event.currentRoles.contains(gayRoleId)) {
+                if (event.currentRoleIds.contains(gayRoleId)) {
                     removeGayRole(event, gayRoleId)
                 } else {
                     event.currentRoles.asFlow()
-                        .map { event.client.getRoleById(event.guildId, it).await() }
                         .firstOrNull { role ->
                             role.name.lowercase(Locale.getDefault()).let { name ->
                                 regexes.any { regex ->
@@ -131,9 +130,9 @@ class BestGroupWorldStuff private constructor() {
                 if (event.memberId.asLong() != 97486068630163456)
                     return@listener
 
-                if (!event.currentRoles.contains(gayRoleId)) {
+                if (!event.currentRoleIds.contains(gayRoleId)) {
                     delay(5000)
-                    val newRoles = event.currentRoles.apply {
+                    val newRoles = event.currentRoleIds.apply {
                         add(gayRoleId)
                     }
                     event.member.await().edit { spec ->

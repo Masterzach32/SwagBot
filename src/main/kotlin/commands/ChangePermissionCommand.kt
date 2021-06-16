@@ -2,6 +2,7 @@ package xyz.swagbot.commands
 
 import com.mojang.brigadier.arguments.StringArgumentType.*
 import discord4j.rest.util.*
+import io.facet.discord.appcommands.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
@@ -14,7 +15,7 @@ import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
 import xyz.swagbot.util.*
 
-object ChangePermissionCommand : ChatCommand(
+object ChangePermissionCommand : GuildApplicationCommand/*(
     name = "Change User Permissions",
     aliases = setOf("permission", "perm"),
     scope = Scope.GUILD,
@@ -24,9 +25,39 @@ object ChangePermissionCommand : ChatCommand(
         add("<member>", "View another member's permission level.")
         add("<permission> <members/roles..>", "Add the specified permission to the mentioned members.")
     }
-) {
+)*/ {
 
-    override fun DSLCommandNode<ChatCommandSource>.register() {
+    override val guildId = 97342233241464832.toSnowflake()
+
+    override val request = applicationCommandRequest("permissions", "Get or edit bot permissions for a server member") {
+        addSubCommand("get", "Get bot permissions for a server member") {
+            addOption("user", "The server member to get the bot permission for", ApplicationCommandOptionType.USER, false)
+        }
+        addSubCommand("set", "Edit the bot permissions for a server member") {
+            addOption("user", "The server member to edit", ApplicationCommandOptionType.USER, true)
+            addOption("permission", "The bot permission to set", ApplicationCommandOptionType.STRING, true) {
+                for (perm in PermissionType.allAvailable())
+                    addChoice(perm.codeName, "")
+            }
+        }
+    }
+
+    override suspend fun GuildInteractionContext.execute() {
+        when {
+            command.getOption("get").isPresent -> get()
+            command.getOption("set").isPresent -> set()
+        }
+    }
+
+    private suspend fun GuildInteractionContext.get() {
+
+    }
+
+    private suspend fun GuildInteractionContext.set() {
+
+    }
+
+    fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
             val perm = member.botPermission()
             message.reply("Your permission level is **$perm**")
