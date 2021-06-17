@@ -12,7 +12,7 @@ repositories {
     mavenCentral()
     mavenLocal()
     jcenter()
-    //maven("https://maven.masterzach32.net/artifactory/libraries/")
+    //maven("https://maven.masterzach32.net")
     maven("https://libraries.minecraft.net")
     maven("https://m2.dv8tion.net/releases")
 
@@ -77,12 +77,12 @@ jib {
             )
         }
 
-        val docker_username: String? by project
-        val docker_pass: String? by project
-        if (docker_username != null && docker_pass != null) {
+        val dockerUsername = findProperty("docker_username")?.toString()
+        val dockerPassword = findProperty("docker_pass")?.toString()
+        if (dockerUsername != null && dockerPassword != null) {
             auth {
-                username = docker_username
-                password = docker_pass
+                username = dockerUsername
+                password = dockerPassword
             }
         }
     }
@@ -92,6 +92,7 @@ jib {
 
         afterEvaluate {
             environment = mapOf(
+                "TZ" to "America/New_York",
                 "CODE_VERSION" to "$version",
                 "CODE_ENV" to "test",
                 "BOT_NAME" to "SwagBot",
