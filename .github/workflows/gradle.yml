@@ -2,11 +2,11 @@ name: Java CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ v3 ]
     tags-ignore:
       - '*.*'
   pull_request:
-    branches: [ master ]
+    branches: [ v3 ]
     types: [opened, synchronize, reopened]
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
     name: Publish container to Docker Hub
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
-    needs: test
+    needs: build
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2

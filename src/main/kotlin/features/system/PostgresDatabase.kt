@@ -48,9 +48,13 @@ class PostgresDatabase private constructor(val database: Database) {
                     Runtime.getRuntime().addShutdownHook(Thread {
                         logger.info("Received shutdown code from system, running shutdown tasks.")
                         runBlocking {
-                            feature.tasks.map { launch { it.invoke() } }.forEach { it.join() }
-                            BotScope.cancel()
-                            event.client.logout().await()
+                            launch {
+                                feature.tasks.map { launch { it.invoke() } }.forEach { it.join() }
+                                BotScope.cancel()
+                                event.client.logout().await()
+                            }
+                            delay(10_000)
+                            cancel("Shutdown tasks took too long, skipping.")
                         }
                         logger.info("Done.")
                     })
