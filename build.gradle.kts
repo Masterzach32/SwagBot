@@ -10,12 +10,8 @@ group = "xyz.swagbot"
 
 repositories {
     mavenCentral()
-    mavenLocal()
-    jcenter()
-    //maven("https://maven.masterzach32.net")
-    maven("https://libraries.minecraft.net")
+    maven("https://maven.masterzach32.net/artifactory/libraries")
     maven("https://m2.dv8tion.net/releases")
-
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://repo.spring.io/milestone")
 }
@@ -29,7 +25,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinx_coroutines_version")
 
-    val facet_version = "0.3.0-SNAPSHOT"
+    val facet_version = "0.3.0-PR.3-SNAPSHOT"
     implementation("io.facet:facet-d4j-commands:$facet_version")
     implementation("io.facet:facet-d4j-application-commands:$facet_version")
     implementation("io.facet:facet-d4j-exposed:$facet_version")
