@@ -2,7 +2,7 @@ name: Java CI
 
 on:
   push:
-    branches: [ v3 ]
+    branches: [ master, v3 ]
     tags-ignore:
       - '*.*'
   pull_request:
@@ -34,7 +34,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
   release:
-    name: Publish container to Docker Hub
+    name: Publish Image to Docker Hub
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     needs: build
@@ -53,7 +53,7 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 16
-      - name: Publish Container with Gradle
+      - name: Build and Publish Image
         run: ./gradlew jib
         env:
           ORG_GRADLE_PROJECT_docker_username: ${{ secrets.docker_username }}
