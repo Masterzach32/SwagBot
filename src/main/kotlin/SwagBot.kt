@@ -46,15 +46,15 @@ fun main() {
 }
 
 fun EventDispatcher.configure(scope: CoroutineScope) {
-    install(PostgresDatabase) {
+    install(scope, PostgresDatabase) {
         databaseName = EnvVars.POSTGRES_DB
         databaseUsername = EnvVars.POSTGRES_USER
         databasePassword = EnvVars.POSTGRES_PASSWORD
     }
 
-    install(GuildStorage)
+    install(scope, GuildStorage)
 
-    install(ChatCommands) {
+    install(scope, ChatCommands) {
         useDefaultHelpCommand = true
 
         commandPrefix { guildId -> feature(GuildStorage).commandPrefixFor(guildId) }
@@ -81,19 +81,19 @@ fun EventDispatcher.configure(scope: CoroutineScope) {
         )
     }
 
-    install(Music)
+    install(scope, Music)
 
-    install(BotPresence)
+    install(scope, BotPresence)
 
-    install(AutoAssignRole)
+    install(scope, AutoAssignRole)
 
-    install(ChatGames)
+    install(scope, ChatGames)
 
-    install(Market)
+    install(scope, Market)
 
-    install(BestGroupWorldStuff)
+    install(scope, BestGroupWorldStuff)
 
-    install(AmongUs)
+    install(scope, AmongUs)
 }
 
 fun GatewayDiscordClient.configure(scope: CoroutineScope) {
@@ -107,11 +107,11 @@ fun GatewayDiscordClient.configure(scope: CoroutineScope) {
         }
     }
 
-    install(Permissions) {
+    install(scope, Permissions) {
         developers = setOf(97341976214511616, 212311415455744000, 98200921950920704)
     }
 
-    install(ApplicationCommands) {
+    install(scope, ApplicationCommands) {
         registerCommand(
             ChangePermissionCommand,
             Ping,
@@ -131,4 +131,8 @@ fun GatewayDiscordClient.configure(scope: CoroutineScope) {
 //            restClient.applicationService.getGuildApplicationCommands(selfId.asLong(), 97342233241464832).await().toString()
 //        )
     }
+
+    //ApplicationCommandRequ{name=search, description=Search YouTube and select a video to play using reaction buttons., options=[ApplicationCommandOptionData{type=3, name=query, description=The search term to look up on YouTube., required=Possible{true}, choices=null, options=null}, ApplicationCommandOptionData{type=4, name=count, description=The number of results to show., required=Possible{false}, choices=[ApplicationCommandOptionChoiceData{name=Five results, value=5}, ApplicationCommandOptionChoiceData{name=Ten results, value=10}], options=null}], defaultPermission=Possible{true}}
+    //ApplicationCommandData{name=search, description=Search YouTube and select a video to play using reaction buttons., options=[ApplicationCommandOptionData{type=3, name=query, description=The search term to look up on YouTube., required=Possible{true}, choices=null, options=null}, ApplicationCommandOptionData{type=4, name=count, description=The number of results to show., required=Possible.absent, choices=[ApplicationCommandOptionChoiceData{name=Five results, value=5}, ApplicationCommandOptionChoiceData{name=Ten results, value=10}], options=null}], defaultPermission=Possible{true}}
+
 }

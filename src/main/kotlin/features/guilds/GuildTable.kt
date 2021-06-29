@@ -1,7 +1,7 @@
 package xyz.swagbot.features.guilds
 
 import discord4j.common.util.*
-import io.facet.discord.exposed.columns.*
+import io.facet.discord.exposed.*
 import org.jetbrains.exposed.sql.*
 
 object GuildTable : Table("guilds") {

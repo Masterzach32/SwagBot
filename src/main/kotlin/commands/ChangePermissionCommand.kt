@@ -42,18 +42,18 @@ object ChangePermissionCommand : GuildApplicationCommand/*(
         }
     }
 
-    override suspend fun GuildInteractionContext.execute() {
+    override suspend fun GuildSlashCommandContext.execute() {
         when {
-            command.getOption("get").isPresent -> get()
-            command.getOption("set").isPresent -> set()
+            event.getOption("get").isPresent -> get()
+            event.getOption("set").isPresent -> set()
         }
     }
 
-    private suspend fun GuildInteractionContext.get() {
+    private suspend fun GuildSlashCommandContext.get() {
 
     }
 
-    private suspend fun GuildInteractionContext.set() {
+    private suspend fun GuildSlashCommandContext.set() {
 
     }
 

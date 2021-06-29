@@ -27,7 +27,7 @@ class BestGroupWorldStuff private constructor() {
             scope: CoroutineScope,
             configuration: EmptyConfig.() -> Unit
         ): BestGroupWorldStuff {
-            scope.listener<MessageCreateEvent>(this) { event ->
+            listener<MessageCreateEvent>(scope) { event ->
                 val channel = event.message.channel.await()
                 val message = event.message
 
@@ -51,7 +51,7 @@ class BestGroupWorldStuff private constructor() {
                 }
             }
 
-            scope.listener<MessageCreateEvent>(this) { event ->
+            listener<MessageCreateEvent>(scope) { event ->
                 if (event.guildId.value == 97342233241464832.toSnowflake()) {
 
                 }
@@ -64,7 +64,7 @@ class BestGroupWorldStuff private constructor() {
             val regexes: List<Regex> = iAmNotWords
                 .map { it.toCharArray().joinToString(separator = delimiter).toRegex() }
 
-            scope.listener<MemberUpdateEvent>(this) { event ->
+            listener<MemberUpdateEvent>(scope) { event ->
                 suspend fun removeGayRole(event: MemberUpdateEvent, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = event.currentRoleIds.filterNot { it.asLong() == roleToRemove.asLong() }
@@ -92,7 +92,7 @@ class BestGroupWorldStuff private constructor() {
                 }
             }
 
-            scope.listener<ReadyEvent>(this) { event ->
+            listener<ReadyEvent>(scope) { event ->
                 suspend fun removeGayRole(member: Member, currentRoles: List<Role>, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = currentRoles.filterNot { it.id == roleToRemove }
@@ -126,7 +126,7 @@ class BestGroupWorldStuff private constructor() {
             }
 
             // add gay role to jack
-            scope.listener<MemberUpdateEvent>(this) { event ->
+            listener<MemberUpdateEvent>(scope) { event ->
                 if (event.memberId.asLong() != 97486068630163456)
                     return@listener
 
@@ -144,7 +144,7 @@ class BestGroupWorldStuff private constructor() {
             // disconnect joevanni and jack after an hour or so
             val ids = setOf(97486068630163456, 212311415455744000)
                 .map { it.toSnowflake() }
-            listener<VoiceStateUpdateEvent> { event ->
+            listener<VoiceStateUpdateEvent>(scope) { event ->
                 val vs = event.current
                 if (vs.guildId.asLong() != 97342233241464832 || vs.channelId.value == null)
                     return@listener
@@ -160,7 +160,7 @@ class BestGroupWorldStuff private constructor() {
                 val kickTime = LocalDateTime.now().plusSeconds(delay / 1000)
                 logger.info("${member.tag} will be disconnected at $kickTime")
                 launch {
-                    val cancellationListener = listener<VoiceStateUpdateEvent>(event.client) { event ->
+                    val cancellationListener = listener<VoiceStateUpdateEvent>(this) { event ->
                         if (event.current.userId == member.id && event.current.channelId.value == null) {
                             logger.info("${member.tag} left voice early, cancelling disconnect timer.")
                             this@launch.cancel()
@@ -168,7 +168,7 @@ class BestGroupWorldStuff private constructor() {
                     }
 
                     delay(delay)
-                    if (member.voiceState.awaitNullable()?.channelId?.value != null) {
+                    if (member.voiceState.awaitNullable()?.channelId?.unwrap() != null) {
                         cancellationListener.cancel("Completed.")
                         member.edit { it.setNewVoiceChannel(null) }.await()
                         logger.info("Disconnected ${member.tag} for being in voice too long.")
@@ -177,7 +177,7 @@ class BestGroupWorldStuff private constructor() {
                 }
             }
 
-            scope.listener<MessageCreateEvent>(this) { event ->
+            listener<MessageCreateEvent>(scope) { event ->
                 if (!event.guildId.map { it.asLong() == 97342233241464832 }.orElse(false))
                     return@listener
 

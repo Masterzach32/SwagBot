@@ -23,6 +23,7 @@ suspend fun VoiceChannel.join(): VoiceConnection = join {
             delay(10_000)
             if (memberCountThresholdMet()) {
                 connection.disconnect().await()
+                musicFeature.updateLastConnectedChannelFor(guildId, null)
                 this@main.cancel("Disconnecting from voice, no members left in channel.")
             }
         }
@@ -33,9 +34,13 @@ suspend fun VoiceChannel.join(): VoiceConnection = join {
                 when {
                     memberCountThresholdMet() -> {
                         connection.disconnect().await()
+                        musicFeature.updateLastConnectedChannelFor(guildId, null)
                         cancel("Disconnecting from voice, no members left in channel.")
                     }
-                    event.current.userId == client.selfId -> cancel("Bot was disconnected from voice.")
+                    event.current.userId == client.selfId -> {
+                        musicFeature.updateLastConnectedChannelFor(guildId, null)
+                        cancel("Bot was disconnected from voice.")
+                    }
                 }
             }
     }

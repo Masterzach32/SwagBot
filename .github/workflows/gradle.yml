@@ -2,17 +2,27 @@ name: Java CI
 
 on:
   push:
-    branches: [ master, v3 ]
+    branches:
+      - '**'
+    paths:
+      - '**.gradle*'
+      - '**.properties'
+      - '**/src/**'
+      - '.github/workflows/**'
     tags-ignore:
       - '*.*'
   pull_request:
-    branches: [ v3 ]
+    paths:
+      - '**.gradle*'
+      - '**.properties'
+      - '**/src/**'
     types: [opened, synchronize, reopened]
 
 jobs:
   build:
     name: Build for JVM ${{ matrix.java }}
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name != 'Masterzach32/SwagBot' }}
     strategy:
       matrix:
         java: [ 16 ]

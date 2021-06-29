@@ -44,7 +44,7 @@ class GuildStorage private constructor() {
             }
 
             return GuildStorage().apply {
-                listener<GuildCreateEvent> { event ->
+                listener<GuildCreateEvent>(scope) { event ->
                     if (!hasGuild(event.guild.id)) {
                         logger.info("New guild joined with id ${event.guild.id}, adding to database.")
                         sql {

@@ -238,12 +238,12 @@ class Music private constructor(config: Config) {
                 AudioSourceManagers.registerRemoteSources(audioPlayerManager)
                 AudioSourceManagers.registerLocalSource(audioPlayerManager)
 
-                listener<VoiceStateUpdateEvent> { event ->
+                listener<VoiceStateUpdateEvent>(scope) { event ->
                     if (event.current.userId == event.client.selfId)
-                        updateLastConnectedChannelFor(event.current.guildId, event.current.channelId.value)
+                        updateLastConnectedChannelFor(event.current.guildId, event.current.channelId.unwrap())
                 }
 
-                listener<GuildDeleteEvent> { event ->
+                listener<GuildDeleteEvent>(scope) { event ->
                     logger.info("Deinitializing guild: ${event.guildId}")
                     if (!event.isUnavailable)
                         deinitializeFor(event.guildId)

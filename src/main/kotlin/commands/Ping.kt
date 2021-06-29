@@ -7,7 +7,7 @@ object Ping : GlobalApplicationCommand {
 
     override val request = applicationCommandRequest("ping", "Ping the bot.")
 
-    override suspend fun GlobalInteractionContext.execute() {
+    override suspend fun GlobalSlashCommandContext.execute() {
         event.reply("Pong!").await()
     }
 }

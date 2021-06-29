@@ -1,7 +1,6 @@
 package xyz.swagbot.features.autoroles
 
 import discord4j.common.util.*
-import discord4j.core.*
 import discord4j.core.event.*
 import discord4j.core.event.domain.guild.*
 import io.facet.core.*
@@ -14,7 +13,6 @@ import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.*
 import xyz.swagbot.features.guilds.*
-import xyz.swagbot.features.system.*
 
 class AutoAssignRole private constructor() {
 
@@ -47,7 +45,7 @@ class AutoAssignRole private constructor() {
             runBlocking { sql { create(RolesTable) } }
 
             return AutoAssignRole().apply {
-                listener<MemberJoinEvent> { event ->
+                listener<MemberJoinEvent>(scope) { event ->
                     if (event.member.isBot)
                         return@listener // ignore bots
 

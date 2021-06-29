@@ -1,7 +1,7 @@
 package xyz.swagbot.features.permissions
 
 import discord4j.common.util.*
-import io.facet.discord.exposed.columns.*
+import io.facet.discord.exposed.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.`java-time`.*
 import xyz.swagbot.features.guilds.*

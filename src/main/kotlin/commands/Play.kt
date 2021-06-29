@@ -22,7 +22,7 @@ object Play : GlobalGuildApplicationCommand {
         )
     }
 
-    override suspend fun GuildInteractionContext.execute() {
+    override suspend fun GuildSlashCommandContext.execute() {
         val guild = getGuild()
 
         if (!guild.isPremium())
@@ -34,7 +34,7 @@ object Play : GlobalGuildApplicationCommand {
         acknowledge()
 
         val musicFeature = client.feature(Music)
-        val query = command.getOption("query").get().value.get().asString()
+        val query: String by options
         val item: AudioItem? = try {
             if ("http://" in query || "https://" in query)
                 musicFeature.searchItem(query)

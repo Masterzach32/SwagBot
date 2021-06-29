@@ -2,11 +2,12 @@
 plugins {
     kotlin("jvm") version "1.5.10"
     kotlin("plugin.serialization") version "1.5.0"
-    id("net.thauvin.erik.gradle.semver") version "1.0.4"
     id("com.google.cloud.tools.jib") version "3.1.1"
+    id("net.researchgate.release") version "2.8.1"
 }
 
 group = "xyz.swagbot"
+val isRelease = !version.toString().endsWith("-SNAPSHOT")
 
 repositories {
     mavenCentral()
@@ -17,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.discord4j:discord4j-core:3.2.0-SNAPSHOT")
+    implementation("com.discord4j:discord4j-core:3.2.0-GH.935-SNAPSHOT")
     implementation("com.sedmelluq:lavaplayer:1.3.+")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
@@ -46,12 +47,9 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = "16"
-    }
-
-    incrementBuildMeta {
-        doFirst {
-            buildMeta = (buildMeta.toInt() + 1).toString()
+        kotlinOptions {
+            jvmTarget = "16"
+            freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
         }
     }
 }
@@ -60,17 +58,40 @@ tasks {
 jib {
     from {
         image = "openjdk:16"
+
+        platforms {
+            platform {
+                architecture = "amd64"
+                os = "linux"
+            }
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
     }
 
     to {
         afterEvaluate {
             image = "zachkozar/swagbot:$version"
-            tags = setOf(
-                "latest",
-                "${semver.major}",
-                "${semver.major}.${semver.minor}",
-                "${semver.major}.${semver.minor}.${semver.patch}"
-            )
+
+            val imageTags = version.toString()
+                .substringBefore("-")
+                .split(".")
+                .fold(mutableSetOf<String>()) { tags, subVersion ->
+                    tags.apply {
+                        if (tags.isEmpty())
+                            tags.add(subVersion)
+                        else
+                            tags.add("${tags.last()}.$subVersion")
+                    }
+                }
+            imageTags.add("latest")
+            if (!isRelease)
+                imageTags.map { "$it-SNAPSHOT" }
+            if (isRelease)
+                imageTags.add("prod")
+            tags = imageTags
         }
 
         val dockerUsername = findProperty("docker_username")?.toString()

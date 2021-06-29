@@ -12,7 +12,7 @@ object VoteSkipCommand : GlobalGuildApplicationCommand {
 
     override val request = applicationCommandRequest("voteskip", "Vote to skip the playing track.")
 
-    override suspend fun GuildInteractionContext.execute() {
+    override suspend fun GuildSlashCommandContext.execute() {
         val guild = getGuild()
 
         if (!guild.isPremium())

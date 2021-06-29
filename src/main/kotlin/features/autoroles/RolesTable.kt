@@ -1,7 +1,7 @@
 package xyz.swagbot.features.autoroles
 
 import discord4j.common.util.*
-import io.facet.discord.exposed.columns.*
+import io.facet.discord.exposed.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.features.guilds.*
 
