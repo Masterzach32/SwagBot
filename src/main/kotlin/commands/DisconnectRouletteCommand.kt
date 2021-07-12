@@ -1,26 +1,24 @@
 package xyz.swagbot.commands
 
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
+import io.facet.discord.appcommands.*
+import io.facet.discord.appcommands.extensions.*
 import io.facet.discord.extensions.*
 
-object DisconnectRouletteCommand : ChatCommand(
-    name = "Disconnect Roulette",
-    aliases = setOf("droulette"),
-    scope = Scope.GUILD,
-    category = "bgw"
-) {
+object DisconnectRouletteCommand : GlobalGuildApplicationCommand {
 
-    override fun DSLCommandNode<ChatCommandSource>.register() {
-        runs {
-            val connectedMembers = member.getConnectedVoiceChannel()?.getConnectedMembers() ?: return@runs
+    override val request = applicationCommandRequest("droulette", "Disconnect a random user from your voice channel.")
 
-            connectedMembers.random().let { member ->
-                member.edit()
-                    .withNewVoiceChannelOrNull(null)
-                    .await()
-                message.reply("The roulette has chosen **${member.displayName}**!")
+    override suspend fun GuildSlashCommandContext.execute() {
+        acknowledge()
+        val connectedMembers = member.getConnectedVoiceChannel()?.getConnectedMembers() ?: return
+
+        connectedMembers.random().let { member ->
+            member.edit()
+                .withNewVoiceChannelOrNull(null)
+                .await()
+
+            event.interactionResponse.sendFollowupMessage {
+                content = "The roulette has chosen **${member.displayName}**!"
             }
         }
     }

@@ -67,7 +67,6 @@ suspend fun EventDispatcher.configure(scope: CoroutineScope) {
             ChangePrefixCommand,
             Clear,
             Crewlink,
-            DisconnectRouletteCommand,
             DogCommand,
             InfoCommand,
             JoinCommand,
@@ -116,6 +115,7 @@ suspend fun GatewayDiscordClient.configure(scope: CoroutineScope) {
     install(scope, ApplicationCommands) {
         registerCommand(
             ChangePermissionCommand,
+            DisconnectRouletteCommand,
             MigrateCommand,
             Ping,
             Play,
