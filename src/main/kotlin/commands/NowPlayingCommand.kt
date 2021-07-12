@@ -1,10 +1,10 @@
 package xyz.swagbot.commands
 
 import com.sedmelluq.discord.lavaplayer.track.*
-import discord4j.core.`object`.entity.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.dsl.*
 import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.music.*
@@ -32,7 +32,7 @@ object NowPlayingCommand : ChatCommand(
                     .getMemberById(guildId!!, playingTrack.context.requesterId)
                     .awaitNullable()
                 val volume = musicFeature.getVolumeFor(guildId!!)
-                message.reply(baseTemplate.andThen {
+                message.reply(baseTemplate.and {
                     title = ":musical_note: | Now Playing"
 
                     description = "${playingTrack.info.boldFormattedTitleWithLink} - " +

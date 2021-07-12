@@ -1,13 +1,12 @@
 package xyz.swagbot.commands
 
 import discord4j.core.`object`.component.*
-import discord4j.core.event.domain.interaction.*
 import discord4j.core.event.domain.message.*
 import discord4j.discordjson.json.*
 import discord4j.rest.util.*
-import io.facet.core.extensions.*
 import io.facet.discord.appcommands.*
 import io.facet.discord.appcommands.extensions.*
+import io.facet.discord.dsl.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -44,7 +43,7 @@ object YouTubeSearch : GlobalGuildApplicationCommand {
         val channel = getChannel()
         val guild = getGuild()
         if (!guild.isPremium()) {
-            return event.replyEphemeral("Music is a premium feature of SwagBot").await()
+            return event.reply("Music is a premium feature of SwagBot").withEphemeral(true).await()
         }
 
         acknowledge()
@@ -73,7 +72,7 @@ object YouTubeSearch : GlobalGuildApplicationCommand {
                 .map { ActionRow.of(it).data } + ActionRow.of(Button.secondary("cancel", "Cancel")).data
 
         val resultsMessageRequest: MultipartRequest<WebhookExecuteRequest> =
-            MultipartRequest.ofRequest(WebhookExecuteRequest.builder().addEmbed(baseTemplate.andThen {
+            MultipartRequest.ofRequest(WebhookExecuteRequest.builder().addEmbed(baseTemplate.and {
                 title = "YouTube Search Result"
                 val list = results
                     .mapIndexed { i, track -> "${i + 1}. ${track.info.boldFormattedTitleWithLink}" }
@@ -93,13 +92,23 @@ object YouTubeSearch : GlobalGuildApplicationCommand {
                 .onEach { cancel("Search results message was deleted.") }
                 .launchIn(this)
 
-            client.flowOf<ButtonInteractEvent>()
-                .filter { it.interaction.message.unwrap()?.id == resultMessage.id }
+            val buttonEvents = resultMessage.buttonEvents
+
+            buttonEvents
+                .filter { it.interaction.user.id != user.id }
+                .onEach { buttonEvent ->
+                    buttonEvent.reply("You cannot choose a track on someone else's interaction!")
+                        .withEphemeral(true)
+                        .await()
+                }
+                .launchIn(this)
+
+            buttonEvents
+                .filter { it.interaction.user.id == user.id }
                 .take(1)
-                .onEach { buttonEvent -> buttonEvent.edit { it.setComponents(emptyList()) }.await() }
+                .onEach { buttonEvent -> buttonEvent.edit().withComponents(emptyList()).await() }
                 .filter { it.customId != "cancel" }
                 .collect { buttonEvent ->
-                    buttonEvent.edit { it.setComponents(emptyList()) }.await()
                     val choice = buttonEvent.customId.toInt()
                     val trackScheduler = music.trackSchedulerFor(guildId)
                     val track = results[choice-1].also { track ->

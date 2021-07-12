@@ -1,13 +1,14 @@
 package xyz.swagbot.features.music
 
 import com.sedmelluq.discord.lavaplayer.track.*
+import discord4j.core.spec.*
 import io.facet.discord.dsl.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.util.*
 
 fun notPremiumTemplate(
     prefixUsed: String
-): MessageTemplate = message {
+): MessageCreateSpec = message {
     content = "Music commands are a premium feature of SwagBot. Type `${prefixUsed}premium` to learn more."
 }
 
@@ -15,7 +16,7 @@ fun trackRequestedTemplate(
     requesterName: String,
     track: AudioTrack,
     timeUntilPlayed: Long = 0
-): EmbedTemplate = baseTemplate.andThen {
+): EmbedCreateSpec = baseTemplate.and {
     title = ":musical_note: | Track requested by $requesterName"
     description = """
         **[${track.info.title}](${track.info.uri})**
@@ -34,7 +35,7 @@ fun trackSkippedTemplate(
     requesterName: String,
     track: AudioTrack,
     nextTrack: AudioTrack?
-): EmbedTemplate = baseTemplate.andThen {
+): EmbedCreateSpec = baseTemplate.and {
     title = ":track_next: | Track skipped by $requesterName"
     description = """
         ${track.info.boldFormattedTitleWithLink}

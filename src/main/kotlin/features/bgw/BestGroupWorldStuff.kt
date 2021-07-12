@@ -23,7 +23,7 @@ class BestGroupWorldStuff private constructor() {
 
     companion object : EventDispatcherFeature<EmptyConfig, BestGroupWorldStuff>("bgw") {
 
-        override fun EventDispatcher.install(
+        override suspend fun EventDispatcher.install(
             scope: CoroutineScope,
             configuration: EmptyConfig.() -> Unit
         ): BestGroupWorldStuff {
@@ -39,7 +39,7 @@ class BestGroupWorldStuff private constructor() {
 
                 if (message.author.map { !it.isBot }.orElse(false) &&
                     event.guildId.map { it.asLong() == 97342233241464832 }.orElse(false) &&
-                    message.content.toLowerCase().contains("sir")) {
+                    message.content.lowercase().contains("sir")) {
                     message.reply("**${event.member.get().mention} I'LL SHOW YOU SIR**")
                 }
 
@@ -52,7 +52,7 @@ class BestGroupWorldStuff private constructor() {
             }
 
             listener<MessageCreateEvent>(scope) { event ->
-                if (event.guildId.value == 97342233241464832.toSnowflake()) {
+                if (event.guildId.unwrap() == 97342233241464832.toSnowflake()) {
 
                 }
             }
@@ -68,9 +68,9 @@ class BestGroupWorldStuff private constructor() {
                 suspend fun removeGayRole(event: MemberUpdateEvent, roleToRemove: Snowflake) {
                     delay(1000)
                     val newRoles = event.currentRoleIds.filterNot { it.asLong() == roleToRemove.asLong() }
-                    event.member.await().edit { spec ->
-                        spec.setRoles(newRoles.toSet())
-                    }.await()
+                    event.member.await().edit()
+                        .withRoles(newRoles.toSet())
+                        .await()
                 }
 
                 if (event.memberId.asLong() !in listOf(97341976214511616, 219554475055120384, 217065780078968833))
@@ -98,9 +98,9 @@ class BestGroupWorldStuff private constructor() {
                     val newRoles = currentRoles.filterNot { it.id == roleToRemove }
                         .map { it.id }
                         .toSet()
-                    member.edit { spec ->
-                        spec.setRoles(newRoles.toSet())
-                    }.await()
+                    member.edit()
+                        .withRoles(newRoles.toSet())
+                        .await()
                 }
 
                 val member = event.client.getMemberById(
@@ -114,7 +114,7 @@ class BestGroupWorldStuff private constructor() {
                 } else {
                     currentRoles.asFlow()
                         .firstOrNull { role ->
-                            role.name.toLowerCase().let { name ->
+                            role.name.lowercase().let { name ->
                                 regexes.any { regex ->
                                     //println("$name: ${regex.find(name)} ${name matches regex}")
                                     regex.find(name) != null
@@ -135,9 +135,9 @@ class BestGroupWorldStuff private constructor() {
                     val newRoles = event.currentRoleIds.apply {
                         add(gayRoleId)
                     }
-                    event.member.await().edit { spec ->
-                        spec.setRoles(newRoles.toSet())
-                    }.await()
+                    event.member.await().edit()
+                        .withRoles(newRoles.toSet())
+                        .await()
                 }
             }
 
@@ -146,10 +146,10 @@ class BestGroupWorldStuff private constructor() {
                 .map { it.toSnowflake() }
             listener<VoiceStateUpdateEvent>(scope) { event ->
                 val vs = event.current
-                if (vs.guildId.asLong() != 97342233241464832 || vs.channelId.value == null)
+                if (vs.guildId.asLong() != 97342233241464832 || vs.channelId.unwrap() == null)
                     return@listener
 
-                if (event.old.value?.channelId?.value != null)
+                if (event.old.unwrap()?.channelId?.unwrap() != null)
                     return@listener
 
                 if (!ids.contains(vs.userId))
@@ -170,7 +170,7 @@ class BestGroupWorldStuff private constructor() {
                     delay(delay)
                     if (member.voiceState.awaitNullable()?.channelId?.unwrap() != null) {
                         cancellationListener.cancel("Completed.")
-                        member.edit { it.setNewVoiceChannel(null) }.await()
+                        member.edit().withNewVoiceChannelOrNull(null).await()
                         logger.info("Disconnected ${member.tag} for being in voice too long.")
                     } else
                         logger.info("Could not disconnect ${member.tag} because they left voice.")

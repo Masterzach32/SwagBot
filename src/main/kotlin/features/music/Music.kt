@@ -225,10 +225,8 @@ class Music private constructor(config: Config) {
         requiredFeatures = listOf(PostgresDatabase, GuildStorage, ChatCommands)
     ) {
 
-        override fun EventDispatcher.install(scope: CoroutineScope, configuration: Config.() -> Unit): Music {
-            runBlocking {
-                sql { create(MusicSettings, MusicQueue) }
-            }
+        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: Config.() -> Unit): Music {
+            sql { create(MusicSettings, MusicQueue) }
 
             return Music(Config().apply(configuration)).apply {
                 audioPlayerManager.configuration.frameBufferFactory = AudioFrameBufferFactory { a, b, c ->
@@ -259,7 +257,12 @@ class Music private constructor(config: Config) {
                 }
 
                 feature(PostgresDatabase).addShutdownTask {
-                    schedulers.keys.toList().forEach { deinitializeFor(it) }
+                    coroutineScope {
+                        schedulers.keys.toList()
+                            .forEach {
+                                launch { deinitializeFor(it) }
+                            }
+                    }
 
                     audioPlayerManager.shutdown()
                 }

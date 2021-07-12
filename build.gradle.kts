@@ -18,7 +18,8 @@ repositories {
 }
 
 dependencies {
-    implementation("com.discord4j:discord4j-core:3.2.0-GH.935-SNAPSHOT")
+    implementation("com.discord4j:discord4j-core:3.2.0-SNAPSHOT")
+    implementation("com.sedmelluq:lavaplayer-natives-extra:1.3.+")
     implementation("com.sedmelluq:lavaplayer:1.3.+")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
@@ -26,7 +27,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinx_coroutines_version")
 
-    val facet_version = "0.3.0-PR.3-SNAPSHOT"
+    val facet_version = "0.3.0-SNAPSHOT"
     implementation("io.facet:facet-d4j-commands:$facet_version")
     implementation("io.facet:facet-d4j-application-commands:$facet_version")
     implementation("io.facet:facet-d4j-exposed:$facet_version")

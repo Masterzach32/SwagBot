@@ -38,10 +38,11 @@ class GuildStorage private constructor() {
 
     companion object : EventDispatcherFeature<EmptyConfig, GuildStorage>("guildStorage") {
 
-        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): GuildStorage {
-            runBlocking {
-                sql { create(GuildTable) }
-            }
+        override suspend fun EventDispatcher.install(
+            scope: CoroutineScope,
+            configuration: EmptyConfig.() -> Unit
+        ): GuildStorage {
+            sql { create(GuildTable) }
 
             return GuildStorage().apply {
                 listener<GuildCreateEvent>(scope) { event ->

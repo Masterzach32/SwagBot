@@ -5,6 +5,7 @@ import discord4j.rest.util.*
 import io.facet.core.extensions.*
 import io.facet.discord.appcommands.*
 import io.facet.discord.appcommands.extensions.*
+import io.facet.discord.dsl.*
 import io.facet.discord.extensions.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.music.*
@@ -26,10 +27,10 @@ object Play : GlobalGuildApplicationCommand {
         val guild = getGuild()
 
         if (!guild.isPremium())
-            return event.replyEphemeral("Music is a premium feature of SwagBot").await()
+            return event.reply("Music is a premium feature of SwagBot").withEphemeral(true).await()
 
         if (member.voiceState.awaitNullable()?.channelId?.unwrap() == null)
-            return event.replyEphemeral("You must be in a voice channel to add music to the queue!").await()
+            return event.reply("You must be in a voice channel to add music to the queue!").withEphemeral(true).await()
 
         acknowledge()
 
@@ -72,7 +73,7 @@ object Play : GlobalGuildApplicationCommand {
                         track.setTrackContext(member, getChannel())
                         scheduler.queue(track)
 
-                        createFollowupMessage(
+                        event.interactionResponse.sendFollowupMessage(
                             trackRequestedTemplate(
                                 member.displayName,
                                 track,
@@ -89,13 +90,15 @@ object Play : GlobalGuildApplicationCommand {
                         scheduler.queue(track)
                     }
 
-                    createFollowupMessage(baseTemplate.andThen {
-                        title = ":musical_note: | Playlist requested by ${member.displayName}"
-                        description = """
+                    event.interactionResponse.sendFollowupMessage(
+                        baseTemplate.and {
+                            title = ":musical_note: | Playlist requested by ${member.displayName}"
+                            description = """
                                 **${item.name}**
                                 ${item.tracks.size} Tracks
                             """.trimIndent().trim()
-                    })
+                        }
+                    )
                     if (getGuild().getConnectedVoiceChannel() == null)
                         member.getConnectedVoiceChannel()?.join()
                 }

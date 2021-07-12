@@ -1,6 +1,5 @@
 package xyz.swagbot.features
 
-import discord4j.core.*
 import discord4j.core.`object`.entity.*
 import discord4j.core.`object`.entity.channel.*
 import discord4j.core.event.*
@@ -25,16 +24,16 @@ class AmongUs {
     }
 
     suspend fun setChannelCode(channel: VoiceChannel, code: String) {
-        channel.edit {
-            it.setName("($code) Innersloth")
-        }.awaitComplete()
+        channel.edit()
+            .withName("($code) Innersloth")
+            .awaitComplete()
     }
 
     suspend fun resetChannelName(channel: VoiceChannel) {
         if (channel.name.startsWith("(")) {
-            channel.edit {
-                it.setName(channel.name.substring(8 until channel.name.length))
-            }.awaitComplete()
+            channel.edit()
+                .withName(channel.name.substring(8 until channel.name.length))
+                .awaitComplete()
         }
     }
 
@@ -43,9 +42,9 @@ class AmongUs {
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
 
-        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): AmongUs {
+        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): AmongUs {
             return AmongUs().also { feature ->
-                scope.listener<PresenceUpdateEvent>(this) { event ->
+                listener<PresenceUpdateEvent>(scope) { event ->
                     val member = event.member.await()
                     if (event.guildId.asLong() != 97342233241464832 || member.isBot)
                         return@listener
@@ -54,10 +53,10 @@ class AmongUs {
                     val voiceChannel = voiceState?.channel?.awaitNullable()
                     if (voiceChannel?.id?.asLong() == 765385808151969804) {
                         val amongUsActivity = event.current.activities.firstOrNull { activity ->
-                            activity.applicationId.value?.asLong() == 477175586805252107
+                            activity.applicationId.unwrap()?.asLong() == 477175586805252107
                         }
                         if (amongUsActivity != null) {
-                            val joinCode = amongUsActivity.partyId.value
+                            val joinCode = amongUsActivity.partyId.unwrap()
                             val partySize = amongUsActivity.currentPartySize.orElse(0)
                             if (joinCode != null && feature.sentCodes.add(joinCode) && partySize == 1L) {
                                 launch { feature.setChannelCode(voiceChannel, joinCode) }
@@ -72,11 +71,11 @@ class AmongUs {
                     }
                 }
 
-                scope.listener<VoiceStateUpdateEvent>(this) { event ->
+                listener<VoiceStateUpdateEvent>(scope) { event ->
                     if (event.current.guildId.asLong() != 97342233241464832)
                         return@listener
 
-                    val voiceChannel = event.old.value?.channel?.awaitNullable()
+                    val voiceChannel = event.old.unwrap()?.channel?.awaitNullable()
                     if (voiceChannel?.id?.asLong() == 765385808151969804)
                         if (voiceChannel.voiceStates.asFlow().count() == 0)
                             feature.resetChannelName(voiceChannel)

@@ -41,8 +41,8 @@ class AutoAssignRole private constructor() {
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
 
-        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): AutoAssignRole {
-            runBlocking { sql { create(RolesTable) } }
+        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): AutoAssignRole {
+            sql { create(RolesTable) }
 
             return AutoAssignRole().apply {
                 listener<MemberJoinEvent>(scope) { event ->

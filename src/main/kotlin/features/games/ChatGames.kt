@@ -12,7 +12,10 @@ class ChatGames {
         requiredFeatures = emptyList()
     ) {
 
-        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): ChatGames {
+        override suspend fun EventDispatcher.install(
+            scope: CoroutineScope,
+            configuration: EmptyConfig.() -> Unit
+        ): ChatGames {
             return ChatGames()
         }
     }

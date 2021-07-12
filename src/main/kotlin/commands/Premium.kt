@@ -3,6 +3,7 @@ package xyz.swagbot.commands
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.dsl.*
 import io.facet.discord.extensions.*
 import xyz.swagbot.*
 import xyz.swagbot.util.*
@@ -14,7 +15,7 @@ object Premium : ChatCommand(
     description = "Learn more about ${EnvVars.BOT_NAME} premium, as well as see premium status in this server."
 ) {
 
-    private val template = baseTemplate.andThen {
+    private val template = baseTemplate.and {
         title = "${EnvVars.BOT_NAME} Premium"
 
         description = ""

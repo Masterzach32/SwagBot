@@ -13,7 +13,7 @@ class BotPresence private constructor() {
         requiredFeatures = listOf(Music)
     ) {
 
-        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): BotPresence {
+        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): BotPresence {
             return BotPresence()
         }
     }

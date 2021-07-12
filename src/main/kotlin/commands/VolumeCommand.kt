@@ -21,7 +21,7 @@ object VolumeCommand : GlobalGuildApplicationCommand {
     private suspend fun GuildSlashCommandContext.getVolume() {
         val guild = getGuild()
         if (!guild.isPremium()) {
-            return event.replyEphemeral("Music is a premium feature of SwagBot").await()
+            return event.reply("Music is a premium feature of SwagBot").withEphemeral(true).await()
         }
 
         val volume = guild.getVolume()

@@ -13,7 +13,7 @@ class Stats {
         requiredFeatures = listOf(ChatCommands)
     ) {
 
-        override fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): Stats {
+        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): Stats {
             return Stats().also { feature ->
 
             }

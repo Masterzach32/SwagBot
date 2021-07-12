@@ -16,23 +16,23 @@ object VoteSkipCommand : GlobalGuildApplicationCommand {
         val guild = getGuild()
 
         if (!guild.isPremium())
-            return event.replyEphemeral("Music is a premium feature of SwagBot").await()
+            return event.reply("Music is a premium feature of SwagBot").withEphemeral(true).await()
 
         val voiceChannel = guild.getConnectedVoiceChannel()
-            ?: return event.replyEphemeral("Cannot vote to skip as there is nothing playing!").await()
+            ?: return event.reply("Cannot vote to skip as there is nothing playing!").withEphemeral(true).await()
 
         val memberVs = member.voiceState.await()
         if (memberVs.channelId.map { it != voiceChannel.id }.orElse(true))
-            return event.replyEphemeral("You must be in ${voiceChannel.name} to vote skip!").await()
+            return event.reply("You must be in ${voiceChannel.name} to vote skip!").withEphemeral(true).await()
 
         val trackScheduler = guild.trackScheduler
         val trackToSkip = trackScheduler.player.playingTrack
-            ?: return event.replyEphemeral("Cannot vote to skip as there is nothing playing!").await()
+            ?: return event.reply("Cannot vote to skip as there is nothing playing!").withEphemeral(true).await()
 
         val successfulVote = trackToSkip.context.addSkipVote(member.id)
 
         if (!successfulVote)
-            return event.replyEphemeral("You have already voted to skip this track.").await()
+            return event.reply("You have already voted to skip this track.").withEphemeral(true).await()
 
         acknowledge()
 
@@ -41,13 +41,15 @@ object VoteSkipCommand : GlobalGuildApplicationCommand {
 
         if (voteThreshold <= 0) {
             trackScheduler.playNext()
-            createFollowupMessage(
-                trackSkippedTemplate(
-                    member.displayName,
-                    trackToSkip,
-                    guild.trackScheduler.player.playingTrack
+            event.interactionResponse.sendFollowupMessage {
+                embed(
+                    trackSkippedTemplate(
+                        member.displayName,
+                        trackToSkip,
+                        guild.trackScheduler.player.playingTrack
+                    )
                 )
-            )
+            }
         } else {
             val skipCount = trackToSkip.context.skipVoteCount
             val majority = ((connectedMembers - 1) / 2.0).roundToInt()

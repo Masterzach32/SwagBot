@@ -24,7 +24,7 @@ class PostgresDatabase private constructor(val database: Database) {
 
     companion object : EventDispatcherFeature<Config, PostgresDatabase>("postgres") {
 
-        override fun EventDispatcher.install(
+        override suspend fun EventDispatcher.install(
             scope: CoroutineScope,
             configuration: Config.() -> Unit
         ): PostgresDatabase {
@@ -44,17 +44,22 @@ class PostgresDatabase private constructor(val database: Database) {
             logger.info("Connected to postgres database.")
 
             return PostgresDatabase(database).also { feature ->
-                listener<ReadyEvent> { event ->
+                listener<ReadyEvent>(scope) { event ->
                     Runtime.getRuntime().addShutdownHook(Thread {
                         logger.info("Received shutdown code from system, running shutdown tasks.")
-                        runBlocking {
-                            launch {
-                                feature.tasks.map { launch { it.invoke() } }.forEach { it.join() }
-                                BotScope.cancel()
-                                event.client.logout().await()
+                        try {
+                            runBlocking {
+                                launch {
+                                    feature.tasks.map { launch { it.invoke() } }.forEach { it.join() }
+                                    BotScope.cancel()
+                                    event.client.logout().await()
+                                    this@runBlocking.cancel("Shutdown tasks complete.")
+                                }
+                                delay(10_000)
+                                cancel("Shutdown tasks took too long, skipping.")
                             }
-                            delay(10_000)
-                            cancel("Shutdown tasks took too long, skipping.")
+                        } catch (e: CancellationException) {
+                            logger.info(e.message)
                         }
                         logger.info("Done.")
                     })

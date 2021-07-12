@@ -20,7 +20,7 @@ object Prune : GlobalGuildApplicationCommand, PermissibleApplicationCommand {
         val channel = getChannel()
 
         if (count !in 2..100)
-            return event.replyEphemeral("`count` must be between 2 and 100.").await()
+            return event.reply("`count` must be between 2 and 100.").withEphemeral(true).await()
 
         event.acknowledgeEphemeral().await()
 

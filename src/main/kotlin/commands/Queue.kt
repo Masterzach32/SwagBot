@@ -8,15 +8,14 @@ import discord4j.core.event.domain.message.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.dsl.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*
-import xyz.swagbot.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.music.*
 import xyz.swagbot.util.*
-import kotlin.time.*
 
 object Queue : ChatCommand(
     name = "View Queue",
@@ -80,8 +79,8 @@ object Queue : ChatCommand(
                         endRight -> currentPage = maxPage
                     }
                     if (currentPage in 0..maxPage) {
-                        queueMessage.edit {
-                            it.setEmbed(
+                        queueMessage.edit()
+                            .withEmbeds(
                                 queueEmbed(
                                     scheduler.player.playingTrack,
                                     queue,
@@ -92,7 +91,7 @@ object Queue : ChatCommand(
                                     scheduler.queueTimeLeft
                                 )
                             )
-                        }.await()
+                            .await()
                     } else {
                         when {
                             currentPage > maxPage -> currentPage = maxPage
@@ -143,7 +142,7 @@ object Queue : ChatCommand(
         loop: Boolean,
         paused: Boolean,
         queueLength: Long,
-    ) = baseTemplate.andThen {
+    ) = baseTemplate.and {
         title = ":musical_note: | Track Queue"
 
         val startIndex = page * 10

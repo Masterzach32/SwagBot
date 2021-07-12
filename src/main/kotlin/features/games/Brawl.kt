@@ -1,6 +1,7 @@
 package xyz.swagbot.features.games
 
 import discord4j.core.`object`.entity.*
+import io.facet.discord.dsl.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.channels.*
 import xyz.swagbot.*
@@ -14,7 +15,7 @@ class Brawl(game: Game) : Game by game {
         logger.info("Fight starting in 20 seconds.")
         ticker.receive()
         if (players.size <= 1) {
-            channel.sendEmbed(errorTemplate.andThen {
+            channel.sendMessage(errorTemplate.and {
                 description = "The brawl failed to start because not enough players joined!"
             })
             return

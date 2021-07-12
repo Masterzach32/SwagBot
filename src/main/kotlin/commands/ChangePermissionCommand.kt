@@ -6,6 +6,7 @@ import io.facet.discord.appcommands.*
 import io.facet.discord.commands.*
 import io.facet.discord.commands.dsl.*
 import io.facet.discord.commands.extensions.*
+import io.facet.discord.dsl.*
 import io.facet.discord.exposed.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
@@ -115,7 +116,7 @@ object ChangePermissionCommand : GuildApplicationCommand/*(
                             .filter { (memberToUpdate, _) -> memberToUpdate.updateBotPermission(permission, member) }
                             .toList()
 
-                        message.reply(baseTemplate.andThen {
+                        message.reply(baseTemplate.and {
                             description = "Updated the following permissions:"
                             membersUpdated.forEach { (member, oldPerm) ->
                                 field(member.tag, "$oldPerm->$permission", true)

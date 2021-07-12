@@ -11,6 +11,7 @@ import discord4j.gateway.intent.*
 import discord4j.rest.response.*
 import io.facet.discord.appcommands.*
 import io.facet.discord.commands.*
+import io.facet.discord.dsl.*
 import io.facet.discord.event.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
@@ -41,11 +42,12 @@ fun main() {
         .setSharding(ShardingStrategy.recommended())
         .setInitialPresence { ClientPresence.online(ClientActivity.listening("~help")) }
         .withPlugins(EventDispatcher::configure)
-        .withFeatures(GatewayDiscordClient::configure)
+        .withPlugins(GatewayDiscordClient::configure)
         .block()
 }
 
-fun EventDispatcher.configure(scope: CoroutineScope) {
+@OptIn(ObsoleteCoroutinesApi::class)
+suspend fun EventDispatcher.configure(scope: CoroutineScope) {
     install(scope, PostgresDatabase) {
         databaseName = EnvVars.POSTGRES_DB
         databaseUsername = EnvVars.POSTGRES_USER
@@ -72,13 +74,16 @@ fun EventDispatcher.configure(scope: CoroutineScope) {
             LeaveCommand,
             LeaverClear,
             LmgtfyCommand,
-            MigrateCommand,
             NowPlayingCommand,
             PauseResumeCommand,
             Premium,
             Queue,
             SkipCommand,
         )
+    }
+
+    install(scope, Permissions) {
+        developers = setOf(97341976214511616, 212311415455744000, 98200921950920704)
     }
 
     install(scope, Music)
@@ -96,24 +101,22 @@ fun EventDispatcher.configure(scope: CoroutineScope) {
     install(scope, AmongUs)
 }
 
-fun GatewayDiscordClient.configure(scope: CoroutineScope) {
+@OptIn(ObsoleteCoroutinesApi::class)
+suspend fun GatewayDiscordClient.configure(scope: CoroutineScope) {
     listener<MessageCreateEvent>(scope) { event ->
         if (event.message.userMentionIds.contains(selfId)) {
             val prefix = commandPrefixFor(null)
-            event.message.reply(baseTemplate.andThen {
+            event.message.reply(baseTemplate.and {
                 description = "Hi **${event.message.author.get().username}**! My command prefix is `$prefix`. To " +
                     "learn more about me, type `${prefix}info`, and to see my commands, type `${prefix}help`."
             })
         }
     }
 
-    install(scope, Permissions) {
-        developers = setOf(97341976214511616, 212311415455744000, 98200921950920704)
-    }
-
     install(scope, ApplicationCommands) {
         registerCommand(
             ChangePermissionCommand,
+            MigrateCommand,
             Ping,
             Play,
             Prune,

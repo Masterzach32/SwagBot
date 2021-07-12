@@ -41,7 +41,7 @@ object BringCommand : ChatCommand(
                 launch {
                     guild.voiceStates.asFlow()
                         .filter { it.channelId.isPresent }
-                        .map { vs -> vs.member.await().edit { it.setNewVoiceChannel(channelToBring.id) } }
+                        .map { vs -> vs.member.await().edit().withNewVoiceChannelOrNull(channelToBring.id) }
                         .buffer(100)
                         .collect {
                             it.await()
