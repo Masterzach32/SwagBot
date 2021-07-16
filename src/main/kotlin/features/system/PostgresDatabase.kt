@@ -9,6 +9,7 @@ import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.*
+import kotlin.concurrent.*
 
 class PostgresDatabase private constructor(val database: Database) {
 
@@ -30,9 +31,9 @@ class PostgresDatabase private constructor(val database: Database) {
         ): PostgresDatabase {
             val config = Config().apply(configuration)
 
-            val database = runBlocking {
-                retry(3, 2000) {
-                    logger.info("Attempting connection to database.")
+            val database = retry(3, 2000) {
+                logger.info("Attempting connection to database.")
+                withContext(Dispatchers.IO) {
                     Database.connect(
                         "jdbc:postgresql://postgres:5432/${config.databaseName}",
                         "org.postgresql.Driver",
@@ -45,7 +46,7 @@ class PostgresDatabase private constructor(val database: Database) {
 
             return PostgresDatabase(database).also { feature ->
                 listener<ReadyEvent>(scope) { event ->
-                    Runtime.getRuntime().addShutdownHook(Thread {
+                    Runtime.getRuntime().addShutdownHook(thread(start = false) {
                         logger.info("Received shutdown code from system, running shutdown tasks.")
                         try {
                             runBlocking {

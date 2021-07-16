@@ -1,6 +1,7 @@
 package xyz.swagbot.features.bgw
 
 import discord4j.common.util.*
+import discord4j.core.`object`.audit.*
 import discord4j.core.`object`.entity.*
 import discord4j.core.event.*
 import discord4j.core.event.domain.*
@@ -11,10 +12,12 @@ import io.facet.core.*
 import io.facet.core.extensions.*
 import io.facet.discord.*
 import io.facet.discord.event.*
+import io.facet.discord.exposed.*
 import io.facet.discord.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.*
+import org.jetbrains.exposed.sql.*
 import xyz.swagbot.*
 import java.time.*
 import java.util.*
@@ -27,6 +30,8 @@ class BestGroupWorldStuff private constructor() {
             scope: CoroutineScope,
             configuration: EmptyConfig.() -> Unit
         ): BestGroupWorldStuff {
+            sql { create(ListTable) }
+
             listener<MessageCreateEvent>(scope) { event ->
                 val channel = event.message.channel.await()
                 val message = event.message
@@ -141,9 +146,30 @@ class BestGroupWorldStuff private constructor() {
                 }
             }
 
-            // disconnect joevanni and jack after an hour or so
-            val ids = setOf(97486068630163456, 212311415455744000)
+            // automatically disconnect people on "the list" after an hour or so
+            val ids = setOf(97486068630163456, 212311415455744000, 140584266315726848)
                 .map { it.toSnowflake() }
+
+            flowOf<VoiceStateUpdateEvent>()
+                .filter { it.isLeaveEvent && it.old.get().guildId == 97342233241464832.toSnowflake() }
+                .onEach { delay(5000) }
+                .mapNotNull { event ->
+                    delay(5000)
+                    val old = event.old.get()
+                    val log = event.current.guild.await().auditLog
+                        .withActionType(ActionType.MEMBER_DISCONNECT)
+                        .withLimit(5)
+                        .await()
+                        .reduce { acc, part -> acc.combine(part) }
+
+                    log.entries.firstOrNull { it.targetId.unwrap() == old.userId }
+                }
+                .onEach { entry ->
+                    ListTable.insert {
+                        it[user_id] = entry.responsibleUserId.get()
+                    }
+                }
+
             listener<VoiceStateUpdateEvent>(scope) { event ->
                 val vs = event.current
                 if (vs.guildId.asLong() != 97342233241464832 || vs.channelId.unwrap() == null)
@@ -156,7 +182,7 @@ class BestGroupWorldStuff private constructor() {
                     return@listener
 
                 val member = vs.member.await()
-                val delay = (2 * 3600 * 1000..6 * 3600 * 1000).random().toLong()
+                val delay = (1 * 3600 * 1000..6 * 3600 * 1000).random().toLong()
                 val kickTime = LocalDateTime.now().plusSeconds(delay / 1000)
                 logger.info("${member.tag} will be disconnected at $kickTime")
                 launch {

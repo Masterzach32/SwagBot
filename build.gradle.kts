@@ -73,27 +73,25 @@ jib {
     }
 
     to {
-        afterEvaluate {
-            image = "zachkozar/swagbot:$version"
+        image = "zachkozar/swagbot:$version"
 
-            val imageTags = version.toString()
-                .substringBefore("-")
-                .split(".")
-                .fold(mutableSetOf<String>()) { tags, subVersion ->
-                    tags.apply {
-                        if (tags.isEmpty())
-                            tags.add(subVersion)
-                        else
-                            tags.add("${tags.last()}.$subVersion")
-                    }
+        val imageTags = version.toString()
+            .substringBefore("-")
+            .split(".")
+            .fold(mutableSetOf<String>()) { tags, subVersion ->
+                tags.apply {
+                    if (tags.isEmpty())
+                        tags.add(subVersion)
+                    else
+                        tags.add("${tags.last()}.$subVersion")
                 }
-            imageTags.add("latest")
-            if (!isRelease)
-                imageTags.map { "$it-SNAPSHOT" }
-            if (isRelease)
-                imageTags.add("prod")
-            tags = imageTags
-        }
+            }
+        imageTags.add("latest")
+        if (!isRelease)
+            imageTags.map { "$it-SNAPSHOT" }
+        if (isRelease)
+            imageTags.add("prod")
+        tags = imageTags
 
         val dockerUsername = findProperty("docker_username")?.toString()
         val dockerPassword = findProperty("docker_pass")?.toString()
@@ -108,14 +106,12 @@ jib {
     container {
         creationTime = "USE_CURRENT_TIMESTAMP"
 
-        afterEvaluate {
-            environment = mapOf(
-                "TZ" to "America/New_York",
-                "CODE_VERSION" to "$version",
-                "CODE_ENV" to "test",
-                "BOT_NAME" to "SwagBot",
-                "DEFAULT_COMMAND_PREFIX" to "~"
-            )
-        }
+        environment = mapOf(
+            "TZ" to "America/New_York",
+            "CODE_VERSION" to "$version",
+            "CODE_ENV" to "test",
+            "BOT_NAME" to "SwagBot",
+            "DEFAULT_COMMAND_PREFIX" to "~"
+        )
     }
 }
