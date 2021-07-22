@@ -2,7 +2,7 @@
 plugins {
     kotlin("jvm") version "1.5.10"
     kotlin("plugin.serialization") version "1.5.0"
-    id("com.google.cloud.tools.jib") version "3.1.1"
+    id("com.google.cloud.tools.jib") version "3.1.2"
     id("net.researchgate.release") version "2.8.1"
 }
 
@@ -18,14 +18,9 @@ repositories {
 }
 
 dependencies {
-    implementation("com.discord4j:discord4j-core:3.2.0-SNAPSHOT")
-    implementation("com.sedmelluq:lavaplayer-natives-extra:1.3.+")
     implementation("com.sedmelluq:lavaplayer:1.3.+")
+    implementation("com.sedmelluq:lavaplayer-natives-extra:1.3.+")
     implementation("ch.qos.logback:logback-classic:1.2.3")
-
-    val kotlinx_coroutines_version = "1.5.+"
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$kotlinx_coroutines_version")
 
     val facet_version = "0.3.0-SNAPSHOT"
     implementation("io.facet:facet-d4j-commands:$facet_version")
@@ -93,8 +88,8 @@ jib {
             imageTags.add("prod")
         tags = imageTags
 
-        val dockerUsername = findProperty("docker_username")?.toString()
-        val dockerPassword = findProperty("docker_pass")?.toString()
+        val dockerUsername: String? by project
+        val dockerPassword: String? by project
         if (dockerUsername != null && dockerPassword != null) {
             auth {
                 username = dockerUsername

@@ -147,7 +147,7 @@ class BestGroupWorldStuff private constructor() {
             }
 
             // automatically disconnect people on "the list" after an hour or so
-            val ids = setOf(97486068630163456, 212311415455744000, 140584266315726848)
+            val ids = setOf(97486068630163456, 140584266315726848)
                 .map { it.toSnowflake() }
 
             flowOf<VoiceStateUpdateEvent>()

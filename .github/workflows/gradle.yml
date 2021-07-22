@@ -42,7 +42,7 @@ jobs:
           distribution: 'adopt'
           java-version: ${{ matrix.java }}
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --no-dameon
   release:
     name: Publish Image to Docker Hub
     runs-on: ubuntu-latest
@@ -64,7 +64,7 @@ jobs:
           distribution: 'adopt'
           java-version: 16
       - name: Build and Publish Image
-        run: ./gradlew jib
+        run: ./gradlew jib --no-dameon
         env:
-          ORG_GRADLE_PROJECT_docker_username: ${{ secrets.docker_username }}
-          ORG_GRADLE_PROJECT_docker_pass: ${{ secrets.docker_pass }}
+          ORG_GRADLE_PROJECT_dockerUsername: ${{ secrets.docker_username }}
+          ORG_GRADLE_PROJECT_dockerPass: ${{ secrets.docker_pass }}
