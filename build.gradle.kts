@@ -81,11 +81,12 @@ jib {
                         tags.add("${tags.last()}.$subVersion")
                 }
             }
-        imageTags.add("latest")
-        if (!isRelease)
-            imageTags.map { "$it-SNAPSHOT" }
+            .map { if (!isRelease) "$it-SNAPSHOT" else it }
+            .toMutableSet()
+
         if (isRelease)
             imageTags.add("prod")
+        imageTags.add("latest")
         tags = imageTags
 
         val dockerUsername: String? by project
