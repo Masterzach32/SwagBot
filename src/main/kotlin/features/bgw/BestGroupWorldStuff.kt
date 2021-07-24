@@ -187,7 +187,7 @@ class BestGroupWorldStuff private constructor() {
                 logger.info("${member.tag} will be disconnected at $kickTime")
                 launch {
                     val cancellationListener = listener<VoiceStateUpdateEvent>(this) { event ->
-                        if (event.current.userId == member.id && event.current.channelId.value == null) {
+                        if (event.current.userId == member.id && event.current.channelId.unwrap() == null) {
                             logger.info("${member.tag} left voice early, cancelling disconnect timer.")
                             this@launch.cancel()
                         }

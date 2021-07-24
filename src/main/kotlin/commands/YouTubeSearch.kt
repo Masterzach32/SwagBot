@@ -54,14 +54,16 @@ object YouTubeSearch : GlobalGuildApplicationCommand {
                 Music.SearchResultPolicy.Limited(count)
             )
         } catch (e: Throwable) {
-            createFollowupMessage(errorTemplate("Oops! Something went wrong when trying to search youtube.", e))
+            interactionResponse.sendFollowupMessage(
+                errorTemplate("Oops! Something went wrong when trying to search youtube.", e)
+            )
             return
         }
 
         if (results.isEmpty()) {
-            event.interactionResponse.createFollowupMessage(
+            interactionResponse.sendFollowupMessage(
                 "Sorry, I could not find any videos that matched that description. Try refining your search."
-            ).await()
+            )
             return
         }
 

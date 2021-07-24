@@ -52,7 +52,7 @@ object Play : GlobalGuildApplicationCommand {
                 item.setTrackContext(member, getChannel())
                 scheduler.queue(item)
 
-                createFollowupMessage(
+                interactionResponse.sendFollowupMessage(
                     trackRequestedTemplate(
                         member.displayName,
                         item,
