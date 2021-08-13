@@ -1,7 +1,7 @@
 package xyz.swagbot.extensions
 
 import discord4j.core.`object`.entity.*
-import io.facet.discord.extensions.*
+import io.facet.core.*
 import xyz.swagbot.features.permissions.*
 
 private val Member.permissionFeature: Permissions

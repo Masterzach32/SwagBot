@@ -1,14 +1,13 @@
 package xyz.swagbot.commands
 
-import discord4j.rest.util.*
-import io.facet.discord.appcommands.*
-import io.facet.discord.extensions.*
+import io.facet.commands.*
+import io.facet.common.*
 import xyz.swagbot.extensions.*
 
 object VolumeCommand : GlobalGuildApplicationCommand {
 
     override val request = applicationCommandRequest("volume", "Get or update the volume of audio playing from SwagBot.") {
-        addOption("level", "The volume level (0-100).", ApplicationCommandOptionType.INTEGER, false)
+        int("level", "The volume level (0-100).", false)
     }
 
     override suspend fun GuildSlashCommandContext.execute() {

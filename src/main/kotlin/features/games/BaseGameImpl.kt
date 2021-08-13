@@ -2,8 +2,8 @@ package xyz.swagbot.features.games
 
 import discord4j.core.`object`.entity.*
 import discord4j.core.`object`.entity.channel.*
-import io.facet.discord.dsl.*
-import io.facet.discord.extensions.*
+import io.facet.common.*
+import io.facet.common.dsl.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import xyz.swagbot.util.*

@@ -4,10 +4,10 @@ import discord4j.core.`object`.component.*
 import discord4j.core.event.domain.message.*
 import discord4j.discordjson.json.*
 import discord4j.rest.util.*
-import io.facet.discord.appcommands.*
-import io.facet.discord.appcommands.extensions.*
-import io.facet.discord.dsl.*
-import io.facet.discord.extensions.*
+import io.facet.commands.*
+import io.facet.common.*
+import io.facet.common.dsl.*
+import io.facet.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import xyz.swagbot.extensions.*
@@ -27,10 +27,10 @@ object YouTubeSearch : GlobalGuildApplicationCommand {
 
     override val request =
         applicationCommandRequest("search", "Search YouTube and select a video to play using reaction buttons.") {
-            addOption("query", "The search term to look up on YouTube.", ApplicationCommandOptionType.STRING, true)
-            addOption("count", "The number of results to show.", ApplicationCommandOptionType.INTEGER, false) {
-                addChoice("Five results", 5)
-                addChoice("Ten results", 10)
+            string("query", "The search term to look up on YouTube.", true)
+            option("count", "The number of results to show.", ApplicationCommandOptionType.INTEGER, false) {
+                choice("Five results", 5)
+                choice("Ten results", 10)
             }
         }
 

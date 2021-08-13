@@ -3,7 +3,7 @@ package xyz.swagbot.util
 import discord4j.core.`object`.entity.*
 import discord4j.core.event.domain.interaction.*
 import discord4j.core.event.domain.message.*
-import io.facet.discord.extensions.*
+import io.facet.common.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 

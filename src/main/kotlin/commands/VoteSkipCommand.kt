@@ -1,8 +1,7 @@
 package xyz.swagbot.commands
 
-import io.facet.discord.appcommands.*
-import io.facet.discord.appcommands.extensions.*
-import io.facet.discord.extensions.*
+import io.facet.commands.*
+import io.facet.common.*
 import kotlinx.coroutines.flow.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.music.*

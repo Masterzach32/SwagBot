@@ -1,10 +1,7 @@
 package xyz.swagbot.commands
 
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
-import io.facet.discord.extensions.*
-import kotlinx.coroutines.flow.*
+import io.facet.chatcommands.*
+import io.facet.common.*
 import xyz.swagbot.extensions.*
 
 object LeaverClear : ChatCommand(

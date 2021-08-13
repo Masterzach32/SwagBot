@@ -8,12 +8,9 @@ import discord4j.core.event.domain.*
 import discord4j.core.event.domain.guild.*
 import discord4j.core.event.domain.lifecycle.*
 import discord4j.core.event.domain.message.*
+import io.facet.common.*
 import io.facet.core.*
-import io.facet.core.extensions.*
-import io.facet.discord.*
-import io.facet.discord.event.*
-import io.facet.discord.exposed.*
-import io.facet.discord.extensions.*
+import io.facet.exposed.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.*
@@ -35,6 +32,7 @@ class BestGroupWorldStuff private constructor() {
             listener<MessageCreateEvent>(scope) { event ->
                 val channel = event.message.channel.await()
                 val message = event.message
+
 
                 if (channel.id.asLong() == 402224449367179264) {
                     if (message.attachments.isNotEmpty() || message.embeds.isNotEmpty()) {

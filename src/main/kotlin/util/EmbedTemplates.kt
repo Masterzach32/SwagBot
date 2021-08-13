@@ -1,7 +1,7 @@
 package xyz.swagbot.util
 
 import discord4j.core.spec.*
-import io.facet.discord.dsl.*
+import io.facet.common.dsl.*
 
 val baseTemplate: EmbedCreateSpec = embed {
     color = BLUE

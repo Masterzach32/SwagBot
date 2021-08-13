@@ -5,11 +5,9 @@ import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.core.`object`.entity.*
 import discord4j.core.`object`.reaction.*
 import discord4j.core.event.domain.message.*
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
-import io.facet.discord.dsl.*
-import io.facet.discord.extensions.*
+import io.facet.chatcommands.*
+import io.facet.common.*
+import io.facet.common.dsl.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*

@@ -2,7 +2,7 @@ package xyz.swagbot.features.music
 
 import com.sedmelluq.discord.lavaplayer.track.*
 import discord4j.core.spec.*
-import io.facet.discord.dsl.*
+import io.facet.common.dsl.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.util.*
 

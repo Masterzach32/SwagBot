@@ -3,8 +3,8 @@ package xyz.swagbot.extensions
 import discord4j.core.`object`.entity.channel.*
 import discord4j.core.event.domain.*
 import discord4j.voice.*
-import io.facet.core.extensions.*
-import io.facet.discord.extensions.*
+import io.facet.common.*
+import io.facet.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.*

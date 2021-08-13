@@ -4,12 +4,9 @@ import com.mojang.brigadier.arguments.StringArgumentType.*
 import discord4j.core.`object`.entity.*
 import discord4j.core.`object`.entity.channel.*
 import discord4j.rest.util.*
-import io.facet.discord.appcommands.*
-import io.facet.discord.appcommands.extensions.*
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
-import io.facet.discord.extensions.*
+import io.facet.chatcommands.*
+import io.facet.commands.*
+import io.facet.common.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.reactive.*
@@ -20,8 +17,8 @@ import xyz.swagbot.features.permissions.*
 object MigrateCommand : GlobalGuildApplicationCommand, PermissibleApplicationCommand {
 
     override val request = applicationCommandRequest("migrate", "Move all users from one voice channel to another.") {
-        addOption("from", "The voice channel to move users from.", ApplicationCommandOptionType.CHANNEL, true)
-        addOption("to", "The voice channel to move users to.", ApplicationCommandOptionType.CHANNEL, true)
+        channel("from", "The voice channel to move users from.", true)
+        channel("to", "The voice channel to move users to.", true)
     }
 
     override suspend fun hasPermission(user: User, guild: Guild?): Boolean {

@@ -1,6 +1,6 @@
 package xyz.swagbot.features.bgw
 
-import io.facet.discord.exposed.*
+import io.facet.exposed.*
 import org.jetbrains.exposed.sql.*
 
 object ListTable : Table("bgw_list") {

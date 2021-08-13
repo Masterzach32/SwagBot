@@ -2,7 +2,6 @@ package xyz.swagbot.features
 
 import discord4j.core.event.*
 import io.facet.core.*
-import io.facet.discord.*
 import kotlinx.coroutines.*
 import xyz.swagbot.features.music.*
 

@@ -2,8 +2,7 @@ package xyz.swagbot.features.stats
 
 import discord4j.core.event.*
 import io.facet.core.*
-import io.facet.discord.*
-import io.facet.discord.commands.*
+import io.facet.core.features.*
 import kotlinx.coroutines.*
 
 class Stats {

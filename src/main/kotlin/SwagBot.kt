@@ -9,11 +9,10 @@ import discord4j.core.event.domain.message.*
 import discord4j.core.shard.*
 import discord4j.gateway.intent.*
 import discord4j.rest.response.*
-import io.facet.discord.appcommands.*
-import io.facet.discord.commands.*
-import io.facet.discord.dsl.*
-import io.facet.discord.event.*
-import io.facet.discord.extensions.*
+import io.facet.common.*
+import io.facet.common.dsl.*
+import io.facet.core.*
+import io.facet.core.features.*
 import kotlinx.coroutines.*
 import org.slf4j.*
 import xyz.swagbot.commands.*

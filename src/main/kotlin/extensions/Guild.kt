@@ -3,7 +3,8 @@ package xyz.swagbot.extensions
 import discord4j.common.util.*
 import discord4j.core.`object`.entity.*
 import discord4j.core.`object`.entity.channel.*
-import io.facet.discord.extensions.*
+import io.facet.common.*
+import io.facet.core.*
 import kotlinx.coroutines.flow.*
 import xyz.swagbot.features.autoroles.*
 import xyz.swagbot.features.guilds.*

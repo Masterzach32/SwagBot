@@ -1,7 +1,7 @@
 package xyz.swagbot.features
 
 import discord4j.core.event.*
-import io.facet.discord.*
+import io.facet.core.*
 import kotlinx.coroutines.*
 import xyz.swagbot.features.guilds.*
 

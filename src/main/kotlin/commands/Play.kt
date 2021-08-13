@@ -1,12 +1,10 @@
 package xyz.swagbot.commands
 
 import com.sedmelluq.discord.lavaplayer.track.*
-import discord4j.rest.util.*
-import io.facet.core.extensions.*
-import io.facet.discord.appcommands.*
-import io.facet.discord.appcommands.extensions.*
-import io.facet.discord.dsl.*
-import io.facet.discord.extensions.*
+import io.facet.commands.*
+import io.facet.common.*
+import io.facet.common.dsl.*
+import io.facet.core.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.music.*
 import xyz.swagbot.util.*
@@ -15,10 +13,9 @@ import java.util.*
 object Play : GlobalGuildApplicationCommand {
 
     override val request = applicationCommandRequest("play", "Queue up music and/or videos to be played by the bot.") {
-        addOption(
+        string(
             "query",
             "The name of the song/video, or url to the YouTube/Soundcloud/Audio file.",
-            ApplicationCommandOptionType.STRING,
             true
         )
     }

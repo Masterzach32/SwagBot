@@ -1,8 +1,6 @@
 package xyz.swagbot.features.games.commands
 
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
+import io.facet.chatcommands.*
 
 object BrawlCommand : ChatCommand(
     name = "Brawl",

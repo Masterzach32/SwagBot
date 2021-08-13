@@ -1,8 +1,6 @@
 package xyz.swagbot.commands
 
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
+import io.facet.chatcommands.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.permissions.*
 

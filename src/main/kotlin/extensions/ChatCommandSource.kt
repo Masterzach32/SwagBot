@@ -1,6 +1,6 @@
 package xyz.swagbot.extensions
 
-import io.facet.discord.commands.*
+import io.facet.chatcommands.*
 import xyz.swagbot.features.permissions.*
 
 suspend fun ChatCommandSource.hasBotPermission(

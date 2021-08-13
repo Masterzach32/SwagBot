@@ -1,7 +1,7 @@
 package xyz.swagbot.commands
 
-import io.facet.discord.appcommands.*
-import io.facet.discord.extensions.*
+import io.facet.commands.*
+import io.facet.common.*
 
 object Ping : GlobalApplicationCommand {
 

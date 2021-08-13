@@ -1,11 +1,10 @@
 package xyz.swagbot.commands
 
 import com.sedmelluq.discord.lavaplayer.track.*
-import io.facet.discord.commands.*
-import io.facet.discord.commands.dsl.*
-import io.facet.discord.commands.extensions.*
-import io.facet.discord.dsl.*
-import io.facet.discord.extensions.*
+import io.facet.chatcommands.*
+import io.facet.common.*
+import io.facet.common.dsl.*
+import io.facet.core.*
 import xyz.swagbot.extensions.*
 import xyz.swagbot.features.music.*
 import xyz.swagbot.util.*

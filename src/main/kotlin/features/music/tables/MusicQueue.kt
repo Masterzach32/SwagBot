@@ -1,7 +1,7 @@
 package xyz.swagbot.features.music.tables
 
 import discord4j.common.util.*
-import io.facet.discord.exposed.*
+import io.facet.exposed.*
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.features.guilds.*
 
