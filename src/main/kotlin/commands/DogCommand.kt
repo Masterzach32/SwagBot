@@ -1,8 +1,13 @@
 package xyz.swagbot.commands
 
-import com.mojang.brigadier.arguments.StringArgumentType.*
-import io.facet.chatcommands.*
-import io.facet.common.*
+import com.mojang.brigadier.arguments.StringArgumentType.greedyString
+import io.facet.chatcommands.ChatCommand
+import io.facet.chatcommands.ChatCommandSource
+import io.facet.chatcommands.DSLCommandNode
+import io.facet.chatcommands.runs
+import io.facet.common.await
+import io.facet.common.reply
+import io.facet.common.retry
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -10,9 +15,9 @@ import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.jvm.javaio.*
-import kotlinx.coroutines.*
-import kotlinx.serialization.*
-import xyz.swagbot.util.*
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import xyz.swagbot.util.errorTemplate
 
 object DogCommand : ChatCommand(
     name = "Dog Pictures",

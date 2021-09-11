@@ -1,16 +1,24 @@
 package xyz.swagbot.features.autoroles
 
-import discord4j.common.util.*
-import discord4j.core.event.*
-import discord4j.core.event.domain.guild.*
-import io.facet.common.*
-import io.facet.core.*
-import io.facet.core.features.*
-import io.facet.exposed.*
-import kotlinx.coroutines.*
-import org.jetbrains.exposed.sql.*
-import xyz.swagbot.*
-import xyz.swagbot.features.guilds.*
+import discord4j.common.util.Snowflake
+import discord4j.core.event.EventDispatcher
+import discord4j.core.event.domain.guild.MemberJoinEvent
+import io.facet.common.await
+import io.facet.common.awaitNullable
+import io.facet.common.listener
+import io.facet.core.EmptyConfig
+import io.facet.core.EventDispatcherFeature
+import io.facet.core.feature
+import io.facet.core.features.ChatCommands
+import io.facet.exposed.create
+import io.facet.exposed.sql
+import kotlinx.coroutines.CoroutineScope
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import xyz.swagbot.features.guilds.GuildStorage
+import xyz.swagbot.logger
 
 class AutoAssignRole private constructor() {
 
@@ -39,7 +47,10 @@ class AutoAssignRole private constructor() {
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
 
-        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): AutoAssignRole {
+        override suspend fun EventDispatcher.install(
+            scope: CoroutineScope,
+            configuration: EmptyConfig.() -> Unit
+        ): AutoAssignRole {
             sql { create(RolesTable) }
 
             return AutoAssignRole().apply {

@@ -1,8 +1,9 @@
 package xyz.swagbot.features.games
 
-import discord4j.core.event.*
-import io.facet.core.*
-import kotlinx.coroutines.*
+import discord4j.core.event.EventDispatcher
+import io.facet.core.EmptyConfig
+import io.facet.core.EventDispatcherFeature
+import kotlinx.coroutines.CoroutineScope
 
 class ChatGames {
 

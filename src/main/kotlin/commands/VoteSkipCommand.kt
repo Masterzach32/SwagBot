@@ -1,11 +1,19 @@
 package xyz.swagbot.commands
 
-import io.facet.commands.*
-import io.facet.common.*
-import kotlinx.coroutines.flow.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
-import kotlin.math.*
+import io.facet.commands.GlobalGuildApplicationCommand
+import io.facet.commands.GuildSlashCommandContext
+import io.facet.commands.acknowledge
+import io.facet.commands.applicationCommandRequest
+import io.facet.common.await
+import io.facet.common.connectedMembers
+import io.facet.common.getConnectedVoiceChannel
+import io.facet.common.sendFollowupMessage
+import kotlinx.coroutines.flow.count
+import xyz.swagbot.extensions.context
+import xyz.swagbot.extensions.isPremium
+import xyz.swagbot.extensions.trackScheduler
+import xyz.swagbot.features.music.trackSkippedTemplate
+import kotlin.math.roundToInt
 
 object VoteSkipCommand : GlobalGuildApplicationCommand {
 

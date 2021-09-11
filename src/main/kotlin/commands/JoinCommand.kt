@@ -1,9 +1,12 @@
 package xyz.swagbot.commands
 
 import io.facet.chatcommands.*
-import io.facet.common.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
+import io.facet.common.await
+import io.facet.common.awaitNullable
+import io.facet.common.reply
+import xyz.swagbot.extensions.isMusicFeatureEnabled
+import xyz.swagbot.extensions.joinWithAutoDisconnect
+import xyz.swagbot.features.music.notPremiumTemplate
 
 object JoinCommand : ChatCommand(
     name = "Join Voice",
@@ -20,11 +23,11 @@ object JoinCommand : ChatCommand(
             }
 
             val channel = member
-                    .voiceState.await()
-                    .channel.awaitNullable()
+                .voiceState.await()
+                .channel.awaitNullable()
 
             if (channel != null) {
-                channel.join()
+                channel.joinWithAutoDisconnect()
             } else {
                 message.reply("You must be connected to a voice channel to summon me!")
             }

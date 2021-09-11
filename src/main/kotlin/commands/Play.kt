@@ -1,13 +1,22 @@
 package xyz.swagbot.commands
 
-import com.sedmelluq.discord.lavaplayer.track.*
-import io.facet.commands.*
+import com.sedmelluq.discord.lavaplayer.track.AudioItem
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import io.facet.commands.GlobalGuildApplicationCommand
+import io.facet.commands.GuildSlashCommandContext
+import io.facet.commands.acknowledge
+import io.facet.commands.applicationCommandRequest
 import io.facet.common.*
-import io.facet.common.dsl.*
-import io.facet.core.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
-import xyz.swagbot.util.*
+import io.facet.common.dsl.and
+import io.facet.core.feature
+import xyz.swagbot.extensions.isPremium
+import xyz.swagbot.extensions.joinWithAutoDisconnect
+import xyz.swagbot.extensions.setTrackContext
+import xyz.swagbot.extensions.trackScheduler
+import xyz.swagbot.features.music.Music
+import xyz.swagbot.features.music.trackRequestedTemplate
+import xyz.swagbot.util.baseTemplate
 import java.util.*
 
 object Play : GlobalGuildApplicationCommand {
@@ -33,13 +42,14 @@ object Play : GlobalGuildApplicationCommand {
 
         val musicFeature = client.feature(Music)
         val query: String by options
+        val urlMarkers = listOf("http://", "https://")
         val item: AudioItem? = try {
-            if ("http://" in query || "https://" in query)
+            if (urlMarkers.any { it in query })
                 musicFeature.searchItem(query)
             else
                 musicFeature.searchItem("ytsearch:$query")
         } catch (e: Throwable) {
-            event.interactionResponse.createFollowupMessage("I couldn't find anything for *\"$query\"*.").await()
+            interactionResponse.createFollowupMessage("I couldn't find anything for *\"$query\"*.").await()
             return
         }
 
@@ -58,7 +68,7 @@ object Play : GlobalGuildApplicationCommand {
                 )
 
                 if (getGuild().getConnectedVoiceChannel() == null)
-                    member.getConnectedVoiceChannel()?.join()
+                    member.getConnectedVoiceChannel()?.joinWithAutoDisconnect()
             }
             is AudioPlaylist -> {
                 if (item.isSearchResult) {
@@ -78,7 +88,7 @@ object Play : GlobalGuildApplicationCommand {
                             )
                         )
                         if (getGuild().getConnectedVoiceChannel() == null)
-                            member.getConnectedVoiceChannel()?.join()
+                            member.getConnectedVoiceChannel()?.joinWithAutoDisconnect()
                     } else
                         event.interactionResponse.createFollowupMessage("I couldn't find anything for *\"$query\"*.")
                 } else {
@@ -97,7 +107,7 @@ object Play : GlobalGuildApplicationCommand {
                         }
                     )
                     if (getGuild().getConnectedVoiceChannel() == null)
-                        member.getConnectedVoiceChannel()?.join()
+                        member.getConnectedVoiceChannel()?.joinWithAutoDisconnect()
                 }
             }
             else -> event.interactionResponse.createFollowupMessage("I couldn't find anything for *\"$query\"*.")

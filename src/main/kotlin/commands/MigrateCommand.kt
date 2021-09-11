@@ -1,18 +1,25 @@
 package xyz.swagbot.commands
 
-import com.mojang.brigadier.arguments.StringArgumentType.*
-import discord4j.core.`object`.entity.*
-import discord4j.core.`object`.entity.channel.*
-import discord4j.rest.util.*
-import io.facet.chatcommands.*
+import com.mojang.brigadier.arguments.StringArgumentType.string
+import discord4j.core.`object`.entity.Guild
+import discord4j.core.`object`.entity.User
+import discord4j.core.`object`.entity.channel.Channel
+import discord4j.core.`object`.entity.channel.VoiceChannel
+import discord4j.rest.util.Permission
+import io.facet.chatcommands.ChatCommandSource
+import io.facet.chatcommands.DSLCommandNode
+import io.facet.chatcommands.getString
+import io.facet.chatcommands.runs
 import io.facet.commands.*
 import io.facet.common.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.*
-import reactor.core.publisher.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.permissions.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
+import reactor.core.publisher.Mono
+import xyz.swagbot.extensions.hasBotPermission
+import xyz.swagbot.features.permissions.PermissionType
 
 object MigrateCommand : GlobalGuildApplicationCommand, PermissibleApplicationCommand {
 

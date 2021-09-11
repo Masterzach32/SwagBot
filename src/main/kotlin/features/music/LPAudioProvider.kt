@@ -1,10 +1,10 @@
 package xyz.swagbot.features.music
 
-import com.sedmelluq.discord.lavaplayer.format.*
-import com.sedmelluq.discord.lavaplayer.player.*
-import com.sedmelluq.discord.lavaplayer.track.playback.*
-import discord4j.voice.*
-import java.nio.*
+import com.sedmelluq.discord.lavaplayer.format.StandardAudioDataFormats
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
+import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame
+import discord4j.voice.AudioProvider
+import java.nio.ByteBuffer
 
 class LPAudioProvider(
     private val player: AudioPlayer

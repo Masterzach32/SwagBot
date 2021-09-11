@@ -1,6 +1,6 @@
 package xyz.swagbot.features.music
 
-import discord4j.common.util.*
+import discord4j.common.util.Snowflake
 
 class TrackContext(val requesterId: Snowflake, val requestedChannelId: Snowflake) {
 

@@ -1,8 +1,8 @@
 package xyz.swagbot.commands
 
-import com.mojang.brigadier.arguments.StringArgumentType.*
+import com.mojang.brigadier.arguments.StringArgumentType.greedyString
 import io.facet.chatcommands.*
-import io.facet.common.*
+import io.facet.common.reply
 import io.ktor.http.*
 
 object LmgtfyCommand : ChatCommand(

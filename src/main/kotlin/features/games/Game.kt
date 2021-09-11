@@ -1,8 +1,8 @@
 package xyz.swagbot.features.games
 
-import discord4j.core.`object`.entity.*
-import discord4j.core.`object`.entity.channel.*
-import kotlinx.coroutines.*
+import discord4j.core.`object`.entity.Member
+import discord4j.core.`object`.entity.channel.GuildMessageChannel
+import kotlinx.coroutines.CoroutineScope
 
 interface Game : CoroutineScope {
 

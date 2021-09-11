@@ -1,10 +1,15 @@
 package xyz.swagbot.commands
 
 import io.facet.chatcommands.*
-import io.facet.common.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
-import xyz.swagbot.features.permissions.*
+import io.facet.common.await
+import io.facet.common.getConnectedVoiceChannel
+import io.facet.common.reply
+import xyz.swagbot.extensions.hasBotPermission
+import xyz.swagbot.extensions.isMusicFeatureEnabled
+import xyz.swagbot.extensions.trackScheduler
+import xyz.swagbot.features.music.notPremiumTemplate
+import xyz.swagbot.features.music.trackSkippedTemplate
+import xyz.swagbot.features.permissions.PermissionType
 
 object SkipCommand : ChatCommand(
     name = "Skip Track",

@@ -1,12 +1,14 @@
 package xyz.swagbot.features.games
 
-import discord4j.core.`object`.entity.*
-import discord4j.core.`object`.entity.channel.*
-import io.facet.common.*
-import io.facet.common.dsl.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
-import xyz.swagbot.util.*
+import discord4j.core.`object`.entity.Member
+import discord4j.core.`object`.entity.channel.GuildMessageChannel
+import io.facet.common.dsl.and
+import io.facet.common.sendMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.actor
+import xyz.swagbot.util.baseTemplate
+import xyz.swagbot.util.errorTemplate
 
 class BaseGameImpl(override val channel: GuildMessageChannel, scope: CoroutineScope) : Game, CoroutineScope by scope {
 

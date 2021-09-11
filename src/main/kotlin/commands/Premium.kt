@@ -1,10 +1,13 @@
 package xyz.swagbot.commands
 
-import io.facet.chatcommands.*
-import io.facet.common.*
-import io.facet.common.dsl.*
-import xyz.swagbot.*
-import xyz.swagbot.util.*
+import io.facet.chatcommands.ChatCommand
+import io.facet.chatcommands.ChatCommandSource
+import io.facet.chatcommands.DSLCommandNode
+import io.facet.chatcommands.runs
+import io.facet.common.dsl.and
+import io.facet.common.reply
+import xyz.swagbot.EnvVars
+import xyz.swagbot.util.baseTemplate
 
 object Premium : ChatCommand(
     name = "${EnvVars.BOT_NAME} Premium",

@@ -1,9 +1,9 @@
 package xyz.swagbot.commands
 
 import io.facet.chatcommands.*
-import io.facet.common.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
+import io.facet.common.reply
+import xyz.swagbot.extensions.isMusicFeatureEnabled
+import xyz.swagbot.features.music.notPremiumTemplate
 
 object PauseResumeCommand : ChatCommand(
     name = "Pause/Resume",

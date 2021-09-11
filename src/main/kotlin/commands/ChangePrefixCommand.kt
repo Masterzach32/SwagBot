@@ -1,12 +1,14 @@
 package xyz.swagbot.commands
 
-import com.mojang.brigadier.*
-import com.mojang.brigadier.arguments.*
-import discord4j.rest.util.*
+import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.arguments.ArgumentType
+import discord4j.rest.util.Permission
+import discord4j.rest.util.PermissionSet
 import io.facet.chatcommands.*
-import io.facet.common.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.permissions.*
+import io.facet.common.reply
+import xyz.swagbot.extensions.hasBotPermission
+import xyz.swagbot.extensions.updateCommandPrefix
+import xyz.swagbot.features.permissions.PermissionType
 
 object ChangePrefixCommand : ChatCommand(
     name = "Change Prefix",

@@ -1,16 +1,20 @@
 package xyz.swagbot.features
 
-import discord4j.core.`object`.entity.*
-import discord4j.core.`object`.entity.channel.*
-import discord4j.core.event.*
-import discord4j.core.event.domain.*
+import discord4j.core.`object`.entity.Member
+import discord4j.core.`object`.entity.channel.MessageChannel
+import discord4j.core.`object`.entity.channel.VoiceChannel
+import discord4j.core.event.EventDispatcher
+import discord4j.core.event.domain.PresenceUpdateEvent
+import discord4j.core.event.domain.VoiceStateUpdateEvent
 import io.facet.common.*
-import io.facet.core.*
-import io.facet.core.features.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.*
-import xyz.swagbot.features.guilds.*
+import io.facet.core.EmptyConfig
+import io.facet.core.EventDispatcherFeature
+import io.facet.core.features.ChatCommands
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.reactive.asFlow
+import xyz.swagbot.features.guilds.GuildStorage
 
 class AmongUs {
 
@@ -39,7 +43,10 @@ class AmongUs {
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
 
-        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): AmongUs {
+        override suspend fun EventDispatcher.install(
+            scope: CoroutineScope,
+            configuration: EmptyConfig.() -> Unit
+        ): AmongUs {
             return AmongUs().also { feature ->
                 listener<PresenceUpdateEvent>(scope) { event ->
                     val member = event.member.await()

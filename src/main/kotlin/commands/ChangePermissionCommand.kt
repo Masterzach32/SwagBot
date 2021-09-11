@@ -1,18 +1,33 @@
 package xyz.swagbot.commands
 
-import com.mojang.brigadier.arguments.StringArgumentType.*
-import discord4j.rest.util.*
-import io.facet.chatcommands.*
-import io.facet.commands.*
-import io.facet.common.*
-import io.facet.common.dsl.*
-import io.facet.exposed.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import org.jetbrains.exposed.sql.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.permissions.*
-import xyz.swagbot.util.*
+import com.mojang.brigadier.arguments.StringArgumentType.greedyString
+import com.mojang.brigadier.arguments.StringArgumentType.string
+import discord4j.rest.util.ApplicationCommandOptionType
+import discord4j.rest.util.Permission
+import io.facet.chatcommands.ChatCommandSource
+import io.facet.chatcommands.DSLCommandNode
+import io.facet.chatcommands.runs
+import io.facet.commands.GuildApplicationCommand
+import io.facet.commands.GuildSlashCommandContext
+import io.facet.commands.applicationCommandRequest
+import io.facet.common.allMemberMentions
+import io.facet.common.await
+import io.facet.common.dsl.and
+import io.facet.common.reply
+import io.facet.common.toSnowflake
+import io.facet.exposed.sql
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import org.jetbrains.exposed.sql.select
+import xyz.swagbot.extensions.botPermission
+import xyz.swagbot.extensions.hasBotPermission
+import xyz.swagbot.extensions.updateBotPermission
+import xyz.swagbot.features.permissions.PermissionType
+import xyz.swagbot.features.permissions.PermissionsTable
+import xyz.swagbot.util.baseTemplate
 
 object ChangePermissionCommand : GuildApplicationCommand/*(
     name = "Change User Permissions",

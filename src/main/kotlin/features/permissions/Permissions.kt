@@ -1,21 +1,28 @@
 package xyz.swagbot.features.permissions
 
-import discord4j.common.util.*
-import discord4j.core.*
-import discord4j.core.event.*
-import io.facet.common.*
-import io.facet.core.*
-import io.facet.core.features.*
-import io.facet.exposed.*
-import kotlinx.coroutines.*
-import org.jetbrains.exposed.sql.*
-import xyz.swagbot.features.guilds.*
+import discord4j.common.util.Snowflake
+import discord4j.core.GatewayDiscordClient
+import discord4j.core.event.EventDispatcher
+import io.facet.common.await
+import io.facet.core.EventDispatcherFeature
+import io.facet.core.features.ChatCommands
+import io.facet.exposed.create
+import io.facet.exposed.sql
+import kotlinx.coroutines.CoroutineScope
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
+import xyz.swagbot.features.guilds.GuildStorage
 
 class Permissions(config: Config) {
 
     private val developers: Set<Snowflake> = config.developers.map { Snowflake.of(it) }.toSet()
 
-    suspend fun permissionLevelFor(gateway: GatewayDiscordClient, guildId: Snowflake, userId: Snowflake): PermissionType {
+    suspend fun permissionLevelFor(
+        gateway: GatewayDiscordClient,
+        guildId: Snowflake,
+        userId: Snowflake
+    ): PermissionType {
         return when {
             isDeveloper(userId) -> PermissionType.DEV
             isGuildOwner(gateway, guildId, userId) -> PermissionType.ADMIN
@@ -67,7 +74,10 @@ class Permissions(config: Config) {
         requiredFeatures = listOf(GuildStorage, ChatCommands)
     ) {
 
-        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: Config.() -> Unit): Permissions {
+        override suspend fun EventDispatcher.install(
+            scope: CoroutineScope,
+            configuration: Config.() -> Unit
+        ): Permissions {
             sql { create(PermissionsTable) }
 
             return Permissions(Config().apply(configuration))

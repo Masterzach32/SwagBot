@@ -1,11 +1,14 @@
 package xyz.swagbot.commands
 
-import discord4j.common.*
-import io.facet.chatcommands.*
-import io.facet.common.*
-import io.facet.common.dsl.*
-import xyz.swagbot.*
-import xyz.swagbot.util.*
+import discord4j.common.GitProperties
+import io.facet.chatcommands.ChatCommand
+import io.facet.chatcommands.ChatCommandSource
+import io.facet.chatcommands.DSLCommandNode
+import io.facet.chatcommands.runs
+import io.facet.common.dsl.and
+import io.facet.common.reply
+import xyz.swagbot.EnvVars
+import xyz.swagbot.util.baseTemplate
 
 object InfoCommand : ChatCommand(
     name = "Info",
@@ -15,7 +18,8 @@ object InfoCommand : ChatCommand(
     override fun DSLCommandNode<ChatCommandSource>.register() {
         runs {
             message.reply(baseTemplate.and {
-                title = "SwagBot v3 ${if (EnvVars.CODE_ENV == "test") "Development Version" else ""} (${EnvVars.CODE_VERSION})"
+                title =
+                    "SwagBot v3 ${if (EnvVars.CODE_ENV == "test") "Development Version" else ""} (${EnvVars.CODE_VERSION})"
                 description = """
 SwagBot is a music bot with many additional features. Type `${EnvVars.DEFAULT_COMMAND_PREFIX}help` to see more commands!
 
@@ -37,7 +41,7 @@ https://discordapp.com/oauth2/authorize?client_id=${client.selfId.asLong()}&scop
 
                 footer(
                     "\u00a9 SwagBot 2016-2020. Written in Kotlin. Built off of Discord4J " +
-                            "${GitProperties.getProperties()[GitProperties.APPLICATION_VERSION]}",
+                        "${GitProperties.getProperties()[GitProperties.APPLICATION_VERSION]}",
                     null
                 )
             })

@@ -1,7 +1,9 @@
 package xyz.swagbot.commands
 
-import io.facet.commands.*
-import io.facet.common.*
+import io.facet.commands.GlobalApplicationCommand
+import io.facet.commands.GlobalSlashCommandContext
+import io.facet.commands.applicationCommandRequest
+import io.facet.common.await
 
 object Ping : GlobalApplicationCommand {
 

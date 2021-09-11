@@ -1,8 +1,9 @@
 package xyz.swagbot.commands
 
 import io.facet.chatcommands.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.permissions.*
+import xyz.swagbot.extensions.hasBotPermission
+import xyz.swagbot.extensions.trackScheduler
+import xyz.swagbot.features.permissions.PermissionType
 
 object Clear : ChatCommand(
     name = "Clear Queue",

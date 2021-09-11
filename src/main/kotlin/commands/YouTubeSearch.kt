@@ -1,19 +1,33 @@
 package xyz.swagbot.commands
 
-import discord4j.core.`object`.component.*
-import discord4j.core.event.domain.message.*
-import discord4j.discordjson.json.*
-import discord4j.rest.util.*
-import io.facet.commands.*
+import discord4j.core.`object`.component.ActionRow
+import discord4j.core.`object`.component.Button
+import discord4j.core.event.domain.message.MessageDeleteEvent
+import discord4j.discordjson.json.ComponentData
+import discord4j.discordjson.json.WebhookExecuteRequest
+import discord4j.rest.util.ApplicationCommandOptionType
+import discord4j.rest.util.MultipartRequest
+import io.facet.commands.GlobalGuildApplicationCommand
+import io.facet.commands.GuildSlashCommandContext
+import io.facet.commands.acknowledge
+import io.facet.commands.applicationCommandRequest
 import io.facet.common.*
-import io.facet.common.dsl.*
-import io.facet.core.*
-import kotlinx.coroutines.*
+import io.facet.common.dsl.and
+import io.facet.core.feature
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
-import xyz.swagbot.util.*
-import kotlin.time.*
+import kotlinx.coroutines.launch
+import xyz.swagbot.extensions.boldFormattedTitleWithLink
+import xyz.swagbot.extensions.isPremium
+import xyz.swagbot.extensions.joinWithAutoDisconnect
+import xyz.swagbot.extensions.setTrackContext
+import xyz.swagbot.features.music.Music
+import xyz.swagbot.features.music.trackRequestedTemplate
+import xyz.swagbot.util.baseTemplate
+import xyz.swagbot.util.errorTemplate
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class, DelicateCoroutinesApi::class)
 object YouTubeSearch : GlobalGuildApplicationCommand {
@@ -113,7 +127,7 @@ object YouTubeSearch : GlobalGuildApplicationCommand {
                 .collect { buttonEvent ->
                     val choice = buttonEvent.customId.toInt()
                     val trackScheduler = music.trackSchedulerFor(guildId)
-                    val track = results[choice-1].also { track ->
+                    val track = results[choice - 1].also { track ->
                         track.setTrackContext(member, channel)
                         trackScheduler.queue(track)
                     }
@@ -129,7 +143,7 @@ object YouTubeSearch : GlobalGuildApplicationCommand {
                     buttonEvent.interactionResponse.createFollowupMessage(request).await()
 
                     if (getGuild().getConnectedVoiceChannel() == null)
-                        member.getConnectedVoiceChannel()?.join()
+                        member.getConnectedVoiceChannel()?.joinWithAutoDisconnect()
                     cancel("Search results ${resultMessage.id} completed successfully")
                 }
         }

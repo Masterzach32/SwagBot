@@ -1,10 +1,14 @@
 package xyz.swagbot.features.music
 
-import com.sedmelluq.discord.lavaplayer.track.*
-import discord4j.core.spec.*
-import io.facet.common.dsl.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.util.*
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import discord4j.core.spec.EmbedCreateSpec
+import discord4j.core.spec.MessageCreateSpec
+import io.facet.common.dsl.and
+import io.facet.common.dsl.message
+import xyz.swagbot.extensions.boldFormattedTitleWithLink
+import xyz.swagbot.extensions.formattedLength
+import xyz.swagbot.extensions.thumbnailUrl
+import xyz.swagbot.util.baseTemplate
 
 fun notPremiumTemplate(
     prefixUsed: String

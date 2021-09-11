@@ -1,13 +1,16 @@
 package xyz.swagbot.features.system
 
-import discord4j.core.event.*
-import discord4j.core.event.domain.lifecycle.*
-import io.facet.common.*
-import io.facet.core.*
+import discord4j.core.event.EventDispatcher
+import discord4j.core.event.domain.lifecycle.ReadyEvent
+import io.facet.common.await
+import io.facet.common.listener
+import io.facet.common.retry
+import io.facet.core.BotScope
+import io.facet.core.EventDispatcherFeature
 import kotlinx.coroutines.*
-import org.jetbrains.exposed.sql.*
-import xyz.swagbot.*
-import kotlin.concurrent.*
+import org.jetbrains.exposed.sql.Database
+import xyz.swagbot.logger
+import kotlin.concurrent.thread
 
 class PostgresDatabase private constructor(val database: Database) {
 

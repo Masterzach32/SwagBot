@@ -1,22 +1,25 @@
 package xyz.swagbot.features.bgw
 
-import discord4j.common.util.*
-import discord4j.core.`object`.audit.*
-import discord4j.core.`object`.entity.*
-import discord4j.core.event.*
-import discord4j.core.event.domain.*
-import discord4j.core.event.domain.guild.*
-import discord4j.core.event.domain.lifecycle.*
-import discord4j.core.event.domain.message.*
+import discord4j.common.util.Snowflake
+import discord4j.core.`object`.audit.ActionType
+import discord4j.core.`object`.entity.Member
+import discord4j.core.`object`.entity.Role
+import discord4j.core.event.EventDispatcher
+import discord4j.core.event.domain.VoiceStateUpdateEvent
+import discord4j.core.event.domain.guild.MemberUpdateEvent
+import discord4j.core.event.domain.lifecycle.ReadyEvent
+import discord4j.core.event.domain.message.MessageCreateEvent
 import io.facet.common.*
-import io.facet.core.*
-import io.facet.exposed.*
+import io.facet.core.EmptyConfig
+import io.facet.core.EventDispatcherFeature
+import io.facet.exposed.create
+import io.facet.exposed.sql
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.reactive.*
-import org.jetbrains.exposed.sql.*
-import xyz.swagbot.*
-import java.time.*
+import kotlinx.coroutines.reactive.asFlow
+import org.jetbrains.exposed.sql.insert
+import xyz.swagbot.logger
+import java.time.LocalDateTime
 import java.util.*
 
 class BestGroupWorldStuff private constructor() {
@@ -42,7 +45,8 @@ class BestGroupWorldStuff private constructor() {
 
                 if (message.author.map { !it.isBot }.orElse(false) &&
                     event.guildId.map { it.asLong() == 97342233241464832 }.orElse(false) &&
-                    message.content.lowercase().contains("sir")) {
+                    message.content.lowercase().contains("sir")
+                ) {
                     message.reply("**${event.member.get().mention} I'LL SHOW YOU SIR**")
                 }
 
@@ -79,7 +83,10 @@ class BestGroupWorldStuff private constructor() {
                 if (event.memberId.asLong() !in listOf(97341976214511616, 219554475055120384, 217065780078968833))
                     return@listener
 
+                logger.info("Roles updated for ${event.memberId}")
+
                 if (event.currentRoleIds.contains(gayRoleId)) {
+                    logger.info("Removing gay role from ${event.memberId}")
                     removeGayRole(event, gayRoleId)
                 } else {
                     event.currentRoles.asFlow()
@@ -91,7 +98,10 @@ class BestGroupWorldStuff private constructor() {
                                 }
                             }
                         }
-                        ?.let { newGayRole -> removeGayRole(event, newGayRole.id) }
+                        ?.let { newGayRole ->
+                            logger.info("Removing gay role from ${event.memberId}")
+                            removeGayRole(event, newGayRole.id)
+                        }
                 }
             }
 

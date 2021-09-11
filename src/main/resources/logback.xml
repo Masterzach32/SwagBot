@@ -9,5 +9,5 @@
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
-<!--    <logger name="io.facet.discord.appcommands.ApplicationCommands" level="DEBUG" />-->
+    <!--    <logger name="io.facet.discord.appcommands.ApplicationCommands" level="DEBUG" />-->
 </configuration>

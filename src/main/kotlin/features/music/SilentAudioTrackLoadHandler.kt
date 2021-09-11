@@ -1,11 +1,12 @@
 package xyz.swagbot.features.music
 
-import com.sedmelluq.discord.lavaplayer.player.*
-import com.sedmelluq.discord.lavaplayer.tools.*
-import com.sedmelluq.discord.lavaplayer.track.*
-import discord4j.common.util.*
-import xyz.swagbot.*
-import xyz.swagbot.extensions.*
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import discord4j.common.util.Snowflake
+import xyz.swagbot.extensions.setTrackContext
+import xyz.swagbot.logger
 
 class SilentAudioTrackLoadHandler(
     private val scheduler: TrackScheduler,

@@ -1,9 +1,10 @@
 package xyz.swagbot.features
 
-import discord4j.core.event.*
-import io.facet.core.*
-import kotlinx.coroutines.*
-import xyz.swagbot.features.music.*
+import discord4j.core.event.EventDispatcher
+import io.facet.core.EmptyConfig
+import io.facet.core.EventDispatcherFeature
+import kotlinx.coroutines.CoroutineScope
+import xyz.swagbot.features.music.Music
 
 class BotPresence private constructor() {
 
@@ -12,7 +13,10 @@ class BotPresence private constructor() {
         requiredFeatures = listOf(Music)
     ) {
 
-        override suspend fun EventDispatcher.install(scope: CoroutineScope, configuration: EmptyConfig.() -> Unit): BotPresence {
+        override suspend fun EventDispatcher.install(
+            scope: CoroutineScope,
+            configuration: EmptyConfig.() -> Unit
+        ): BotPresence {
             return BotPresence()
         }
     }

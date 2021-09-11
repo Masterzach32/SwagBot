@@ -1,9 +1,9 @@
 package xyz.swagbot.features
 
-import discord4j.core.event.*
-import io.facet.core.*
-import kotlinx.coroutines.*
-import xyz.swagbot.features.guilds.*
+import discord4j.core.event.EventDispatcher
+import io.facet.core.EventDispatcherFeature
+import kotlinx.coroutines.CoroutineScope
+import xyz.swagbot.features.guilds.GuildStorage
 
 class Market(config: Config) {
 

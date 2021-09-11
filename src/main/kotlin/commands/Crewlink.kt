@@ -1,7 +1,10 @@
 package xyz.swagbot.commands
 
-import io.facet.chatcommands.*
-import io.facet.common.*
+import io.facet.chatcommands.ChatCommand
+import io.facet.chatcommands.ChatCommandSource
+import io.facet.chatcommands.DSLCommandNode
+import io.facet.chatcommands.runs
+import io.facet.common.replyEmbed
 
 object Crewlink : ChatCommand(
     name = "CrewLink Info (Among Us)",

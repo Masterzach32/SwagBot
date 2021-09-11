@@ -2,30 +2,40 @@
 
 package xyz.swagbot
 
-import discord4j.core.*
-import discord4j.core.`object`.presence.*
-import discord4j.core.event.*
-import discord4j.core.event.domain.message.*
-import discord4j.core.shard.*
-import discord4j.gateway.intent.*
-import discord4j.rest.response.*
-import io.facet.common.*
-import io.facet.common.dsl.*
-import io.facet.core.*
-import io.facet.core.features.*
-import kotlinx.coroutines.*
-import org.slf4j.*
+import discord4j.core.DiscordClient
+import discord4j.core.GatewayDiscordClient
+import discord4j.core.`object`.presence.ClientActivity
+import discord4j.core.`object`.presence.ClientPresence
+import discord4j.core.event.EventDispatcher
+import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.core.shard.ShardingStrategy
+import discord4j.gateway.intent.IntentSet
+import discord4j.rest.response.ResponseFunction
+import io.facet.common.dsl.and
+import io.facet.common.listener
+import io.facet.common.reply
+import io.facet.core.feature
+import io.facet.core.features.ApplicationCommands
+import io.facet.core.features.ChatCommands
+import io.facet.core.install
+import io.facet.core.withPlugins
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import xyz.swagbot.commands.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.*
-import xyz.swagbot.features.autoroles.*
-import xyz.swagbot.features.bgw.*
-import xyz.swagbot.features.games.*
-import xyz.swagbot.features.guilds.*
-import xyz.swagbot.features.music.*
-import xyz.swagbot.features.permissions.*
-import xyz.swagbot.features.system.*
-import xyz.swagbot.util.*
+import xyz.swagbot.extensions.commandPrefixFor
+import xyz.swagbot.features.AmongUs
+import xyz.swagbot.features.BotPresence
+import xyz.swagbot.features.Market
+import xyz.swagbot.features.autoroles.AutoAssignRole
+import xyz.swagbot.features.bgw.BestGroupWorldStuff
+import xyz.swagbot.features.games.ChatGames
+import xyz.swagbot.features.guilds.GuildStorage
+import xyz.swagbot.features.music.Music
+import xyz.swagbot.features.permissions.Permissions
+import xyz.swagbot.features.system.PostgresDatabase
+import xyz.swagbot.util.baseTemplate
 
 val logger: Logger = LoggerFactory.getLogger(EnvVars.BOT_NAME)
 
@@ -124,17 +134,4 @@ suspend fun GatewayDiscordClient.configure(scope: CoroutineScope) {
             VoteSkipCommand
         )
     }
-
-    scope.launch {
-//        logger.info(
-//            restClient.applicationService.getGlobalApplicationCommands(selfId.asLong()).await().toString()
-//        )
-//        logger.info(
-//            restClient.applicationService.getGuildApplicationCommands(selfId.asLong(), 97342233241464832).await().toString()
-//        )
-    }
-
-    //ApplicationCommandRequ{name=search, description=Search YouTube and select a video to play using reaction buttons., options=[ApplicationCommandOptionData{type=3, name=query, description=The search term to look up on YouTube., required=Possible{true}, choices=null, options=null}, ApplicationCommandOptionData{type=4, name=count, description=The number of results to show., required=Possible{false}, choices=[ApplicationCommandOptionChoiceData{name=Five results, value=5}, ApplicationCommandOptionChoiceData{name=Ten results, value=10}], options=null}], defaultPermission=Possible{true}}
-    //ApplicationCommandData{name=search, description=Search YouTube and select a video to play using reaction buttons., options=[ApplicationCommandOptionData{type=3, name=query, description=The search term to look up on YouTube., required=Possible{true}, choices=null, options=null}, ApplicationCommandOptionData{type=4, name=count, description=The number of results to show., required=Possible.absent, choices=[ApplicationCommandOptionChoiceData{name=Five results, value=5}, ApplicationCommandOptionChoiceData{name=Ten results, value=10}], options=null}], defaultPermission=Possible{true}}
-
 }

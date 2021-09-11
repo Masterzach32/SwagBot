@@ -1,16 +1,17 @@
 package xyz.swagbot.features.music
 
-import com.sedmelluq.discord.lavaplayer.player.*
-import com.sedmelluq.discord.lavaplayer.player.event.*
-import com.sedmelluq.discord.lavaplayer.tools.*
-import com.sedmelluq.discord.lavaplayer.track.*
-import discord4j.common.util.*
-import discord4j.core.*
-import discord4j.gateway.*
-import xyz.swagbot.*
-import xyz.swagbot.extensions.*
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
+import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
+import discord4j.common.util.Snowflake
+import discord4j.core.GatewayDiscordClient
+import discord4j.gateway.ShardInfo
+import xyz.swagbot.extensions.context
+import xyz.swagbot.logger
 import java.util.*
-import java.util.concurrent.*
+import java.util.concurrent.LinkedBlockingQueue
 
 class TrackScheduler(
     private val client: GatewayDiscordClient,

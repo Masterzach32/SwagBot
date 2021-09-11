@@ -1,8 +1,8 @@
 
 plugins {
-    kotlin("jvm") version "1.5.21"
-    kotlin("plugin.serialization") version "1.5.21"
-    id("com.google.cloud.tools.jib") version "3.1.2"
+    kotlin("jvm") version "1.5.30"
+    kotlin("plugin.serialization") version "1.5.30"
+    id("com.google.cloud.tools.jib") version "3.1.4"
     id("net.researchgate.release") version "2.8.1"
 }
 
@@ -20,19 +20,19 @@ repositories {
 dependencies {
     implementation("com.sedmelluq:lavaplayer:1.3.+")
     implementation("com.sedmelluq:lavaplayer-natives-extra:1.3.+")
-    implementation("ch.qos.logback:logback-classic:1.2.4")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 
     val facet_version = "0.4.0-SNAPSHOT"
     implementation("io.facet:core:$facet_version")
     implementation("io.facet:exposed:$facet_version")
 
-    val ktor_version = "1.6.2"
+    val ktor_version = "1.6.3"
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
 
-    val exposed_version = "0.33.1"
+    val exposed_version = "0.34.1"
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")

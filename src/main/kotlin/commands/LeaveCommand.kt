@@ -1,9 +1,11 @@
 package xyz.swagbot.commands
 
 import io.facet.chatcommands.*
-import io.facet.common.*
-import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
+import io.facet.common.await
+import io.facet.common.reply
+import xyz.swagbot.extensions.isMusicFeatureEnabled
+import xyz.swagbot.extensions.setLastConnectedChannel
+import xyz.swagbot.features.music.notPremiumTemplate
 
 object LeaveCommand : ChatCommand(
     name = "Leave Voice",

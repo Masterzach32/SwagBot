@@ -1,6 +1,6 @@
 package xyz.swagbot.extensions
 
-import com.sedmelluq.discord.lavaplayer.track.*
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo
 
 @Deprecated("")
 val AudioTrackInfo.hasThumbnail: Boolean

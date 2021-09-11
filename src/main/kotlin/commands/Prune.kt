@@ -1,18 +1,27 @@
 package xyz.swagbot.commands
 
-import discord4j.common.util.*
-import discord4j.core.`object`.entity.*
-import io.facet.commands.*
-import io.facet.common.*
-import kotlinx.coroutines.flow.*
+import discord4j.common.util.Snowflake
+import discord4j.core.`object`.entity.Guild
+import discord4j.core.`object`.entity.User
+import io.facet.commands.GlobalGuildApplicationCommand
+import io.facet.commands.GuildSlashCommandContext
+import io.facet.commands.PermissibleApplicationCommand
+import io.facet.commands.applicationCommandRequest
+import io.facet.common.await
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.map
 
 object Prune : GlobalGuildApplicationCommand, PermissibleApplicationCommand {
 
-    override val request = applicationCommandRequest("prune", "Delete the last X number of messages in this text channel") {
-        int("count", "Number of messages to delete", true)
-    }
+    override val request =
+        applicationCommandRequest("prune", "Delete the last X number of messages in this text channel") {
+            int("count", "Number of messages to delete", true)
+        }
 
-    override suspend fun hasPermission(user: User, guild: Guild?): Boolean = user.id == user.client.applicationInfo.await().ownerId
+    override suspend fun hasPermission(user: User, guild: Guild?): Boolean =
+        user.id == user.client.applicationInfo.await().ownerId
 
     override suspend fun GuildSlashCommandContext.execute() {
         val count: Long by options

@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    name: Build for JVM ${{ matrix.java }}
+    name: Build and Publish Bot
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name != 'Masterzach32/SwagBot' }}
     strategy:
@@ -42,29 +42,10 @@ jobs:
           distribution: 'adopt'
           java-version: ${{ matrix.java }}
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon
-  release:
-    name: Publish Image to Docker Hub
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-    needs: build
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: 16
+        run: ./gradlew build
       - name: Build and Publish Image
-        run: ./gradlew jib --no-daemon
+        if: github.event_name != 'pull_request'
+        run: ./gradlew jib && ./gradlew --stop
         env:
           ORG_GRADLE_PROJECT_dockerUsername: ${{ secrets.docker_username }}
           ORG_GRADLE_PROJECT_dockerPassword: ${{ secrets.docker_pass }}

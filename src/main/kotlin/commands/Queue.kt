@@ -1,19 +1,25 @@
 package xyz.swagbot.commands
 
-import com.mojang.brigadier.arguments.*
-import com.sedmelluq.discord.lavaplayer.track.*
-import discord4j.core.`object`.entity.*
-import discord4j.core.`object`.reaction.*
-import discord4j.core.event.domain.message.*
+import com.mojang.brigadier.arguments.StringArgumentType
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import discord4j.core.`object`.entity.Member
+import discord4j.core.`object`.reaction.ReactionEmoji
+import discord4j.core.event.domain.message.ReactionAddEvent
 import io.facet.chatcommands.*
-import io.facet.common.*
-import io.facet.common.dsl.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
-import kotlinx.coroutines.flow.*
+import io.facet.common.await
+import io.facet.common.awaitNullable
+import io.facet.common.dsl.and
+import io.facet.common.flowOf
+import io.facet.common.reply
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
-import xyz.swagbot.util.*
+import xyz.swagbot.features.music.getFormattedTime
+import xyz.swagbot.util.baseTemplate
 
 object Queue : ChatCommand(
     name = "View Queue",

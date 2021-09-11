@@ -1,13 +1,15 @@
 package xyz.swagbot.commands
 
-import com.sedmelluq.discord.lavaplayer.track.*
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import io.facet.chatcommands.*
-import io.facet.common.*
-import io.facet.common.dsl.*
-import io.facet.core.*
+import io.facet.common.awaitNullable
+import io.facet.common.dsl.and
+import io.facet.common.reply
+import io.facet.core.feature
 import xyz.swagbot.extensions.*
-import xyz.swagbot.features.music.*
-import xyz.swagbot.util.*
+import xyz.swagbot.features.music.Music
+import xyz.swagbot.features.music.notPremiumTemplate
+import xyz.swagbot.util.baseTemplate
 
 object NowPlayingCommand : ChatCommand(
     name = "Now Playing",
