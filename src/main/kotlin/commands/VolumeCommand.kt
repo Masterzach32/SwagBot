@@ -4,10 +4,9 @@ import io.facet.commands.GlobalGuildApplicationCommand
 import io.facet.commands.GuildSlashCommandContext
 import io.facet.commands.applicationCommandRequest
 import io.facet.common.await
-import io.facet.core.feature
 import xyz.swagbot.extensions.getVolume
 import xyz.swagbot.extensions.isPremium
-import xyz.swagbot.features.music.Music
+import xyz.swagbot.extensions.setVolume
 
 object VolumeCommand : GlobalGuildApplicationCommand {
 
@@ -39,8 +38,9 @@ object VolumeCommand : GlobalGuildApplicationCommand {
     }
 
     private suspend fun GuildSlashCommandContext.updateVolume() {
+        val guild = getGuild()
         val level: Int by options
-        if (!getGuild().isPremium())
+        if (!guild.isPremium())
             return event.reply("Music is a premium feature of SwagBot")
                 .withEphemeral(true)
                 .await()
@@ -50,7 +50,7 @@ object VolumeCommand : GlobalGuildApplicationCommand {
                 .withEphemeral(true)
                 .await()
 
-        client.feature(Music).updateVolumeFor(guildId, level)
+        guild.setVolume(level)
 
         event.reply("Volume changed to **$level**").await()
     }

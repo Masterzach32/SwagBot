@@ -30,6 +30,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.*
 import xyz.swagbot.extensions.context
+import xyz.swagbot.extensions.joinWithAutoDisconnect
 import xyz.swagbot.features.guilds.GuildStorage
 import xyz.swagbot.features.music.tables.MusicQueue
 import xyz.swagbot.features.music.tables.MusicSettings
@@ -78,7 +79,7 @@ class Music private constructor(config: Config) {
             launch {
                 settingsRow[MusicSettings.lastConnectedChannel]?.let { channelId ->
                     client.getChannelById(channelId).awaitNullable() as? VoiceChannel
-                }?.join()
+                }?.joinWithAutoDisconnect()
             }
 
             scheduler.shouldLoop = settingsRow[MusicSettings.loop]
@@ -107,12 +108,12 @@ class Music private constructor(config: Config) {
     fun getVolumeFor(guildId: Snowflake): Int = trackSchedulerFor(guildId).player.volume
 
     suspend fun updateVolumeFor(guildId: Snowflake, volume: Int) {
+        trackSchedulerFor(guildId).player.volume = volume
         sql {
             MusicSettings.update(MusicSettings.whereGuildIs(guildId)) {
                 it[MusicSettings.volume] = volume
             }
         }
-        trackSchedulerFor(guildId).player.volume = volume
     }
 
     suspend fun lastConnectedChannelFor(guildId: Snowflake): Snowflake? = sql {
