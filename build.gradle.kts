@@ -1,7 +1,7 @@
 
 plugins {
-    kotlin("jvm") version "1.5.30"
-    kotlin("plugin.serialization") version "1.5.30"
+    kotlin("jvm") version "1.5.31"
+    kotlin("plugin.serialization") version "1.5.31"
     id("com.google.cloud.tools.jib") version "3.1.4"
     id("net.researchgate.release") version "2.8.1"
 }
@@ -15,6 +15,13 @@ repositories {
     maven("https://m2.dv8tion.net/releases")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://repo.spring.io/milestone")
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.name == "kotlin-reflect")
+            useVersion(kotlin.coreLibrariesVersion)
+    }
 }
 
 dependencies {
@@ -33,8 +40,8 @@ dependencies {
     implementation("io.ktor:ktor-client-json-jvm:$ktor_version")
     implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
 
-    val exposed_version = "0.34.1"
-//    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
+    val exposed_version = "0.34.2"
+    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
     implementation("org.postgresql:postgresql:42.2.23")
