@@ -15,25 +15,29 @@ import xyz.swagbot.extensions.trackScheduler
 import xyz.swagbot.features.music.Music
 import java.nio.file.Path
 
-object FF14TTS : GuildApplicationCommand {
+object TTS : GuildApplicationCommand {
 
     override val guildId = Snowflake.of(97342233241464832)
 
-    override val request = applicationCommandRequest("ff14", "Some tts stuff")
+    override val request = applicationCommandRequest("tts", "Some tts stuff") {
+        string("name", "The name of the tts to play.")
+    }
 
     override suspend fun GuildSlashCommandContext.execute() {
+        acknowledge(ephemeral = true)
+
         val guild = getGuild()
 
         if (member.voiceState.awaitNullable()?.channelId?.unwrap() == null)
-            return
+            return interactionResponse.sendFollowupMessage("You must be in a voice channel to use this command").let {}
 
-        acknowledge(ephemeral = true)
-
+        val name: String by options
         val musicFeature = client.feature(Music)
 
-        val path = Path.of(this::class.java.classLoader.getResource("ff14.mp3")!!.toURI())
-        val item = musicFeature.search(path.toString())
+        val resourceLocation = this::class.java.classLoader.getResource("${name.lowercase()}.mp3")
+            ?: return interactionResponse.sendFollowupMessage("Could not find tts: ${name.lowercase()}").let {}
 
+        val item = musicFeature.search(Path.of(resourceLocation.toURI()).toString())
         if (item != null) {
             item.setTrackContext(member, getChannel())
             guild.trackScheduler.queue(item)
