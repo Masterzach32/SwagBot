@@ -1,6 +1,7 @@
 package xyz.swagbot.commands
 
 import discord4j.common.util.Snowflake
+import discord4j.rest.util.ApplicationCommandOptionType
 import io.facet.commands.GuildApplicationCommand
 import io.facet.commands.GuildSlashCommandContext
 import io.facet.commands.acknowledge
@@ -20,7 +21,9 @@ object TTS : GuildApplicationCommand {
     override val guildId = Snowflake.of(97342233241464832)
 
     override val request = applicationCommandRequest("tts", "Some tts stuff") {
-        string("name", "The name of the tts to play.", required = true)
+        option("name", "The name of the tts to play.", ApplicationCommandOptionType.STRING, required = true) {
+            choice("ff14", "ff14")
+        }
     }
 
     override suspend fun GuildSlashCommandContext.execute() {
