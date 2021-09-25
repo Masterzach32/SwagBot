@@ -20,7 +20,7 @@ object TTS : GuildApplicationCommand {
     override val guildId = Snowflake.of(97342233241464832)
 
     override val request = applicationCommandRequest("tts", "Some tts stuff") {
-        string("name", "The name of the tts to play.")
+        string("name", "The name of the tts to play.", required = true)
     }
 
     override suspend fun GuildSlashCommandContext.execute() {
