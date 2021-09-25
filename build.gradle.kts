@@ -18,13 +18,14 @@ repositories {
 }
 
 dependencies {
-    implementation("com.sedmelluq:lavaplayer:1.3.+")
-    implementation("com.sedmelluq:lavaplayer-natives-extra:1.3.+")
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
     val facet_version = "0.4.0-SNAPSHOT"
     implementation("io.facet:core:$facet_version")
     implementation("io.facet:exposed:$facet_version")
+
+    implementation("com.sedmelluq:lavaplayer:1.3.78")
+    runtimeOnly("com.sedmelluq:lavaplayer-natives-arm64:1.3.14")
 
     val ktor_version = "1.6.3"
     implementation("io.ktor:ktor-client-core:$ktor_version")
@@ -33,7 +34,7 @@ dependencies {
     implementation("io.ktor:ktor-client-serialization-jvm:$ktor_version")
 
     val exposed_version = "0.34.1"
-    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
+//    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed_version")
     implementation("org.postgresql:postgresql:42.2.23")
@@ -51,7 +52,7 @@ tasks {
 
 jib {
     from {
-        image = "openjdk:16"
+        image = "openjdk:16-bullseye" // oraclelinux8 and buster dont have glibc 2.29
 
         platforms {
             platform {

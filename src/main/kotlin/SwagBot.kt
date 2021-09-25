@@ -125,6 +125,7 @@ suspend fun GatewayDiscordClient.configure(scope: CoroutineScope) {
         registerCommand(
             ChangePermissionCommand,
             DisconnectRouletteCommand,
+            FF14TTS,
             MigrateCommand,
             Ping,
             Play,

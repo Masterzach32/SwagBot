@@ -4,8 +4,10 @@ import io.facet.commands.GlobalGuildApplicationCommand
 import io.facet.commands.GuildSlashCommandContext
 import io.facet.commands.applicationCommandRequest
 import io.facet.common.await
+import io.facet.core.feature
 import xyz.swagbot.extensions.getVolume
 import xyz.swagbot.extensions.isPremium
+import xyz.swagbot.features.music.Music
 
 object VolumeCommand : GlobalGuildApplicationCommand {
 
@@ -37,17 +39,19 @@ object VolumeCommand : GlobalGuildApplicationCommand {
     }
 
     private suspend fun GuildSlashCommandContext.updateVolume() {
-        return event.reply("Changing volume is not supported on the arm64v8 architecture.").await()
-//
-//        val level: Int by options
-//        if (!getGuild().isPremium())
-//            return event.replyEphemeral("Music is a premium feature of SwagBot").await()
-//
-//        if (level !in 0..100)
-//            return event.replyEphemeral("`level` must be between 0 and 100.").await()
-//
-//        client.feature(Music).updateVolumeFor(guildId, level)
-//
-//        event.reply("Volume changed to **$level**").await()
+        val level: Int by options
+        if (!getGuild().isPremium())
+            return event.reply("Music is a premium feature of SwagBot")
+                .withEphemeral(true)
+                .await()
+
+        if (level !in 0..100)
+            return event.reply("`level` must be between 0 and 100.")
+                .withEphemeral(true)
+                .await()
+
+        client.feature(Music).updateVolumeFor(guildId, level)
+
+        event.reply("Volume changed to **$level**").await()
     }
 }
